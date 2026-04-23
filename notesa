@@ -1,0 +1,126 @@
+curl -X POST http://127.0.0.1:8000/api/v1/login \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "nix@example.com",
+    "password": "StrongPass#2026"
+  }'
+
+
+curl http://127.0.0.1:8000/api/v1/finance/accounts \
+  -H "Accept: application/json" \
+  -H "Authorization: Bearer 8|xdjqGTdscKBw1Q2ZoA1ry5dvl5WzysZ8N0pJlmoDe4bb656d"
+
+
+
+
+curl -X POST http://127.0.0.1:8000/api/v1/finance/budgets \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer 8|xdjqGTdscKBw1Q2ZoA1ry5dvl5WzysZ8N0pJlmoDe4bb656d" \
+  -d '{
+    "budget_name": "April 2026 Personal Budget",
+    "budget_month": "2026-04-01",
+    "currency_code": "USD",
+    "is_active": true,
+    "notes": "Main monthly budget",
+    "lines": [
+      {
+        "category_id": "1d8b2b50-72f2-4c07-b1f3-c5aa8f7cb111",
+        "planned_amount": 300,
+        "warning_percentage": 80,
+        "exceeded_percentage": 100,
+        "line_notes": "Groceries budget"
+      },
+      {
+        "category_id": "af1fd5d2-6b70-4910-b8f8-3c70d4a2e222",
+        "planned_amount": 100,
+        "warning_percentage": 85,
+        "exceeded_percentage": 100,
+        "line_notes": "Transport budget"
+      },
+      {
+        "account_id": "8f271ef1-85a8-4040-a15c-fb93d8c93333",
+        "planned_amount": 500,
+        "warning_percentage": 90,
+        "exceeded_percentage": 100,
+        "line_notes": "Card spending limit"
+      }
+    ]
+  }'
+
+curl -X POST http://127.0.0.1:8000/api/v1/finance/accounts \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer 8|xdjqGTdscKBw1Q2ZoA1ry5dvl5WzysZ8N0pJlmoDe4bb656d" \
+  -d '{
+    "account_name": "Main Wallet",
+    "account_type": "main",
+    "currency_code": "USD",
+    "opening_balance": 1000,
+    "description": "Daily spending account",
+    "is_active": true
+  }'
+
+
+
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+
+User::updateOrCreate(
+    ['email' => 'nix1@example.com'],
+    [
+        'full_name' => 'Nix',
+        'password_hash' => Hash::make('StrongPass#2026'),
+        'is_active' => true,
+    ]
+);
+
+sudo curl -X POST http://127.0.0.1:8000/api/v1/finance/accounts \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eFYebwgjFHudWW6dlWfT118ed68nwsT5BHKVublO61232b14" \
+  -d '{
+    "account_name": "Main Wallet",
+    "account_type": "main",
+    "currency_code": "USD",
+    "opening_balance": 1000,
+    "description": "Daily spending account",
+    "is_active": true
+  }'
+
+curl -X POST http://127.0.0.1:8000/api/v1/finance/accounts \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -d '{
+    "account_name": "Main Wallet",
+    "account_type": "main",
+    "currency_code": "USD",
+    "opening_balance": 1000,
+    "description": "Daily spending account",
+    "is_active": true
+  }'
+
+
+curl -X POST http://127.0.0.1:8000/api/v1/login \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "your_email@example.com",
+    "password": "your_password"
+  }'
+
+
+curl -X POST http://127.0.0.1:8000/api/v1/finance/accounts \
+  -H "Accept: application/json" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer eFYebwgjFHudWW6dlWfT118ed68nwsT5BHKVublO61232b14" \
+  -d '{
+    "account_name": "Main Wallet",
+    "account_type": "main",
+    "currency_code": "USD",
+    "opening_balance": 1000,
+    "description": "Daily spending account",
+    "is_active": true
+  }'
