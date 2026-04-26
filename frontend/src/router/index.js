@@ -1,84 +1,97 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-import AppLayout from "@/layouts/AppLayout.vue";
+import FinanceDashboardView from "../views/finance/FinanceDashboardView.vue";
+import FinanceAccountsView from "../views/finance/FinanceAccountsView.vue";
+import FinanceTransactionsView from "../views/finance/FinanceTransactionsView.vue";
+import FinanceBudgetsView from "../views/finance/FinanceBudgetsView.vue";
 
-import NutritionDashboardView from "@/views/health/nutrition/NutritionDashboardView.vue";
-import FoodItemsView from "@/views/health/nutrition/FoodItemsView.vue";
-import MealLoggerView from "@/views/health/nutrition/MealLoggerView.vue";
-import HealthStepsView from "@/views/health/HealthStepsView.vue";
-import FinanceDashboardView from "@/views/finance/FinanceDashboardView.vue";
-import FinanceTransactionsView from "@/views/finance/FinanceTransactionsView.vue";
-import FinanceBudgetsView from "@/views/finance/FinanceBudgetsView.vue";
-import FinanceAccountsView from "@/views/finance/FinanceAccountsView.vue";
-import HealthWeightView from "@/views/health/HealthWeightView.vue";
-import HealthHydrationView from "@/views/HealthHydrationView.vue";
+import HealthStepsView from "../views/health/HealthStepsView.vue";
+import HealthWeightView from "../views/health/HealthWeightView.vue";
+import HealthNutritionView from "../views/health/HealthNutritionView.vue";
+import HealthHydrationView from "../views/HealthHydrationView.vue";
+
+import ProjectsDashboardView from "../views/ProjectsDashboardView.vue";
+import ProjectTasksView from "../views/ProjectTasksView.vue";
+import ProjectMilestonesView from "../views/ProjectMilestonesView.vue";
+import ProjectProgressView from "../views/ProjectProgressView.vue";
+import ProjectStatusUpdatesView from "../views/ProjectStatusUpdatesView.vue";
+
 const routes = [
   {
     path: "/",
-    component: AppLayout,
-    children: [
-      {
-        path: "",
-        redirect: "/finance",
-      },
-      {
-        path: "finance",
-        name: "finance.dashboard",
-        component: FinanceDashboardView,
-      },
-      {
-        path: "finance/transactions",
-        name: "finance.transactions",
-        component: FinanceTransactionsView,
-      },
-      {
-        path: "finance/accounts",
-        name: "finance.accounts",
-        component: FinanceAccountsView,
-      },
-      {
-        path: "finance/budgets",
-        name: "finance.budgets",
-        component: FinanceBudgetsView,
-      },
-    ],
+    redirect: "/finance",
+  },
+
+  // Finance
+  {
+    path: "/finance",
+    name: "finance-dashboard",
+    component: FinanceDashboardView,
   },
   {
-    path: "/health",
-    component: AppLayout,
-    children: [
-      {
-        path: "/health/steps",
-        name: "HealthSteps",
-        component: HealthStepsView,
-      },
-      {
-        path: "/health/weight",
-        name: "health-weight",
-        component: HealthWeightView,
-      },
-      {
-        path: "/health/nutrition",
-        name: "health-nutrition",
-        component: NutritionDashboardView,
-      },
-      {
-        path: "/health/nutrition/foods",
-        name: "health-nutrition-foods",
-        component: FoodItemsView,
-      },
-      {
-        path: "/health/nutrition/meals",
-        name: "health-nutrition-meals",
-        component: MealLoggerView,
-      },
-      {
-        path: "/health/hydration",
-        name: "health-hydration",
-        component: HealthHydrationView,
-      },
-    ],
-  },  
+    path: "/finance/accounts",
+    name: "finance-accounts",
+    component: FinanceAccountsView,
+  },
+  {
+    path: "/finance/transactions",
+    name: "finance-transactions",
+    component: FinanceTransactionsView,
+  },
+  {
+    path: "/finance/budgets",
+    name: "finance-budgets",
+    component: FinanceBudgetsView,
+  },
+
+  // Health
+  {
+    path: "/health/steps",
+    name: "health-steps",
+    component: HealthStepsView,
+  },
+  {
+    path: "/health/weight",
+    name: "health-weight",
+    component: HealthWeightView,
+  },
+  {
+    path: "/health/nutrition",
+    name: "health-nutrition",
+    component: HealthNutritionView,
+  },
+  {
+    path: "/health/hydration",
+    name: "health-hydration",
+    component: HealthHydrationView,
+  },
+
+  // Projects
+  {
+    path: "/projects",
+    name: "projects-dashboard",
+    component: ProjectsDashboardView,
+  },
+  {
+    path: "/projects/tasks",
+    name: "project-tasks",
+    component: ProjectTasksView,
+  },
+  {
+    path: "/projects/milestones",
+    name: "project-milestones",
+    component: ProjectMilestonesView,
+  },
+  {
+    path: "/projects/progress",
+    name: "project-progress",
+    component: ProjectProgressView,
+  },
+  {
+    path: "/projects/status-updates",
+    name: "project-status-updates",
+    component: ProjectStatusUpdatesView,
+  },
 ];
 
 const router = createRouter({
