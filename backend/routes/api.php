@@ -20,6 +20,8 @@ use App\Http\Controllers\Api\V1\Health\HealthNutritionProfileController;
 use App\Http\Controllers\Api\V1\Health\HealthFoodItemController;
 use App\Http\Controllers\Api\V1\Health\HealthMealLogController;
 use App\Http\Controllers\Api\V1\Health\HealthNutritionSummaryController;
+use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\ProjectTaskController;
 
 Route::prefix('v1')->group(function () {
 
@@ -66,7 +68,13 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('finance/accounts', FinanceAccountController::class);
         Route::apiResource('finance/categories', FinanceCategoryController::class);
         Route::apiResource('finance/transactions', FinanceTransactionController::class);
-
+        /*
+        |--------------------------------------------------------------------------
+        | STEP 13 — Project Management Module
+        |--------------------------------------------------------------------------
+        */        
+        Route::apiResource('projects', ProjectController::class);
+        Route::apiResource('project-tasks', ProjectTaskController::class);
         /*
         |--------------------------------------------------------------------------
         | STEP 6 — Financial Intelligence Engine

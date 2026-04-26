@@ -6,35 +6,36 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Project extends Model
+class ProjectTask extends Model
 {
     use HasFactory, HasUuids;
 
     protected $fillable = [
+        'project_id',
         'user_id',
-        'project_name',
-        'project_code',
-        'description',
+        'task_title',
+        'task_description',
         'status',
         'priority',
+        'task_order',
         'start_date',
-        'target_end_date',
-        'actual_end_date',
+        'due_date',
+        'completed_date',
         'progress_percentage',
         'metadata',
     ];
 
     protected $casts = [
         'start_date' => 'date',
-        'target_end_date' => 'date',
-        'actual_end_date' => 'date',
+        'due_date' => 'date',
+        'completed_date' => 'date',
         'progress_percentage' => 'decimal:2',
         'metadata' => 'array',
     ];
 
-    public function tasks()
+    public function project()
     {
-        return $this->hasMany(ProjectTask::class);
+        return $this->belongsTo(Project::class);
     }
 
     public function user()
