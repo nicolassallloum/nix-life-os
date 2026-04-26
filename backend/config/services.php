@@ -21,6 +21,9 @@ return [
     'resend' => [
         'key' => env('RESEND_API_KEY'),
     ],
+    'health_analytics' => [
+        'url' => env('HEALTH_ANALYTICS_URL', 'http://127.0.0.1:9000'),
+    ],
 
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),

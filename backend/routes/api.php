@@ -12,7 +12,7 @@ use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
 use App\Http\Controllers\Api\V1\Finance\FinanceBudgetSummaryController;
 use App\Http\Controllers\Api\V1\Finance\FinanceForecastController;
 use App\Http\Controllers\Api\V1\Finance\FinanceIntelligenceSettingController;
-
+use App\Http\Controllers\Api\V1\Health\HealthAnalyticsController;
 use App\Http\Controllers\Api\V1\HealthWeightLogController;
 use App\Http\Controllers\Api\V1\Health\HealthProfileController;
 use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
@@ -44,7 +44,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/daily-summary', [HealthHydrationLogController::class, 'dailySummary']);
             Route::get('/weekly-summary', [HealthHydrationLogController::class, 'weeklySummary']);
             Route::post('/quick-add', [HealthHydrationLogController::class, 'quickAdd']);
-
+            
             Route::get('/{id}', [HealthHydrationLogController::class, 'show']);
             Route::put('/{id}', [HealthHydrationLogController::class, 'update']);
             Route::delete('/{id}', [HealthHydrationLogController::class, 'destroy']);
@@ -99,7 +99,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('health')->group(function () {
             Route::get('/profile', [HealthProfileController::class, 'show']);
             Route::put('/profile', [HealthProfileController::class, 'update']);
-
+            
             Route::get('/steps', [HealthStepLogController::class, 'index']);
             Route::post('/steps', [HealthStepLogController::class, 'store']);
             Route::get('/steps/summary', [HealthStepLogController::class, 'summary']);
@@ -114,7 +114,7 @@ Route::prefix('v1')->group(function () {
         */
         Route::get('/health/weight/summary', [HealthWeightLogController::class, 'summary']);
         Route::apiResource('/health/weight', HealthWeightLogController::class);
-
+        Route::post('/health/analytics/daily', [HealthAnalyticsController::class, 'daily']);
         /*
         |--------------------------------------------------------------------------
         | STEP 10 — Health Nutrition Tracking Module

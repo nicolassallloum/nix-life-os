@@ -57,9 +57,9 @@ nbconvert==7.17.1
 nbformat==5.10.4
 nest-asyncio==1.6.0
 notebook_shim==0.2.4
-numpy==2.4.4
+# numpy==2.4.4
 packaging==26.0
-pandas==3.0.2
+# pandas==3.0.2
 pandocfilters==1.5.1
 parso==0.8.6
 pexpect==4.9.0
@@ -75,7 +75,7 @@ pycparser==3.0
 Pygments==2.20.0
 pyparsing==3.3.2
 python-dateutil==2.9.0.post0
-python-dotenv==1.2.2
+# python-dotenv==1.2.2
 python-json-logger==4.1.0
 PyYAML==6.0.3
 pyzmq==27.1.0
@@ -85,7 +85,7 @@ rfc3339-validator==0.1.4
 rfc3986-validator==0.1.1
 rfc3987-syntax==1.1.0
 rpds-py==0.30.0
-scikit-learn==1.8.0
+# scikit-learn==1.8.0
 scipy==1.17.1
 seaborn==0.13.2
 Send2Trash==2.1.0
@@ -108,3 +108,10 @@ webcolors==25.10.0
 webencodings==0.5.1
 websocket-client==1.9.0
 wheel==0.46.3
+fastapi==0.115.6
+uvicorn==0.34.0
+pydantic==2.10.4
+python-dotenv==1.0.1
+numpy==2.2.1
+pandas==2.2.3
+scikit-learn==1.6.0
