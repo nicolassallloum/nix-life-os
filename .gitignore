@@ -1,31 +1,28 @@
-# Laravel / PHP
-/vendor
+# Python virtual environments
+analytics/.venv/
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Laravel
+backend/vendor/
+vendor/
 .env
 .env.*
 !.env.example
-
-/storage/*.key
-/storage/logs/*
-/bootstrap/cache/*
+backend/storage/logs/*
+backend/bootstrap/cache/*
 
 # Node / Vue
-/node_modules
-/frontend/node_modules
-/public/build
-/frontend/dist
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
 
-# IDE / OS
-.vscode/*
-!.vscode/extensions.json
+# OS / IDE
 .DS_Store
 Thumbs.db
-
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Database / temporary files
-*.sqlite
-*.db
+.vscode/*
+!.vscode/extensions.json
