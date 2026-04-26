@@ -1,32 +1,31 @@
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-
-# Logs
-*.log
-
-# Env
+# Laravel / PHP
+/vendor
 .env
 .env.*
 !.env.example
 
-# Node
-frontend/node_modules/
-frontend/dist/
+/storage/*.key
+/storage/logs/*
+/bootstrap/cache/*
 
-# Python
-analytics/.venv/
-analytics/__pycache__/
-analytics/.pytest_cache/
-analytics/.ipynb_checkpoints/
+# Node / Vue
+/node_modules
+/frontend/node_modules
+/public/build
+/frontend/dist
 
-# Laravel
-backend/vendor/
-backend/node_modules/
-backend/storage/*.key
-backend/bootstrap/cache/*.php
-backend/public/build/
+# IDE / OS
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database / temporary files
+*.sqlite
+*.db
