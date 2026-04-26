@@ -22,6 +22,9 @@ use App\Http\Controllers\Api\V1\Health\HealthMealLogController;
 use App\Http\Controllers\Api\V1\Health\HealthNutritionSummaryController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ProjectTaskController;
+use App\Http\Controllers\Api\V1\ProjectProgressController;
+use App\Http\Controllers\Api\V1\ProjectMilestoneController;
+use App\Http\Controllers\Api\V1\ProjectStatusUpdateController;
 
 Route::prefix('v1')->group(function () {
 
@@ -59,7 +62,29 @@ Route::prefix('v1')->group(function () {
         Route::get('/auth/me', [AuthController::class, 'me']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::post('/auth/logout-all', [AuthController::class, 'logoutAll']);
+            /*
+    |--------------------------------------------------------------------------
+    | STEP 14 — Project Progress Engine
+    |--------------------------------------------------------------------------
+    */
 
+        Route::get('/projects/{project}/progress', [ProjectProgressController::class, 'show']);
+
+        Route::post('/projects/{project}/recalculate-progress', [ProjectProgressController::class, 'recalculate']);
+
+        Route::patch('/projects/tasks/{task}/progress', [ProjectProgressController::class, 'updateTaskProgress']);
+
+        Route::get('/projects/{project}/milestones', [ProjectMilestoneController::class, 'index']);
+
+        Route::post('/projects/{project}/milestones', [ProjectMilestoneController::class, 'store']);
+
+        Route::patch('/projects/milestones/{milestone}', [ProjectMilestoneController::class, 'update']);
+
+        Route::delete('/projects/milestones/{milestone}', [ProjectMilestoneController::class, 'destroy']);
+
+        Route::get('/projects/{project}/status-updates', [ProjectStatusUpdateController::class, 'index']);
+
+        Route::post('/projects/{project}/status-updates', [ProjectStatusUpdateController::class, 'store']);
         /*
         |--------------------------------------------------------------------------
         | STEP 5 — Finance Core

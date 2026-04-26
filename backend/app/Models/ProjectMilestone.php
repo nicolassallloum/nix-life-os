@@ -5,28 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
-class ProjectTask extends Model
+class ProjectMilestone extends Model
 {
     use HasUuids;
 
     protected $fillable = [
         'project_id',
-        'task_name',
+        'milestone_name',
         'description',
+        'target_date',
+        'completed_date',
         'status',
-        'priority',
-        'start_date',
-        'target_end_date',
-        'completed_at',
         'progress_percentage',
         'weight',
         'metadata',
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'target_end_date' => 'date',
-        'completed_at' => 'datetime',
+        'target_date' => 'date',
+        'completed_date' => 'date',
         'progress_percentage' => 'integer',
         'weight' => 'decimal:2',
         'metadata' => 'array',

@@ -41,4 +41,15 @@ class Project extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+
+    public function milestones()
+    {
+        return $this->hasMany(ProjectMilestone::class);
+    }
+
+    public function statusUpdates()
+    {
+        return $this->hasMany(ProjectStatusUpdate::class);
+    }
 }
