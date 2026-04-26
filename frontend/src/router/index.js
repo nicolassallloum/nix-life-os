@@ -9,8 +9,8 @@ import HealthStepsView from "../views/health/HealthStepsView.vue";
 import HealthWeightView from "../views/health/HealthWeightView.vue";
 import HealthNutritionView from "../views/health/HealthNutritionView.vue";
 import HealthHydrationView from "../views/HealthHydrationView.vue";
+import ProjectDashboardView from "../views/projects/ProjectDashboardView.vue";
 
-import ProjectsDashboardView from "../views/ProjectsDashboardView.vue";
 import ProjectTasksView from "../views/ProjectTasksView.vue";
 import ProjectMilestonesView from "../views/ProjectMilestonesView.vue";
 import ProjectProgressView from "../views/ProjectProgressView.vue";
@@ -43,7 +43,12 @@ const routes = [
     name: "finance-budgets",
     component: FinanceBudgetsView,
   },
-
+  // Projects
+  {
+    path: "/projects",
+    name: "projects.dashboard",
+    component: ProjectDashboardView,
+  },
   // Health
   {
     path: "/health/steps",
@@ -68,9 +73,9 @@ const routes = [
 
   // Projects
   {
-    path: "/projects",
-    name: "projects-dashboard",
-    component: ProjectsDashboardView,
+  path: "/projects",
+  name: "projects.dashboard",
+  component: ProjectDashboardView,
   },
   {
     path: "/projects/tasks",
