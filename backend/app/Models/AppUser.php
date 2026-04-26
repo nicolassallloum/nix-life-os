@@ -2,46 +2,39 @@
 
 namespace App\Models;
 
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Notifications\Notifiable;
 
 class AppUser extends Authenticatable
 {
     use HasApiTokens, HasUuids, Notifiable;
 
-    protected $table = 'nix_life_os.app_user';
-    protected $primaryKey = 'user_id';
+    protected $table = 'users';
+
+    protected $primaryKey = 'id';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [
-        'user_id',
-        'full_name',
+        'id',
+        'name',
         'email',
+        'password',
         'password_hash',
-        'is_active',
     ];
 
     protected $hidden = [
+        'password',
         'password_hash',
+        'remember_token',
     ];
 
-    public function getAuthIdentifierName(): string
-    {
-        return 'user_id';
-    }
-
-    public function getAuthPassword(): string
-    {
-        return $this->password_hash;
-    }
-
-    protected function casts(): array
-    {
-        return [
-            'is_active' => 'boolean',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 }

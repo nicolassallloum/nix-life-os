@@ -3,111 +3,92 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RegisterRequest;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    public function register(RegisterRequest $request): JsonResponse
+    public function register(Request $request)
     {
-        $user = User::create([
-            'full_name' => $request->string('name')->toString(),
-            'email' => strtolower($request->string('email')->toString()),
-            'password_hash' => Hash::make($request->string('password')->toString()),
-            'is_active' => true,
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
-        $token = $user->createToken(
-            $request->userAgent() ?: 'api-client',
-            ['*']
-        )->plainTextToken;
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => $validated['password'], // This will be hashed automatically by the model's cast
+            'password_hash' => Hash::make($validated['password']),
+        ]);
+
+        $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
+            'success' => true,
             'message' => 'User registered successfully.',
-            'token_type' => 'Bearer',
-            'access_token' => $token,
-            'user' => [
-                'user_id' => $user->user_id,
-                'full_name' => $user->full_name,
-                'email' => $user->email,
-                'is_active' => $user->is_active,
+            'data' => [
+                'user' => $user,
+                'token' => $token,
             ],
         ], 201);
     }
 
-    /**
-     * @throws ValidationException
-     */
-    public function login(Request $request): JsonResponse
+    public function login(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
 
-        $user = User::where('email', strtolower($request->email))
-            ->where('is_active', true)
-            ->first();
+        $user = User::where('email', $validated['email'])->first();
 
-        if (! $user || ! Hash::check($request->password, $user->password_hash)) {
-            return response()->json([
-                'message' => 'The provided credentials are incorrect.',
-                'errors' => [
-                    'email' => ['The provided credentials are incorrect.'],
-                ],
-            ], 422);
+        if (!$user || !Hash::check($validated['password'], $user->password_hash)) {
+            throw ValidationException::withMessages([
+                'email' => ['Invalid login credentials.'],
+            ]);
         }
 
         $token = $user->createToken('api-token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Login successful',
-            'token' => $token,
-            'user' => [
-                'user_id' => $user->user_id,
-                'full_name' => $user->full_name,
-                'email' => $user->email,
+            'success' => true,
+            'message' => 'Login successful.',
+            'data' => [
+                'user' => $user,
+                'token' => $token,
             ],
         ]);
     }
 
-    public function me(Request $request): JsonResponse
+    public function me(Request $request)
     {
         return response()->json([
-            'user' => $request->user(),
+            'success' => true,
+            'message' => 'Authenticated user loaded successfully.',
+            'data' => $request->user(),
         ]);
     }
 
-    public function logout(Request $request): JsonResponse
+    public function logout(Request $request)
     {
-        /** @var User $user */
-        $user = $request->user();
-
-        $currentToken = $user?->currentAccessToken();
-
-        if ($currentToken) {
-            $currentToken->delete();
-        }
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
+            'success' => true,
             'message' => 'Logged out successfully.',
         ]);
     }
 
-    public function logoutAll(Request $request): JsonResponse
+    public function logoutAll(Request $request)
     {
-        /** @var User $user */
-        $user = $request->user();
-
-        if ($user) {
-            $user->tokens()->delete();
-        }
+        $request->user()->tokens()->delete();
 
         return response()->json([
+            'success' => true,
             'message' => 'Logged out from all devices successfully.',
         ]);
     }
