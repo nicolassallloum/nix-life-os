@@ -11,6 +11,7 @@ import FinanceTransactionsView from "@/views/finance/FinanceTransactionsView.vue
 import FinanceBudgetsView from "@/views/finance/FinanceBudgetsView.vue";
 import FinanceAccountsView from "@/views/finance/FinanceAccountsView.vue";
 import HealthWeightView from "@/views/health/HealthWeightView.vue";
+import HealthHydrationView from "@/views/HealthHydrationView.vue";
 const routes = [
   {
     path: "/",
@@ -70,6 +71,11 @@ const routes = [
         path: "/health/nutrition/meals",
         name: "health-nutrition-meals",
         component: MealLoggerView,
+      },
+      {
+        path: "/health/hydration",
+        name: "health-hydration",
+        component: HealthHydrationView,
       },
     ],
   },  

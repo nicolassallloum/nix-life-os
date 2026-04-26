@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceCategoryController;
 use App\Http\Controllers\Api\FinanceTransactionController;
-
+use App\Http\Controllers\Api\V1\HealthHydrationLogController;
 use App\Http\Controllers\Api\V1\Finance\FinanceAnomalyController;
 use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
 use App\Http\Controllers\Api\V1\Finance\FinanceBudgetSummaryController;
@@ -30,14 +30,25 @@ Route::prefix('v1')->group(function () {
     */
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/login', [AuthController::class, 'login']);
-
+    
     /*
     |--------------------------------------------------------------------------
     | Protected Routes
     |--------------------------------------------------------------------------
     */
     Route::middleware('auth:sanctum')->group(function () {
+        Route::prefix('health/hydration')->group(function () {
+            Route::get('/', [HealthHydrationLogController::class, 'index']);
+            Route::post('/', [HealthHydrationLogController::class, 'store']);
 
+            Route::get('/daily-summary', [HealthHydrationLogController::class, 'dailySummary']);
+            Route::get('/weekly-summary', [HealthHydrationLogController::class, 'weeklySummary']);
+            Route::post('/quick-add', [HealthHydrationLogController::class, 'quickAdd']);
+
+            Route::get('/{id}', [HealthHydrationLogController::class, 'show']);
+            Route::put('/{id}', [HealthHydrationLogController::class, 'update']);
+            Route::delete('/{id}', [HealthHydrationLogController::class, 'destroy']);
+        });
         /*
         |--------------------------------------------------------------------------
         | Auth

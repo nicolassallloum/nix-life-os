@@ -4,44 +4,69 @@ import { RouterLink, RouterView } from "vue-router";
 
 <template>
   <div class="min-h-screen bg-gray-50">
-    <aside class="fixed left-0 top-0 h-full w-72 bg-white border-r border-gray-200 p-6">
-      <h1 class="text-2xl font-bold text-gray-900 mb-8">
-        NIX LIFE OS
-      </h1>
+    <div class="flex">
+      <!-- Sidebar -->
+      <aside class="min-h-screen w-72 bg-white p-6 shadow">
+        <h1 class="mb-8 text-2xl font-bold text-gray-900">
+          NIX LIFE OS
+        </h1>
 
-      <nav class="space-y-2">
-        <RouterLink
-          to="/health/weight"
-          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
-        >
-          Weight Tracking
-        </RouterLink>
+        <nav class="space-y-2">
+          <RouterLink
+            to="/finance/accounts"
+            class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+          >
+            Finance Accounts
+          </RouterLink>
 
-        <RouterLink
-          to="/health/nutrition"
-          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
-        >
-          Nutrition Dashboard
-        </RouterLink>
+          <RouterLink
+            to="/finance/transactions"
+            class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+          >
+            Finance Transactions
+          </RouterLink>
 
-        <RouterLink
-          to="/health/nutrition/meals"
-          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
-        >
-          Meal Logger
-        </RouterLink>
+          <RouterLink
+            to="/finance/budgets"
+            class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+          >
+            Finance Budgets
+          </RouterLink>
 
-        <RouterLink
-          to="/health/nutrition/foods"
-          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
-        >
-          Food Items
-        </RouterLink>
-      </nav>
-    </aside>
+          <RouterLink
+            to="/health/steps"
+            class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+          >
+            Steps Tracking
+          </RouterLink>
 
-    <main class="ml-72 p-8">
-      <RouterView />
-    </main>
+          <RouterLink
+            to="/health/weight"
+            class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+          >
+            Weight Tracking
+          </RouterLink>
+
+          <RouterLink
+            to="/health/nutrition"
+            class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+          >
+            Nutrition Tracking
+          </RouterLink>
+
+          <RouterLink
+            to="/health/hydration"
+            class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+          >
+            Hydration Tracking
+          </RouterLink>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="flex-1">
+        <RouterView />
+      </main>
+    </div>
   </div>
 </template>
