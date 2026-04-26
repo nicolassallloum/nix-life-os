@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Api\V1\Dashboard\UnifiedDashboardController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceCategoryController;
@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\V1\ProjectProgressController;
 use App\Http\Controllers\Api\V1\ProjectMilestoneController;
 use App\Http\Controllers\Api\V1\ProjectStatusUpdateController;
 
+
 Route::prefix('v1')->group(function () {
 
     /*
@@ -42,6 +43,13 @@ Route::prefix('v1')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware('auth:sanctum')->group(function () {
+        Route::prefix('dashboard')->group(function () {
+            Route::get('/overview', [UnifiedDashboardController::class, 'overview']);
+            Route::get('/finance', [UnifiedDashboardController::class, 'finance']);
+            Route::get('/health', [UnifiedDashboardController::class, 'health']);
+            Route::get('/projects', [UnifiedDashboardController::class, 'projects']);
+            Route::get('/trends', [UnifiedDashboardController::class, 'trends']);
+        });
         Route::prefix('health/hydration')->group(function () {
             Route::get('/', [HealthHydrationLogController::class, 'index']);
             Route::post('/', [HealthHydrationLogController::class, 'store']);
