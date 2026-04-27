@@ -6,13 +6,30 @@ import { RouterLink, RouterView } from "vue-router";
   <div class="min-h-screen bg-gray-50 flex">
     <!-- Main Sidebar -->
     <aside class="w-72 bg-white border-r border-gray-200 min-h-screen p-6">
-      <h1 class="text-3xl font-bold text-gray-900 mb-10">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
         NIX LIFE OS
       </h1>
 
+      <p class="text-sm text-gray-500 mb-8">
+        Personal Operating System
+      </p>
+
       <nav class="space-y-2">
-        <!-- Finance -->
+        <!-- Main -->
         <p class="text-xs font-bold text-gray-400 uppercase mt-4 mb-2">
+          Main
+        </p>
+
+        <RouterLink
+          to="/dashboard"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white"
+        >
+          Unified Dashboard
+        </RouterLink>
+
+        <!-- Finance -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
           Finance
         </p>
 

@@ -4,7 +4,7 @@ import FinanceDashboardView from "../views/finance/FinanceDashboardView.vue";
 import FinanceAccountsView from "../views/finance/FinanceAccountsView.vue";
 import FinanceTransactionsView from "../views/finance/FinanceTransactionsView.vue";
 import FinanceBudgetsView from "../views/finance/FinanceBudgetsView.vue";
-
+import UnifiedDashboardView from "@/views/dashboard/UnifiedDashboardView.vue";
 import HealthStepsView from "../views/health/HealthStepsView.vue";
 import HealthWeightView from "../views/health/HealthWeightView.vue";
 import HealthNutritionView from "../views/health/HealthNutritionView.vue";
@@ -27,6 +27,11 @@ const routes = [
     path: "/finance",
     name: "finance-dashboard",
     component: FinanceDashboardView,
+  },
+  {
+  path: "/dashboard",
+  name: "unified-dashboard",
+  component: UnifiedDashboardView,
   },
   {
     path: "/finance/accounts",

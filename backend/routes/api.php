@@ -45,6 +45,10 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('dashboard')->group(function () {
             Route::get('/overview', [UnifiedDashboardController::class, 'overview']);
+            Route::get('/summary', [UnifiedDashboardController::class, 'summary']);
+            Route::get('/kpis', [UnifiedDashboardController::class, 'kpis']);
+            Route::get('/recent-activity', [UnifiedDashboardController::class, 'recentActivity']);
+
             Route::get('/finance', [UnifiedDashboardController::class, 'finance']);
             Route::get('/health', [UnifiedDashboardController::class, 'health']);
             Route::get('/projects', [UnifiedDashboardController::class, 'projects']);
