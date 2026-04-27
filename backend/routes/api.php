@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Dashboard\UnifiedDashboardController;
+use App\Http\Controllers\Api\V1\AiInsightController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceCategoryController;
@@ -53,6 +54,18 @@ Route::prefix('v1')->group(function () {
             Route::get('/health', [UnifiedDashboardController::class, 'health']);
             Route::get('/projects', [UnifiedDashboardController::class, 'projects']);
             Route::get('/trends', [UnifiedDashboardController::class, 'trends']);
+        });
+        Route::prefix('ai')->group(function () {
+            Route::get('/insights/daily', [AiInsightController::class, 'daily']);
+            Route::get('/alerts', [AiInsightController::class, 'alerts']);
+            Route::get('/reports', [AiInsightController::class, 'reports']);
+            Route::get('/reports/weekly', [AiInsightController::class, 'weeklyReport']);
+
+            Route::patch('/insights/{id}/read', [AiInsightController::class, 'markInsightRead']);
+            Route::patch('/alerts/{id}/resolve', [AiInsightController::class, 'resolveAlert']);
+
+            Route::post('/engine/daily/run', [AiInsightController::class, 'runDailyEngine']);
+            Route::post('/engine/weekly/run', [AiInsightController::class, 'runWeeklyEngine']);
         });
         Route::prefix('health/hydration')->group(function () {
             Route::get('/', [HealthHydrationLogController::class, 'index']);
