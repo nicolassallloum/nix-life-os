@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Dashboard\UnifiedDashboardController;
 use App\Http\Controllers\Api\V1\AiInsightController;
+use App\Http\Controllers\Api\V1\AiPredictionController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceCategoryController;
@@ -66,6 +67,9 @@ Route::prefix('v1')->group(function () {
 
             Route::post('/engine/daily/run', [AiInsightController::class, 'runDailyEngine']);
             Route::post('/engine/weekly/run', [AiInsightController::class, 'runWeeklyEngine']);
+            Route::get('/predictions/', [AiPredictionController::class, 'index']);
+            Route::get('/predictions/latest', [AiPredictionController::class, 'latest']);
+            Route::post('/predictions/run', [AiPredictionController::class, 'run']);
         });
         Route::prefix('health/hydration')->group(function () {
             Route::get('/', [HealthHydrationLogController::class, 'index']);
