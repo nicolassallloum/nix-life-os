@@ -10,7 +10,7 @@ import HealthWeightView from "../views/health/HealthWeightView.vue";
 import HealthNutritionView from "../views/health/HealthNutritionView.vue";
 import HealthHydrationView from "../views/HealthHydrationView.vue";
 import ProjectDashboardView from "../views/projects/ProjectDashboardView.vue";
-
+import LifeBalanceView from "../views/life-balance/LifeBalanceView.vue";
 import ProjectTasksView from "../views/ProjectTasksView.vue";
 import ProjectMilestonesView from "../views/ProjectMilestonesView.vue";
 import ProjectProgressView from "../views/ProjectProgressView.vue";
@@ -37,6 +37,11 @@ const routes = [
     path: "/finance/accounts",
     name: "finance-accounts",
     component: FinanceAccountsView,
+  },
+  {
+  path: "/life-balance",
+  name: "LifeBalance",
+  component: LifeBalanceView,
   },
   {
     path: "/finance/transactions",

@@ -146,6 +146,12 @@ import { RouterLink, RouterView } from "vue-router";
         >
           Status Updates
         </RouterLink>
+        <RouterLink
+          to="/life-balance"
+          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+        >
+          Life Balance
+        </RouterLink>
       </nav>
     </aside>
 

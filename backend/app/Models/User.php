@@ -37,4 +37,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    public function lifeBalanceScores()
+    {
+        return $this->hasMany(\App\Models\LifeBalanceScore::class, 'user_id');
+    }
 }

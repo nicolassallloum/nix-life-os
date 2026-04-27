@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\AiInsightController;
 use App\Http\Controllers\Api\V1\AiPredictionController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FinanceAccountController;
+use App\Http\Controllers\Api\V1\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceCategoryController;
 use App\Http\Controllers\Api\FinanceTransactionController;
 use App\Http\Controllers\Api\V1\HealthHydrationLogController;
@@ -70,6 +71,11 @@ Route::prefix('v1')->group(function () {
             Route::get('/predictions/', [AiPredictionController::class, 'index']);
             Route::get('/predictions/latest', [AiPredictionController::class, 'latest']);
             Route::post('/predictions/run', [AiPredictionController::class, 'run']);
+        });
+        Route::prefix('life-balance')->group(function () {
+            Route::get('/today', [LifeBalanceController::class, 'today']);
+            Route::post('/calculate', [LifeBalanceController::class, 'calculate']);
+            Route::get('/history', [LifeBalanceController::class, 'history']);
         });
         Route::prefix('health/hydration')->group(function () {
             Route::get('/', [HealthHydrationLogController::class, 'index']);
