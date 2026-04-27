@@ -1,2 +1,14 @@
-$schedule->command('ai:predictions --user-id=019d7c17-adcf-713f-b853-328a2fb65e57 --type=all --days-ahead=30')
-    ->dailyAt('23:45');
+
+
+protected function schedule(Schedule $schedule): void
+{
+    $schedule->command('notifications:meal-reminders')->everyMinute();
+    $schedule->command('notifications:weight-reminders')->everyMinute();
+    $schedule->command('notifications:expense-reminders')->everyMinute();
+
+    $schedule->command('notifications:finance-alerts')->dailyAt('21:30');
+    $schedule->command('notifications:life-balance-alerts')->dailyAt('22:00');
+
+    $schedule->command('ai:daily-insights')->dailyAt('23:55');
+    $schedule->command('ai:weekly-report')->weeklyOn(0, '23:30');
+}

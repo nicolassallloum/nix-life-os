@@ -13,6 +13,8 @@ import ProjectDashboardView from "../views/projects/ProjectDashboardView.vue";
 import LifeBalanceView from "../views/life-balance/LifeBalanceView.vue";
 import ProjectTasksView from "../views/ProjectTasksView.vue";
 import ProjectMilestonesView from "../views/ProjectMilestonesView.vue";
+import NotificationsView from "../views/notifications/NotificationsView.vue";
+import NotificationSettingsView from "../views/notifications/NotificationSettingsView.vue";
 import ProjectProgressView from "../views/ProjectProgressView.vue";
 import ProjectStatusUpdatesView from "../views/ProjectStatusUpdatesView.vue";
 
@@ -32,6 +34,16 @@ const routes = [
   path: "/dashboard",
   name: "unified-dashboard",
   component: UnifiedDashboardView,
+  },
+  {
+  path: "/notifications",
+  name: "notifications",
+  component: NotificationsView,
+  },
+  {
+    path: "/notifications/settings",
+    name: "notification-settings",
+    component: NotificationSettingsView,
   },
   {
     path: "/finance/accounts",

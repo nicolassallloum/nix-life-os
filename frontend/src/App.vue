@@ -130,6 +130,19 @@ import { RouterLink, RouterView } from "vue-router";
         >
           Project Milestones
         </RouterLink>
+        <RouterLink
+          to="/notifications"
+          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+        >
+          Notifications
+        </RouterLink>
+
+        <RouterLink
+          to="/notifications/settings"
+          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+        >
+          Notification Settings
+        </RouterLink>
 
         <RouterLink
           to="/projects/progress"

@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\V1\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceCategoryController;
 use App\Http\Controllers\Api\FinanceTransactionController;
+use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\NotificationPreferenceController;
 use App\Http\Controllers\Api\V1\HealthHydrationLogController;
 use App\Http\Controllers\Api\V1\Finance\FinanceAnomalyController;
 use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
@@ -57,6 +59,15 @@ Route::prefix('v1')->group(function () {
             Route::get('/projects', [UnifiedDashboardController::class, 'projects']);
             Route::get('/trends', [UnifiedDashboardController::class, 'trends']);
         });
+        Route::get('/notifications', [NotificationController::class, 'index']);
+        Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+        Route::get('/notifications/{id}', [NotificationController::class, 'show']);
+        Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+        Route::patch('/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+        Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
+
+        Route::get('/notification-preferences', [NotificationPreferenceController::class, 'show']);
+        Route::put('/notification-preferences', [NotificationPreferenceController::class, 'update']);
         Route::prefix('ai')->group(function () {
             Route::get('/insights/daily', [AiInsightController::class, 'daily']);
             Route::get('/alerts', [AiInsightController::class, 'alerts']);
