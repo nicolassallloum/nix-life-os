@@ -16,5 +16,9 @@ Schedule::command('notifications:expense-reminders')->everyMinute();
 
 Schedule::command('notifications:finance-alerts')->dailyAt('21:30');
 Schedule::command('notifications:life-balance-alerts')->dailyAt('22:00');
+Schedule::command('automation:run')
+    ->everyFifteenMinutes()
+    ->withoutOverlapping();
+
 
 

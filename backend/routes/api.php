@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\Dashboard\UnifiedDashboardController;
 use App\Http\Controllers\Api\V1\AiInsightController;
 use App\Http\Controllers\Api\V1\AiPredictionController;
+use App\Http\Controllers\Api\V1\AutomationRuleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\V1\LifeBalanceController;
@@ -58,6 +59,17 @@ Route::prefix('v1')->group(function () {
             Route::get('/health', [UnifiedDashboardController::class, 'health']);
             Route::get('/projects', [UnifiedDashboardController::class, 'projects']);
             Route::get('/trends', [UnifiedDashboardController::class, 'trends']);
+        });
+        Route::prefix('automation')->group(function () {
+            Route::get('/rules', [AutomationRuleController::class, 'index']);
+            Route::post('/rules', [AutomationRuleController::class, 'store']);
+            Route::get('/rules/{id}', [AutomationRuleController::class, 'show']);
+            Route::put('/rules/{id}', [AutomationRuleController::class, 'update']);
+            Route::delete('/rules/{id}', [AutomationRuleController::class, 'destroy']);
+
+            Route::post('/run', [AutomationRuleController::class, 'run']);
+            Route::get('/logs', [AutomationRuleController::class, 'logs']);
+            Route::patch('/rules/{id}/toggle', [AutomationRuleController::class, 'toggle']);
         });
         Route::get('/notifications', [NotificationController::class, 'index']);
         Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
