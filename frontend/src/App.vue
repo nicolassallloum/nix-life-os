@@ -165,6 +165,22 @@ import { RouterLink, RouterView } from "vue-router";
         >
           Life Balance
         </RouterLink>
+        <RouterLink
+          v-if="hasPermission('automation.view')"
+          to="/automation"
+          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+        >
+          Automation
+        </RouterLink>
+
+        <RouterLink
+          v-if="hasPermission('security.manage')"
+          to="/security/roles"
+          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+        >
+          Security & Roles
+        </RouterLink>
+
       </nav>
     </aside>
 

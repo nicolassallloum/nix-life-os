@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\AiPredictionController;
 use App\Http\Controllers\Api\V1\AutomationRuleController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\FinanceAccountController;
+use App\Http\Controllers\Api\SecurityController;
 use App\Http\Controllers\Api\V1\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceCategoryController;
 use App\Http\Controllers\Api\FinanceTransactionController;
@@ -120,6 +121,17 @@ Route::prefix('v1')->group(function () {
         Route::get('/auth/me', [AuthController::class, 'me']);
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::post('/auth/logout-all', [AuthController::class, 'logoutAll']);
+                /*
+|--------------------------------------------------------------------------
+| Security & Roles
+|--------------------------------------------------------------------------
+*/
+        Route::middleware(['nix.permission:security.manage'])->group(function () {
+            Route::get('/security/roles', [SecurityController::class, 'roles']);
+            Route::get('/security/permissions', [SecurityController::class, 'permissions']);
+            Route::post('/security/users/{user}/roles', [SecurityController::class, 'assignRole']);
+        });
+
             /*
     |--------------------------------------------------------------------------
     | STEP 14 — Project Progress Engine

@@ -3,42 +3,31 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasUuids, Notifiable;
-
-    protected $table = 'users';
-
-    protected $primaryKey = 'id';
-
-    public $incrementing = false;
-
-    protected $keyType = 'string';
+    use HasApiTokens, Notifiable, HasRoles, HasUuids;
 
     protected $fillable = [
-        'id',
         'name',
         'email',
         'password',
-        'password_hash',
     ];
 
     protected $hidden = [
         'password',
-        'password_hash',
         'remember_token',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-    ];
-    public function lifeBalanceScores()
+    protected function casts(): array
     {
-        return $this->hasMany(\App\Models\LifeBalanceScore::class, 'user_id');
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
     }
 }
