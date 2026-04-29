@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\AiInsightController;
 use App\Http\Controllers\Api\V1\AiPredictionController;
 use App\Http\Controllers\Api\V1\AutomationRuleController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\SecurityController;
 use App\Http\Controllers\Api\V1\LifeBalanceController;
@@ -61,6 +62,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/projects', [UnifiedDashboardController::class, 'projects']);
             Route::get('/trends', [UnifiedDashboardController::class, 'trends']);
         });
+        Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
         Route::prefix('automation')->group(function () {
             Route::get('/rules', [AutomationRuleController::class, 'index']);
             Route::post('/rules', [AutomationRuleController::class, 'store']);
