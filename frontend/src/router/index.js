@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { h } from "vue";
 import { hasPermission } from "@/utils/permissions";
 
 // Dashboard
@@ -33,10 +34,66 @@ import LifeBalanceView from "../views/life-balance/LifeBalanceView.vue";
 // Security
 import SecurityRolesView from "../views/SecurityRolesView.vue";
 
+// Monitoring
+import MonitoringDashboardView from "../views/monitoring/MonitoringDashboardView.vue";
+
+const UnauthorizedView = {
+  name: "UnauthorizedView",
+  setup() {
+    return () =>
+      h("div", { class: "min-h-screen flex items-center justify-center bg-gray-50" }, [
+        h(
+          "div",
+          {
+            class:
+              "bg-white rounded-2xl shadow-sm border border-gray-200 p-8 max-w-md text-center",
+          },
+          [
+            h("h1", { class: "text-2xl font-bold text-gray-900 mb-2" }, "Access Denied"),
+            h(
+              "p",
+              { class: "text-gray-500 mb-6" },
+              "You do not have permission to access this page."
+            ),
+            h(
+              "button",
+              {
+                class:
+                  "inline-block rounded-xl bg-gray-900 text-white px-5 py-3 hover:bg-gray-800",
+                onClick: () => {
+                  window.location.href = "/monitoring";
+                },
+              },
+              "Go to Monitoring"
+            ),
+          ]
+        ),
+      ]);
+  },
+};
+
 const routes = [
   {
     path: "/",
-    redirect: "/dashboard",
+    redirect: "/monitoring",
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Monitoring Routes
+  |--------------------------------------------------------------------------
+  | Step 25 testing route.
+  | Permission check is disabled temporarily.
+  |--------------------------------------------------------------------------
+  */
+  {
+    path: "/monitoring",
+    name: "monitoring",
+    component: MonitoringDashboardView,
+    meta: {
+      requiresAuth: true,
+      skipPermission: true,
+    },
   },
 
   /*
@@ -50,7 +107,7 @@ const routes = [
     component: UnifiedDashboardView,
     meta: {
       requiresAuth: true,
-      permission: "dashboard.view",
+      skipPermission: true,
     },
   },
 
@@ -251,26 +308,7 @@ const routes = [
   {
     path: "/unauthorized",
     name: "unauthorized",
-    component: {
-      template: `
-        <div class="min-h-screen flex items-center justify-center bg-gray-50">
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 max-w-md text-center">
-            <h1 class="text-2xl font-bold text-gray-900 mb-2">
-              Access Denied
-            </h1>
-            <p class="text-gray-500 mb-6">
-              You do not have permission to access this page.
-            </p>
-            <RouterLink
-              to="/dashboard"
-              class="inline-block rounded-xl bg-gray-900 text-white px-5 py-3 hover:bg-gray-800"
-            >
-              Go to Dashboard
-            </RouterLink>
-          </div>
-        </div>
-      `,
-    },
+    component: UnauthorizedView,
   },
 
   /*
@@ -280,7 +318,7 @@ const routes = [
   */
   {
     path: "/:pathMatch(.*)*",
-    redirect: "/dashboard",
+    redirect: "/monitoring",
   },
 ];
 
@@ -293,23 +331,23 @@ const router = createRouter({
 |--------------------------------------------------------------------------
 | Global Route Guard
 |--------------------------------------------------------------------------
-| Checks:
-| 1. User must have token for protected routes.
-| 2. User must have required permission.
-|--------------------------------------------------------------------------
 */
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
   const token = localStorage.getItem("token");
 
   if (to.meta.requiresAuth && !token) {
-    return next("/dashboard");
+    return {
+      path: "/unauthorized",
+    };
   }
 
-  if (to.meta.permission && !hasPermission(to.meta.permission)) {
-    return next("/unauthorized");
+  if (!to.meta.skipPermission && to.meta.permission && !hasPermission(to.meta.permission)) {
+    return {
+      path: "/unauthorized",
+    };
   }
 
-  return next();
+  return true;
 });
 
-export default router;permissions.js
+export default router;

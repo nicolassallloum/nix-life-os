@@ -33,7 +33,7 @@ use App\Http\Controllers\Api\V1\ProjectTaskController;
 use App\Http\Controllers\Api\V1\ProjectProgressController;
 use App\Http\Controllers\Api\V1\ProjectMilestoneController;
 use App\Http\Controllers\Api\V1\ProjectStatusUpdateController;
-
+use App\Http\Controllers\Api\V1\MonitoringController;
 
 Route::prefix('v1')->group(function () {
 
@@ -241,5 +241,11 @@ Route::prefix('v1')->group(function () {
         });
 
     });
-
+    Route::prefix('monitoring')->group(function () {
+            Route::get('/summary', [MonitoringController::class, 'summary']);
+            Route::get('/audit-logs', [MonitoringController::class, 'auditLogs']);
+            Route::get('/error-logs', [MonitoringController::class, 'errorLogs']);
+            Route::get('/health-check', [MonitoringController::class, 'healthCheck']);
+            Route::get('/system-logs', [MonitoringController::class, 'monitoringLogs']);
+        });
 });

@@ -1,11 +1,12 @@
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
+import { hasPermission } from "@/utils/permissions";
 </script>
 
 <template>
   <div class="min-h-screen bg-gray-50 flex">
     <!-- Main Sidebar -->
-    <aside class="w-72 bg-white border-r border-gray-200 min-h-screen p-6">
+    <aside class="w-72 bg-white border-r border-gray-200 min-h-screen p-6 overflow-y-auto">
       <h1 class="text-3xl font-bold text-gray-900 mb-2">
         NIX LIFE OS
       </h1>
@@ -23,9 +24,17 @@ import { RouterLink, RouterView } from "vue-router";
         <RouterLink
           to="/dashboard"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Unified Dashboard
+        </RouterLink>
+
+        <RouterLink
+          to="/life-balance"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Life Balance
         </RouterLink>
 
         <!-- Finance -->
@@ -36,7 +45,7 @@ import { RouterLink, RouterView } from "vue-router";
         <RouterLink
           to="/finance"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Finance Dashboard
         </RouterLink>
@@ -44,7 +53,7 @@ import { RouterLink, RouterView } from "vue-router";
         <RouterLink
           to="/finance/accounts"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Finance Accounts
         </RouterLink>
@@ -52,7 +61,7 @@ import { RouterLink, RouterView } from "vue-router";
         <RouterLink
           to="/finance/transactions"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Finance Transactions
         </RouterLink>
@@ -60,7 +69,7 @@ import { RouterLink, RouterView } from "vue-router";
         <RouterLink
           to="/finance/budgets"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Finance Budgets
         </RouterLink>
@@ -73,7 +82,7 @@ import { RouterLink, RouterView } from "vue-router";
         <RouterLink
           to="/health/steps"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Steps Tracking
         </RouterLink>
@@ -81,7 +90,7 @@ import { RouterLink, RouterView } from "vue-router";
         <RouterLink
           to="/health/weight"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Weight Tracking
         </RouterLink>
@@ -89,7 +98,7 @@ import { RouterLink, RouterView } from "vue-router";
         <RouterLink
           to="/health/nutrition"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Nutrition Tracking
         </RouterLink>
@@ -97,7 +106,7 @@ import { RouterLink, RouterView } from "vue-router";
         <RouterLink
           to="/health/hydration"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Hydration Tracking
         </RouterLink>
@@ -110,7 +119,7 @@ import { RouterLink, RouterView } from "vue-router";
         <RouterLink
           to="/projects"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Projects Dashboard
         </RouterLink>
@@ -118,7 +127,7 @@ import { RouterLink, RouterView } from "vue-router";
         <RouterLink
           to="/projects/tasks"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Project Tasks
         </RouterLink>
@@ -126,28 +135,15 @@ import { RouterLink, RouterView } from "vue-router";
         <RouterLink
           to="/projects/milestones"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Project Milestones
-        </RouterLink>
-        <RouterLink
-          to="/notifications"
-          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
-        >
-          Notifications
-        </RouterLink>
-
-        <RouterLink
-          to="/notifications/settings"
-          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
-        >
-          Notification Settings
         </RouterLink>
 
         <RouterLink
           to="/projects/progress"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Project Progress
         </RouterLink>
@@ -155,32 +151,74 @@ import { RouterLink, RouterView } from "vue-router";
         <RouterLink
           to="/projects/status-updates"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
-          active-class="bg-gray-900 text-white"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
           Status Updates
         </RouterLink>
+
+        <!-- Notifications -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+          Notifications
+        </p>
+
         <RouterLink
-          to="/life-balance"
-          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+          to="/notifications"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
-          Life Balance
-        </RouterLink>
-        <RouterLink
-          v-if="hasPermission('automation.view')"
-          to="/automation"
-          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
-        >
-          Automation
+          Notifications
         </RouterLink>
 
         <RouterLink
-          v-if="hasPermission('security.manage')"
-          to="/security/roles"
-          class="block rounded-xl px-4 py-2 text-gray-700 hover:bg-gray-100"
+          to="/notifications/settings"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
         >
-          Security & Roles
+          Notification Settings
         </RouterLink>
 
+        <!-- Automation -->
+        <template v-if="hasPermission('automation.view')">
+          <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+            Automation
+          </p>
+
+          <RouterLink
+            to="/automation"
+            class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+            active-class="bg-gray-900 text-white hover:bg-gray-900"
+          >
+            Automation
+          </RouterLink>
+        </template>
+
+        <!-- Security -->
+        <template v-if="hasPermission('security.manage')">
+          <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+            Security
+          </p>
+
+          <RouterLink
+            to="/security/roles"
+            class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+            active-class="bg-gray-900 text-white hover:bg-gray-900"
+          >
+            Security & Roles
+          </RouterLink>
+        </template>
+
+        <!-- System -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+          System
+        </p>
+
+        <RouterLink
+          to="/monitoring"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Logging & Monitoring
+        </RouterLink>
       </nav>
     </aside>
 

@@ -21,4 +21,5 @@ Schedule::command('automation:run')
     ->withoutOverlapping();
 
 
+Schedule::command('system:health-check')->everyFifteenMinutes();
 

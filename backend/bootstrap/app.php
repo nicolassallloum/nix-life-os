@@ -1,11 +1,9 @@
 <?php
 use Illuminate\Foundation\Application;
-
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Http\Request;
-use App\Http\Middleware\ApiPerformanceLogger;
+use App\Http\Middleware\ApiAuditLogger;
+use App\Services\Monitoring\LoggingService;
 
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -16,25 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->api(append: [
-            ApiPerformanceLogger::class,
+        $middleware->alias([
+            'api.audit' => ApiAuditLogger::class,
         ]);
-        // $middleware->alias([
-        //     'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-        //     'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-        //     'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
-        //     'nix.permission' => \App\Http\Middleware\EnsureUserHasPermission::class,
-        // ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->render(function (AuthenticationException $e, Request $request) {
-            if ($request->is('api/*')) {
-                return response()->json([
-                    'message' => 'Unauthenticated.',
-                ], 401);
-            }
-
-            return null;
+    ->withExceptions(function (Exceptions $exceptions) {
+        $exceptions->report(function (Throwable $e) {
+            LoggingService::error($e, 'global_exception_handler');
         });
-    })
-    ->create();
+    })->create();
