@@ -8,6 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
+        /*
+         |--------------------------------------------------------------------------
+         | Dashboard Performance Indexes
+         |--------------------------------------------------------------------------
+         | This migration is safe for local Docker and production environments.
+         | It checks if each table exists before creating indexes.
+         */
+
         if (Schema::hasTable('finance_accounts')) {
             DB::statement('CREATE INDEX IF NOT EXISTS idx_finance_accounts_user_id ON finance_accounts (user_id)');
         }
@@ -63,27 +71,34 @@ return new class extends Migration
     {
         $indexes = [
             'idx_finance_accounts_user_id',
+
             'idx_finance_transactions_user_id',
             'idx_finance_transactions_transaction_date',
             'idx_finance_transactions_user_date',
             'idx_finance_transactions_category_id',
             'idx_finance_transactions_account_id',
+
             'idx_health_weight_logs_user_id',
             'idx_health_weight_logs_log_date',
             'idx_health_weight_logs_user_date',
+
             'idx_health_step_logs_user_id',
             'idx_health_step_logs_step_date',
             'idx_health_step_logs_user_date',
+
             'idx_health_meal_logs_user_id',
             'idx_health_meal_logs_meal_date',
             'idx_health_meal_logs_user_date',
+
             'idx_health_hydration_logs_user_id',
             'idx_health_hydration_logs_log_date',
             'idx_health_hydration_logs_user_date',
+
             'idx_projects_user_id',
             'idx_projects_status',
             'idx_projects_user_status',
             'idx_projects_priority',
+
             'idx_project_tasks_project_id',
             'idx_project_tasks_status',
             'idx_project_tasks_priority',
