@@ -32,7 +32,7 @@ class AuthController extends Controller
              | - password_hash: your existing login field
              */
             'password' => $validated['password'],
-            'password_hash' => Hash::make($validated['password']),
+            
         ]);
 
         /*
@@ -70,7 +70,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $validated['email'])->first();
 
-        if (! $user || ! Hash::check($validated['password'], $user->password_hash)) {
+        if (! $user || ! Hash::check($validated['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['Invalid login credentials.'],
             ]);
