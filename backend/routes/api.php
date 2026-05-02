@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\SecurityController;
 use App\Http\Controllers\Api\V1\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceCategoryController;
+use App\Http\Controllers\Api\SaaSController;
 use App\Http\Controllers\Api\FinanceTransactionController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\NotificationPreferenceController;
@@ -45,12 +46,15 @@ Route::prefix('v1')->group(function () {
     Route::post('/auth/register', [AuthController::class, 'register']);
     Route::post('/auth/login', [AuthController::class, 'login']);
     
+    
     /*
     |--------------------------------------------------------------------------
     | Protected Routes
     |--------------------------------------------------------------------------
     */
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/saas/plans', [SaaSController::class, 'plans']);
+        Route::get('/saas/me', [SaaSController::class, 'me']);
         Route::prefix('dashboard')->group(function () {
             Route::get('/overview', [UnifiedDashboardController::class, 'overview']);
             Route::get('/summary', [UnifiedDashboardController::class, 'summary']);
