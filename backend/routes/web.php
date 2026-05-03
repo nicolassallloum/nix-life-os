@@ -3,5 +3,9 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return response()->json([
+        'service' => 'NIX LIFE OS Backend',
+        'status' => 'running',
+        'message' => 'Backend API is healthy. Use /api/v1 routes.',
+    ]);
 });

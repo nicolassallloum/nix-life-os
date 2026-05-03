@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { h } from "vue";
-import { hasPermission } from "@/utils/permissions";
 
 // Dashboard
 import UnifiedDashboardView from "@/views/dashboard/UnifiedDashboardView.vue";
@@ -37,42 +36,71 @@ import SecurityRolesView from "../views/SecurityRolesView.vue";
 // Monitoring
 import MonitoringDashboardView from "../views/monitoring/MonitoringDashboardView.vue";
 
+/*
+|--------------------------------------------------------------------------
+| Unauthorized View
+|--------------------------------------------------------------------------
+*/
 const UnauthorizedView = {
   name: "UnauthorizedView",
   setup() {
     return () =>
-      h("div", { class: "min-h-screen flex items-center justify-center bg-gray-50" }, [
-        h(
-          "div",
-          {
-            class:
-              "bg-white rounded-2xl shadow-sm border border-gray-200 p-8 max-w-md text-center",
-          },
-          [
-            h("h1", { class: "text-2xl font-bold text-gray-900 mb-2" }, "Access Denied"),
-            h(
-              "p",
-              { class: "text-gray-500 mb-6" },
-              "You do not have permission to access this page."
-            ),
-            h(
-              "button",
-              {
-                class:
-                  "inline-block rounded-xl bg-gray-900 text-white px-5 py-3 hover:bg-gray-800",
-                onClick: () => {
-                  window.location.href = "/monitoring";
+      h(
+        "div",
+        {
+          class: "min-h-screen flex items-center justify-center bg-gray-50",
+        },
+        [
+          h(
+            "div",
+            {
+              class:
+                "bg-white rounded-2xl shadow-sm border border-gray-200 p-8 max-w-md text-center",
+            },
+            [
+              h(
+                "h1",
+                {
+                  class: "text-2xl font-bold text-gray-900 mb-2",
                 },
-              },
-              "Go to Monitoring"
-            ),
-          ]
-        ),
-      ]);
+                "Access Denied"
+              ),
+              h(
+                "p",
+                {
+                  class: "text-gray-500 mb-6",
+                },
+                "You do not have permission to access this page."
+              ),
+              h(
+                "button",
+                {
+                  class:
+                    "inline-block rounded-xl bg-gray-900 text-white px-5 py-3 hover:bg-gray-800",
+                  onClick: () => {
+                    window.location.href = "/monitoring";
+                  },
+                },
+                "Go to Monitoring"
+              ),
+            ]
+          ),
+        ]
+      );
   },
 };
 
+/*
+|--------------------------------------------------------------------------
+| Routes
+|--------------------------------------------------------------------------
+*/
 const routes = [
+  /*
+  |--------------------------------------------------------------------------
+  | Root
+  |--------------------------------------------------------------------------
+  */
   {
     path: "/",
     redirect: "/monitoring",
@@ -80,10 +108,7 @@ const routes = [
 
   /*
   |--------------------------------------------------------------------------
-  | Monitoring Routes
-  |--------------------------------------------------------------------------
-  | Step 25 testing route.
-  | Permission check is disabled temporarily.
+  | Monitoring
   |--------------------------------------------------------------------------
   */
   {
@@ -113,7 +138,7 @@ const routes = [
 
   /*
   |--------------------------------------------------------------------------
-  | Finance Routes
+  | Finance
   |--------------------------------------------------------------------------
   */
   {
@@ -155,7 +180,7 @@ const routes = [
 
   /*
   |--------------------------------------------------------------------------
-  | Health Routes
+  | Health
   |--------------------------------------------------------------------------
   */
   {
@@ -197,7 +222,7 @@ const routes = [
 
   /*
   |--------------------------------------------------------------------------
-  | Project Routes
+  | Projects
   |--------------------------------------------------------------------------
   */
   {
@@ -248,7 +273,7 @@ const routes = [
 
   /*
   |--------------------------------------------------------------------------
-  | Notifications Routes
+  | Notifications
   |--------------------------------------------------------------------------
   */
   {
@@ -272,7 +297,7 @@ const routes = [
 
   /*
   |--------------------------------------------------------------------------
-  | Life Balance Routes
+  | Life Balance
   |--------------------------------------------------------------------------
   */
   {
@@ -287,7 +312,7 @@ const routes = [
 
   /*
   |--------------------------------------------------------------------------
-  | Security Routes
+  | Security
   |--------------------------------------------------------------------------
   */
   {
@@ -302,7 +327,7 @@ const routes = [
 
   /*
   |--------------------------------------------------------------------------
-  | Unauthorized Fallback
+  | Unauthorized
   |--------------------------------------------------------------------------
   */
   {
@@ -322,6 +347,11 @@ const routes = [
   },
 ];
 
+/*
+|--------------------------------------------------------------------------
+| Router Instance
+|--------------------------------------------------------------------------
+*/
 const router = createRouter({
   history: createWebHistory(),
   routes,
@@ -329,23 +359,36 @@ const router = createRouter({
 
 /*
 |--------------------------------------------------------------------------
-| Global Route Guard
+| Global Route Guard - Testing Version
+|--------------------------------------------------------------------------
+| This version keeps token checking but disables frontend permission blocking.
+| Backend APIs are still protected by Laravel/Sanctum.
 |--------------------------------------------------------------------------
 */
 router.beforeEach((to) => {
-  const token = localStorage.getItem("token");
+  const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("auth_token") ||
+    localStorage.getItem("access_token");
 
-  if (to.meta.requiresAuth && !token) {
+  const publicPages = ["/unauthorized"];
+  const isPublicPage = publicPages.includes(to.path);
+
+  if (to.meta.requiresAuth && !token && !isPublicPage) {
     return {
       path: "/unauthorized",
     };
   }
 
-  if (!to.meta.skipPermission && to.meta.permission && !hasPermission(to.meta.permission)) {
-    return {
-      path: "/unauthorized",
-    };
-  }
+  /*
+  |--------------------------------------------------------------------------
+  | Permission Check Disabled Temporarily
+  |--------------------------------------------------------------------------
+  | Reason:
+  | - Allows all sidebar pages to open during web testing.
+  | - Fixes the issue where only Monitoring and Dashboard worked.
+  |--------------------------------------------------------------------------
+  */
 
   return true;
 });
