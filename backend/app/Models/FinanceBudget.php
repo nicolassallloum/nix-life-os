@@ -2,19 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class FinanceBudget extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
-    protected $table = 'nix_life_os.finance_budget';
-    protected $primaryKey = 'budget_id';
-    public $incrementing = false;
-    protected $keyType = 'string';
+    protected $table = 'finance_budgets';
 
     protected $fillable = [
+        'id',
         'user_id',
         'budget_name',
         'budget_month',
@@ -32,6 +31,6 @@ class FinanceBudget extends Model
 
     public function lines()
     {
-        return $this->hasMany(FinanceBudgetLine::class, 'budget_id', 'budget_id');
+        return $this->hasMany(FinanceBudgetLine::class, 'budget_id', 'id');
     }
 }

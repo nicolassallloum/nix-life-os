@@ -3,29 +3,30 @@
 namespace App\Models;
 
 use App\Enums\TransactionType;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class FinanceTransaction extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
-    protected $table = 'nix_life_os.finance_transaction';
-    protected $primaryKey = 'transaction_id';
-    public $incrementing = false;
-    protected $keyType = 'string';
+    protected $table = 'finance_transactions';
 
     protected $fillable = [
+        'id',
         'user_id',
         'transaction_type',
         'account_id',
         'transfer_account_id',
         'category_id',
+        'category',
         'amount',
+        'currency_code',
         'transaction_date',
         'description',
         'reference_no',
+        'notes',
         'metadata_json',
     ];
 
@@ -36,23 +37,18 @@ class FinanceTransaction extends Model
         'metadata_json' => 'array',
     ];
 
-    public function user(): BelongsTo
+    public function account()
     {
-        return $this->belongsTo(AppUser::class, 'user_id', 'user_id');
+        return $this->belongsTo(FinanceAccount::class, 'account_id');
     }
 
-    public function account(): BelongsTo
+    public function transferAccount()
     {
-        return $this->belongsTo(FinanceAccount::class, 'account_id', 'account_id');
+        return $this->belongsTo(FinanceAccount::class, 'transfer_account_id');
     }
 
-    public function transferAccount(): BelongsTo
+    public function category()
     {
-        return $this->belongsTo(FinanceAccount::class, 'transfer_account_id', 'account_id');
-    }
-
-    public function category(): BelongsTo
-    {
-        return $this->belongsTo(FinanceCategory::class, 'category_id', 'category_id');
+        return $this->belongsTo(FinanceCategory::class, 'category_id');
     }
 }

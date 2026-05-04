@@ -78,7 +78,7 @@ mkdir -p /u01/nix-life-os/docker/backend-nginx
 Create:
 nano /u01/nix-life-os/docker/backend-nginx/default.conf
 Paste:
-server {    listen 80;    server_name backend;    root /var/www/html/public;    index index.php index.html;    client_max_body_size 50M;    location / {        try_files $uri $uri/ /index.php?$query_string;    }    location ~ \.php$ {        fastcgi_pass backend:9000;        fastcgi_index index.php;        fastcgi_param SCRIPT_FILENAME /var/www/html/public$fastcgi_script_name;        include fastcgi_params;    }    location ~ /\.ht {        deny all;    }}
+server {    listen 80;    server_name backend;    root /var/www/html/public;    index index.php index.html;    client_max_body_size 50M;    location / {        try_files $uri $uri/ /index.php?$query_string;    }    location ~ \.php$ {        fastcgi_pass nixlifeos-backend:9000;        fastcgi_index index.php;        fastcgi_param SCRIPT_FILENAME /var/www/html/public$fastcgi_script_name;        include fastcgi_params;    }    location ~ /\.ht {        deny all;    }}
 
 13. PostgreSQL Init Script
 Create folder:

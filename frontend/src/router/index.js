@@ -1,153 +1,218 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { h } from "vue";
 
-// Dashboard
-import UnifiedDashboardView from "@/views/dashboard/UnifiedDashboardView.vue";
+const viewModules = import.meta.glob("../views/**/*.vue");
 
-// Finance
-import FinanceDashboardView from "../views/finance/FinanceDashboardView.vue";
-import FinanceAccountsView from "../views/finance/FinanceAccountsView.vue";
-import FinanceTransactionsView from "../views/finance/FinanceTransactionsView.vue";
-import FinanceBudgetsView from "../views/finance/FinanceBudgetsView.vue";
-
-// Health
-import HealthStepsView from "../views/health/HealthStepsView.vue";
-import HealthWeightView from "../views/health/HealthWeightView.vue";
-import HealthNutritionView from "../views/health/HealthNutritionView.vue";
-import HealthHydrationView from "../views/HealthHydrationView.vue";
-
-// Projects
-import ProjectDashboardView from "../views/projects/ProjectDashboardView.vue";
-import ProjectTasksView from "../views/ProjectTasksView.vue";
-import ProjectMilestonesView from "../views/ProjectMilestonesView.vue";
-import ProjectProgressView from "../views/ProjectProgressView.vue";
-import ProjectStatusUpdatesView from "../views/ProjectStatusUpdatesView.vue";
-
-// Notifications
-import NotificationsView from "../views/notifications/NotificationsView.vue";
-import NotificationSettingsView from "../views/notifications/NotificationSettingsView.vue";
-
-// Life Balance
-import LifeBalanceView from "../views/life-balance/LifeBalanceView.vue";
-
-// Security
-import SecurityRolesView from "../views/SecurityRolesView.vue";
-
-// Monitoring
-import MonitoringDashboardView from "../views/monitoring/MonitoringDashboardView.vue";
-
-/*
-|--------------------------------------------------------------------------
-| Unauthorized View
-|--------------------------------------------------------------------------
-*/
-const UnauthorizedView = {
-  name: "UnauthorizedView",
-  setup() {
-    return () =>
-      h(
-        "div",
-        {
-          class: "min-h-screen flex items-center justify-center bg-gray-50",
-        },
-        [
-          h(
-            "div",
-            {
-              class:
-                "bg-white rounded-2xl shadow-sm border border-gray-200 p-8 max-w-md text-center",
-            },
-            [
-              h(
-                "h1",
-                {
-                  class: "text-2xl font-bold text-gray-900 mb-2",
-                },
-                "Access Denied"
-              ),
-              h(
-                "p",
-                {
-                  class: "text-gray-500 mb-6",
-                },
-                "You do not have permission to access this page."
-              ),
-              h(
-                "button",
-                {
-                  class:
-                    "inline-block rounded-xl bg-gray-900 text-white px-5 py-3 hover:bg-gray-800",
-                  onClick: () => {
-                    window.location.href = "/monitoring";
-                  },
-                },
-                "Go to Monitoring"
-              ),
-            ]
-          ),
-        ]
-      );
-  },
+const MissingView = {
+  template: `
+    <div class="p-8">
+      <div class="bg-white border border-red-200 rounded-2xl shadow-sm p-6">
+        <h1 class="text-2xl font-bold text-red-700 mb-2">View File Not Found</h1>
+        <p class="text-gray-700 mb-4">
+          This route is registered, but the Vue view file was not found.
+        </p>
+        <p class="text-sm text-gray-500">
+          Check src/router/index.js and src/views folder names.
+        </p>
+      </div>
+    </div>
+  `,
 };
 
-/*
-|--------------------------------------------------------------------------
-| Routes
-|--------------------------------------------------------------------------
-*/
-const routes = [
-  /*
-  |--------------------------------------------------------------------------
-  | Root
-  |--------------------------------------------------------------------------
-  */
-  {
-    path: "/",
-    redirect: "/monitoring",
-  },
+function loadView(candidates) {
+  for (const path of candidates) {
+    if (viewModules[path]) {
+      return viewModules[path];
+    }
+  }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Monitoring
-  |--------------------------------------------------------------------------
-  */
+  return MissingView;
+}
+
+const LoginView = loadView([
+  "../views/auth/LoginView.vue",
+  "../views/LoginView.vue",
+  "../views/Auth/LoginView.vue",
+]);
+
+const RegisterView = loadView([
+  "../views/auth/RegisterView.vue",
+  "../views/RegisterView.vue",
+  "../views/Auth/RegisterView.vue",
+]);
+
+const UnifiedDashboardView = loadView([
+  "../views/UnifiedDashboardView.vue",
+  "../views/dashboard/UnifiedDashboardView.vue",
+  "../views/DashboardView.vue",
+  "../views/Dashboard.vue",
+  "../views/UnifiedDashboard.vue",
+]);
+
+const LifeBalanceView = loadView([
+  "../views/LifeBalanceView.vue",
+  "../views/life/LifeBalanceView.vue",
+  "../views/LifeBalance.vue",
+]);
+
+const FinanceDashboardView = loadView([
+  "../views/finance/FinanceDashboardView.vue",
+  "../views/finance/FinanceDashboard.vue",
+  "../views/FinanceDashboardView.vue",
+  "../views/FinanceDashboard.vue",
+]);
+
+const FinanceAccountsView = loadView([
+  "../views/finance/FinanceAccountsView.vue",
+  "../views/finance/FinanceAccounts.vue",
+  "../views/FinanceAccountsView.vue",
+  "../views/FinanceAccounts.vue",
+]);
+
+const FinanceTransactionsView = loadView([
+  "../views/finance/FinanceTransactionsView.vue",
+  "../views/finance/FinanceTransactions.vue",
+  "../views/FinanceTransactionsView.vue",
+  "../views/FinanceTransactions.vue",
+]);
+
+const FinanceBudgetsView = loadView([
+  "../views/finance/FinanceBudgetsView.vue",
+  "../views/finance/FinanceBudgets.vue",
+  "../views/FinanceBudgetsView.vue",
+  "../views/FinanceBudgets.vue",
+]);
+
+const StepsTrackingView = loadView([
+  "../views/health/StepsTrackingView.vue",
+  "../views/health/HealthStepsView.vue",
+  "../views/health/HealthStepLogsView.vue",
+  "../views/HealthStepsView.vue",
+]);
+
+const WeightTrackingView = loadView([
+  "../views/health/WeightTrackingView.vue",
+  "../views/health/HealthWeightView.vue",
+  "../views/health/HealthWeightLogsView.vue",
+  "../views/HealthWeightView.vue",
+]);
+
+const NutritionTrackingView = loadView([
+  "../views/health/NutritionTrackingView.vue",
+  "../views/health/HealthNutritionView.vue",
+  "../views/health/HealthMealView.vue",
+  "../views/HealthNutritionView.vue",
+]);
+
+const HydrationTrackingView = loadView([
+  "../views/health/HydrationTrackingView.vue",
+  "../views/health/HealthHydrationView.vue",
+  "../views/health/HealthHydrationLogsView.vue",
+  "../views/HealthHydrationView.vue",
+]);
+
+const ProjectsDashboardView = loadView([
+  "../views/projects/ProjectsDashboardView.vue",
+  "../views/projects/ProjectDashboardView.vue",
+  "../views/projects/ProjectsDashboard.vue",
+  "../views/ProjectsDashboardView.vue",
+]);
+
+const ProjectsTasksView = loadView([
+  "../views/projects/ProjectsTasksView.vue",
+  "../views/projects/ProjectTasksView.vue",
+  "../views/projects/ProjectTasks.vue",
+  "../views/ProjectsTasksView.vue",
+]);
+
+const ProjectsMilestonesView = loadView([
+  "../views/projects/ProjectsMilestonesView.vue",
+  "../views/projects/ProjectMilestonesView.vue",
+  "../views/projects/ProjectMilestones.vue",
+  "../views/ProjectsMilestonesView.vue",
+]);
+
+const ProjectsProgressView = loadView([
+  "../views/projects/ProjectsProgressView.vue",
+  "../views/projects/ProjectProgressView.vue",
+  "../views/projects/ProjectProgress.vue",
+  "../views/ProjectsProgressView.vue",
+]);
+
+const StatusUpdatesView = loadView([
+  "../views/projects/StatusUpdatesView.vue",
+  "../views/projects/ProjectStatusUpdatesView.vue",
+  "../views/StatusUpdatesView.vue",
+]);
+
+const NotificationsView = loadView([
+  "../views/notifications/NotificationsView.vue",
+  "../views/notifications/Notifications.vue",
+  "../views/NotificationsView.vue",
+]);
+
+const NotificationSettingsView = loadView([
+  "../views/notifications/NotificationSettingsView.vue",
+  "../views/notifications/NotificationsSettingsView.vue",
+  "../views/NotificationSettingsView.vue",
+]);
+
+const MonitoringDashboardView = loadView([
+  "../views/monitoring/MonitoringDashboardView.vue",
+  "../views/monitoring/LoggingMonitoringView.vue",
+  "../views/MonitoringDashboardView.vue",
+  "../views/LoggingMonitoringView.vue",
+]);
+
+const routes = [
   {
-    path: "/monitoring",
-    name: "monitoring",
-    component: MonitoringDashboardView,
+    path: "/login",
+    name: "login",
+    component: LoginView,
     meta: {
-      requiresAuth: true,
-      skipPermission: true,
+      public: true,
+      title: "Login",
+    },
+  },
+  {
+    path: "/register",
+    name: "register",
+    component: RegisterView,
+    meta: {
+      public: true,
+      title: "Register",
     },
   },
 
-  /*
-  |--------------------------------------------------------------------------
-  | Unified Dashboard
-  |--------------------------------------------------------------------------
-  */
   {
-    path: "/dashboard",
+    path: "/",
     name: "unified-dashboard",
     component: UnifiedDashboardView,
     meta: {
       requiresAuth: true,
-      skipPermission: true,
+      title: "Unified Dashboard",
+    },
+  },
+  {
+    path: "/life-balance",
+    name: "life-balance",
+    component: LifeBalanceView,
+    meta: {
+      requiresAuth: true,
+      title: "Life Balance",
     },
   },
 
-  /*
-  |--------------------------------------------------------------------------
-  | Finance
-  |--------------------------------------------------------------------------
-  */
   {
     path: "/finance",
+    redirect: "/finance/dashboard",
+  },
+  {
+    path: "/finance/dashboard",
     name: "finance-dashboard",
     component: FinanceDashboardView,
     meta: {
       requiresAuth: true,
-      permission: "finance.view",
+      title: "Finance Dashboard",
     },
   },
   {
@@ -156,7 +221,7 @@ const routes = [
     component: FinanceAccountsView,
     meta: {
       requiresAuth: true,
-      permission: "finance.view",
+      title: "Finance Accounts",
     },
   },
   {
@@ -165,7 +230,7 @@ const routes = [
     component: FinanceTransactionsView,
     meta: {
       requiresAuth: true,
-      permission: "finance.view",
+      title: "Finance Transactions",
     },
   },
   {
@@ -174,115 +239,108 @@ const routes = [
     component: FinanceBudgetsView,
     meta: {
       requiresAuth: true,
-      permission: "finance.view",
+      title: "Finance Budgets",
     },
   },
 
-  /*
-  |--------------------------------------------------------------------------
-  | Health
-  |--------------------------------------------------------------------------
-  */
+  {
+    path: "/health",
+    redirect: "/health/steps",
+  },
   {
     path: "/health/steps",
-    name: "health-steps",
-    component: HealthStepsView,
+    name: "steps-tracking",
+    component: StepsTrackingView,
     meta: {
       requiresAuth: true,
-      permission: "health.view",
+      title: "Steps Tracking",
     },
   },
   {
     path: "/health/weight",
-    name: "health-weight",
-    component: HealthWeightView,
+    name: "weight-tracking",
+    component: WeightTrackingView,
     meta: {
       requiresAuth: true,
-      permission: "health.view",
+      title: "Weight Tracking",
     },
   },
   {
     path: "/health/nutrition",
-    name: "health-nutrition",
-    component: HealthNutritionView,
+    name: "nutrition-tracking",
+    component: NutritionTrackingView,
     meta: {
       requiresAuth: true,
-      permission: "health.view",
+      title: "Nutrition Tracking",
     },
   },
   {
     path: "/health/hydration",
-    name: "health-hydration",
-    component: HealthHydrationView,
+    name: "hydration-tracking",
+    component: HydrationTrackingView,
     meta: {
       requiresAuth: true,
-      permission: "health.view",
+      title: "Hydration Tracking",
     },
   },
 
-  /*
-  |--------------------------------------------------------------------------
-  | Projects
-  |--------------------------------------------------------------------------
-  */
   {
     path: "/projects",
+    redirect: "/projects/dashboard",
+  },
+  {
+    path: "/projects/dashboard",
     name: "projects-dashboard",
-    component: ProjectDashboardView,
+    component: ProjectsDashboardView,
     meta: {
       requiresAuth: true,
-      permission: "projects.view",
+      title: "Projects Dashboard",
     },
   },
   {
     path: "/projects/tasks",
-    name: "project-tasks",
-    component: ProjectTasksView,
+    name: "projects-tasks",
+    component: ProjectsTasksView,
     meta: {
       requiresAuth: true,
-      permission: "projects.view",
+      title: "Project Tasks",
     },
   },
   {
     path: "/projects/milestones",
-    name: "project-milestones",
-    component: ProjectMilestonesView,
+    name: "projects-milestones",
+    component: ProjectsMilestonesView,
     meta: {
       requiresAuth: true,
-      permission: "projects.view",
+      title: "Project Milestones",
     },
   },
   {
     path: "/projects/progress",
-    name: "project-progress",
-    component: ProjectProgressView,
+    name: "projects-progress",
+    component: ProjectsProgressView,
     meta: {
       requiresAuth: true,
-      permission: "projects.view",
+      title: "Project Progress",
     },
   },
   {
     path: "/projects/status-updates",
-    name: "project-status-updates",
-    component: ProjectStatusUpdatesView,
+    name: "status-updates",
+    component: StatusUpdatesView,
     meta: {
       requiresAuth: true,
-      permission: "projects.view",
+      title: "Status Updates",
     },
   },
 
-  /*
-  |--------------------------------------------------------------------------
-  | Notifications
-  |--------------------------------------------------------------------------
-  */
   {
     path: "/notifications",
     name: "notifications",
     component: NotificationsView,
     meta: {
       requiresAuth: true,
-      permission: "notifications.view",
+      title: "Notifications",
     },
   },
   {
@@ -291,106 +349,64 @@ const routes = [
     component: NotificationSettingsView,
     meta: {
       requiresAuth: true,
-      permission: "notifications.manage",
+      title: "Notification Settings",
     },
   },
 
-  /*
-  |--------------------------------------------------------------------------
-  | Life Balance
-  |--------------------------------------------------------------------------
-  */
   {
-    path: "/life-balance",
-    name: "life-balance",
-    component: LifeBalanceView,
+    path: "/monitoring",
+    name: "monitoring-dashboard",
+    component: MonitoringDashboardView,
     meta: {
       requiresAuth: true,
-      permission: "dashboard.view",
+      title: "Logging & Monitoring",
     },
   },
 
-  /*
-  |--------------------------------------------------------------------------
-  | Security
-  |--------------------------------------------------------------------------
-  */
-  {
-    path: "/security/roles",
-    name: "security-roles",
-    component: SecurityRolesView,
-    meta: {
-      requiresAuth: true,
-      permission: "security.manage",
-    },
-  },
-
-  /*
-  |--------------------------------------------------------------------------
-  | Unauthorized
-  |--------------------------------------------------------------------------
-  */
-  {
-    path: "/unauthorized",
-    name: "unauthorized",
-    component: UnauthorizedView,
-  },
-
-  /*
-  |--------------------------------------------------------------------------
-  | 404 Fallback
-  |--------------------------------------------------------------------------
-  */
   {
     path: "/:pathMatch(.*)*",
-    redirect: "/monitoring",
+    redirect: "/",
   },
 ];
 
-/*
-|--------------------------------------------------------------------------
-| Router Instance
-|--------------------------------------------------------------------------
-*/
 const router = createRouter({
   history: createWebHistory(),
   routes,
+  scrollBehavior() {
+    return {
+      top: 0,
+      behavior: "smooth",
+    };
+  },
 });
 
-/*
-|--------------------------------------------------------------------------
-| Global Route Guard - Testing Version
-|--------------------------------------------------------------------------
-| This version keeps token checking but disables frontend permission blocking.
-| Backend APIs are still protected by Laravel/Sanctum.
-|--------------------------------------------------------------------------
-*/
-router.beforeEach((to) => {
+router.beforeEach((to, from, next) => {
   const token =
+    localStorage.getItem("nix_token") ||
     localStorage.getItem("token") ||
-    localStorage.getItem("auth_token") ||
-    localStorage.getItem("access_token");
+    localStorage.getItem("auth_token");
 
-  const publicPages = ["/unauthorized"];
-  const isPublicPage = publicPages.includes(to.path);
+  const isPublicPage = to.meta.public === true;
+  const requiresAuth = to.meta.requiresAuth === true || !isPublicPage;
 
-  if (to.meta.requiresAuth && !token && !isPublicPage) {
-    return {
-      path: "/unauthorized",
-    };
+  if (requiresAuth && !token) {
+    return next({
+      path: "/login",
+      query: {
+        redirect: to.fullPath,
+      },
+    });
   }
 
-  /*
-  |--------------------------------------------------------------------------
-  | Permission Check Disabled Temporarily
-  |--------------------------------------------------------------------------
-  | Reason:
-  | - Allows all sidebar pages to open during web testing.
-  | - Fixes the issue where only Monitoring and Dashboard worked.
-  |--------------------------------------------------------------------------
-  */
+  if ((to.path === "/login" || to.path === "/register") && token) {
+    return next("/");
+  }
 
-  return true;
+  document.title = to.meta.title
+    ? `${to.meta.title} | NIX LIFE OS`
+    : "NIX LIFE OS";
+
+  return next();
 });
 
 export default router;

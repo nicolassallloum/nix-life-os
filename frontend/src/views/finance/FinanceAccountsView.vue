@@ -18,6 +18,15 @@ const accounts = [
     is_default: false,
     is_savings: true,
   },
+    {
+    id: 3,
+    name: "NIX MARKET Account",
+    type: "FREELANCE",
+    currency: "USD",
+    balance: 0,
+    is_default: false,
+    is_savings: true,
+  },
 ];
 
 const formatCurrency = (amount, currency = "USD") => {

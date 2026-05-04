@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class NotificationPreferenceController extends Controller
 {
@@ -51,11 +52,7 @@ class NotificationPreferenceController extends Controller
             'life_balance_warning_score' => ['nullable', 'integer', 'min:0', 'max:100'],
         ]);
 
-        $existing = DB::table('notification_preferences')
-            ->where('user_id', $userId)
-            ->first();
-
-        $payload = array_merge([
+        $defaults = [
             'meal_reminders_enabled' => true,
             'breakfast_time' => null,
             'lunch_time' => null,
@@ -73,7 +70,13 @@ class NotificationPreferenceController extends Controller
 
             'daily_expense_warning_limit' => null,
             'life_balance_warning_score' => 60,
-        ], $data);
+        ];
+
+        $payload = array_merge($defaults, $data);
+
+        $existing = DB::table('notification_preferences')
+            ->where('user_id', $userId)
+            ->first();
 
         if ($existing) {
             DB::table('notification_preferences')
@@ -83,7 +86,7 @@ class NotificationPreferenceController extends Controller
                 ]));
         } else {
             DB::table('notification_preferences')->insert(array_merge($payload, [
-                'id' => (string) \Illuminate\Support\Str::uuid(),
+                'id' => (string) Str::uuid(),
                 'user_id' => $userId,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -104,7 +107,7 @@ class NotificationPreferenceController extends Controller
     private function createDefaultPreferences(string $userId)
     {
         DB::table('notification_preferences')->insert([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'user_id' => $userId,
 
             'meal_reminders_enabled' => true,
