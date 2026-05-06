@@ -1,31 +1,20 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /*
 |--------------------------------------------------------------------------
 | Controller Resolvers
 |--------------------------------------------------------------------------
-| This api.php is safe: it only registers optional module routes when the
-| controller class exists, so route:list will not crash if a module is missing.
-|--------------------------------------------------------------------------
 */
 
-/*
-|--------------------------------------------------------------------------
-| Required Controllers
-|--------------------------------------------------------------------------
-*/
 $authController = \App\Http\Controllers\Api\AuthController::class;
 
 $financeAccountController = \App\Http\Controllers\Api\FinanceAccountController::class;
 $financeTransactionController = \App\Http\Controllers\Api\FinanceTransactionController::class;
 
-/*
-|--------------------------------------------------------------------------
-| Finance Budget Controller
-|--------------------------------------------------------------------------
-*/
 $financeBudgetController = class_exists(\App\Http\Controllers\Api\V1\Finance\FinanceBudgetController::class)
     ? \App\Http\Controllers\Api\V1\Finance\FinanceBudgetController::class
     : (
@@ -37,13 +26,6 @@ $financeBudgetController = class_exists(\App\Http\Controllers\Api\V1\Finance\Fin
 /*
 |--------------------------------------------------------------------------
 | Health Controllers
-|--------------------------------------------------------------------------
-| Real controllers found in your project:
-| Weight      App\Http\Controllers\Api\V1\HealthWeightLogController
-| Hydration   App\Http\Controllers\Api\V1\HealthHydrationLogController
-| Steps       App\Http\Controllers\Api\V1\Health\HealthStepLogController
-| Meals       App\Http\Controllers\Api\V1\Health\HealthMealLogController
-| Food Items  App\Http\Controllers\Api\V1\Health\HealthFoodItemController
 |--------------------------------------------------------------------------
 */
 $healthStepController = class_exists(\App\Http\Controllers\Api\V1\Health\HealthStepLogController::class)
@@ -66,11 +48,6 @@ $healthHydrationController = class_exists(\App\Http\Controllers\Api\V1\HealthHyd
     ? \App\Http\Controllers\Api\V1\HealthHydrationLogController::class
     : null;
 
-/*
-|--------------------------------------------------------------------------
-| Optional Health Extra Controllers
-|--------------------------------------------------------------------------
-*/
 $healthProfileController = class_exists(\App\Http\Controllers\Api\V1\Health\HealthProfileController::class)
     ? \App\Http\Controllers\Api\V1\Health\HealthProfileController::class
     : null;
@@ -91,15 +68,7 @@ $healthNutritionSummaryController = class_exists(\App\Http\Controllers\Api\V1\He
 |--------------------------------------------------------------------------
 | Project Controllers
 |--------------------------------------------------------------------------
-| Real project paths:
-| - App\Http\Controllers\Api\V1\ProjectController
-| - App\Http\Controllers\Api\V1\ProjectTaskController
-| - App\Http\Controllers\Api\V1\ProjectMilestoneController
-| - App\Http\Controllers\Api\V1\ProjectProgressController
-| - App\Http\Controllers\Api\V1\ProjectStatusUpdateController
-|--------------------------------------------------------------------------
 */
-
 $projectController = class_exists(\App\Http\Controllers\Api\V1\ProjectController::class)
     ? \App\Http\Controllers\Api\V1\ProjectController::class
     : null;
@@ -118,9 +87,8 @@ $projectProgressController = class_exists(\App\Http\Controllers\Api\V1\ProjectPr
 
 $projectStatusUpdateController = class_exists(\App\Http\Controllers\Api\V1\ProjectStatusUpdateController::class)
     ? \App\Http\Controllers\Api\V1\ProjectStatusUpdateController::class
-    : null;$notificationPreferenceController = class_exists(\App\Http\Controllers\Api\NotificationPreferenceController::class)
-    ? \App\Http\Controllers\Api\NotificationPreferenceController::class
     : null;
+
 /*
 |--------------------------------------------------------------------------
 | Notification Controllers
@@ -145,9 +113,292 @@ $monitoringController = class_exists(\App\Http\Controllers\Api\MonitoringControl
 
 /*
 |--------------------------------------------------------------------------
+| Fallback Handlers
+|--------------------------------------------------------------------------
+*/
+
+$dashboardSummaryHandler = function (\Illuminate\Http\Request $request) {
+    $userId = $request->user()->id;
+
+    $totalBalance = 0;
+    $monthlyExpense = 0;
+    $income = 0;
+    $todaySteps = 0;
+    $todayCalories = 0;
+    $waterIntake = 0;
+    $currentWeight = 0;
+    $activeProjects = 0;
+    $totalProjects = 0;
+
+    if (Schema::hasTable('finance_accounts')) {
+        $totalBalance = DB::table('finance_accounts')
+            ->where('user_id', $userId)
+            ->sum('current_balance');
+    }
+
+    if (Schema::hasTable('finance_transactions')) {
+        $monthlyExpense = DB::table('finance_transactions')
+            ->where('user_id', $userId)
+            ->where('transaction_type', 'expense')
+            ->whereMonth('transaction_date', now()->month)
+            ->whereYear('transaction_date', now()->year)
+            ->sum('amount');
+
+        $income = DB::table('finance_transactions')
+            ->where('user_id', $userId)
+            ->where('transaction_type', 'income')
+            ->whereMonth('transaction_date', now()->month)
+            ->whereYear('transaction_date', now()->year)
+            ->sum('amount');
+    }
+
+    if (Schema::hasTable('health_step_logs')) {
+        $todaySteps = DB::table('health_step_logs')
+            ->where('user_id', $userId)
+            ->whereDate('log_date', today())
+            ->sum('steps');
+    }
+
+    if (Schema::hasTable('health_meal_logs')) {
+        if (Schema::hasColumn('health_meal_logs', 'total_calories')) {
+            $todayCalories = DB::table('health_meal_logs')
+                ->where('user_id', $userId)
+                ->whereDate('meal_date', today())
+                ->sum('total_calories');
+        }
+    }
+
+    if (Schema::hasTable('health_hydration_logs')) {
+        $hydrationDateColumn = Schema::hasColumn('health_hydration_logs', 'log_date')
+            ? 'log_date'
+            : (Schema::hasColumn('health_hydration_logs', 'logged_at') ? 'logged_at' : null);
+
+        $hydrationAmountColumn = Schema::hasColumn('health_hydration_logs', 'amount_ml')
+            ? 'amount_ml'
+            : (Schema::hasColumn('health_hydration_logs', 'water_ml') ? 'water_ml' : null);
+
+        if ($hydrationDateColumn && $hydrationAmountColumn) {
+            $waterIntake = DB::table('health_hydration_logs')
+                ->where('user_id', $userId)
+                ->whereDate($hydrationDateColumn, today())
+                ->sum($hydrationAmountColumn);
+        }
+    }
+
+    if (Schema::hasTable('health_weight_logs')) {
+        $latestWeight = DB::table('health_weight_logs')
+            ->where('user_id', $userId)
+            ->orderByDesc('log_date')
+            ->first();
+
+        $currentWeight = $latestWeight?->weight_kg ?? 0;
+    }
+
+    if (Schema::hasTable('projects')) {
+        $activeProjects = DB::table('projects')
+            ->where('user_id', $userId)
+            ->whereIn('status', ['active', 'in_progress'])
+            ->count();
+
+        $totalProjects = DB::table('projects')
+            ->where('user_id', $userId)
+            ->count();
+    }
+
+    $savingsRate = $income > 0
+        ? round((($income - $monthlyExpense) / $income) * 100, 2)
+        : 0;
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Dashboard summary loaded successfully.',
+        'data' => [
+            'total_balance' => (float) $totalBalance,
+            'income' => (float) $income,
+            'monthly_expense' => (float) $monthlyExpense,
+            'savings_rate' => (float) $savingsRate,
+            'today_steps' => (int) $todaySteps,
+            'today_calories' => (int) $todayCalories,
+            'water_intake_ml' => (int) $waterIntake,
+            'current_weight_kg' => (float) $currentWeight,
+            'active_projects' => (int) $activeProjects,
+            'total_projects' => (int) $totalProjects,
+        ],
+    ]);
+};
+
+$recentActivityHandler = function () {
+    return response()->json([
+        'success' => true,
+        'message' => 'Recent activity loaded successfully.',
+        'data' => [],
+    ]);
+};
+
+$lifeBalanceSummaryHandler = function (\Illuminate\Http\Request $request) {
+    $userId = $request->user()->id;
+
+    $totalBalance = 0;
+    $monthlyExpense = 0;
+    $income = 0;
+    $todaySteps = 0;
+    $todayCalories = 0;
+    $waterIntake = 0;
+    $currentWeight = 0;
+    $activeProjects = 0;
+    $totalProjects = 0;
+
+    if (Schema::hasTable('finance_accounts')) {
+        $totalBalance = DB::table('finance_accounts')
+            ->where('user_id', $userId)
+            ->sum('current_balance');
+    }
+
+    if (Schema::hasTable('finance_transactions')) {
+        $monthlyExpense = DB::table('finance_transactions')
+            ->where('user_id', $userId)
+            ->where('transaction_type', 'expense')
+            ->whereMonth('transaction_date', now()->month)
+            ->whereYear('transaction_date', now()->year)
+            ->sum('amount');
+
+        $income = DB::table('finance_transactions')
+            ->where('user_id', $userId)
+            ->where('transaction_type', 'income')
+            ->whereMonth('transaction_date', now()->month)
+            ->whereYear('transaction_date', now()->year)
+            ->sum('amount');
+    }
+
+    if (Schema::hasTable('health_step_logs')) {
+        $todaySteps = DB::table('health_step_logs')
+            ->where('user_id', $userId)
+            ->whereDate('log_date', today())
+            ->sum('steps');
+    }
+
+    if (Schema::hasTable('health_meal_logs') && Schema::hasColumn('health_meal_logs', 'total_calories')) {
+        $todayCalories = DB::table('health_meal_logs')
+            ->where('user_id', $userId)
+            ->whereDate('meal_date', today())
+            ->sum('total_calories');
+    }
+
+    if (Schema::hasTable('health_hydration_logs')) {
+        $hydrationDateColumn = Schema::hasColumn('health_hydration_logs', 'log_date')
+            ? 'log_date'
+            : (Schema::hasColumn('health_hydration_logs', 'logged_at') ? 'logged_at' : null);
+
+        $hydrationAmountColumn = Schema::hasColumn('health_hydration_logs', 'amount_ml')
+            ? 'amount_ml'
+            : (Schema::hasColumn('health_hydration_logs', 'water_ml') ? 'water_ml' : null);
+
+        if ($hydrationDateColumn && $hydrationAmountColumn) {
+            $waterIntake = DB::table('health_hydration_logs')
+                ->where('user_id', $userId)
+                ->whereDate($hydrationDateColumn, today())
+                ->sum($hydrationAmountColumn);
+        }
+    }
+
+    if (Schema::hasTable('health_weight_logs')) {
+        $latestWeight = DB::table('health_weight_logs')
+            ->where('user_id', $userId)
+            ->orderByDesc('log_date')
+            ->first();
+
+        $currentWeight = $latestWeight?->weight_kg ?? 0;
+    }
+
+    if (Schema::hasTable('projects')) {
+        $activeProjects = DB::table('projects')
+            ->where('user_id', $userId)
+            ->whereIn('status', ['active', 'in_progress'])
+            ->count();
+
+        $totalProjects = DB::table('projects')
+            ->where('user_id', $userId)
+            ->count();
+    }
+
+    $financeScore = 50;
+
+    if ($income > 0) {
+        $expenseRatio = min(($monthlyExpense / $income) * 100, 100);
+        $financeScore = max(0, 100 - $expenseRatio);
+    } elseif ($totalBalance > 0) {
+        $financeScore = 70;
+    }
+
+    $healthScore = 0;
+    $healthParts = 0;
+
+    if ($todaySteps > 0) {
+        $healthScore += min(($todaySteps / 8000) * 100, 100);
+        $healthParts++;
+    }
+
+    if ($todayCalories > 0) {
+        $healthScore += 80;
+        $healthParts++;
+    }
+
+    if ($waterIntake > 0) {
+        $healthScore += min(($waterIntake / 2000) * 100, 100);
+        $healthParts++;
+    }
+
+    if ($currentWeight > 0) {
+        $healthScore += 70;
+        $healthParts++;
+    }
+
+    $healthScore = $healthParts > 0 ? $healthScore / $healthParts : 40;
+
+    $projectsScore = $totalProjects > 0
+        ? min(($activeProjects / max($totalProjects, 1)) * 100, 100)
+        : 50;
+
+    $productivityScore = $projectsScore;
+
+    $consistencyScore = ($todaySteps > 0 || $todayCalories > 0 || $waterIntake > 0 || $currentWeight > 0)
+        ? 75
+        : 35;
+
+    $overallScore = round(
+        ($financeScore * 0.30) +
+        ($healthScore * 0.30) +
+        ($projectsScore * 0.20) +
+        ($productivityScore * 0.10) +
+        ($consistencyScore * 0.10),
+        2
+    );
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Life balance summary loaded successfully.',
+        'data' => [
+            'overall_score' => (float) $overallScore,
+            'finance_score' => round($financeScore, 2),
+            'health_score' => round($healthScore, 2),
+            'projects_score' => round($projectsScore, 2),
+            'productivity_score' => round($productivityScore, 2),
+            'consistency_score' => round($consistencyScore, 2),
+            'recommendations' => [
+                $financeScore < 60 ? 'Review your monthly spending and increase savings.' : 'Finance balance looks stable.',
+                $healthScore < 60 ? 'Log hydration, meals, steps, and weight more consistently.' : 'Health tracking is improving.',
+                $projectsScore < 60 ? 'Update project progress and complete pending tasks.' : 'Project activity looks healthy.',
+            ],
+        ],
+    ]);
+};
+
+/*
+|--------------------------------------------------------------------------
 | API V1 Routes
 |--------------------------------------------------------------------------
 */
+
 Route::prefix('v1')->group(function () use (
     $authController,
     $financeAccountController,
@@ -169,9 +420,11 @@ Route::prefix('v1')->group(function () use (
     $projectStatusUpdateController,
     $notificationController,
     $notificationPreferenceController,
-    $monitoringController
+    $monitoringController,
+    $dashboardSummaryHandler,
+    $recentActivityHandler,
+    $lifeBalanceSummaryHandler
 ) {
-
     /*
     |--------------------------------------------------------------------------
     | Public Authentication Routes
@@ -206,9 +459,11 @@ Route::prefix('v1')->group(function () use (
         $projectStatusUpdateController,
         $notificationController,
         $notificationPreferenceController,
-        $monitoringController
+        $monitoringController,
+        $dashboardSummaryHandler,
+        $recentActivityHandler,
+        $lifeBalanceSummaryHandler
     ) {
-
         /*
         |--------------------------------------------------------------------------
         | Auth
@@ -216,112 +471,27 @@ Route::prefix('v1')->group(function () use (
         */
         Route::get('/auth/me', [$authController, 'me']);
         Route::post('/auth/logout', [$authController, 'logout']);
+
         /*
         |--------------------------------------------------------------------------
         | Unified Dashboard Fallback Routes
         |--------------------------------------------------------------------------
         */
-        Route::get('/dashboard/summary', function (\Illuminate\Http\Request $request) {
-            $userId = $request->user()->id;
+        Route::get('/dashboard/summary', $dashboardSummaryHandler);
+        Route::get('/dashboard/kpis', $dashboardSummaryHandler);
+        Route::get('/dashboard/recent-activity', $recentActivityHandler);
 
-            $totalBalance = \Illuminate\Support\Facades\DB::table('finance_accounts')
-                ->where('user_id', $userId)
-                ->sum('current_balance');
+        /*
+        |--------------------------------------------------------------------------
+        | Life Balance Fallback Routes
+        |--------------------------------------------------------------------------
+        */
+        Route::get('/life-balance', $lifeBalanceSummaryHandler);
+        Route::get('/life-balance/summary', $lifeBalanceSummaryHandler);
+        Route::get('/life-balance/score', $lifeBalanceSummaryHandler);
+        Route::get('/life-balance/radar', $lifeBalanceSummaryHandler);
+        Route::post('/life-balance/recalculate', $lifeBalanceSummaryHandler);
 
-            $monthlyExpense = \Illuminate\Support\Facades\DB::table('finance_transactions')
-                ->where('user_id', $userId)
-                ->where('transaction_type', 'expense')
-                ->whereMonth('transaction_date', now()->month)
-                ->whereYear('transaction_date', now()->year)
-                ->sum('amount');
-
-            $income = \Illuminate\Support\Facades\DB::table('finance_transactions')
-                ->where('user_id', $userId)
-                ->where('transaction_type', 'income')
-                ->whereMonth('transaction_date', now()->month)
-                ->whereYear('transaction_date', now()->year)
-                ->sum('amount');
-
-            $todaySteps = 0;
-            if (\Illuminate\Support\Facades\Schema::hasTable('health_step_logs')) {
-                $todaySteps = \Illuminate\Support\Facades\DB::table('health_step_logs')
-                    ->where('user_id', $userId)
-                    ->whereDate('log_date', today())
-                    ->sum('steps');
-            }
-
-            $todayCalories = 0;
-            if (\Illuminate\Support\Facades\Schema::hasTable('health_meal_logs')) {
-                $todayCalories = \Illuminate\Support\Facades\DB::table('health_meal_logs')
-                    ->where('user_id', $userId)
-                    ->whereDate('meal_date', today())
-                    ->sum('total_calories');
-            }
-
-            $waterIntake = 0;
-            if (\Illuminate\Support\Facades\Schema::hasTable('health_hydration_logs')) {
-                $waterIntake = \Illuminate\Support\Facades\DB::table('health_hydration_logs')
-                    ->where('user_id', $userId)
-                    ->whereDate('log_date', today())
-                    ->sum('amount_ml');
-            }
-
-            $currentWeight = 0;
-            if (\Illuminate\Support\Facades\Schema::hasTable('health_weight_logs')) {
-                $latestWeight = \Illuminate\Support\Facades\DB::table('health_weight_logs')
-                    ->where('user_id', $userId)
-                    ->orderByDesc('log_date')
-                    ->first();
-
-                $currentWeight = $latestWeight?->weight_kg ?? 0;
-            }
-
-            $activeProjects = 0;
-            $totalProjects = 0;
-            if (\Illuminate\Support\Facades\Schema::hasTable('projects')) {
-                $activeProjects = \Illuminate\Support\Facades\DB::table('projects')
-                    ->where('user_id', $userId)
-                    ->whereIn('status', ['active', 'in_progress'])
-                    ->count();
-
-                $totalProjects = \Illuminate\Support\Facades\DB::table('projects')
-                    ->where('user_id', $userId)
-                    ->count();
-            }
-
-            $savingsRate = $income > 0
-                ? round((($income - $monthlyExpense) / $income) * 100, 2)
-                : 0;
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Dashboard summary loaded successfully.',
-                'data' => [
-                    'total_balance' => (float) $totalBalance,
-                    'income' => (float) $income,
-                    'monthly_expense' => (float) $monthlyExpense,
-                    'savings_rate' => $savingsRate,
-                    'today_steps' => (int) $todaySteps,
-                    'today_calories' => (int) $todayCalories,
-                    'water_intake_ml' => (int) $waterIntake,
-                    'current_weight_kg' => (float) $currentWeight,
-                    'active_projects' => (int) $activeProjects,
-                    'total_projects' => (int) $totalProjects,
-                ],
-            ]);
-        });
-
-        Route::get('/dashboard/kpis', function (\Illuminate\Http\Request $request) {
-            return redirect('/api/v1/dashboard/summary');
-        });
-
-        Route::get('/dashboard/recent-activity', function () {
-            return response()->json([
-                'success' => true,
-                'message' => 'Recent activity loaded successfully.',
-                'data' => [],
-            ]);
-        });
         /*
         |--------------------------------------------------------------------------
         | Finance Accounts
@@ -558,8 +728,6 @@ Route::prefix('v1')->group(function () use (
         |--------------------------------------------------------------------------
         | Notification Preferences
         |--------------------------------------------------------------------------
-        | Must be before /notifications/{notification}
-        |--------------------------------------------------------------------------
         */
         if ($notificationPreferenceController) {
             Route::get('/notifications/preferences', [$notificationPreferenceController, 'show']);
@@ -573,12 +741,6 @@ Route::prefix('v1')->group(function () use (
         | Notifications
         |--------------------------------------------------------------------------
         */
-        if ($notificationPreferenceController) {
-            Route::get('/notifications/preferences', [$notificationPreferenceController, 'show']);
-            Route::post('/notifications/preferences', [$notificationPreferenceController, 'storeOrUpdate']);
-            Route::put('/notifications/preferences', [$notificationPreferenceController, 'storeOrUpdate']);
-            Route::patch('/notifications/preferences', [$notificationPreferenceController, 'storeOrUpdate']);
-        }
         if ($notificationController) {
             Route::get('/notifications', [$notificationController, 'index']);
             Route::post('/notifications', [$notificationController, 'store']);

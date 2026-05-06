@@ -6,27 +6,39 @@
 
       <form @submit.prevent="login" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1">
+            Email
+          </label>
           <input
             v-model="form.email"
             type="email"
             class="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-slate-900"
-            placeholder="nix@example.com"
+            placeholder="nix1@test.com"
+            autocomplete="email"
+            required
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+          <label class="block text-sm font-medium text-slate-700 mb-1">
+            Password
+          </label>
           <input
             v-model="form.password"
             type="password"
             class="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-slate-900"
             placeholder="********"
+            autocomplete="current-password"
+            required
           />
         </div>
 
         <p v-if="error" class="text-red-600 text-sm">
           {{ error }}
+        </p>
+
+        <p v-if="success" class="text-green-600 text-sm">
+          {{ success }}
         </p>
 
         <button
@@ -55,18 +67,42 @@ import { useRouter, RouterLink } from "vue-router";
 const router = useRouter();
 
 const form = reactive({
-  email: "",
-  password: "",
+  email: "nix1@test.com",
+  password: "password",
 });
 
 const loading = ref(false);
 const error = ref("");
+const success = ref("");
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001/api/v1";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
+
+function extractToken(responseData) {
+  return (
+    responseData?.token ||
+    responseData?.access_token ||
+    responseData?.data?.token ||
+    responseData?.data?.access_token ||
+    responseData?.data?.plainTextToken ||
+    responseData?.plainTextToken ||
+    null
+  );
+}
+
+function extractUser(responseData) {
+  return (
+    responseData?.user ||
+    responseData?.data?.user ||
+    responseData?.data ||
+    null
+  );
+}
 
 async function login() {
   loading.value = true;
   error.value = "";
+  success.value = "";
 
   try {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -75,21 +111,44 @@ async function login() {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        email: form.email,
+        password: form.password,
+      }),
     });
 
-    const data = await response.json();
+    const data = await response.json().catch(() => null);
 
     if (!response.ok) {
-      throw new Error(data.message || "Login failed");
+      const validationMessage = data?.errors
+        ? Object.values(data.errors).flat().join(" ")
+        : null;
+
+      throw new Error(data?.message || validationMessage || "Login failed");
     }
 
-    localStorage.setItem("nix_token", data.token);
-    localStorage.setItem("nix_user", JSON.stringify(data.user));
+    const token = extractToken(data);
+    const user = extractUser(data);
+
+    if (!token) {
+      console.error("Login response:", data);
+      throw new Error("Login succeeded but token was not found in response.");
+    }
+
+    localStorage.setItem("nix_token", token);
+    localStorage.setItem("token", token);
+    localStorage.setItem("auth_token", token);
+
+    if (user) {
+      localStorage.setItem("nix_user", JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+
+    success.value = "Login successful. Redirecting...";
 
     router.push("/");
   } catch (err) {
-    error.value = err.message;
+    error.value = err.message || "Login failed";
   } finally {
     loading.value = false;
   }

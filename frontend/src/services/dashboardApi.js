@@ -1,36 +1,61 @@
-import axios from "axios";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/v1";
 
-const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
+function getToken() {
+  return (
+    localStorage.getItem("nix_token") ||
+    localStorage.getItem("token") ||
+    localStorage.getItem("auth_token")
+  );
+}
 
-function getAuthHeaders() {
-  const token = localStorage.getItem("token");
+async function request(endpoint) {
+  const token = getToken();
 
-  return {
-    Accept: "application/json",
-    Authorization: `Bearer ${token}`,
-  };
+  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+
+  const data = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(data?.message || `Request failed with status ${response.status}`);
+  }
+
+  return data;
 }
 
 export async function getUnifiedDashboardSummary() {
-  const response = await axios.get(`${API_BASE_URL}/dashboard/summary`, {
-    headers: getAuthHeaders(),
-  });
-
-  return response.data;
+  return request("/dashboard/summary");
 }
 
 export async function getUnifiedDashboardKpis() {
-  const response = await axios.get(`${API_BASE_URL}/dashboard/kpis`, {
-    headers: getAuthHeaders(),
-  });
-
-  return response.data;
+  return request("/dashboard/kpis");
 }
 
+export async function getUnifiedDashboardRecentActivity() {
+  return request("/dashboard/recent-activity");
+}
+
+/*
+|--------------------------------------------------------------------------
+| Compatibility Alias
+|--------------------------------------------------------------------------
+| Some views import getUnifiedDashboardActivity instead of
+| getUnifiedDashboardRecentActivity.
+|--------------------------------------------------------------------------
+*/
 export async function getUnifiedDashboardActivity() {
-  const response = await axios.get(`${API_BASE_URL}/dashboard/recent-activity`, {
-    headers: getAuthHeaders(),
-  });
-
-  return response.data;
+  return getUnifiedDashboardRecentActivity();
 }
+
+export default {
+  getUnifiedDashboardSummary,
+  getUnifiedDashboardKpis,
+  getUnifiedDashboardRecentActivity,
+  getUnifiedDashboardActivity,
+};
