@@ -1,769 +1,271 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
+
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
+use App\Http\Controllers\Api\V1\Dashboard\UnifiedDashboardController;
+use App\Http\Controllers\Api\LifeBalanceController;
+
+use App\Http\Controllers\Api\FinanceDashboardController;
+use App\Http\Controllers\Api\FinanceAccountController;
+use App\Http\Controllers\Api\FinanceTransactionController;
+use App\Http\Controllers\Api\FinanceBudgetController;
+
+use App\Http\Controllers\Api\HealthStepLogController;
+use App\Http\Controllers\Api\HealthWeightLogController;
+use App\Http\Controllers\Api\HealthNutritionLogController;
+use App\Http\Controllers\Api\HealthHydrationLogController;
+
+use App\Http\Controllers\Api\ProjectDashboardController;
+use App\Http\Controllers\Api\ProjectTaskController;
+use App\Http\Controllers\Api\ProjectMilestoneController;
+use App\Http\Controllers\Api\ProjectProgressController;
+use App\Http\Controllers\Api\ProjectStatusUpdateController;
+
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\NotificationSettingController;
+
+use App\Http\Controllers\Api\MonitoringController;
 
 /*
 |--------------------------------------------------------------------------
-| Controller Resolvers
+| API Routes
 |--------------------------------------------------------------------------
+|
+| Nix Life OS API routes.
+| Main API prefix: /api/v1
+|
 */
-
-$authController = \App\Http\Controllers\Api\AuthController::class;
-
-$financeAccountController = \App\Http\Controllers\Api\FinanceAccountController::class;
-$financeTransactionController = \App\Http\Controllers\Api\FinanceTransactionController::class;
-
-$financeBudgetController = class_exists(\App\Http\Controllers\Api\V1\Finance\FinanceBudgetController::class)
-    ? \App\Http\Controllers\Api\V1\Finance\FinanceBudgetController::class
-    : (
-        class_exists(\App\Http\Controllers\Api\FinanceBudgetController::class)
-            ? \App\Http\Controllers\Api\FinanceBudgetController::class
-            : null
-    );
 
 /*
 |--------------------------------------------------------------------------
-| Health Controllers
-|--------------------------------------------------------------------------
-*/
-$healthStepController = class_exists(\App\Http\Controllers\Api\V1\Health\HealthStepLogController::class)
-    ? \App\Http\Controllers\Api\V1\Health\HealthStepLogController::class
-    : null;
-
-$healthWeightController = class_exists(\App\Http\Controllers\Api\V1\HealthWeightLogController::class)
-    ? \App\Http\Controllers\Api\V1\HealthWeightLogController::class
-    : null;
-
-$healthMealController = class_exists(\App\Http\Controllers\Api\V1\Health\HealthMealLogController::class)
-    ? \App\Http\Controllers\Api\V1\Health\HealthMealLogController::class
-    : null;
-
-$healthFoodItemController = class_exists(\App\Http\Controllers\Api\V1\Health\HealthFoodItemController::class)
-    ? \App\Http\Controllers\Api\V1\Health\HealthFoodItemController::class
-    : null;
-
-$healthHydrationController = class_exists(\App\Http\Controllers\Api\V1\HealthHydrationLogController::class)
-    ? \App\Http\Controllers\Api\V1\HealthHydrationLogController::class
-    : null;
-
-$healthProfileController = class_exists(\App\Http\Controllers\Api\V1\Health\HealthProfileController::class)
-    ? \App\Http\Controllers\Api\V1\Health\HealthProfileController::class
-    : null;
-
-$healthAnalyticsController = class_exists(\App\Http\Controllers\Api\V1\Health\HealthAnalyticsController::class)
-    ? \App\Http\Controllers\Api\V1\Health\HealthAnalyticsController::class
-    : null;
-
-$healthNutritionProfileController = class_exists(\App\Http\Controllers\Api\V1\Health\HealthNutritionProfileController::class)
-    ? \App\Http\Controllers\Api\V1\Health\HealthNutritionProfileController::class
-    : null;
-
-$healthNutritionSummaryController = class_exists(\App\Http\Controllers\Api\V1\Health\HealthNutritionSummaryController::class)
-    ? \App\Http\Controllers\Api\V1\Health\HealthNutritionSummaryController::class
-    : null;
-
-/*
-|--------------------------------------------------------------------------
-| Project Controllers
-|--------------------------------------------------------------------------
-*/
-$projectController = class_exists(\App\Http\Controllers\Api\V1\ProjectController::class)
-    ? \App\Http\Controllers\Api\V1\ProjectController::class
-    : null;
-
-$projectTaskController = class_exists(\App\Http\Controllers\Api\V1\ProjectTaskController::class)
-    ? \App\Http\Controllers\Api\V1\ProjectTaskController::class
-    : null;
-
-$projectMilestoneController = class_exists(\App\Http\Controllers\Api\V1\ProjectMilestoneController::class)
-    ? \App\Http\Controllers\Api\V1\ProjectMilestoneController::class
-    : null;
-
-$projectProgressController = class_exists(\App\Http\Controllers\Api\V1\ProjectProgressController::class)
-    ? \App\Http\Controllers\Api\V1\ProjectProgressController::class
-    : null;
-
-$projectStatusUpdateController = class_exists(\App\Http\Controllers\Api\V1\ProjectStatusUpdateController::class)
-    ? \App\Http\Controllers\Api\V1\ProjectStatusUpdateController::class
-    : null;
-
-/*
-|--------------------------------------------------------------------------
-| Notification Controllers
-|--------------------------------------------------------------------------
-*/
-$notificationController = class_exists(\App\Http\Controllers\Api\NotificationController::class)
-    ? \App\Http\Controllers\Api\NotificationController::class
-    : null;
-
-$notificationPreferenceController = class_exists(\App\Http\Controllers\Api\NotificationPreferenceController::class)
-    ? \App\Http\Controllers\Api\NotificationPreferenceController::class
-    : null;
-
-/*
-|--------------------------------------------------------------------------
-| Monitoring Controller
-|--------------------------------------------------------------------------
-*/
-$monitoringController = class_exists(\App\Http\Controllers\Api\MonitoringController::class)
-    ? \App\Http\Controllers\Api\MonitoringController::class
-    : null;
-
-/*
-|--------------------------------------------------------------------------
-| Fallback Handlers
+| Public Health Check
 |--------------------------------------------------------------------------
 */
 
-$dashboardSummaryHandler = function (\Illuminate\Http\Request $request) {
-    $userId = $request->user()->id;
-
-    $totalBalance = 0;
-    $monthlyExpense = 0;
-    $income = 0;
-    $todaySteps = 0;
-    $todayCalories = 0;
-    $waterIntake = 0;
-    $currentWeight = 0;
-    $activeProjects = 0;
-    $totalProjects = 0;
-
-    if (Schema::hasTable('finance_accounts')) {
-        $totalBalance = DB::table('finance_accounts')
-            ->where('user_id', $userId)
-            ->sum('current_balance');
-    }
-
-    if (Schema::hasTable('finance_transactions')) {
-        $monthlyExpense = DB::table('finance_transactions')
-            ->where('user_id', $userId)
-            ->where('transaction_type', 'expense')
-            ->whereMonth('transaction_date', now()->month)
-            ->whereYear('transaction_date', now()->year)
-            ->sum('amount');
-
-        $income = DB::table('finance_transactions')
-            ->where('user_id', $userId)
-            ->where('transaction_type', 'income')
-            ->whereMonth('transaction_date', now()->month)
-            ->whereYear('transaction_date', now()->year)
-            ->sum('amount');
-    }
-
-    if (Schema::hasTable('health_step_logs')) {
-        $todaySteps = DB::table('health_step_logs')
-            ->where('user_id', $userId)
-            ->whereDate('log_date', today())
-            ->sum('steps');
-    }
-
-    if (Schema::hasTable('health_meal_logs')) {
-        if (Schema::hasColumn('health_meal_logs', 'total_calories')) {
-            $todayCalories = DB::table('health_meal_logs')
-                ->where('user_id', $userId)
-                ->whereDate('meal_date', today())
-                ->sum('total_calories');
-        }
-    }
-
-    if (Schema::hasTable('health_hydration_logs')) {
-        $hydrationDateColumn = Schema::hasColumn('health_hydration_logs', 'log_date')
-            ? 'log_date'
-            : (Schema::hasColumn('health_hydration_logs', 'logged_at') ? 'logged_at' : null);
-
-        $hydrationAmountColumn = Schema::hasColumn('health_hydration_logs', 'amount_ml')
-            ? 'amount_ml'
-            : (Schema::hasColumn('health_hydration_logs', 'water_ml') ? 'water_ml' : null);
-
-        if ($hydrationDateColumn && $hydrationAmountColumn) {
-            $waterIntake = DB::table('health_hydration_logs')
-                ->where('user_id', $userId)
-                ->whereDate($hydrationDateColumn, today())
-                ->sum($hydrationAmountColumn);
-        }
-    }
-
-    if (Schema::hasTable('health_weight_logs')) {
-        $latestWeight = DB::table('health_weight_logs')
-            ->where('user_id', $userId)
-            ->orderByDesc('log_date')
-            ->first();
-
-        $currentWeight = $latestWeight?->weight_kg ?? 0;
-    }
-
-    if (Schema::hasTable('projects')) {
-        $activeProjects = DB::table('projects')
-            ->where('user_id', $userId)
-            ->whereIn('status', ['active', 'in_progress'])
-            ->count();
-
-        $totalProjects = DB::table('projects')
-            ->where('user_id', $userId)
-            ->count();
-    }
-
-    $savingsRate = $income > 0
-        ? round((($income - $monthlyExpense) / $income) * 100, 2)
-        : 0;
-
+Route::get('/health', function () {
     return response()->json([
         'success' => true,
-        'message' => 'Dashboard summary loaded successfully.',
-        'data' => [
-            'total_balance' => (float) $totalBalance,
-            'income' => (float) $income,
-            'monthly_expense' => (float) $monthlyExpense,
-            'savings_rate' => (float) $savingsRate,
-            'today_steps' => (int) $todaySteps,
-            'today_calories' => (int) $todayCalories,
-            'water_intake_ml' => (int) $waterIntake,
-            'current_weight_kg' => (float) $currentWeight,
-            'active_projects' => (int) $activeProjects,
-            'total_projects' => (int) $totalProjects,
-        ],
+        'message' => 'Nix Life OS API is running.',
+        'timestamp' => now()->toISOString(),
     ]);
-};
-
-$recentActivityHandler = function () {
-    return response()->json([
-        'success' => true,
-        'message' => 'Recent activity loaded successfully.',
-        'data' => [],
-    ]);
-};
-
-$lifeBalanceSummaryHandler = function (\Illuminate\Http\Request $request) {
-    $userId = $request->user()->id;
-
-    $totalBalance = 0;
-    $monthlyExpense = 0;
-    $income = 0;
-    $todaySteps = 0;
-    $todayCalories = 0;
-    $waterIntake = 0;
-    $currentWeight = 0;
-    $activeProjects = 0;
-    $totalProjects = 0;
-
-    if (Schema::hasTable('finance_accounts')) {
-        $totalBalance = DB::table('finance_accounts')
-            ->where('user_id', $userId)
-            ->sum('current_balance');
-    }
-
-    if (Schema::hasTable('finance_transactions')) {
-        $monthlyExpense = DB::table('finance_transactions')
-            ->where('user_id', $userId)
-            ->where('transaction_type', 'expense')
-            ->whereMonth('transaction_date', now()->month)
-            ->whereYear('transaction_date', now()->year)
-            ->sum('amount');
-
-        $income = DB::table('finance_transactions')
-            ->where('user_id', $userId)
-            ->where('transaction_type', 'income')
-            ->whereMonth('transaction_date', now()->month)
-            ->whereYear('transaction_date', now()->year)
-            ->sum('amount');
-    }
-
-    if (Schema::hasTable('health_step_logs')) {
-        $todaySteps = DB::table('health_step_logs')
-            ->where('user_id', $userId)
-            ->whereDate('log_date', today())
-            ->sum('steps');
-    }
-
-    if (Schema::hasTable('health_meal_logs') && Schema::hasColumn('health_meal_logs', 'total_calories')) {
-        $todayCalories = DB::table('health_meal_logs')
-            ->where('user_id', $userId)
-            ->whereDate('meal_date', today())
-            ->sum('total_calories');
-    }
-
-    if (Schema::hasTable('health_hydration_logs')) {
-        $hydrationDateColumn = Schema::hasColumn('health_hydration_logs', 'log_date')
-            ? 'log_date'
-            : (Schema::hasColumn('health_hydration_logs', 'logged_at') ? 'logged_at' : null);
-
-        $hydrationAmountColumn = Schema::hasColumn('health_hydration_logs', 'amount_ml')
-            ? 'amount_ml'
-            : (Schema::hasColumn('health_hydration_logs', 'water_ml') ? 'water_ml' : null);
-
-        if ($hydrationDateColumn && $hydrationAmountColumn) {
-            $waterIntake = DB::table('health_hydration_logs')
-                ->where('user_id', $userId)
-                ->whereDate($hydrationDateColumn, today())
-                ->sum($hydrationAmountColumn);
-        }
-    }
-
-    if (Schema::hasTable('health_weight_logs')) {
-        $latestWeight = DB::table('health_weight_logs')
-            ->where('user_id', $userId)
-            ->orderByDesc('log_date')
-            ->first();
-
-        $currentWeight = $latestWeight?->weight_kg ?? 0;
-    }
-
-    if (Schema::hasTable('projects')) {
-        $activeProjects = DB::table('projects')
-            ->where('user_id', $userId)
-            ->whereIn('status', ['active', 'in_progress'])
-            ->count();
-
-        $totalProjects = DB::table('projects')
-            ->where('user_id', $userId)
-            ->count();
-    }
-
-    $financeScore = 50;
-
-    if ($income > 0) {
-        $expenseRatio = min(($monthlyExpense / $income) * 100, 100);
-        $financeScore = max(0, 100 - $expenseRatio);
-    } elseif ($totalBalance > 0) {
-        $financeScore = 70;
-    }
-
-    $healthScore = 0;
-    $healthParts = 0;
-
-    if ($todaySteps > 0) {
-        $healthScore += min(($todaySteps / 8000) * 100, 100);
-        $healthParts++;
-    }
-
-    if ($todayCalories > 0) {
-        $healthScore += 80;
-        $healthParts++;
-    }
-
-    if ($waterIntake > 0) {
-        $healthScore += min(($waterIntake / 2000) * 100, 100);
-        $healthParts++;
-    }
-
-    if ($currentWeight > 0) {
-        $healthScore += 70;
-        $healthParts++;
-    }
-
-    $healthScore = $healthParts > 0 ? $healthScore / $healthParts : 40;
-
-    $projectsScore = $totalProjects > 0
-        ? min(($activeProjects / max($totalProjects, 1)) * 100, 100)
-        : 50;
-
-    $productivityScore = $projectsScore;
-
-    $consistencyScore = ($todaySteps > 0 || $todayCalories > 0 || $waterIntake > 0 || $currentWeight > 0)
-        ? 75
-        : 35;
-
-    $overallScore = round(
-        ($financeScore * 0.30) +
-        ($healthScore * 0.30) +
-        ($projectsScore * 0.20) +
-        ($productivityScore * 0.10) +
-        ($consistencyScore * 0.10),
-        2
-    );
-
-    return response()->json([
-        'success' => true,
-        'message' => 'Life balance summary loaded successfully.',
-        'data' => [
-            'overall_score' => (float) $overallScore,
-            'finance_score' => round($financeScore, 2),
-            'health_score' => round($healthScore, 2),
-            'projects_score' => round($projectsScore, 2),
-            'productivity_score' => round($productivityScore, 2),
-            'consistency_score' => round($consistencyScore, 2),
-            'recommendations' => [
-                $financeScore < 60 ? 'Review your monthly spending and increase savings.' : 'Finance balance looks stable.',
-                $healthScore < 60 ? 'Log hydration, meals, steps, and weight more consistently.' : 'Health tracking is improving.',
-                $projectsScore < 60 ? 'Update project progress and complete pending tasks.' : 'Project activity looks healthy.',
-            ],
-        ],
-    ]);
-};
+});
 
 /*
 |--------------------------------------------------------------------------
-| API V1 Routes
+| API Version 1
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('v1')->group(function () use (
-    $authController,
-    $financeAccountController,
-    $financeTransactionController,
-    $financeBudgetController,
-    $healthStepController,
-    $healthWeightController,
-    $healthMealController,
-    $healthFoodItemController,
-    $healthHydrationController,
-    $healthProfileController,
-    $healthAnalyticsController,
-    $healthNutritionProfileController,
-    $healthNutritionSummaryController,
-    $projectController,
-    $projectTaskController,
-    $projectMilestoneController,
-    $projectProgressController,
-    $projectStatusUpdateController,
-    $notificationController,
-    $notificationPreferenceController,
-    $monitoringController,
-    $dashboardSummaryHandler,
-    $recentActivityHandler,
-    $lifeBalanceSummaryHandler
-) {
+Route::prefix('v1')->group(function () {
     /*
     |--------------------------------------------------------------------------
-    | Public Authentication Routes
+    | Public Auth Routes
     |--------------------------------------------------------------------------
     */
-    Route::post('/auth/register', [$authController, 'register']);
-    Route::post('/auth/login', [$authController, 'login']);
+
+    Route::prefix('auth')->group(function () {
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/register', [AuthController::class, 'register']);
+
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::get('/me', [AuthController::class, 'me']);
+            Route::post('/logout', [AuthController::class, 'logout']);
+        });
+    });
 
     /*
     |--------------------------------------------------------------------------
     | Protected Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware('auth:sanctum')->group(function () use (
-        $authController,
-        $financeAccountController,
-        $financeTransactionController,
-        $financeBudgetController,
-        $healthStepController,
-        $healthWeightController,
-        $healthMealController,
-        $healthFoodItemController,
-        $healthHydrationController,
-        $healthProfileController,
-        $healthAnalyticsController,
-        $healthNutritionProfileController,
-        $healthNutritionSummaryController,
-        $projectController,
-        $projectTaskController,
-        $projectMilestoneController,
-        $projectProgressController,
-        $projectStatusUpdateController,
-        $notificationController,
-        $notificationPreferenceController,
-        $monitoringController,
-        $dashboardSummaryHandler,
-        $recentActivityHandler,
-        $lifeBalanceSummaryHandler
-    ) {
+
+    Route::middleware('auth:sanctum')->group(function () {
         /*
         |--------------------------------------------------------------------------
-        | Auth
+        | Authenticated User
         |--------------------------------------------------------------------------
         */
-        Route::get('/auth/me', [$authController, 'me']);
-        Route::post('/auth/logout', [$authController, 'logout']);
+
+        Route::get('/user', function (Request $request) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Authenticated user loaded successfully.',
+                'data' => $request->user(),
+            ]);
+        });
 
         /*
         |--------------------------------------------------------------------------
-        | Unified Dashboard Fallback Routes
+        | Unified Dashboard
         |--------------------------------------------------------------------------
         */
-        Route::get('/dashboard/summary', $dashboardSummaryHandler);
-        Route::get('/dashboard/kpis', $dashboardSummaryHandler);
-        Route::get('/dashboard/recent-activity', $recentActivityHandler);
+
+        Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
 
         /*
         |--------------------------------------------------------------------------
-        | Life Balance Fallback Routes
+        | Life Balance
         |--------------------------------------------------------------------------
         */
-        Route::get('/life-balance', $lifeBalanceSummaryHandler);
-        Route::get('/life-balance/summary', $lifeBalanceSummaryHandler);
-        Route::get('/life-balance/score', $lifeBalanceSummaryHandler);
-        Route::get('/life-balance/radar', $lifeBalanceSummaryHandler);
-        Route::post('/life-balance/recalculate', $lifeBalanceSummaryHandler);
+
+        Route::get('/life-balance/summary', [LifeBalanceController::class, 'summary']);
 
         /*
         |--------------------------------------------------------------------------
-        | Finance Accounts
+        | Finance Module
         |--------------------------------------------------------------------------
+        |
+        | Main frontend pages:
+        | /finance/dashboard
+        | /finance/accounts
+        | /finance/transactions
+        | /finance/budgets
+        |
+        | Main APIs:
+        | GET    /api/v1/finance/summary
+        | GET    /api/v1/finance/accounts
+        | POST   /api/v1/finance/accounts
+        | GET    /api/v1/finance/transactions
+        | POST   /api/v1/finance/transactions
+        | GET    /api/v1/finance/budgets
+        | POST   /api/v1/finance/budgets
+        |
         */
-        Route::get('/finance/accounts', [$financeAccountController, 'index']);
-        Route::post('/finance/accounts', [$financeAccountController, 'store']);
-        Route::get('/finance/accounts/{account}', [$financeAccountController, 'show']);
-        Route::put('/finance/accounts/{account}', [$financeAccountController, 'update']);
-        Route::patch('/finance/accounts/{account}', [$financeAccountController, 'update']);
-        Route::delete('/finance/accounts/{account}', [$financeAccountController, 'destroy']);
+
+        Route::prefix('finance')->group(function () {
+            Route::get('/summary', [FinanceDashboardController::class, 'summary']);
+
+            Route::get('/accounts', [FinanceAccountController::class, 'index']);
+            Route::post('/accounts', [FinanceAccountController::class, 'store']);
+            Route::get('/accounts/{id}', [FinanceAccountController::class, 'show']);
+            Route::put('/accounts/{id}', [FinanceAccountController::class, 'update']);
+            Route::patch('/accounts/{id}', [FinanceAccountController::class, 'update']);
+            Route::delete('/accounts/{id}', [FinanceAccountController::class, 'destroy']);
+
+            Route::get('/transactions', [FinanceTransactionController::class, 'index']);
+            Route::post('/transactions', [FinanceTransactionController::class, 'store']);
+            Route::get('/transactions/{id}', [FinanceTransactionController::class, 'show']);
+            Route::put('/transactions/{id}', [FinanceTransactionController::class, 'update']);
+            Route::patch('/transactions/{id}', [FinanceTransactionController::class, 'update']);
+            Route::delete('/transactions/{id}', [FinanceTransactionController::class, 'destroy']);
+
+            Route::get('/budgets', [FinanceBudgetController::class, 'index']);
+            Route::post('/budgets', [FinanceBudgetController::class, 'store']);
+            Route::get('/budgets/{id}', [FinanceBudgetController::class, 'show']);
+            Route::put('/budgets/{id}', [FinanceBudgetController::class, 'update']);
+            Route::patch('/budgets/{id}', [FinanceBudgetController::class, 'update']);
+            Route::delete('/budgets/{id}', [FinanceBudgetController::class, 'destroy']);
+        });
 
         /*
         |--------------------------------------------------------------------------
-        | Finance Transactions
+        | Health Module
         |--------------------------------------------------------------------------
         */
-        Route::get('/finance/transactions', [$financeTransactionController, 'index']);
-        Route::post('/finance/transactions', [$financeTransactionController, 'store']);
-        Route::get('/finance/transactions/{transaction}', [$financeTransactionController, 'show']);
-        Route::put('/finance/transactions/{transaction}', [$financeTransactionController, 'update']);
-        Route::patch('/finance/transactions/{transaction}', [$financeTransactionController, 'update']);
-        Route::delete('/finance/transactions/{transaction}', [$financeTransactionController, 'destroy']);
+
+        Route::prefix('health')->group(function () {
+            Route::get('/steps', [HealthStepLogController::class, 'index']);
+            Route::post('/steps', [HealthStepLogController::class, 'store']);
+            Route::get('/steps/{id}', [HealthStepLogController::class, 'show']);
+            Route::put('/steps/{id}', [HealthStepLogController::class, 'update']);
+            Route::patch('/steps/{id}', [HealthStepLogController::class, 'update']);
+            Route::delete('/steps/{id}', [HealthStepLogController::class, 'destroy']);
+
+            Route::get('/weight', [HealthWeightLogController::class, 'index']);
+            Route::post('/weight', [HealthWeightLogController::class, 'store']);
+            Route::get('/weight/{id}', [HealthWeightLogController::class, 'show']);
+            Route::put('/weight/{id}', [HealthWeightLogController::class, 'update']);
+            Route::patch('/weight/{id}', [HealthWeightLogController::class, 'update']);
+            Route::delete('/weight/{id}', [HealthWeightLogController::class, 'destroy']);
+
+            Route::get('/nutrition', [HealthNutritionLogController::class, 'index']);
+            Route::post('/nutrition', [HealthNutritionLogController::class, 'store']);
+            Route::get('/nutrition/{id}', [HealthNutritionLogController::class, 'show']);
+            Route::put('/nutrition/{id}', [HealthNutritionLogController::class, 'update']);
+            Route::patch('/nutrition/{id}', [HealthNutritionLogController::class, 'update']);
+            Route::delete('/nutrition/{id}', [HealthNutritionLogController::class, 'destroy']);
+
+            Route::get('/hydration', [HealthHydrationLogController::class, 'index']);
+            Route::post('/hydration', [HealthHydrationLogController::class, 'store']);
+            Route::get('/hydration/{id}', [HealthHydrationLogController::class, 'show']);
+            Route::put('/hydration/{id}', [HealthHydrationLogController::class, 'update']);
+            Route::patch('/hydration/{id}', [HealthHydrationLogController::class, 'update']);
+            Route::delete('/hydration/{id}', [HealthHydrationLogController::class, 'destroy']);
+        });
 
         /*
         |--------------------------------------------------------------------------
-        | Finance Budgets
+        | Projects Module
         |--------------------------------------------------------------------------
         */
-        if ($financeBudgetController) {
-            Route::get('/finance/budgets', [$financeBudgetController, 'index']);
-            Route::post('/finance/budgets', [$financeBudgetController, 'store']);
-            Route::get('/finance/budgets/{budget}', [$financeBudgetController, 'show']);
-            Route::put('/finance/budgets/{budget}', [$financeBudgetController, 'update']);
-            Route::patch('/finance/budgets/{budget}', [$financeBudgetController, 'update']);
-            Route::delete('/finance/budgets/{budget}', [$financeBudgetController, 'destroy']);
-        }
+
+        Route::prefix('projects')->group(function () {
+            Route::get('/dashboard', [ProjectDashboardController::class, 'summary']);
+
+            Route::get('/tasks', [ProjectTaskController::class, 'index']);
+            Route::post('/tasks', [ProjectTaskController::class, 'store']);
+            Route::get('/tasks/{id}', [ProjectTaskController::class, 'show']);
+            Route::put('/tasks/{id}', [ProjectTaskController::class, 'update']);
+            Route::patch('/tasks/{id}', [ProjectTaskController::class, 'update']);
+            Route::delete('/tasks/{id}', [ProjectTaskController::class, 'destroy']);
+
+            Route::get('/milestones', [ProjectMilestoneController::class, 'index']);
+            Route::post('/milestones', [ProjectMilestoneController::class, 'store']);
+            Route::get('/milestones/{id}', [ProjectMilestoneController::class, 'show']);
+            Route::put('/milestones/{id}', [ProjectMilestoneController::class, 'update']);
+            Route::patch('/milestones/{id}', [ProjectMilestoneController::class, 'update']);
+            Route::delete('/milestones/{id}', [ProjectMilestoneController::class, 'destroy']);
+
+            Route::get('/progress', [ProjectProgressController::class, 'index']);
+            Route::post('/progress', [ProjectProgressController::class, 'store']);
+            Route::get('/progress/{id}', [ProjectProgressController::class, 'show']);
+            Route::put('/progress/{id}', [ProjectProgressController::class, 'update']);
+            Route::patch('/progress/{id}', [ProjectProgressController::class, 'update']);
+            Route::delete('/progress/{id}', [ProjectProgressController::class, 'destroy']);
+
+            Route::get('/status-updates', [ProjectStatusUpdateController::class, 'index']);
+            Route::post('/status-updates', [ProjectStatusUpdateController::class, 'store']);
+            Route::get('/status-updates/{id}', [ProjectStatusUpdateController::class, 'show']);
+            Route::put('/status-updates/{id}', [ProjectStatusUpdateController::class, 'update']);
+            Route::patch('/status-updates/{id}', [ProjectStatusUpdateController::class, 'update']);
+            Route::delete('/status-updates/{id}', [ProjectStatusUpdateController::class, 'destroy']);
+        });
 
         /*
         |--------------------------------------------------------------------------
-        | Health Profile
+        | Notifications Module
         |--------------------------------------------------------------------------
         */
-        if ($healthProfileController) {
-            Route::get('/health/profile', [$healthProfileController, 'show']);
-            Route::post('/health/profile', [$healthProfileController, 'store']);
-            Route::put('/health/profile', [$healthProfileController, 'update']);
-            Route::patch('/health/profile', [$healthProfileController, 'update']);
-        }
+
+        Route::prefix('notifications')->group(function () {
+            Route::get('/', [NotificationController::class, 'index']);
+            Route::post('/', [NotificationController::class, 'store']);
+            Route::get('/{id}', [NotificationController::class, 'show']);
+            Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
+            Route::patch('/read-all', [NotificationController::class, 'markAllAsRead']);
+            Route::delete('/{id}', [NotificationController::class, 'destroy']);
+        });
+
+        Route::prefix('notification-settings')->group(function () {
+            Route::get('/', [NotificationSettingController::class, 'index']);
+            Route::put('/', [NotificationSettingController::class, 'update']);
+            Route::patch('/', [NotificationSettingController::class, 'update']);
+        });
 
         /*
         |--------------------------------------------------------------------------
-        | Health Steps
+        | Logging & Monitoring
         |--------------------------------------------------------------------------
         */
-        if ($healthStepController) {
-            Route::get('/health/steps', [$healthStepController, 'index']);
-            Route::post('/health/steps', [$healthStepController, 'store']);
-            Route::get('/health/steps/{step}', [$healthStepController, 'show']);
-            Route::put('/health/steps/{step}', [$healthStepController, 'update']);
-            Route::patch('/health/steps/{step}', [$healthStepController, 'update']);
-            Route::delete('/health/steps/{step}', [$healthStepController, 'destroy']);
 
-            Route::get('/health/step-logs', [$healthStepController, 'index']);
-            Route::post('/health/step-logs', [$healthStepController, 'store']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Health Weight
-        |--------------------------------------------------------------------------
-        */
-        if ($healthWeightController) {
-            Route::get('/health/weights', [$healthWeightController, 'index']);
-            Route::post('/health/weights', [$healthWeightController, 'store']);
-            Route::get('/health/weights/{weight}', [$healthWeightController, 'show']);
-            Route::put('/health/weights/{weight}', [$healthWeightController, 'update']);
-            Route::patch('/health/weights/{weight}', [$healthWeightController, 'update']);
-            Route::delete('/health/weights/{weight}', [$healthWeightController, 'destroy']);
-
-            Route::get('/health/weight-logs', [$healthWeightController, 'index']);
-            Route::post('/health/weight-logs', [$healthWeightController, 'store']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Health Food Items
-        |--------------------------------------------------------------------------
-        */
-        if ($healthFoodItemController) {
-            Route::get('/health/food-items', [$healthFoodItemController, 'index']);
-            Route::post('/health/food-items', [$healthFoodItemController, 'store']);
-            Route::get('/health/food-items/{foodItem}', [$healthFoodItemController, 'show']);
-            Route::put('/health/food-items/{foodItem}', [$healthFoodItemController, 'update']);
-            Route::patch('/health/food-items/{foodItem}', [$healthFoodItemController, 'update']);
-            Route::delete('/health/food-items/{foodItem}', [$healthFoodItemController, 'destroy']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Health Meals / Nutrition
-        |--------------------------------------------------------------------------
-        */
-        if ($healthMealController) {
-            Route::get('/health/meals', [$healthMealController, 'index']);
-            Route::post('/health/meals', [$healthMealController, 'store']);
-            Route::get('/health/meals/{meal}', [$healthMealController, 'show']);
-            Route::put('/health/meals/{meal}', [$healthMealController, 'update']);
-            Route::patch('/health/meals/{meal}', [$healthMealController, 'update']);
-            Route::delete('/health/meals/{meal}', [$healthMealController, 'destroy']);
-
-            Route::get('/health/nutrition', [$healthMealController, 'index']);
-            Route::post('/health/nutrition', [$healthMealController, 'store']);
-            Route::get('/health/nutrition/{meal}', [$healthMealController, 'show']);
-            Route::put('/health/nutrition/{meal}', [$healthMealController, 'update']);
-            Route::patch('/health/nutrition/{meal}', [$healthMealController, 'update']);
-            Route::delete('/health/nutrition/{meal}', [$healthMealController, 'destroy']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Health Nutrition Profile / Summary
-        |--------------------------------------------------------------------------
-        */
-        if ($healthNutritionProfileController) {
-            Route::get('/health/nutrition-profile', [$healthNutritionProfileController, 'show']);
-            Route::post('/health/nutrition-profile', [$healthNutritionProfileController, 'store']);
-            Route::put('/health/nutrition-profile', [$healthNutritionProfileController, 'update']);
-            Route::patch('/health/nutrition-profile', [$healthNutritionProfileController, 'update']);
-        }
-
-        if ($healthNutritionSummaryController) {
-            Route::get('/health/nutrition-summary', [$healthNutritionSummaryController, 'index']);
-            Route::get('/health/nutrition/summary', [$healthNutritionSummaryController, 'index']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Health Hydration
-        |--------------------------------------------------------------------------
-        */
-        if ($healthHydrationController) {
-            Route::get('/health/hydration', [$healthHydrationController, 'index']);
-            Route::post('/health/hydration', [$healthHydrationController, 'store']);
-            Route::get('/health/hydration/{hydration}', [$healthHydrationController, 'show']);
-            Route::put('/health/hydration/{hydration}', [$healthHydrationController, 'update']);
-            Route::patch('/health/hydration/{hydration}', [$healthHydrationController, 'update']);
-            Route::delete('/health/hydration/{hydration}', [$healthHydrationController, 'destroy']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Health Analytics
-        |--------------------------------------------------------------------------
-        */
-        if ($healthAnalyticsController) {
-            Route::get('/health/analytics', [$healthAnalyticsController, 'index']);
-            Route::get('/health/analytics/summary', [$healthAnalyticsController, 'summary']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Projects
-        |--------------------------------------------------------------------------
-        */
-        if ($projectController) {
-            Route::get('/projects', [$projectController, 'index']);
-            Route::post('/projects', [$projectController, 'store']);
-            Route::get('/projects/{project}', [$projectController, 'show']);
-            Route::put('/projects/{project}', [$projectController, 'update']);
-            Route::patch('/projects/{project}', [$projectController, 'update']);
-            Route::delete('/projects/{project}', [$projectController, 'destroy']);
-
-            Route::get('/projects-dashboard/summary', [$projectController, 'summary']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Project Tasks
-        |--------------------------------------------------------------------------
-        */
-        if ($projectTaskController) {
-            Route::get('/project-tasks', [$projectTaskController, 'index']);
-            Route::post('/project-tasks', [$projectTaskController, 'store']);
-            Route::get('/project-tasks/{task}', [$projectTaskController, 'show']);
-            Route::put('/project-tasks/{task}', [$projectTaskController, 'update']);
-            Route::patch('/project-tasks/{task}', [$projectTaskController, 'update']);
-            Route::delete('/project-tasks/{task}', [$projectTaskController, 'destroy']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Project Milestones
-        |--------------------------------------------------------------------------
-        */
-        if ($projectMilestoneController) {
-            Route::get('/project-milestones', [$projectMilestoneController, 'index']);
-            Route::post('/project-milestones', [$projectMilestoneController, 'store']);
-            Route::get('/project-milestones/{milestone}', [$projectMilestoneController, 'show']);
-            Route::put('/project-milestones/{milestone}', [$projectMilestoneController, 'update']);
-            Route::patch('/project-milestones/{milestone}', [$projectMilestoneController, 'update']);
-            Route::delete('/project-milestones/{milestone}', [$projectMilestoneController, 'destroy']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Project Progress
-        |--------------------------------------------------------------------------
-        */
-        if ($projectProgressController) {
-            Route::get('/project-progress', [$projectProgressController, 'index']);
-            Route::post('/project-progress', [$projectProgressController, 'store']);
-            Route::get('/project-progress/{progress}', [$projectProgressController, 'show']);
-            Route::put('/project-progress/{progress}', [$projectProgressController, 'update']);
-            Route::patch('/project-progress/{progress}', [$projectProgressController, 'update']);
-            Route::delete('/project-progress/{progress}', [$projectProgressController, 'destroy']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Project Status Updates
-        |--------------------------------------------------------------------------
-        */
-        if ($projectStatusUpdateController) {
-            Route::get('/status-updates', [$projectStatusUpdateController, 'index']);
-            Route::post('/status-updates', [$projectStatusUpdateController, 'store']);
-            Route::get('/status-updates/{statusUpdate}', [$projectStatusUpdateController, 'show']);
-            Route::put('/status-updates/{statusUpdate}', [$projectStatusUpdateController, 'update']);
-            Route::patch('/status-updates/{statusUpdate}', [$projectStatusUpdateController, 'update']);
-            Route::delete('/status-updates/{statusUpdate}', [$projectStatusUpdateController, 'destroy']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Notification Preferences
-        |--------------------------------------------------------------------------
-        */
-        if ($notificationPreferenceController) {
-            Route::get('/notifications/preferences', [$notificationPreferenceController, 'show']);
-            Route::post('/notifications/preferences', [$notificationPreferenceController, 'storeOrUpdate']);
-            Route::put('/notifications/preferences', [$notificationPreferenceController, 'storeOrUpdate']);
-            Route::patch('/notifications/preferences', [$notificationPreferenceController, 'storeOrUpdate']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Notifications
-        |--------------------------------------------------------------------------
-        */
-        if ($notificationController) {
-            Route::get('/notifications', [$notificationController, 'index']);
-            Route::post('/notifications', [$notificationController, 'store']);
-            Route::post('/notifications/read-all', [$notificationController, 'markAllAsRead']);
-
-            Route::get('/notifications/{notification}', [$notificationController, 'show']);
-            Route::put('/notifications/{notification}', [$notificationController, 'update']);
-            Route::patch('/notifications/{notification}', [$notificationController, 'update']);
-            Route::delete('/notifications/{notification}', [$notificationController, 'destroy']);
-            Route::post('/notifications/{notification}/read', [$notificationController, 'markAsRead']);
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | Monitoring
-        |--------------------------------------------------------------------------
-        */
-        if ($monitoringController) {
-            Route::get('/monitoring', [$monitoringController, 'index']);
-            Route::get('/monitoring/summary', [$monitoringController, 'summary']);
-            Route::get('/monitoring/audit-logs', [$monitoringController, 'auditLogs']);
-            Route::get('/monitoring/error-logs', [$monitoringController, 'errorLogs']);
-            Route::get('/monitoring/system-health', [$monitoringController, 'systemHealth']);
-        }
+        Route::prefix('monitoring')->group(function () {
+            Route::get('/summary', [MonitoringController::class, 'summary']);
+            Route::get('/logs', [MonitoringController::class, 'logs']);
+            Route::get('/errors', [MonitoringController::class, 'errors']);
+            Route::get('/audit-logs', [MonitoringController::class, 'auditLogs']);
+        });
     });
 });

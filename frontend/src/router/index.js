@@ -1,191 +1,138 @@
 import { createRouter, createWebHistory } from "vue-router";
 
-const viewModules = import.meta.glob("../views/**/*.vue");
+/*
+|--------------------------------------------------------------------------
+| Auth Views
+|--------------------------------------------------------------------------
+*/
 
-const MissingView = {
-  template: `
-    <div class="p-8">
-      <div class="bg-white border border-red-200 rounded-2xl shadow-sm p-6">
-        <h1 class="text-2xl font-bold text-red-700 mb-2">View File Not Found</h1>
-        <p class="text-gray-700 mb-4">
-          This route is registered, but the Vue view file was not found.
-        </p>
-        <p class="text-sm text-gray-500">
-          Check src/router/index.js and src/views folder names.
-        </p>
-      </div>
-    </div>
-  `,
-};
+const LoginView = () => import("../views/auth/LoginView.vue");
+const RegisterView = () => import("../views/auth/RegisterView.vue");
 
-function loadView(candidates) {
-  for (const path of candidates) {
-    if (viewModules[path]) {
-      return viewModules[path];
-    }
-  }
+/*
+|--------------------------------------------------------------------------
+| Dashboard Views
+|--------------------------------------------------------------------------
+*/
 
-  return MissingView;
-}
+const UnifiedDashboardView = () => import("../views/dashboard/UnifiedDashboardView.vue");
+const DashboardView = () => import("../views/dashboard/DashboardView.vue");
+const LifeBalanceView = () => import("../views/LifeBalanceView.vue");
 
-const LoginView = loadView([
-  "../views/auth/LoginView.vue",
-  "../views/LoginView.vue",
-  "../views/Auth/LoginView.vue",
-]);
+/*
+|--------------------------------------------------------------------------
+| Finance Views
+|--------------------------------------------------------------------------
+*/
 
-const RegisterView = loadView([
-  "../views/auth/RegisterView.vue",
-  "../views/RegisterView.vue",
-  "../views/Auth/RegisterView.vue",
-]);
+const FinanceDashboardView = () => import("../views/finance/FinanceDashboardView.vue");
+const FinanceAccountsView = () => import("../views/finance/FinanceAccountsView.vue");
+const FinanceTransactionsView = () => import("../views/finance/FinanceTransactionsView.vue");
+const FinanceBudgetsView = () => import("../views/finance/FinanceBudgetsView.vue");
 
-const UnifiedDashboardView = loadView([
-  "../views/UnifiedDashboardView.vue",
-  "../views/dashboard/UnifiedDashboardView.vue",
-  "../views/DashboardView.vue",
-  "../views/Dashboard.vue",
-  "../views/UnifiedDashboard.vue",
-]);
+/*
+|--------------------------------------------------------------------------
+| Health Views
+|--------------------------------------------------------------------------
+*/
 
-const LifeBalanceView = loadView([
-  "../views/LifeBalanceView.vue",
-  "../views/life/LifeBalanceView.vue",
-  "../views/LifeBalance.vue",
-]);
+const StepsTrackingView = () => import("../views/health/StepsTrackingView.vue");
+const WeightTrackingView = () => import("../views/health/WeightTrackingView.vue");
+const NutritionTrackingView = () => import("../views/health/NutritionTrackingView.vue");
+const HydrationTrackingView = () => import("../views/health/HydrationTrackingView.vue");
 
-const FinanceDashboardView = loadView([
-  "../views/finance/FinanceDashboardView.vue",
-  "../views/finance/FinanceDashboard.vue",
-  "../views/FinanceDashboardView.vue",
-  "../views/FinanceDashboard.vue",
-]);
+/*
+|--------------------------------------------------------------------------
+| Project Views
+|--------------------------------------------------------------------------
+*/
 
-const FinanceAccountsView = loadView([
-  "../views/finance/FinanceAccountsView.vue",
-  "../views/finance/FinanceAccounts.vue",
-  "../views/FinanceAccountsView.vue",
-  "../views/FinanceAccounts.vue",
-]);
+const ProjectsDashboardView = () => import("../views/ProjectsDashboardView.vue");
+const ProjectTasksView = () => import("../views/ProjectTasksView.vue");
+const ProjectMilestonesView = () => import("../views/ProjectMilestonesView.vue");
+const ProjectProgressView = () => import("../views/ProjectProgressView.vue");
+const StatusUpdatesView = () => import("../views/ProjectStatusUpdatesView.vue");
 
-const FinanceTransactionsView = loadView([
-  "../views/finance/FinanceTransactionsView.vue",
-  "../views/finance/FinanceTransactions.vue",
-  "../views/FinanceTransactionsView.vue",
-  "../views/FinanceTransactions.vue",
-]);
+/*
+|--------------------------------------------------------------------------
+| Notification Views
+|--------------------------------------------------------------------------
+*/
 
-const FinanceBudgetsView = loadView([
-  "../views/finance/FinanceBudgetsView.vue",
-  "../views/finance/FinanceBudgets.vue",
-  "../views/FinanceBudgetsView.vue",
-  "../views/FinanceBudgets.vue",
-]);
+const NotificationsView = () => import("../views/notifications/NotificationsView.vue");
+const NotificationSettingsView = () => import("../views/notifications/NotificationSettingsView.vue");
 
-const StepsTrackingView = loadView([
-  "../views/health/StepsTrackingView.vue",
-  "../views/health/HealthStepsView.vue",
-  "../views/health/HealthStepLogsView.vue",
-  "../views/HealthStepsView.vue",
-]);
+/*
+|--------------------------------------------------------------------------
+| System Views
+|--------------------------------------------------------------------------
+*/
 
-const WeightTrackingView = loadView([
-  "../views/health/WeightTrackingView.vue",
-  "../views/health/HealthWeightView.vue",
-  "../views/health/HealthWeightLogsView.vue",
-  "../views/HealthWeightView.vue",
-]);
+const MonitoringDashboardView = () => import("../views/monitoring/MonitoringDashboardView.vue");
 
-const NutritionTrackingView = loadView([
-  "../views/health/NutritionTrackingView.vue",
-  "../views/health/HealthNutritionView.vue",
-  "../views/health/HealthMealView.vue",
-  "../views/HealthNutritionView.vue",
-]);
+/*
+|--------------------------------------------------------------------------
+| Fallback Views
+|--------------------------------------------------------------------------
+*/
 
-const HydrationTrackingView = loadView([
-  "../views/health/HydrationTrackingView.vue",
-  "../views/health/HealthHydrationView.vue",
-  "../views/health/HealthHydrationLogsView.vue",
-  "../views/HealthHydrationView.vue",
-]);
-
-const ProjectsDashboardView = loadView([
-  "../views/projects/ProjectsDashboardView.vue",
-  "../views/projects/ProjectDashboardView.vue",
-  "../views/projects/ProjectsDashboard.vue",
-  "../views/ProjectsDashboardView.vue",
-]);
-
-const ProjectsTasksView = loadView([
-  "../views/projects/ProjectsTasksView.vue",
-  "../views/projects/ProjectTasksView.vue",
-  "../views/projects/ProjectTasks.vue",
-  "../views/ProjectsTasksView.vue",
-]);
-
-const ProjectsMilestonesView = loadView([
-  "../views/projects/ProjectsMilestonesView.vue",
-  "../views/projects/ProjectMilestonesView.vue",
-  "../views/projects/ProjectMilestones.vue",
-  "../views/ProjectsMilestonesView.vue",
-]);
-
-const ProjectsProgressView = loadView([
-  "../views/projects/ProjectsProgressView.vue",
-  "../views/projects/ProjectProgressView.vue",
-  "../views/projects/ProjectProgress.vue",
-  "../views/ProjectsProgressView.vue",
-]);
-
-const StatusUpdatesView = loadView([
-  "../views/projects/StatusUpdatesView.vue",
-  "../views/projects/ProjectStatusUpdatesView.vue",
-  "../views/StatusUpdatesView.vue",
-]);
-
-const NotificationsView = loadView([
-  "../views/notifications/NotificationsView.vue",
-  "../views/notifications/Notifications.vue",
-  "../views/NotificationsView.vue",
-]);
-
-const NotificationSettingsView = loadView([
-  "../views/notifications/NotificationSettingsView.vue",
-  "../views/notifications/NotificationsSettingsView.vue",
-  "../views/NotificationSettingsView.vue",
-]);
-
-const MonitoringDashboardView = loadView([
-  "../views/monitoring/MonitoringDashboardView.vue",
-  "../views/monitoring/LoggingMonitoringView.vue",
-  "../views/MonitoringDashboardView.vue",
-  "../views/LoggingMonitoringView.vue",
-]);
+const NotFoundView = () => import("../views/NotFoundView.vue");
 
 const routes = [
+  /*
+  |--------------------------------------------------------------------------
+  | Default Redirect
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/",
+    redirect: "/dashboard",
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Auth Routes
+  |--------------------------------------------------------------------------
+  */
+
   {
     path: "/login",
-    name: "login",
+    name: "Login",
     component: LoginView,
     meta: {
-      public: true,
+      guestOnly: true,
       title: "Login",
     },
   },
   {
     path: "/register",
-    name: "register",
+    name: "Register",
     component: RegisterView,
     meta: {
-      public: true,
+      guestOnly: true,
       title: "Register",
     },
   },
 
+  /*
+  |--------------------------------------------------------------------------
+  | Main Dashboards
+  |--------------------------------------------------------------------------
+  */
+
   {
-    path: "/",
-    name: "unified-dashboard",
+    path: "/dashboard",
+    name: "Dashboard",
+    component: DashboardView,
+    meta: {
+      requiresAuth: true,
+      title: "Dashboard",
+    },
+  },
+  {
+    path: "/unified-dashboard",
+    name: "UnifiedDashboard",
     component: UnifiedDashboardView,
     meta: {
       requiresAuth: true,
@@ -194,7 +141,7 @@ const routes = [
   },
   {
     path: "/life-balance",
-    name: "life-balance",
+    name: "LifeBalance",
     component: LifeBalanceView,
     meta: {
       requiresAuth: true,
@@ -202,13 +149,19 @@ const routes = [
     },
   },
 
+  /*
+  |--------------------------------------------------------------------------
+  | Finance Routes
+  |--------------------------------------------------------------------------
+  */
+
   {
     path: "/finance",
     redirect: "/finance/dashboard",
   },
   {
     path: "/finance/dashboard",
-    name: "finance-dashboard",
+    name: "FinanceDashboard",
     component: FinanceDashboardView,
     meta: {
       requiresAuth: true,
@@ -217,7 +170,7 @@ const routes = [
   },
   {
     path: "/finance/accounts",
-    name: "finance-accounts",
+    name: "FinanceAccounts",
     component: FinanceAccountsView,
     meta: {
       requiresAuth: true,
@@ -226,7 +179,7 @@ const routes = [
   },
   {
     path: "/finance/transactions",
-    name: "finance-transactions",
+    name: "FinanceTransactions",
     component: FinanceTransactionsView,
     meta: {
       requiresAuth: true,
@@ -235,7 +188,7 @@ const routes = [
   },
   {
     path: "/finance/budgets",
-    name: "finance-budgets",
+    name: "FinanceBudgets",
     component: FinanceBudgetsView,
     meta: {
       requiresAuth: true,
@@ -243,13 +196,19 @@ const routes = [
     },
   },
 
+  /*
+  |--------------------------------------------------------------------------
+  | Health Routes
+  |--------------------------------------------------------------------------
+  */
+
   {
     path: "/health",
     redirect: "/health/steps",
   },
   {
     path: "/health/steps",
-    name: "steps-tracking",
+    name: "StepsTracking",
     component: StepsTrackingView,
     meta: {
       requiresAuth: true,
@@ -258,7 +217,7 @@ const routes = [
   },
   {
     path: "/health/weight",
-    name: "weight-tracking",
+    name: "WeightTracking",
     component: WeightTrackingView,
     meta: {
       requiresAuth: true,
@@ -267,7 +226,7 @@ const routes = [
   },
   {
     path: "/health/nutrition",
-    name: "nutrition-tracking",
+    name: "NutritionTracking",
     component: NutritionTrackingView,
     meta: {
       requiresAuth: true,
@@ -276,7 +235,7 @@ const routes = [
   },
   {
     path: "/health/hydration",
-    name: "hydration-tracking",
+    name: "HydrationTracking",
     component: HydrationTrackingView,
     meta: {
       requiresAuth: true,
@@ -284,13 +243,19 @@ const routes = [
     },
   },
 
+  /*
+  |--------------------------------------------------------------------------
+  | Project Routes
+  |--------------------------------------------------------------------------
+  */
+
   {
     path: "/projects",
     redirect: "/projects/dashboard",
   },
   {
     path: "/projects/dashboard",
-    name: "projects-dashboard",
+    name: "ProjectsDashboard",
     component: ProjectsDashboardView,
     meta: {
       requiresAuth: true,
@@ -299,8 +264,8 @@ const routes = [
   },
   {
     path: "/projects/tasks",
-    name: "projects-tasks",
-    component: ProjectsTasksView,
+    name: "ProjectTasks",
+    component: ProjectTasksView,
     meta: {
       requiresAuth: true,
       title: "Project Tasks",
@@ -308,8 +273,8 @@ const routes = [
   },
   {
     path: "/projects/milestones",
-    name: "projects-milestones",
-    component: ProjectsMilestonesView,
+    name: "ProjectMilestones",
+    component: ProjectMilestonesView,
     meta: {
       requiresAuth: true,
       title: "Project Milestones",
@@ -317,8 +282,8 @@ const routes = [
   },
   {
     path: "/projects/progress",
-    name: "projects-progress",
-    component: ProjectsProgressView,
+    name: "ProjectProgress",
+    component: ProjectProgressView,
     meta: {
       requiresAuth: true,
       title: "Project Progress",
@@ -326,7 +291,7 @@ const routes = [
   },
   {
     path: "/projects/status-updates",
-    name: "status-updates",
+    name: "StatusUpdates",
     component: StatusUpdatesView,
     meta: {
       requiresAuth: true,
@@ -334,9 +299,15 @@ const routes = [
     },
   },
 
+  /*
+  |--------------------------------------------------------------------------
+  | Notification Routes
+  |--------------------------------------------------------------------------
+  */
+
   {
     path: "/notifications",
-    name: "notifications",
+    name: "Notifications",
     component: NotificationsView,
     meta: {
       requiresAuth: true,
@@ -345,7 +316,7 @@ const routes = [
   },
   {
     path: "/notifications/settings",
-    name: "notification-settings",
+    name: "NotificationSettings",
     component: NotificationSettingsView,
     meta: {
       requiresAuth: true,
@@ -353,9 +324,15 @@ const routes = [
     },
   },
 
+  /*
+  |--------------------------------------------------------------------------
+  | System Routes
+  |--------------------------------------------------------------------------
+  */
+
   {
-    path: "/monitoring",
-    name: "monitoring-dashboard",
+    path: "/system/monitoring",
+    name: "MonitoringDashboard",
     component: MonitoringDashboardView,
     meta: {
       requiresAuth: true,
@@ -363,9 +340,19 @@ const routes = [
     },
   },
 
+  /*
+  |--------------------------------------------------------------------------
+  | 404 Route
+  |--------------------------------------------------------------------------
+  */
+
   {
     path: "/:pathMatch(.*)*",
-    redirect: "/",
+    name: "NotFound",
+    component: NotFoundView,
+    meta: {
+      title: "Page Not Found",
+    },
   },
 ];
 
@@ -380,16 +367,21 @@ const router = createRouter({
   },
 });
 
+/*
+|--------------------------------------------------------------------------
+| Router Guard
+|--------------------------------------------------------------------------
+*/
+
 router.beforeEach((to, from, next) => {
   const token =
-    localStorage.getItem("nix_token") ||
     localStorage.getItem("token") ||
-    localStorage.getItem("auth_token");
+    localStorage.getItem("auth_token") ||
+    localStorage.getItem("access_token");
 
-  const isPublicPage = to.meta.public === true;
-  const requiresAuth = to.meta.requiresAuth === true || !isPublicPage;
+  const isAuthenticated = Boolean(token);
 
-  if (requiresAuth && !token) {
+  if (to.meta?.requiresAuth && !isAuthenticated) {
     return next({
       path: "/login",
       query: {
@@ -398,13 +390,15 @@ router.beforeEach((to, from, next) => {
     });
   }
 
-  if ((to.path === "/login" || to.path === "/register") && token) {
-    return next("/");
+  if (to.meta?.guestOnly && isAuthenticated) {
+    return next("/dashboard");
   }
 
-  document.title = to.meta.title
-    ? `${to.meta.title} | NIX LIFE OS`
-    : "NIX LIFE OS";
+  if (to.meta?.title) {
+    document.title = `${to.meta.title} | Nix Life OS`;
+  } else {
+    document.title = "Nix Life OS";
+  }
 
   return next();
 });
