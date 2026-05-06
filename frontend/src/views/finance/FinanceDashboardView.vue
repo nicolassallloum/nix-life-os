@@ -4,6 +4,17 @@ import FinanceIncomeExpenseChart from "@/components/finance/FinanceIncomeExpense
 import FinanceTransactionsTable from "@/components/finance/FinanceTransactionsTable.vue";
 import FinanceBudgetProgress from "@/components/finance/FinanceBudgetProgress.vue";
 import FinanceAddTransactionForm from "@/components/finance/FinanceAddTransactionForm.vue";
+const handleTransactionSaved = async () => {
+  await loadFinanceSummary();
+
+  if (typeof loadTransactions === "function") {
+    await loadTransactions();
+  }
+
+  if (typeof loadAccounts === "function") {
+    await loadAccounts();
+  }
+};
 </script>
 
 <template>
@@ -35,7 +46,7 @@ import FinanceAddTransactionForm from "@/components/finance/FinanceAddTransactio
       </div>
 
       <div>
-        <FinanceAddTransactionForm />
+        <FinanceAddTransactionForm @saved="handleTransactionSaved" />
       </div>
     </div>
   </div>
