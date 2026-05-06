@@ -58,7 +58,7 @@ class FinanceTransactionController extends Controller
         }
     }
 
-FinanceDashboardView
+
 
     public function show(Request $request, string $id)
     {
