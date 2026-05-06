@@ -123,7 +123,7 @@
 
 <script setup>
 import { computed, defineComponent, h, onMounted, ref } from "vue";
-import { apiRequest } from "../services/api";
+import { apiRequest } from "../../../services/api";
 
 const loading = ref(false);
 const error = ref("");
