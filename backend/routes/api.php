@@ -7,7 +7,6 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
 use App\Http\Controllers\Api\V1\Dashboard\UnifiedDashboardController;
 use App\Http\Controllers\Api\LifeBalanceController;
-
 use App\Http\Controllers\Api\FinanceDashboardController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceTransactionController;
