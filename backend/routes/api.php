@@ -179,7 +179,7 @@ Route::prefix('v1')->group(function () {
             Route::put('/weight/{id}', [HealthWeightLogController::class, 'update']);
             Route::patch('/weight/{id}', [HealthWeightLogController::class, 'update']);
             Route::delete('/weight/{id}', [HealthWeightLogController::class, 'destroy']);
-
+            Route::get('/nutrition/summary', [HealthNutritionLogController::class, 'summary']);
             Route::get('/nutrition', [HealthNutritionLogController::class, 'index']);
             Route::post('/nutrition', [HealthNutritionLogController::class, 'store']);
             Route::get('/nutrition/{id}', [HealthNutritionLogController::class, 'show']);
