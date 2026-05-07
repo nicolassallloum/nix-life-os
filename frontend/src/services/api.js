@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceTransactionController;
 use App\Http\Controllers\Api\FinanceBudgetController;
 
-use App\Http\Controllers\Api\HealthStepLogController;
+use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
 use App\Http\Controllers\Api\HealthWeightLogController;
 use App\Http\Controllers\Api\HealthMealController;
 use App\Http\Controllers\Api\HealthHydrationLogController;

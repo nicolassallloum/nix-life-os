@@ -392,7 +392,7 @@ async function loadLifeBalance() {
     }
 
     if (response.status === 404) {
-      throw new Error("API route not found: /api/v1/life-balance/summary.");
+      throw new Error("API route not found: /life-balance/summary.");
     }
 
     if (!response.ok) {

@@ -280,7 +280,7 @@ const loadHydrationLogs = async () => {
     loading.value = true;
     error.value = "";
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/health/hydration`, {
+    const response = await fetch(`${API_BASE_URL}/health/hydration`, {
       headers: {
         Accept: "application/json",
         Authorization: `Bearer ${token()}`,
@@ -315,7 +315,7 @@ const saveHydrationLog = async () => {
       notes: form.value.notes || null,
     };
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/health/hydration`, {
+    const response = await fetch(`${API_BASE_URL}/health/hydration`, {
       method: "POST",
       headers: {
         Accept: "application/json",

@@ -219,7 +219,7 @@ const loadWeightLogs = async () => {
     loading.value = true;
     error.value = "";
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/health/weight`, {
+    const response = await fetch(`${API_BASE_URL}/health/weight`, {
       headers: {
         Accept: "application/json",
         Authorization: `Bearer ${token()}`,
@@ -254,7 +254,7 @@ const saveWeightLog = async () => {
       notes: form.value.notes || null,
     };
 
-    const response = await fetch(`${API_BASE_URL}/api/v1/health/weight`, {
+    const response = await fetch(`${API_BASE_URL}/health/weight`, {
       method: "POST",
       headers: {
         Accept: "application/json",

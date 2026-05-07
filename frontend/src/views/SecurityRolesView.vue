@@ -14,13 +14,13 @@ async function fetchSecurityData() {
 
   try {
     const [rolesResponse, permissionsResponse] = await Promise.all([
-      fetch("http://127.0.0.1:8000/api/v1/security/roles", {
+      fetch("http://127.0.0.1:8000/security/roles", {
         headers: {
           Accept: "application/json",
           Authorization: `Bearer ${token}`,
         },
       }),
-      fetch("http://127.0.0.1:8000/api/v1/security/permissions", {
+      fetch("http://127.0.0.1:8000/security/permissions", {
         headers: {
           Accept: "application/json",
           Authorization: `Bearer ${token}`,
