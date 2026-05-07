@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\FinanceTransactionController;
 use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
 
 use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
-use App\Http\Controllers\Api\HealthWeightLogController;
+use App\Http\Controllers\Api\V1\HealthWeightLogController;
 use App\Http\Controllers\Api\HealthNutritionLogController;
 use App\Http\Controllers\Api\HealthHydrationLogController;
 
