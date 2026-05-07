@@ -10,7 +10,7 @@ use App\Http\Controllers\Api\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceDashboardController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceTransactionController;
-use App\Http\Controllers\Api\FinanceBudgetController;
+use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
 
 use App\Http\Controllers\Api\HealthStepLogController;
 use App\Http\Controllers\Api\HealthWeightLogController;

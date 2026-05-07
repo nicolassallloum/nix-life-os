@@ -16,13 +16,41 @@ class FinanceBudgetController extends Controller
     public function index(Request $request): JsonResponse
     {
         $userId = $request->user()->id;
+        $month = $request->query('month');
 
-        $budgets = FinanceBudget::query()
+        $query = FinanceBudget::query()
             ->where('user_id', $userId)
             ->with('lines')
             ->orderByDesc('budget_month')
-            ->orderByDesc('created_at')
-            ->get();
+            ->orderByDesc('created_at');
+
+        if (! empty($month)) {
+            $query->where(function ($q) use ($month) {
+                $q->where('budget_month', $month)
+                  ->orWhere('budget_month', $month . '-01')
+                  ->orWhere('budget_month', 'like', $month . '%');
+            });
+        }
+
+        $budgets = $query->get()->map(function ($budget) {
+            $planned = (float) $budget->budget_amount;
+            $spent = (float) $budget->spent_amount;
+
+            if ($budget->lines && $budget->lines->count() > 0) {
+                $planned = (float) $budget->lines->sum('planned_amount');
+                $spent = (float) $budget->lines->sum('spent_amount');
+            }
+
+            $remaining = $planned - $spent;
+
+            $budget->budget_amount = number_format($planned, 2, '.', '');
+            $budget->spent_amount = number_format($spent, 2, '.', '');
+            $budget->remaining_amount = number_format($remaining, 2, '.', '');
+            $budget->usage_percentage = $planned > 0 ? round(($spent / $planned) * 100, 2) : 0;
+            $budget->is_over_budget = $spent > $planned;
+
+            return $budget;
+        });
 
         return response()->json([
             'success' => true,
@@ -37,10 +65,19 @@ class FinanceBudgetController extends Controller
         $validated = $request->validated();
 
         $budget = DB::transaction(function () use ($validated, $userId) {
+            $lines = $validated['lines'];
+
+            $budgetAmount = collect($lines)->sum(fn ($line) => (float) ($line['planned_amount'] ?? 0));
+            $spentAmount = collect($lines)->sum(fn ($line) => (float) ($line['spent_amount'] ?? 0));
+            $mainCategory = $validated['category'] ?? ($lines[0]['category'] ?? 'General');
+
             $budget = FinanceBudget::query()->create([
                 'id' => (string) Str::uuid(),
                 'user_id' => $userId,
                 'budget_name' => $validated['budget_name'],
+                'category' => $mainCategory,
+                'budget_amount' => $budgetAmount,
+                'spent_amount' => $spentAmount,
                 'budget_month' => $validated['budget_month'],
                 'currency_code' => $validated['currency_code'],
                 'is_active' => $validated['is_active'] ?? true,
@@ -48,13 +85,14 @@ class FinanceBudgetController extends Controller
                 'metadata_json' => $validated['metadata_json'] ?? [],
             ]);
 
-            foreach ($validated['lines'] as $line) {
+            foreach ($lines as $line) {
                 FinanceBudgetLine::query()->create([
                     'id' => (string) Str::uuid(),
                     'budget_id' => $budget->id,
                     'user_id' => $userId,
-                    'category_id' => $line['category_id'] ?? null,
                     'account_id' => $line['account_id'] ?? null,
+                    'category_id' => $line['category_id'] ?? null,
+                    'category' => $line['category'] ?? $mainCategory,
                     'planned_amount' => $line['planned_amount'],
                     'actual_amount' => $line['actual_amount'] ?? 0,
                     'spent_amount' => $line['spent_amount'] ?? 0,
@@ -76,17 +114,15 @@ class FinanceBudgetController extends Controller
         ], 201);
     }
 
-    public function show(Request $request, string $budget): JsonResponse
+    public function show(Request $request, string $id): JsonResponse
     {
-        $userId = $request->user()->id;
-
-        $budgetModel = FinanceBudget::query()
-            ->where('user_id', $userId)
+        $budget = FinanceBudget::query()
+            ->where('user_id', $request->user()->id)
+            ->where('id', $id)
             ->with('lines')
-            ->where('id', $budget)
             ->first();
 
-        if (! $budgetModel) {
+        if (! $budget) {
             return response()->json([
                 'success' => false,
                 'message' => 'Budget not found.',
@@ -96,27 +132,36 @@ class FinanceBudgetController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Budget retrieved successfully.',
-            'data' => $budgetModel,
+            'data' => $budget,
         ]);
     }
 
-    public function update(StoreFinanceBudgetRequest $request, string $budget): JsonResponse
+    public function update(StoreFinanceBudgetRequest $request, string $id): JsonResponse
     {
         $userId = $request->user()->id;
         $validated = $request->validated();
 
-        $budgetModel = DB::transaction(function () use ($budget, $userId, $validated) {
-            $budgetModel = FinanceBudget::query()
+        $budget = DB::transaction(function () use ($id, $userId, $validated) {
+            $budget = FinanceBudget::query()
                 ->where('user_id', $userId)
-                ->where('id', $budget)
+                ->where('id', $id)
                 ->first();
 
-            if (! $budgetModel) {
+            if (! $budget) {
                 abort(404, 'Budget not found.');
             }
 
-            $budgetModel->update([
+            $lines = $validated['lines'];
+
+            $budgetAmount = collect($lines)->sum(fn ($line) => (float) ($line['planned_amount'] ?? 0));
+            $spentAmount = collect($lines)->sum(fn ($line) => (float) ($line['spent_amount'] ?? 0));
+            $mainCategory = $validated['category'] ?? ($lines[0]['category'] ?? $budget->category ?? 'General');
+
+            $budget->update([
                 'budget_name' => $validated['budget_name'],
+                'category' => $mainCategory,
+                'budget_amount' => $budgetAmount,
+                'spent_amount' => $spentAmount,
                 'budget_month' => $validated['budget_month'],
                 'currency_code' => $validated['currency_code'],
                 'is_active' => $validated['is_active'] ?? true,
@@ -125,16 +170,17 @@ class FinanceBudgetController extends Controller
             ]);
 
             FinanceBudgetLine::query()
-                ->where('budget_id', $budgetModel->id)
+                ->where('budget_id', $budget->id)
                 ->delete();
 
-            foreach ($validated['lines'] as $line) {
+            foreach ($lines as $line) {
                 FinanceBudgetLine::query()->create([
                     'id' => (string) Str::uuid(),
-                    'budget_id' => $budgetModel->id,
+                    'budget_id' => $budget->id,
                     'user_id' => $userId,
-                    'category_id' => $line['category_id'] ?? null,
                     'account_id' => $line['account_id'] ?? null,
+                    'category_id' => $line['category_id'] ?? null,
+                    'category' => $line['category'] ?? $mainCategory,
                     'planned_amount' => $line['planned_amount'],
                     'actual_amount' => $line['actual_amount'] ?? 0,
                     'spent_amount' => $line['spent_amount'] ?? 0,
@@ -146,46 +192,44 @@ class FinanceBudgetController extends Controller
                 ]);
             }
 
-            return $budgetModel->fresh()->load('lines');
+            return $budget->fresh()->load('lines');
         });
 
         return response()->json([
             'success' => true,
             'message' => 'Budget updated successfully.',
-            'data' => $budgetModel,
+            'data' => $budget,
         ]);
     }
 
-    public function destroy(Request $request, string $budget): JsonResponse
+    public function destroy(Request $request, string $id): JsonResponse
     {
-        $userId = $request->user()->id;
-
-        $budgetModel = FinanceBudget::query()
-            ->where('user_id', $userId)
-            ->where('id', $budget)
+        $budget = FinanceBudget::query()
+            ->where('user_id', $request->user()->id)
+            ->where('id', $id)
             ->first();
 
-        if (! $budgetModel) {
+        if (! $budget) {
             return response()->json([
                 'success' => false,
                 'message' => 'Budget not found.',
             ], 404);
         }
 
-        DB::transaction(function () use ($budgetModel) {
+        DB::transaction(function () use ($budget) {
             FinanceBudgetLine::query()
-                ->where('budget_id', $budgetModel->id)
+                ->where('budget_id', $budget->id)
                 ->delete();
 
-            $budgetModel->delete();
+            $budget->delete();
         });
 
         return response()->json([
             'success' => true,
             'message' => 'Budget deleted successfully.',
             'data' => [
-                'id' => $budget,
-                'budget_id' => $budget,
+                'id' => $id,
+                'budget_id' => $id,
             ],
         ]);
     }

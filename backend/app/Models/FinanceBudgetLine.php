@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FinanceBudgetLine extends Model
 {
-    use HasFactory, HasUuids;
-
     protected $table = 'finance_budget_lines';
+
+    protected $keyType = 'string';
+
+    public $incrementing = false;
 
     protected $fillable = [
         'id',
@@ -38,13 +39,8 @@ class FinanceBudgetLine extends Model
         'metadata_json' => 'array',
     ];
 
-    public function budget()
+    public function budget(): BelongsTo
     {
         return $this->belongsTo(FinanceBudget::class, 'budget_id', 'id');
-    }
-
-    public function account()
-    {
-        return $this->belongsTo(FinanceAccount::class, 'account_id', 'id');
     }
 }
