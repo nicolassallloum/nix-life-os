@@ -10,7 +10,7 @@ use App\Http\Controllers\Api\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceTransactionController;
 use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
-
+use App\Http\Controllers\Api\V1\Health\MedicationController;
 use App\Http\Controllers\Api\V1\Health\SleepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
@@ -152,7 +152,8 @@ Route::prefix('v1')->group(function () {
         | Health Module
         |--------------------------------------------------------------------------
         */
-
+        Route::apiResource('health/medications', MedicationController::class);
+        
         Route::prefix('health')->group(function () {
             Route::get('/mood', [HealthMoodLogController::class, 'index']);
             Route::post('/mood', [HealthMoodLogController::class, 'store']);

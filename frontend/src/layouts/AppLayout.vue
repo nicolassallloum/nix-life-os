@@ -37,6 +37,7 @@ const activeClass =
               >
                 Unified Dashboard
               </RouterLink>
+  
 
               <RouterLink
                 to="/life-balance"
@@ -127,13 +128,35 @@ const activeClass =
               >
                 Hydration Tracking
               </RouterLink>
-
               <RouterLink
                 to="/health/sleep"
                 :class="linkClass"
                 :active-class="activeClass"
               >
                 Sleep Tracking
+              </RouterLink>
+
+              <RouterLink
+                to="/health/medications"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Medication Tracking
+              </RouterLink>
+              <RouterLink
+                to="/health/medicaments"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Medicaments
+              </RouterLink>
+
+              <RouterLink
+                to="/health/lab-tests"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Lab Tests
               </RouterLink>
             </div>
           </div>

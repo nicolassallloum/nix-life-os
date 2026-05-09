@@ -111,6 +111,28 @@ import { hasPermission } from "@/utils/permissions";
           Hydration Tracking
         </RouterLink>
         <RouterLink
+          to="/health/medications"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Medication Tracking
+        </RouterLink>
+        <RouterLink
+          to="/health/medicaments"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Medicaments
+        </RouterLink>
+
+        <RouterLink
+          to="/health/lab-tests"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Lab Tests
+        </RouterLink>
+        <RouterLink
           to="/health/sleep"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
           active-class="bg-gray-900 text-white hover:bg-gray-900"

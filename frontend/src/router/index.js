@@ -42,6 +42,7 @@ const NutritionTrackingView = () => import("../views/health/NutritionTrackingVie
 const HydrationTrackingView = () => import("../views/health/HydrationTrackingView.vue");
 const SleepTrackingView = () => import("../views/health/SleepTrackingView.vue");
 const MoodTrackingView = () => import("../views/health/MoodTrackingView.vue");
+const MedicationTrackingView = () => import("../views/health/MedicationTrackingView.vue");
 
 /*
 |--------------------------------------------------------------------------
@@ -256,7 +257,33 @@ const routes = [
       title: "Mood Tracking",
     },
   },
-
+  {
+    path: '/health/medications',
+    name: 'health-medications',
+    component: () => import('@/views/health/MedicationTrackingView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Medication Tracking'
+    }
+  },
+  {
+    path: "/health/medicaments",
+    name: "MedicamentsTracking",
+    component: () => import("@/views/health/MedicamentsTrackingView.vue"),
+    meta: {
+      requiresAuth: true,
+      title: "Medicaments",
+    },
+  },
+  {
+    path: "/health/lab-tests",
+    name: "LabTestsTracking",
+    component: () => import("@/views/health/LabTestsTrackingView.vue"),
+    meta: {
+      requiresAuth: true,
+      title: "Lab Tests",
+    },
+  },
   /*
   |--------------------------------------------------------------------------
   | Project Routes
