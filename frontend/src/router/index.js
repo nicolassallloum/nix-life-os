@@ -40,6 +40,7 @@ const StepsTrackingView = () => import("../views/health/StepsTrackingView.vue");
 const WeightTrackingView = () => import("../views/health/WeightTrackingView.vue");
 const NutritionTrackingView = () => import("../views/health/NutritionTrackingView.vue");
 const HydrationTrackingView = () => import("../views/health/HydrationTrackingView.vue");
+const SleepTrackingView = () => import("../views/health/SleepTrackingView.vue");
 
 /*
 |--------------------------------------------------------------------------
@@ -79,12 +80,6 @@ const MonitoringDashboardView = () => import("../views/monitoring/MonitoringDash
 const NotFoundView = () => import("../views/NotFoundView.vue");
 
 const routes = [
-  /*
-  |--------------------------------------------------------------------------
-  | Default Redirect
-  |--------------------------------------------------------------------------
-  */
-
   {
     path: "/",
     redirect: "/dashboard",
@@ -240,6 +235,15 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: "Hydration Tracking",
+    },
+  },
+  {
+    path: "/health/sleep",
+    name: "SleepTracking",
+    component: SleepTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Sleep Tracking",
     },
   },
 
