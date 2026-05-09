@@ -24,10 +24,16 @@ return new class extends Migration
 
             $table->string('request_method')->nullable();
             $table->text('request_url')->nullable();
-            $table->jsonb('request_payload')->nullable();
+
+            if (DB::getDriverName() === 'pgsql') {
+                $table->jsonb('request_payload')->nullable();
+                $table->jsonb('metadata')->nullable();
+            } else {
+                $table->json('request_payload')->nullable();
+                $table->json('metadata')->nullable();
+            }
 
             $table->text('trace')->nullable();
-            $table->jsonb('metadata')->nullable();
 
             $table->string('ip_address')->nullable();
             $table->string('user_agent')->nullable();
@@ -41,7 +47,9 @@ return new class extends Migration
             $table->index('created_at');
         });
 
-        DB::statement('ALTER TABLE error_logs ALTER COLUMN id SET DEFAULT gen_random_uuid()');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE error_logs ALTER COLUMN id SET DEFAULT gen_random_uuid()');
+        }
     }
 
     public function down(): void

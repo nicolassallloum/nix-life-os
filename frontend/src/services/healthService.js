@@ -1,68 +1,129 @@
-import axios from "axios";
+import api from "./api";
 
-const API_BASE_URL = "http://localhost:8000/api/v1";
+const healthService = {
+  dashboard() {
+    return api.get("/health/dashboard");
+  },
 
-function getAuthHeaders() {
-  const token = localStorage.getItem("token");
-
-  return {
-    Accept: "application/json",
-    Authorization: `Bearer ${token}`,
-  };
-}
-
-export async function getHealthProfile() {
-  const response = await axios.get(`${API_BASE_URL}/health/profile`, {
-    headers: getAuthHeaders(),
-  });
-
-  return response.data;
-}
-
-export async function updateHealthProfile(payload) {
-  const response = await axios.put(`${API_BASE_URL}/health/profile`, payload, {
-    headers: {
-      ...getAuthHeaders(),
-      "Content-Type": "application/json",
+  steps: {
+    list(params = {}) {
+      return api.get("/health/steps", { params });
     },
-  });
-
-  return response.data;
-}
-
-export async function getStepsHistory(days = 30) {
-  const response = await axios.get(`${API_BASE_URL}/health/steps`, {
-    params: { days },
-    headers: getAuthHeaders(),
-  });
-
-  return response.data;
-}
-
-export async function getStepsSummary(days = 30) {
-  const response = await axios.get(`${API_BASE_URL}/health/steps/summary`, {
-    params: { days },
-    headers: getAuthHeaders(),
-  });
-
-  return response.data;
-}
-
-export async function saveStepLog(payload) {
-  const response = await axios.post(`${API_BASE_URL}/health/steps`, payload, {
-    headers: {
-      ...getAuthHeaders(),
-      "Content-Type": "application/json",
+    create(payload) {
+      return api.post("/health/steps", payload);
     },
-  });
+    update(id, payload) {
+      return api.put(`/health/steps/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/steps/${id}`);
+    },
+  },
 
-  return response.data;
-}
+  weight: {
+    list(params = {}) {
+      return api.get("/health/weight", { params });
+    },
+    create(payload) {
+      return api.post("/health/weight", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/weight/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/weight/${id}`);
+    },
+  },
 
-export async function deleteStepLog(id) {
-  const response = await axios.delete(`${API_BASE_URL}/health/steps/${id}`, {
-    headers: getAuthHeaders(),
-  });
+  nutrition: {
+    list(params = {}) {
+      return api.get("/health/nutrition", { params });
+    },
+    create(payload) {
+      return api.post("/health/nutrition", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/nutrition/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/nutrition/${id}`);
+    },
+  },
 
-  return response.data;
-}
+  hydration: {
+    list(params = {}) {
+      return api.get("/health/hydration", { params });
+    },
+    create(payload) {
+      return api.post("/health/hydration", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/hydration/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/hydration/${id}`);
+    },
+  },
+
+  sleep: {
+    list(params = {}) {
+      return api.get("/health/sleep", { params });
+    },
+    create(payload) {
+      return api.post("/health/sleep", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/sleep/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/sleep/${id}`);
+    },
+  },
+
+  mood: {
+    list(params = {}) {
+      return api.get("/health/mood", { params });
+    },
+    create(payload) {
+      return api.post("/health/mood", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/mood/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/mood/${id}`);
+    },
+  },
+
+  medications: {
+    list(params = {}) {
+      return api.get("/health/medications", { params });
+    },
+    create(payload) {
+      return api.post("/health/medications", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/medications/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/medications/${id}`);
+    },
+  },
+
+  labTests: {
+    list(params = {}) {
+      return api.get("/health/lab-tests", { params });
+    },
+    create(payload) {
+      return api.post("/health/lab-tests", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/lab-tests/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/lab-tests/${id}`);
+    },
+  },
+};
+
+export default healthService;

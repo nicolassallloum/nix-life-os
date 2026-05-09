@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Spatie\Permission\Models\Role;
 
 class AuthController extends Controller
 {
@@ -21,30 +22,22 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-
-            /*
-             |--------------------------------------------------------------------------
-             | Password Handling
-             |--------------------------------------------------------------------------
-             | Your project currently uses password_hash for login verification.
-             | We store both:
-             | - password: Laravel hashed cast support
-             | - password_hash: your existing login field
-             */
             'password' => $validated['password'],
-            
         ]);
 
         /*
          |--------------------------------------------------------------------------
          | Default Role
          |--------------------------------------------------------------------------
-         | Every newly registered user receives the normal "user" role.
-         | Admin role is still handled by your SecurityRolePermissionSeeder.
+         | Ensure the default "user" role exists before assigning it.
+         | This fixes both PHPUnit SQLite tests and fresh environments.
          */
-        if (method_exists($user, 'assignRole')) {
-            $user->assignRole('user');
-        }
+        Role::firstOrCreate([
+            'name' => 'user',
+            'guard_name' => 'web',
+        ]);
+
+        $user->assignRole('user');
 
         $token = $user->createToken('api-token')->plainTextToken;
 
@@ -75,15 +68,6 @@ class AuthController extends Controller
                 'email' => ['Invalid login credentials.'],
             ]);
         }
-
-        /*
-         |--------------------------------------------------------------------------
-         | Optional Security Hardening
-         |--------------------------------------------------------------------------
-         | Delete old tokens so one login = one active API token.
-         | Comment this line if you want multi-device login.
-         */
-        // $user->tokens()->delete();
 
         $token = $user->createToken('api-token')->plainTextToken;
 
@@ -145,16 +129,6 @@ class AuthController extends Controller
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-
-            /*
-             |--------------------------------------------------------------------------
-             | Security Data for Vue Frontend
-             |--------------------------------------------------------------------------
-             | These are used by:
-             | - Vue Router Guards
-             | - Sidebar Menu Visibility
-             | - Button-Level Permissions
-             */
             'roles' => $user->getRoleNames()->values(),
             'permissions' => $user->getAllPermissions()
                 ->pluck('name')

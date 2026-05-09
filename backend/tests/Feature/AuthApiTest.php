@@ -4,11 +4,22 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class AuthApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Role::firstOrCreate([
+            'name' => 'user',
+            'guard_name' => 'web',
+        ]);
+    }
 
     public function test_user_can_register(): void
     {
@@ -22,15 +33,26 @@ class AuthApiTest extends TestCase
         $response
             ->assertCreated()
             ->assertJsonStructure([
+                'success',
                 'message',
-                'token_type',
-                'access_token',
-                'user' => ['id', 'name', 'email', 'role', 'is_active'],
-            ]);
+                'data' => [
+                    'user' => [
+                        'id',
+                        'name',
+                        'email',
+                        'roles',
+                        'permissions',
+                    ],
+                    'token',
+                    'token_type',
+                ],
+            ])
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.user.email', 'nix@example.com')
+            ->assertJsonPath('data.token_type', 'Bearer');
 
         $this->assertDatabaseHas('users', [
             'email' => 'nix@example.com',
-            'role' => 'user',
         ]);
     }
 
@@ -39,24 +61,35 @@ class AuthApiTest extends TestCase
         $user = User::factory()->create([
             'email' => 'nix@example.com',
             'password' => 'StrongPass#2026',
-            'role' => 'user',
-            'is_active' => true,
         ]);
+
+        $user->assignRole('user');
 
         $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'nix@example.com',
             'password' => 'StrongPass#2026',
-            'device_name' => 'phpunit',
         ]);
 
         $response
             ->assertOk()
             ->assertJsonStructure([
+                'success',
                 'message',
-                'token_type',
-                'access_token',
-                'user' => ['id', 'name', 'email', 'role'],
-            ]);
+                'data' => [
+                    'user' => [
+                        'id',
+                        'name',
+                        'email',
+                        'roles',
+                        'permissions',
+                    ],
+                    'token',
+                    'token_type',
+                ],
+            ])
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.user.email', 'nix@example.com')
+            ->assertJsonPath('data.token_type', 'Bearer');
     }
 
     public function test_user_cannot_login_with_wrong_password(): void
@@ -77,6 +110,8 @@ class AuthApiTest extends TestCase
     public function test_authenticated_user_can_fetch_profile(): void
     {
         $user = User::factory()->create();
+        $user->assignRole('user');
+
         $token = $user->createToken('phpunit')->plainTextToken;
 
         $response = $this->withHeaders([
@@ -86,12 +121,15 @@ class AuthApiTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertJsonPath('user.email', $user->email);
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.user.email', $user->email);
     }
 
     public function test_authenticated_user_can_logout(): void
     {
         $user = User::factory()->create();
+        $user->assignRole('user');
+
         $token = $user->createToken('phpunit')->plainTextToken;
 
         $response = $this->withHeaders([
@@ -99,6 +137,8 @@ class AuthApiTest extends TestCase
             'Accept' => 'application/json',
         ])->postJson('/api/v1/auth/logout');
 
-        $response->assertOk();
+        $response
+            ->assertOk()
+            ->assertJsonPath('success', true);
     }
 }

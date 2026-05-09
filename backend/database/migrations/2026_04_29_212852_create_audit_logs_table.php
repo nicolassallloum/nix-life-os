@@ -19,9 +19,15 @@ return new class extends Migration
             $table->string('entity_type')->nullable();
             $table->uuid('entity_id')->nullable();
 
-            $table->jsonb('old_values')->nullable();
-            $table->jsonb('new_values')->nullable();
-            $table->jsonb('metadata')->nullable();
+            if (DB::getDriverName() === 'pgsql') {
+                $table->jsonb('old_values')->nullable();
+                $table->jsonb('new_values')->nullable();
+                $table->jsonb('metadata')->nullable();
+            } else {
+                $table->json('old_values')->nullable();
+                $table->json('new_values')->nullable();
+                $table->json('metadata')->nullable();
+            }
 
             $table->string('ip_address')->nullable();
             $table->string('user_agent')->nullable();
@@ -35,7 +41,9 @@ return new class extends Migration
             $table->index('created_at');
         });
 
-        DB::statement('ALTER TABLE audit_logs ALTER COLUMN id SET DEFAULT gen_random_uuid()');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE audit_logs ALTER COLUMN id SET DEFAULT gen_random_uuid()');
+        }
     }
 
     public function down(): void

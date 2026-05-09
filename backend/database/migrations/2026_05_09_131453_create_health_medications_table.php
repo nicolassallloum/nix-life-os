@@ -8,21 +8,25 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('health_lab_tests', function (Blueprint $table) {
+        if (Schema::hasTable('health_medications')) {
+            return;
+        }
+
+        Schema::create('health_medications', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->uuid('user_id');
 
-            $table->string('test_name');
-            $table->string('test_category')->nullable();
-            $table->decimal('test_value', 12, 3)->nullable();
-            $table->string('unit')->nullable();
-            $table->decimal('normal_min', 12, 3)->nullable();
-            $table->decimal('normal_max', 12, 3)->nullable();
-            $table->string('status')->default('normal');
+            $table->string('medication_name');
+            $table->string('dosage')->nullable();
+            $table->string('daily_dose')->nullable();
+            $table->json('dose_times')->nullable();
 
-            $table->date('test_date');
-            $table->string('lab_name')->nullable();
-            $table->string('doctor_name')->nullable();
+            $table->string('frequency')->nullable();
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->string('status')->default('active');
+
+            $table->string('prescribed_by')->nullable();
             $table->text('notes')->nullable();
 
             $table->timestamps();
@@ -33,14 +37,14 @@ return new class extends Migration
                 ->on('users')
                 ->cascadeOnDelete();
 
-            $table->index(['user_id', 'test_date']);
-            $table->index(['user_id', 'test_name']);
             $table->index(['user_id', 'status']);
+            $table->index(['user_id', 'medication_name']);
+            $table->index(['user_id', 'start_date']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('health_lab_tests');
+        Schema::dropIfExists('health_medications');
     }
 };

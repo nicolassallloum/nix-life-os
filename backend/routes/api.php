@@ -17,7 +17,8 @@ use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
 use App\Http\Controllers\Api\V1\HealthWeightLogController;
 use App\Http\Controllers\Api\HealthNutritionLogController;
 use App\Http\Controllers\Api\V1\HealthHydrationLogController;
-
+use App\Http\Controllers\Api\V1\Health\HealthDashboardController;
+use App\Http\Controllers\Api\V1\Health\HealthLabTestController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -153,8 +154,16 @@ Route::prefix('v1')->group(function () {
         |--------------------------------------------------------------------------
         */
         Route::apiResource('health/medications', MedicationController::class);
-        
+
         Route::prefix('health')->group(function () {
+            Route::get('/dashboard', [HealthDashboardController::class, 'summary']);
+            // Route::apiResource('lab-tests', HealthLabTestController::class);
+            Route::get('/lab-tests', [HealthLabTestController::class, 'index']);
+            Route::post('/lab-tests', [HealthLabTestController::class, 'store']);
+            Route::get('/lab-tests/{id}', [HealthLabTestController::class, 'show']);
+            Route::put('/lab-tests/{id}', [HealthLabTestController::class, 'update']);
+            Route::patch('/lab-tests/{id}', [HealthLabTestController::class, 'update']);
+            Route::delete('/lab-tests/{id}', [HealthLabTestController::class, 'destroy']);
             Route::get('/mood', [HealthMoodLogController::class, 'index']);
             Route::post('/mood', [HealthMoodLogController::class, 'store']);
             Route::get('/mood/{id}', [HealthMoodLogController::class, 'show']);

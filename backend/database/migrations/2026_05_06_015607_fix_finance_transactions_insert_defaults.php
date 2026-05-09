@@ -12,6 +12,24 @@ return new class extends Migration
             return;
         }
 
+        /*
+         |--------------------------------------------------------------------------
+         | PostgreSQL-only migration
+         |--------------------------------------------------------------------------
+         |
+         | This migration uses PostgreSQL-only SQL:
+         | - CREATE EXTENSION
+         | - ALTER COLUMN SET DEFAULT
+         | - ALTER COLUMN DROP NOT NULL
+         |
+         | SQLite is used during automated tests, so skip this migration
+         | unless the active database driver is PostgreSQL.
+         |
+         */
+        if (DB::getDriverName() !== 'pgsql') {
+            return;
+        }
+
         DB::statement('CREATE EXTENSION IF NOT EXISTS pgcrypto');
 
         DB::statement("
@@ -35,7 +53,7 @@ return new class extends Migration
             'description',
             'notes',
             'reference_no',
-            'metadata_json'
+            'metadata_json',
         ] as $column) {
             if (Schema::hasColumn('finance_transactions', $column)) {
                 DB::statement("ALTER TABLE finance_transactions ALTER COLUMN {$column} DROP NOT NULL");

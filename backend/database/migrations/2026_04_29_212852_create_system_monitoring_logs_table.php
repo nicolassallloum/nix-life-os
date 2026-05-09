@@ -16,7 +16,13 @@ return new class extends Migration
             $table->string('status')->default('healthy');
 
             $table->integer('response_time_ms')->nullable();
-            $table->jsonb('metrics')->nullable();
+
+            if (DB::getDriverName() === 'pgsql') {
+                $table->jsonb('metrics')->nullable();
+            } else {
+                $table->json('metrics')->nullable();
+            }
+
             $table->text('message')->nullable();
 
             $table->timestamp('checked_at')->useCurrent();
@@ -26,7 +32,9 @@ return new class extends Migration
             $table->index('checked_at');
         });
 
-        DB::statement('ALTER TABLE system_monitoring_logs ALTER COLUMN id SET DEFAULT gen_random_uuid()');
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE system_monitoring_logs ALTER COLUMN id SET DEFAULT gen_random_uuid()');
+        }
     }
 
     public function down(): void
