@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-
+import HealthView from "@/views/health/HealthView.vue";
 /*
 |--------------------------------------------------------------------------
 | Auth Views
@@ -201,7 +201,12 @@ const routes = [
 
   {
     path: "/health",
-    redirect: "/health/steps",
+    name: "HealthDashboard",
+    component: HealthView,
+    meta: {
+      requiresAuth: true,
+      title: "Health Dashboard",
+    },
   },
   {
     path: "/health/steps",
@@ -284,6 +289,7 @@ const routes = [
       title: "Lab Tests",
     },
   },
+
   /*
   |--------------------------------------------------------------------------
   | Project Routes

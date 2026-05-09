@@ -23,7 +23,7 @@ class HealthStepLogController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Last 30 days step logs loaded successfully.',
+            'message' => 'Steps logs retrieved successfully.',
             'data' => $logs,
         ]);
     }

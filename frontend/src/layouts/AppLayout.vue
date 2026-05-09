@@ -98,6 +98,13 @@ const activeClass =
 
             <div class="space-y-1">
               <RouterLink
+                to="/health"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Health Dashboard
+              </RouterLink>
+              <RouterLink
                 to="/health/steps"
                 :class="linkClass"
                 :active-class="activeClass"

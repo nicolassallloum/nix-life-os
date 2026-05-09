@@ -26,6 +26,32 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\NotificationPreferenceController;
 
 use App\Http\Controllers\Api\MonitoringController;
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/v1",
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
+});
+
+
+api.interceptors.request.use((config) => {
+  const token =
+    localStorage.getItem("nix_token") ||
+    localStorage.getItem("token") ||
+    localStorage.getItem("auth_token");
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+export default api;
+
 
 Route::prefix('v1')->group(function () {
 

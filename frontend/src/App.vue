@@ -78,7 +78,13 @@ import { hasPermission } from "@/utils/permissions";
         <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
           Health
         </p>
-
+        <RouterLink
+          to="/health"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Health Dashboard
+        </RouterLink>
         <RouterLink
           to="/health/steps"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
