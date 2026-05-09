@@ -41,6 +41,7 @@ const WeightTrackingView = () => import("../views/health/WeightTrackingView.vue"
 const NutritionTrackingView = () => import("../views/health/NutritionTrackingView.vue");
 const HydrationTrackingView = () => import("../views/health/HydrationTrackingView.vue");
 const SleepTrackingView = () => import("../views/health/SleepTrackingView.vue");
+const MoodTrackingView = () => import("../views/health/MoodTrackingView.vue");
 
 /*
 |--------------------------------------------------------------------------
@@ -244,6 +245,15 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: "Sleep Tracking",
+    },
+  },
+  {
+    path: "/health/mood",
+    name: "MoodTracking",
+    component: MoodTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Mood Tracking",
     },
   },
 

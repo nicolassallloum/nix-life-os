@@ -6,13 +6,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
 use App\Http\Controllers\Api\LifeBalanceController;
-
+// use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceTransactionController;
 use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
 
 use App\Http\Controllers\Api\V1\Health\SleepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
+use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
 use App\Http\Controllers\Api\V1\HealthWeightLogController;
 use App\Http\Controllers\Api\HealthNutritionLogController;
 use App\Http\Controllers\Api\V1\HealthHydrationLogController;
@@ -153,8 +154,13 @@ Route::prefix('v1')->group(function () {
         */
 
         Route::prefix('health')->group(function () {
-
-            /*
+            Route::get('/mood', [HealthMoodLogController::class, 'index']);
+            Route::post('/mood', [HealthMoodLogController::class, 'store']);
+            Route::get('/mood/{id}', [HealthMoodLogController::class, 'show']);
+            Route::put('/mood/{id}', [HealthMoodLogController::class, 'update']);
+            Route::patch('/mood/{id}', [HealthMoodLogController::class, 'update']);
+            Route::delete('/mood/{id}', [HealthMoodLogController::class, 'destroy']);
+                        /*
             |--------------------------------------------------------------------------
             | Sleep Tracking
             |--------------------------------------------------------------------------
@@ -219,6 +225,13 @@ Route::prefix('v1')->group(function () {
             | Hydration Tracking
             |--------------------------------------------------------------------------
             */
+
+            // Route::get('/mood', [HealthMoodLogController::class, 'index']);
+            // Route::post('/mood', [HealthMoodLogController::class, 'store']);
+            // Route::get('/mood/{id}', [HealthMoodLogController::class, 'show']);
+            // Route::put('/mood/{id}', [HealthMoodLogController::class, 'update']);
+            // Route::patch('/mood/{id}', [HealthMoodLogController::class, 'update']);
+            // Route::delete('/mood/{id}', [HealthMoodLogController::class, 'destroy']);
 
             Route::get('/hydration', [HealthHydrationLogController::class, 'index']);
             Route::post('/hydration', [HealthHydrationLogController::class, 'store']);
