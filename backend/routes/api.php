@@ -7,7 +7,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
 use App\Http\Controllers\Api\V1\Dashboard\UnifiedDashboardController;
 use App\Http\Controllers\Api\LifeBalanceController;
-use App\Http\Controllers\Api\FinanceDashboardController;
+// use App\Http\Controllers\Api\FinanceDashboardController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceTransactionController;
 use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
@@ -15,7 +15,7 @@ use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
 use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
 use App\Http\Controllers\Api\V1\HealthWeightLogController;
 use App\Http\Controllers\Api\HealthNutritionLogController;
-use App\Http\Controllers\Api\HealthHydrationLogController;
+use App\Http\Controllers\Api\V1\HealthHydrationLogController;
 
 use App\Http\Controllers\Api\ProjectDashboardController;
 use App\Http\Controllers\Api\ProjectTaskController;
@@ -135,7 +135,7 @@ Route::prefix('v1')->group(function () {
         */
 
         Route::prefix('finance')->group(function () {
-            Route::get('/summary', [FinanceDashboardController::class, 'summary']);
+            // Route::get('/summary', [FinanceDashboardController::class, 'summary']);
 
             Route::get('/accounts', [FinanceAccountController::class, 'index']);
             Route::post('/accounts', [FinanceAccountController::class, 'store']);

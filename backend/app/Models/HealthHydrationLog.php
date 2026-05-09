@@ -26,6 +26,8 @@ class HealthHydrationLog extends Model
     protected $casts = [
         'log_date' => 'date',
         'amount_ml' => 'decimal:2',
+        'log_time' => 'datetime:H:i:s',
+
         'is_ckd_safe' => 'boolean',
     ];
 

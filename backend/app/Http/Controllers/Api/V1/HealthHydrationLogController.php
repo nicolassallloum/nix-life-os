@@ -37,10 +37,11 @@ class HealthHydrationLogController extends Controller
             $query->where('drink_type', $request->drink_type);
         }
 
-        $logs = $query
+        $logs = HealthHydrationLog::query()
+            ->where('user_id', $request->user()->id)
             ->orderByDesc('log_date')
             ->orderByDesc('log_time')
-            ->paginate($request->integer('per_page', 15));
+            ->paginate($request->integer('per_page', 20));
 
         return response()->json([
             'success' => true,
@@ -57,17 +58,17 @@ class HealthHydrationLogController extends Controller
 
     public function store(StoreHealthHydrationLogRequest $request): JsonResponse
     {
-        $user = $request->user();
+        $validated = $request->validated();
 
         $log = HealthHydrationLog::create([
-            'user_id' => $user->id,
-            'log_date' => $request->log_date,
-            'log_time' => $request->log_time ?? now()->format('H:i'),
-            'drink_type' => $request->drink_type,
-            'amount_ml' => $request->amount_ml,
-            'is_ckd_safe' => $request->boolean('is_ckd_safe', true),
-            'source' => $request->source ?? 'manual',
-            'notes' => $request->notes,
+            'user_id' => $request->user()->id,
+            'log_date' => $validated['log_date'],
+            'log_time' => $validated['log_time'] ?? now()->format('H:i:s'),
+            'drink_type' => $validated['drink_type'],
+            'amount_ml' => $validated['amount_ml'],
+            'is_ckd_safe' => $validated['is_ckd_safe'] ?? true,
+            'source' => $validated['source'] ?? 'manual',
+            'notes' => $validated['notes'] ?? null,
         ]);
 
         return response()->json([
