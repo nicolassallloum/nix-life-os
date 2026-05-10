@@ -6,7 +6,7 @@ You are now adding a Health Alerts Engine to Nix Life OS.
 This engine will analyze user health data from nutrition, hydration, weight, medications, lab tests, steps, and sleep modules, then generate clear alerts such as:
 
 “High sodium intake detected today.”
-“Medication dose missed.”
+“Medication dose missed.” 
 “Potassium is above CKD-safe daily limit.”
 “Rapid weight increase detected in 3 days.”
 “Abnormal creatinine lab result detected.”
