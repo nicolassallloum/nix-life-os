@@ -3,58 +3,152 @@
     <div class="page-header">
       <div>
         <h1>Medication Tracking</h1>
-        <p>Track medicaments, times, daily dose, status, prescribed doctor, and notes.</p>
+        <p>
+          Track medications, daily dose, dose times, reminders, and today’s medication schedule.
+        </p>
       </div>
 
       <button class="primary-btn" @click="resetForm">
-        + Add Medication
+        + New Medication
       </button>
     </div>
 
-    <div v-if="errorMessage" class="alert alert-error">
-      {{ errorMessage }}
+    <div v-if="error" class="alert alert-error">
+      {{ error }}
     </div>
 
     <div v-if="successMessage" class="alert alert-success">
       {{ successMessage }}
     </div>
 
+    <!-- Today Summary -->
     <div class="summary-grid">
       <div class="summary-card">
-        <span>Total Medications</span>
-        <strong>{{ medications.length }}</strong>
+        <span>Pending</span>
+        <strong>{{ todaySummary.pending || 0 }}</strong>
       </div>
 
       <div class="summary-card">
-        <span>Active</span>
-        <strong>{{ activeCount }}</strong>
+        <span>Taken</span>
+        <strong>{{ todaySummary.taken || 0 }}</strong>
       </div>
 
       <div class="summary-card">
-        <span>Paused</span>
-        <strong>{{ pausedCount }}</strong>
+        <span>Late</span>
+        <strong>{{ todaySummary.late || 0 }}</strong>
       </div>
 
       <div class="summary-card">
-        <span>Completed / Inactive</span>
-        <strong>{{ completedCount }}</strong>
+        <span>Missed</span>
+        <strong>{{ todaySummary.missed || 0 }}</strong>
+      </div>
+
+      <div class="summary-card">
+        <span>Skipped</span>
+        <strong>{{ todaySummary.skipped || 0 }}</strong>
       </div>
     </div>
 
-    <div class="content-grid">
-      <form class="card form-card" @submit.prevent="saveMedication">
-        <div class="card-header">
-          <h2>{{ editingId ? "Edit Medication" : "Add Medication" }}</h2>
-          <p>Enter medication name, dosage, daily dose, and dose times.</p>
+    <!-- Today's Schedule -->
+    <section class="card">
+      <div class="section-header">
+        <div>
+          <h2>Today’s Medication Schedule</h2>
+          <p>View today’s generated medication doses and update their status.</p>
         </div>
 
-        <div class="form-grid">
+        <div class="header-actions">
+          <button class="secondary-btn" :disabled="loadingToday" @click="loadTodaySchedule">
+            Refresh
+          </button>
+
+          <button class="secondary-btn" :disabled="generatingDoses" @click="generateDoseMessage">
+            Generate Doses
+          </button>
+        </div>
+      </div>
+
+      <div v-if="loadingToday" class="loading-state">
+        Loading today’s medication schedule...
+      </div>
+
+      <div v-else-if="todayDoses.length === 0" class="empty-state">
+        No medication doses generated for today yet.
+        <br />
+        Create a medication with dose times, then create reminders from the form below.
+      </div>
+
+      <div v-else class="dose-list">
+        <div v-for="dose in todayDoses" :key="dose.id" class="dose-card">
+          <div class="dose-main">
+            <div>
+              <h3>{{ dose.medication?.medication_name || "Medication" }}</h3>
+              <p>
+                {{ dose.medication?.dosage || "No dosage" }}
+                <span v-if="dose.medication?.daily_dose">
+                  • {{ dose.medication.daily_dose }}
+                </span>
+              </p>
+              <small>
+                Scheduled: {{ formatDateTime(dose.scheduled_for) }}
+              </small>
+            </div>
+
+            <span :class="['status-badge', dose.status]">
+              {{ dose.status }}
+            </span>
+          </div>
+
+          <div class="dose-actions">
+            <button
+              v-if="dose.status === 'pending'"
+              class="success-btn"
+              :disabled="actionLoadingId === dose.id"
+              @click="markDoseTaken(dose.id)"
+            >
+              Mark Taken
+            </button>
+
+            <button
+              v-if="dose.status === 'pending'"
+              class="warning-btn"
+              :disabled="actionLoadingId === dose.id"
+              @click="markDoseSkipped(dose.id)"
+            >
+              Skip
+            </button>
+
+            <span v-if="dose.taken_at" class="dose-note">
+              Taken at: {{ formatDateTime(dose.taken_at) }}
+            </span>
+
+            <span v-if="dose.skip_reason" class="dose-note">
+              Reason: {{ dose.skip_reason }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="content-grid">
+      <!-- Medication Form -->
+      <section class="card">
+        <div class="section-header">
+          <div>
+            <h2>{{ editingId ? "Edit Medication" : "Add Medication" }}</h2>
+            <p>
+              Add medication details. Dose times are used to create reminders.
+            </p>
+          </div>
+        </div>
+
+        <form class="form-grid" @submit.prevent="submitMedication">
           <div class="form-group">
             <label>Medication Name *</label>
             <input
-              v-model="form.medication_name"
+              v-model.trim="form.medication_name"
               type="text"
-              placeholder="Example: Amlodipine"
+              placeholder="Example: Medication A"
               required
             />
           </div>
@@ -62,7 +156,7 @@
           <div class="form-group">
             <label>Dosage *</label>
             <input
-              v-model="form.dosage"
+              v-model.trim="form.dosage"
               type="text"
               placeholder="Example: 5 mg"
               required
@@ -72,7 +166,7 @@
           <div class="form-group">
             <label>Daily Dose</label>
             <input
-              v-model="form.daily_dose"
+              v-model.trim="form.daily_dose"
               type="text"
               placeholder="Example: 1 tablet daily"
             />
@@ -81,17 +175,17 @@
           <div class="form-group">
             <label>Dose Times</label>
             <input
-              v-model="doseTimesText"
+              v-model.trim="form.dose_times_text"
               type="text"
               placeholder="Example: 08:00, 20:00"
             />
-            <small>Separate multiple times with comma.</small>
+            <small>Use 24-hour format and separate multiple times by comma.</small>
           </div>
 
           <div class="form-group">
             <label>Frequency *</label>
             <input
-              v-model="form.frequency"
+              v-model.trim="form.frequency"
               type="text"
               placeholder="Example: Once daily"
               required
@@ -99,8 +193,8 @@
           </div>
 
           <div class="form-group">
-            <label>Status *</label>
-            <select v-model="form.status" required>
+            <label>Status</label>
+            <select v-model="form.status">
               <option value="active">Active</option>
               <option value="paused">Paused</option>
               <option value="completed">Completed</option>
@@ -118,10 +212,10 @@
             <input v-model="form.end_date" type="date" />
           </div>
 
-          <div class="form-group full-width">
+          <div class="form-group">
             <label>Prescribed By</label>
             <input
-              v-model="form.prescribed_by"
+              v-model.trim="form.prescribed_by"
               type="text"
               placeholder="Doctor name"
             />
@@ -130,236 +224,441 @@
           <div class="form-group full-width">
             <label>Notes</label>
             <textarea
-              v-model="form.notes"
-              rows="4"
-              placeholder="Example: Take after breakfast."
+              v-model.trim="form.notes"
+              rows="3"
+              placeholder="Example: Take after breakfast"
             ></textarea>
           </div>
-        </div>
 
-        <div class="form-actions">
-          <button class="primary-btn" type="submit" :disabled="loading">
-            {{ loading ? "Saving..." : editingId ? "Update Medication" : "Save Medication" }}
-          </button>
-
-          <button
-            v-if="editingId"
-            class="secondary-btn"
-            type="button"
-            @click="resetForm"
-          >
-            Cancel Edit
-          </button>
-        </div>
-      </form>
-
-      <div class="card list-card">
-        <div class="card-header list-header">
-          <div>
-            <h2>Medication List</h2>
-            <p>View, edit, or delete your medications.</p>
+          <div class="form-group full-width checkbox-row">
+            <label>
+              <input v-model="form.create_reminders" type="checkbox" />
+              Automatically create reminders from dose times
+            </label>
           </div>
 
-          <select v-model="statusFilter" @change="loadMedications">
+          <div class="form-actions full-width">
+            <button class="primary-btn" type="submit" :disabled="saving">
+              {{ saving ? "Saving..." : editingId ? "Update Medication" : "Add Medication" }}
+            </button>
+
+            <button class="secondary-btn" type="button" @click="resetForm">
+              Clear
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Medication List -->
+      <section class="card">
+        <div class="section-header">
+          <div>
+            <h2>Medication List</h2>
+            <p>Manage your saved medications.</p>
+          </div>
+
+          <button class="secondary-btn" :disabled="loadingMedications" @click="loadMedications">
+            Refresh
+          </button>
+        </div>
+
+        <div class="filter-row">
+          <input
+            v-model.trim="filters.search"
+            type="text"
+            placeholder="Search medication..."
+            @keyup.enter="loadMedications"
+          />
+
+          <select v-model="filters.status" @change="loadMedications">
             <option value="">All Statuses</option>
             <option value="active">Active</option>
             <option value="paused">Paused</option>
             <option value="completed">Completed</option>
             <option value="inactive">Inactive</option>
           </select>
+
+          <button class="secondary-btn" @click="loadMedications">
+            Search
+          </button>
         </div>
 
-        <div v-if="loadingList" class="empty-state">
+        <div v-if="loadingMedications" class="loading-state">
           Loading medications...
         </div>
 
         <div v-else-if="medications.length === 0" class="empty-state">
-          No medications found. Add your first medication from the form.
+          No medications found.
         </div>
 
-        <div v-else class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Medication</th>
-                <th>Dosage</th>
-                <th>Daily Dose</th>
-                <th>Times</th>
-                <th>Status</th>
-                <th>Start</th>
-                <th class="actions-col">Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr v-for="item in medications" :key="item.id">
-                <td>
-                  <strong>{{ item.medication_name }}</strong>
-                  <small v-if="item.prescribed_by">By {{ item.prescribed_by }}</small>
-                </td>
-
-                <td>{{ item.dosage }}</td>
-                <td>{{ item.daily_dose || "-" }}</td>
-
-                <td>
-                  <span v-if="Array.isArray(item.dose_times) && item.dose_times.length">
-                    {{ item.dose_times.join(", ") }}
+        <div v-else class="medication-list">
+          <div
+            v-for="medication in medications"
+            :key="medication.id"
+            class="medication-card"
+          >
+            <div class="medication-info">
+              <div>
+                <h3>{{ medication.medication_name }}</h3>
+                <p>
+                  {{ medication.dosage }}
+                  <span v-if="medication.daily_dose">
+                    • {{ medication.daily_dose }}
                   </span>
-                  <span v-else>-</span>
-                </td>
-
-                <td>
-                  <span class="status-badge" :class="`status-${item.status}`">
-                    {{ item.status }}
+                </p>
+                <small>
+                  {{ medication.frequency }}
+                  <span v-if="medication.dose_times?.length">
+                    • Times: {{ medication.dose_times.join(", ") }}
                   </span>
-                </td>
+                </small>
+              </div>
 
-                <td>{{ formatDate(item.start_date) }}</td>
+              <span :class="['status-badge', medication.status]">
+                {{ medication.status }}
+              </span>
+            </div>
 
-                <td class="actions">
-                  <button class="small-btn" @click="editMedication(item)">
-                    Edit
-                  </button>
+            <div class="medication-meta">
+              <span>Start: {{ medication.start_date || "-" }}</span>
+              <span>End: {{ medication.end_date || "-" }}</span>
+              <span v-if="medication.prescribed_by">
+                Doctor: {{ medication.prescribed_by }}
+              </span>
+            </div>
 
-                  <button class="danger-btn" @click="deleteMedication(item.id)">
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+            <p v-if="medication.notes" class="notes">
+              {{ medication.notes }}
+            </p>
+
+            <div class="medication-actions">
+              <button class="secondary-btn" @click="editMedication(medication)">
+                Edit
+              </button>
+
+              <button
+                class="danger-btn"
+                :disabled="deletingId === medication.id"
+                @click="deleteMedication(medication.id)"
+              >
+                Delete
+              </button>
+
+              <button
+                class="secondary-btn"
+                @click="createRemindersForMedication(medication)"
+              >
+                Create Reminders
+              </button>
+            </div>
+          </div>
         </div>
-
-        <div class="info-note">
-          Medication tracking is for personal organization only. Always follow your doctor’s prescription.
-        </div>
-      </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import healthService from "@/services/healthService";
 
 const medications = ref([]);
-const loading = ref(false);
-const loadingList = ref(false);
-const editingId = ref(null);
-const statusFilter = ref("");
-const doseTimesText = ref("");
-const errorMessage = ref("");
+const todayDoses = ref([]);
+const todaySummary = ref({
+  pending: 0,
+  taken: 0,
+  late: 0,
+  missed: 0,
+  skipped: 0,
+});
+
+const loadingMedications = ref(false);
+const loadingToday = ref(false);
+const saving = ref(false);
+const deletingId = ref(null);
+const actionLoadingId = ref(null);
+const generatingDoses = ref(false);
+
+const error = ref("");
 const successMessage = ref("");
+const editingId = ref(null);
+
+const filters = reactive({
+  search: "",
+  status: "",
+});
 
 const form = reactive({
   medication_name: "",
   dosage: "",
   daily_dose: "",
-  dose_times: [],
+  dose_times_text: "",
   frequency: "",
-  start_date: new Date().toISOString().slice(0, 10),
+  start_date: getTodayDate(),
   end_date: "",
   status: "active",
   prescribed_by: "",
   notes: "",
+  create_reminders: true,
 });
 
-const activeCount = computed(() =>
-  medications.value.filter((item) => item.status === "active").length
-);
-
-const pausedCount = computed(() =>
-  medications.value.filter((item) => item.status === "paused").length
-);
-
-const completedCount = computed(() =>
-  medications.value.filter((item) =>
-    ["completed", "inactive"].includes(item.status)
-  ).length
-);
-
-onMounted(() => {
-  loadMedications();
+onMounted(async () => {
+  await Promise.all([
+    loadMedications(),
+    loadTodaySchedule(),
+  ]);
 });
+
+function getTodayDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function clearMessages() {
+  error.value = "";
+  successMessage.value = "";
+}
+
+function setSuccess(message) {
+  successMessage.value = message;
+  error.value = "";
+}
+
+function setError(message) {
+  error.value = message;
+  successMessage.value = "";
+}
+
+function getResponseData(response) {
+  return response?.data?.data ?? response?.data ?? [];
+}
+
+function getErrorMessage(err, fallback = "Something went wrong.") {
+  return (
+    err?.response?.data?.message ||
+    err?.response?.data?.error ||
+    err?.message ||
+    fallback
+  );
+}
+
+function parseDoseTimes() {
+  if (!form.dose_times_text) return [];
+
+  const times = form.dose_times_text
+    .split(",")
+    .map((time) => time.trim())
+    .filter(Boolean);
+
+  const invalid = times.find((time) => !/^\d{2}:\d{2}$/.test(time));
+
+  if (invalid) {
+    throw new Error(`Invalid dose time: ${invalid}. Use format HH:mm, example 08:00.`);
+  }
+
+  return times;
+}
 
 async function loadMedications() {
-  loadingList.value = true;
-  clearMessages();
+  loadingMedications.value = true;
 
   try {
     const params = {};
 
-    if (statusFilter.value) {
-      params.status = statusFilter.value;
-    }
+    if (filters.search) params.search = filters.search;
+    if (filters.status) params.status = filters.status;
 
     const response = await healthService.medications.list(params);
-    medications.value = response.data?.data || [];
-  } catch (error) {
-    errorMessage.value = getErrorMessage(error, "Failed to load medications.");
+    medications.value = getResponseData(response);
+  } catch (err) {
+    setError(getErrorMessage(err, "Failed to load medications."));
   } finally {
-    loadingList.value = false;
+    loadingMedications.value = false;
   }
 }
 
-async function saveMedication() {
-  loading.value = true;
-  clearMessages();
+async function loadTodaySchedule() {
+  loadingToday.value = true;
 
   try {
-    const payload = buildPayload();
+    const response = await healthService.medicationReminders.today();
+
+    todayDoses.value = response?.data?.data ?? [];
+    todaySummary.value = response?.data?.summary ?? {
+      pending: 0,
+      taken: 0,
+      late: 0,
+      missed: 0,
+      skipped: 0,
+    };
+  } catch (err) {
+    setError(getErrorMessage(err, "Failed to load today’s medication schedule."));
+  } finally {
+    loadingToday.value = false;
+  }
+}
+
+async function submitMedication() {
+  clearMessages();
+  saving.value = true;
+
+  try {
+    const doseTimes = parseDoseTimes();
+
+    const payload = {
+      medication_name: form.medication_name,
+      dosage: form.dosage,
+      daily_dose: form.daily_dose || null,
+      dose_times: doseTimes,
+      frequency: form.frequency,
+      start_date: form.start_date,
+      end_date: form.end_date || null,
+      status: form.status,
+      prescribed_by: form.prescribed_by || null,
+      notes: form.notes || null,
+    };
+
+    let response;
 
     if (editingId.value) {
-      await healthService.medications.update(editingId.value, payload);
-      successMessage.value = "Medication updated successfully.";
+      response = await healthService.medications.update(editingId.value, payload);
+      setSuccess("Medication updated successfully.");
     } else {
-      await healthService.medications.create(payload);
-      successMessage.value = "Medication created successfully.";
+      response = await healthService.medications.create(payload);
+      setSuccess("Medication created successfully.");
+    }
+
+    const savedMedication = response?.data?.data;
+
+    if (!editingId.value && form.create_reminders && savedMedication?.id && doseTimes.length > 0) {
+      await createReminders(savedMedication.id, doseTimes);
     }
 
     resetForm();
     await loadMedications();
-  } catch (error) {
-    errorMessage.value = getErrorMessage(error, "Failed to save medication.");
+    await loadTodaySchedule();
+  } catch (err) {
+    setError(getErrorMessage(err, err.message || "Failed to save medication."));
   } finally {
-    loading.value = false;
+    saving.value = false;
   }
+}
+
+async function createReminders(medicationId, doseTimes) {
+  const uniqueTimes = [...new Set(doseTimes)];
+
+  for (const reminderTime of uniqueTimes) {
+    await healthService.medicationReminders.create({
+      medication_id: medicationId,
+      reminder_time: reminderTime,
+      frequency_type: "daily",
+      notification_enabled: true,
+      is_active: true,
+    });
+  }
+}
+
+async function createRemindersForMedication(medication) {
+  clearMessages();
+
+  try {
+    const doseTimes = Array.isArray(medication.dose_times)
+      ? medication.dose_times
+      : [];
+
+    if (!doseTimes.length) {
+      setError("This medication does not have dose times.");
+      return;
+    }
+
+    await createReminders(medication.id, doseTimes);
+
+    setSuccess("Medication reminders created successfully.");
+    await loadTodaySchedule();
+  } catch (err) {
+    setError(getErrorMessage(err, "Failed to create reminders."));
+  }
+}
+
+function editMedication(medication) {
+  editingId.value = medication.id;
+
+  form.medication_name = medication.medication_name || "";
+  form.dosage = medication.dosage || "";
+  form.daily_dose = medication.daily_dose || "";
+  form.dose_times_text = Array.isArray(medication.dose_times)
+    ? medication.dose_times.join(", ")
+    : "";
+  form.frequency = medication.frequency || "";
+  form.start_date = medication.start_date || getTodayDate();
+  form.end_date = medication.end_date || "";
+  form.status = medication.status || "active";
+  form.prescribed_by = medication.prescribed_by || "";
+  form.notes = medication.notes || "";
+  form.create_reminders = false;
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 async function deleteMedication(id) {
   const confirmed = window.confirm("Are you sure you want to delete this medication?");
+  if (!confirmed) return;
 
-  if (!confirmed) {
-    return;
-  }
-
+  deletingId.value = id;
   clearMessages();
 
   try {
     await healthService.medications.delete(id);
-    successMessage.value = "Medication deleted successfully.";
+    setSuccess("Medication deleted successfully.");
     await loadMedications();
-  } catch (error) {
-    errorMessage.value = getErrorMessage(error, "Failed to delete medication.");
+    await loadTodaySchedule();
+  } catch (err) {
+    setError(getErrorMessage(err, "Failed to delete medication."));
+  } finally {
+    deletingId.value = null;
   }
 }
 
-function editMedication(item) {
-  editingId.value = item.id;
+async function markDoseTaken(id) {
+  actionLoadingId.value = id;
+  clearMessages();
 
-  form.medication_name = item.medication_name || "";
-  form.dosage = item.dosage || "";
-  form.daily_dose = item.daily_dose || "";
-  form.dose_times = Array.isArray(item.dose_times) ? item.dose_times : [];
-  form.frequency = item.frequency || "";
-  form.start_date = item.start_date || new Date().toISOString().slice(0, 10);
-  form.end_date = item.end_date || "";
-  form.status = item.status || "active";
-  form.prescribed_by = item.prescribed_by || "";
-  form.notes = item.notes || "";
+  try {
+    const response = await healthService.medicationDoses.markTaken(id);
+    setSuccess(response?.data?.message || "Medication dose marked as taken.");
+    await loadTodaySchedule();
+  } catch (err) {
+    setError(getErrorMessage(err, "Failed to mark medication dose as taken."));
+  } finally {
+    actionLoadingId.value = null;
+  }
+}
 
-  doseTimesText.value = form.dose_times.join(", ");
-  window.scrollTo({ top: 0, behavior: "smooth" });
+async function markDoseSkipped(id) {
+  const reason = window.prompt("Reason for skipping this dose:", "Skipped by user");
+  if (reason === null) return;
+
+  actionLoadingId.value = id;
+  clearMessages();
+
+  try {
+    const response = await healthService.medicationDoses.markSkipped(id, {
+      skip_reason: reason,
+      notes: "Skipped from Medication Tracking screen",
+    });
+
+    setSuccess(response?.data?.message || "Medication dose marked as skipped.");
+    await loadTodaySchedule();
+  } catch (err) {
+    setError(getErrorMessage(err, "Failed to skip medication dose."));
+  } finally {
+    actionLoadingId.value = null;
+  }
+}
+
+function generateDoseMessage() {
+  setSuccess(
+    "Dose generation is handled by Laravel scheduler. For manual testing, run: php artisan medications:generate-doses"
+  );
 }
 
 function resetForm() {
@@ -368,99 +667,65 @@ function resetForm() {
   form.medication_name = "";
   form.dosage = "";
   form.daily_dose = "";
-  form.dose_times = [];
+  form.dose_times_text = "";
   form.frequency = "";
-  form.start_date = new Date().toISOString().slice(0, 10);
+  form.start_date = getTodayDate();
   form.end_date = "";
   form.status = "active";
   form.prescribed_by = "";
   form.notes = "";
-
-  doseTimesText.value = "";
+  form.create_reminders = true;
 }
 
-function buildPayload() {
-  const doseTimes = doseTimesText.value
-    .split(",")
-    .map((time) => time.trim())
-    .filter(Boolean);
+function formatDateTime(value) {
+  if (!value) return "-";
 
-  return {
-    medication_name: form.medication_name,
-    dosage: form.dosage,
-    daily_dose: form.daily_dose || null,
-    dose_times: doseTimes,
-    frequency: form.frequency,
-    start_date: form.start_date,
-    end_date: form.end_date || null,
-    status: form.status,
-    prescribed_by: form.prescribed_by || null,
-    notes: form.notes || null,
-  };
-}
-
-function clearMessages() {
-  errorMessage.value = "";
-  successMessage.value = "";
-}
-
-function formatDate(value) {
-  if (!value) {
-    return "-";
+  try {
+    return new Date(value).toLocaleString();
+  } catch {
+    return value;
   }
-
-  return String(value).slice(0, 10);
-}
-
-function getErrorMessage(error, fallback) {
-  return (
-    error?.response?.data?.message ||
-    Object.values(error?.response?.data?.errors || {})?.flat()?.[0] ||
-    fallback
-  );
 }
 </script>
 
 <style scoped>
 .medication-page {
   padding: 24px;
-  background: #f8fafc;
-  min-height: 100vh;
+  color: #0f172a;
 }
 
 .page-header {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
   align-items: flex-start;
+  gap: 16px;
   margin-bottom: 24px;
 }
 
 .page-header h1 {
-  font-size: 30px;
+  margin: 0;
+  font-size: 28px;
   font-weight: 800;
-  color: #0f172a;
-  margin-bottom: 8px;
 }
 
 .page-header p {
+  margin: 8px 0 0;
   color: #64748b;
-  font-size: 15px;
 }
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
   gap: 16px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .summary-card {
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
   padding: 18px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
 .summary-card span {
@@ -471,50 +736,73 @@ function getErrorMessage(error, fallback) {
 }
 
 .summary-card strong {
-  color: #0f172a;
-  font-size: 26px;
+  font-size: 28px;
+  font-weight: 800;
 }
 
 .content-grid {
   display: grid;
   grid-template-columns: 420px 1fr;
-  gap: 20px;
-  align-items: flex-start;
+  gap: 24px;
+  margin-top: 24px;
 }
 
 .card {
   background: #ffffff;
-  border: 1px solid #e5e7eb;
+  border: 1px solid #e2e8f0;
   border-radius: 18px;
   padding: 22px;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
 }
 
-.card-header {
-  margin-bottom: 18px;
-}
-
-.card-header h2 {
-  font-size: 20px;
-  font-weight: 800;
-  color: #0f172a;
-  margin-bottom: 6px;
-}
-
-.card-header p {
-  color: #64748b;
-  font-size: 14px;
-}
-
-.list-header {
+.section-header {
   display: flex;
   justify-content: space-between;
   gap: 16px;
   align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.section-header p {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.alert {
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+.alert-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.alert-success {
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  color: #166534;
 }
 
 .form-grid {
   display: grid;
+  grid-template-columns: 1fr;
   gap: 14px;
 }
 
@@ -525,26 +813,20 @@ function getErrorMessage(error, fallback) {
 }
 
 .form-group label {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
-  color: #334155;
-}
-
-.form-group small {
-  color: #94a3b8;
-  font-size: 12px;
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea,
-.list-header select {
+.filter-row input,
+.filter-row select {
   width: 100%;
-  border: 1px solid #d1d5db;
+  border: 1px solid #cbd5e1;
   border-radius: 12px;
   padding: 11px 12px;
   font-size: 14px;
-  color: #111827;
   outline: none;
   background: #ffffff;
 }
@@ -552,174 +834,217 @@ function getErrorMessage(error, fallback) {
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus,
-.list-header select:focus {
+.filter-row input:focus,
+.filter-row select:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.form-group small {
+  color: #64748b;
+  font-size: 12px;
 }
 
 .full-width {
   grid-column: 1 / -1;
 }
 
+.checkbox-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.checkbox-row input {
+  width: auto;
+}
+
 .form-actions {
   display: flex;
   gap: 10px;
-  margin-top: 18px;
+  margin-top: 4px;
 }
 
 .primary-btn,
 .secondary-btn,
-.small-btn,
+.success-btn,
+.warning-btn,
 .danger-btn {
   border: none;
   border-radius: 12px;
-  padding: 11px 16px;
-  font-weight: 700;
+  padding: 10px 14px;
+  font-weight: 800;
   cursor: pointer;
   transition: 0.2s ease;
 }
 
 .primary-btn {
   background: #2563eb;
-  color: #ffffff;
-}
-
-.primary-btn:hover {
-  background: #1d4ed8;
-}
-
-.primary-btn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
+  color: white;
 }
 
 .secondary-btn {
-  background: #e2e8f0;
+  background: #f1f5f9;
   color: #0f172a;
+  border: 1px solid #cbd5e1;
 }
 
-.small-btn {
-  background: #eff6ff;
-  color: #1d4ed8;
-  padding: 8px 10px;
+.success-btn {
+  background: #16a34a;
+  color: white;
+}
+
+.warning-btn {
+  background: #f59e0b;
+  color: white;
 }
 
 .danger-btn {
-  background: #fee2e2;
-  color: #b91c1c;
-  padding: 8px 10px;
+  background: #dc2626;
+  color: white;
 }
 
-.alert {
-  border-radius: 14px;
-  padding: 14px 16px;
-  margin-bottom: 16px;
-  font-weight: 700;
+.primary-btn:disabled,
+.secondary-btn:disabled,
+.success-btn:disabled,
+.warning-btn:disabled,
+.danger-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
-.alert-error {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
+.filter-row {
+  display: grid;
+  grid-template-columns: 1fr 160px auto;
+  gap: 10px;
+  margin-bottom: 18px;
 }
 
-.alert-success {
-  background: #ecfdf5;
-  color: #047857;
-  border: 1px solid #bbf7d0;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th {
+.loading-state,
+.empty-state {
+  padding: 24px;
+  text-align: center;
+  color: #64748b;
   background: #f8fafc;
-  color: #475569;
-  font-size: 12px;
-  text-transform: uppercase;
-  text-align: left;
-  padding: 12px;
-  border-bottom: 1px solid #e5e7eb;
+  border-radius: 14px;
+  border: 1px dashed #cbd5e1;
 }
 
-td {
-  padding: 14px 12px;
-  border-bottom: 1px solid #eef2f7;
+.dose-list,
+.medication-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dose-card,
+.medication-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+  background: #f8fafc;
+}
+
+.dose-main,
+.medication-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.dose-main h3,
+.medication-info h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.dose-main p,
+.medication-info p {
+  margin: 6px 0;
   color: #334155;
-  vertical-align: top;
 }
 
-td strong {
-  display: block;
-  color: #0f172a;
-  margin-bottom: 4px;
-}
-
-td small {
+.dose-main small,
+.medication-info small {
   color: #64748b;
 }
 
-.actions-col {
-  width: 150px;
+.dose-actions,
+.medication-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
 }
 
-.actions {
+.dose-note {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.medication-meta {
   display: flex;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #64748b;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+.notes {
+  color: #475569;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 12px;
+  margin: 12px 0 0;
 }
 
 .status-badge {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 76px;
+  padding: 6px 10px;
   border-radius: 999px;
-  padding: 5px 10px;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: capitalize;
 }
 
-.status-active {
+.status-badge.active,
+.status-badge.taken {
   background: #dcfce7;
-  color: #15803d;
+  color: #166534;
 }
 
-.status-paused {
-  background: #fef9c3;
-  color: #a16207;
+.status-badge.pending {
+  background: #dbeafe;
+  color: #1d4ed8;
 }
 
-.status-completed {
-  background: #e0f2fe;
-  color: #0369a1;
+.status-badge.late {
+  background: #fef3c7;
+  color: #92400e;
 }
 
-.status-inactive {
+.status-badge.missed,
+.status-badge.inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-badge.skipped,
+.status-badge.paused {
   background: #f1f5f9;
   color: #475569;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
-  color: #64748b;
-  border-radius: 16px;
-}
-
-.info-note {
-  margin-top: 16px;
-  background: #f8fafc;
-  border-left: 4px solid #2563eb;
-  padding: 12px 14px;
-  color: #475569;
-  font-size: 13px;
-  border-radius: 10px;
+.status-badge.completed {
+  background: #ede9fe;
+  color: #5b21b6;
 }
 
 @media (max-width: 1100px) {
@@ -728,13 +1053,23 @@ td small {
   }
 
   .summary-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .filter-row {
+    grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 640px) {
+  .medication-page {
+    padding: 16px;
+  }
+
   .page-header,
-  .list-header {
+  .section-header,
+  .dose-main,
+  .medication-info {
     flex-direction: column;
   }
 
@@ -742,8 +1077,11 @@ td small {
     grid-template-columns: 1fr;
   }
 
-  .medication-page {
-    padding: 16px;
+  .form-actions,
+  .dose-actions,
+  .medication-actions {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 </style>

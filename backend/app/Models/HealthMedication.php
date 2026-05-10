@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class HealthMedication extends Model
@@ -31,4 +32,14 @@ class HealthMedication extends Model
         'end_date' => 'date:Y-m-d',
         'dose_times' => 'array',
     ];
+
+    public function reminders(): HasMany
+    {
+        return $this->hasMany(HealthMedicationReminder::class, 'medication_id');
+    }
+
+    public function doseLogs(): HasMany
+    {
+        return $this->hasMany(HealthMedicationDoseLog::class, 'medication_id');
+    }
 }

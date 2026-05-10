@@ -99,14 +99,53 @@ const healthService = {
     list(params = {}) {
       return api.get("/health/medications", { params });
     },
+
     create(payload) {
       return api.post("/health/medications", payload);
     },
+
     update(id, payload) {
       return api.put(`/health/medications/${id}`, payload);
     },
+
     delete(id) {
       return api.delete(`/health/medications/${id}`);
+    },
+  },
+
+  medicationReminders: {
+    list(params = {}) {
+      return api.get("/health/medication-reminders", { params });
+    },
+
+    today(params = {}) {
+      return api.get("/health/medication-reminders/today", { params });
+    },
+
+    create(payload) {
+      return api.post("/health/medication-reminders", payload);
+    },
+
+    update(id, payload) {
+      return api.put(`/health/medication-reminders/${id}`, payload);
+    },
+
+    delete(id) {
+      return api.delete(`/health/medication-reminders/${id}`);
+    },
+  },
+
+  medicationDoses: {
+    history(params = {}) {
+      return api.get("/health/medication-doses/history", { params });
+    },
+
+    markTaken(id) {
+      return api.post(`/health/medication-doses/${id}/taken`);
+    },
+
+    markSkipped(id, payload = {}) {
+      return api.post(`/health/medication-doses/${id}/skipped`, payload);
     },
   },
 

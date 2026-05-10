@@ -22,4 +22,15 @@ Schedule::command('automation:run')
 
 
 Schedule::command('system:health-check')->everyFifteenMinutes();
+Schedule::command('medications:generate-doses')
+    ->dailyAt('00:05')
+    ->withoutOverlapping();
+
+Schedule::command('medications:process-missed')
+    ->everyFiveMinutes()
+    ->withoutOverlapping();
+
+Schedule::command('medications:send-reminders')
+    ->everyMinute()
+    ->withoutOverlapping();
 

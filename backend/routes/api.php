@@ -2,24 +2,30 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\V1\NutritionFoodController;
+
 use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
 use App\Http\Controllers\Api\LifeBalanceController;
-// use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
-use App\Http\Controllers\Api\V1\NutritionCustomFoodController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceTransactionController;
+use App\Http\Controllers\Api\HealthNutritionLogController;
+
+use App\Http\Controllers\Api\V1\NutritionFoodController;
+use App\Http\Controllers\Api\V1\NutritionCustomFoodController;
+
+use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
 use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
+
+use App\Http\Controllers\Api\V1\Health\HealthDashboardController;
+use App\Http\Controllers\Api\V1\Health\HealthLabTestController;
 use App\Http\Controllers\Api\V1\Health\MedicationController;
+use App\Http\Controllers\Api\V1\Health\MedicationReminderController;
+use App\Http\Controllers\Api\V1\Health\MedicationDoseController;
 use App\Http\Controllers\Api\V1\Health\SleepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
 use App\Http\Controllers\Api\V1\HealthWeightLogController;
-use App\Http\Controllers\Api\HealthNutritionLogController;
 use App\Http\Controllers\Api\V1\HealthHydrationLogController;
-use App\Http\Controllers\Api\V1\Health\HealthDashboardController;
-use App\Http\Controllers\Api\V1\Health\HealthLabTestController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -89,22 +95,7 @@ Route::prefix('v1')->group(function () {
     */
 
     Route::middleware('auth:sanctum')->group(function () {
-        Route::prefix('nutrition')->group(function () {
-            Route::get('/categories', [NutritionFoodController::class, 'categories']);
 
-            Route::get('/foods/search', [NutritionFoodController::class, 'search']);
-            Route::get('/foods/{id}/servings', [NutritionFoodController::class, 'servings']);
-            Route::get('/foods/{id}', [NutritionFoodController::class, 'show']);
-            Route::get('/foods', [NutritionFoodController::class, 'index']);
-            Route::post('/foods/autofill', [NutritionFoodController::class, 'autofill']);
-            Route::get('/custom-foods', [NutritionCustomFoodController::class, 'index']);
-            Route::post('/custom-foods', [NutritionCustomFoodController::class, 'store']);
-            Route::get('/custom-foods/{id}', [NutritionCustomFoodController::class, 'show']);
-            Route::put('/custom-foods/{id}', [NutritionCustomFoodController::class, 'update']);
-            Route::delete('/custom-foods/{id}', [NutritionCustomFoodController::class, 'destroy']);
-
-
-        });
         /*
         |--------------------------------------------------------------------------
         | Authenticated User
@@ -166,14 +157,79 @@ Route::prefix('v1')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
+        | Nutrition Facts Database Module
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('nutrition')->group(function () {
+            Route::get('/categories', [NutritionFoodController::class, 'categories']);
+
+            Route::get('/foods/search', [NutritionFoodController::class, 'search']);
+            Route::get('/foods/{id}/servings', [NutritionFoodController::class, 'servings']);
+            Route::get('/foods/{id}', [NutritionFoodController::class, 'show']);
+            Route::get('/foods', [NutritionFoodController::class, 'index']);
+            Route::post('/foods/autofill', [NutritionFoodController::class, 'autofill']);
+
+            Route::get('/custom-foods', [NutritionCustomFoodController::class, 'index']);
+            Route::post('/custom-foods', [NutritionCustomFoodController::class, 'store']);
+            Route::get('/custom-foods/{id}', [NutritionCustomFoodController::class, 'show']);
+            Route::put('/custom-foods/{id}', [NutritionCustomFoodController::class, 'update']);
+            Route::patch('/custom-foods/{id}', [NutritionCustomFoodController::class, 'update']);
+            Route::delete('/custom-foods/{id}', [NutritionCustomFoodController::class, 'destroy']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
         | Health Module
         |--------------------------------------------------------------------------
         */
-        Route::apiResource('health/medications', MedicationController::class);
 
         Route::prefix('health')->group(function () {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Health Dashboard
+            |--------------------------------------------------------------------------
+            */
+
             Route::get('/dashboard', [HealthDashboardController::class, 'summary']);
-            // Route::apiResource('lab-tests', HealthLabTestController::class);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Medication Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/medications', [MedicationController::class, 'index']);
+            Route::post('/medications', [MedicationController::class, 'store']);
+            Route::get('/medications/{id}', [MedicationController::class, 'show']);
+            Route::put('/medications/{id}', [MedicationController::class, 'update']);
+            Route::patch('/medications/{id}', [MedicationController::class, 'update']);
+            Route::delete('/medications/{id}', [MedicationController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Medication Reminders
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/medication-reminders', [MedicationReminderController::class, 'index']);
+            Route::get('/medication-reminders/today', [MedicationReminderController::class, 'today']);
+            Route::post('/medication-reminders', [MedicationReminderController::class, 'store']);
+            Route::put('/medication-reminders/{id}', [MedicationReminderController::class, 'update']);
+            Route::patch('/medication-reminders/{id}', [MedicationReminderController::class, 'update']);
+            Route::delete('/medication-reminders/{id}', [MedicationReminderController::class, 'destroy']);
+
+            Route::get('/medication-doses/history', [MedicationDoseController::class, 'history']);
+            Route::post('/medication-doses/{id}/taken', [MedicationDoseController::class, 'markTaken']);
+            Route::post('/medication-doses/{id}/skipped', [MedicationDoseController::class, 'markSkipped']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Lab Tests
+            |--------------------------------------------------------------------------
+            */
+
             Route::get('/lab-tests/trends', [HealthLabTestController::class, 'trends']);
             Route::get('/lab-tests', [HealthLabTestController::class, 'index']);
             Route::post('/lab-tests', [HealthLabTestController::class, 'store']);
@@ -181,13 +237,21 @@ Route::prefix('v1')->group(function () {
             Route::put('/lab-tests/{id}', [HealthLabTestController::class, 'update']);
             Route::patch('/lab-tests/{id}', [HealthLabTestController::class, 'update']);
             Route::delete('/lab-tests/{id}', [HealthLabTestController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Mood Tracking
+            |--------------------------------------------------------------------------
+            */
+
             Route::get('/mood', [HealthMoodLogController::class, 'index']);
             Route::post('/mood', [HealthMoodLogController::class, 'store']);
             Route::get('/mood/{id}', [HealthMoodLogController::class, 'show']);
             Route::put('/mood/{id}', [HealthMoodLogController::class, 'update']);
             Route::patch('/mood/{id}', [HealthMoodLogController::class, 'update']);
             Route::delete('/mood/{id}', [HealthMoodLogController::class, 'destroy']);
-                        /*
+
+            /*
             |--------------------------------------------------------------------------
             | Sleep Tracking
             |--------------------------------------------------------------------------
@@ -252,13 +316,6 @@ Route::prefix('v1')->group(function () {
             | Hydration Tracking
             |--------------------------------------------------------------------------
             */
-
-            // Route::get('/mood', [HealthMoodLogController::class, 'index']);
-            // Route::post('/mood', [HealthMoodLogController::class, 'store']);
-            // Route::get('/mood/{id}', [HealthMoodLogController::class, 'show']);
-            // Route::put('/mood/{id}', [HealthMoodLogController::class, 'update']);
-            // Route::patch('/mood/{id}', [HealthMoodLogController::class, 'update']);
-            // Route::delete('/mood/{id}', [HealthMoodLogController::class, 'destroy']);
 
             Route::get('/hydration', [HealthHydrationLogController::class, 'index']);
             Route::post('/hydration', [HealthHydrationLogController::class, 'store']);
