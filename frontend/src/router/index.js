@@ -147,13 +147,13 @@ const routes = [
     },
   },
   {
-    path: '/health/custom-foods',
-    name: 'health-custom-foods',
-    component: CustomFoodsView,
+    path: "/health/custom-foods",
+    name: "HealthCustomFoods",
+    component: () => import("@/views/health/CustomFoodsView.vue"),
     meta: {
       requiresAuth: true,
-      title: 'Custom Foods'
-    }
+      title: "Custom Foods",
+    },
   },
   /*
   |--------------------------------------------------------------------------

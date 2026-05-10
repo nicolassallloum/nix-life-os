@@ -108,7 +108,13 @@ import { hasPermission } from "@/utils/permissions";
         >
           Nutrition Tracking
         </RouterLink>
-
+        <RouterLink
+          to="/health/custom-foods"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Custom Foods
+        </RouterLink>
         <RouterLink
           to="/health/hydration"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
