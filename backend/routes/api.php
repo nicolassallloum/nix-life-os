@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
 use App\Http\Controllers\Api\LifeBalanceController;
 // use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
+use App\Http\Controllers\Api\V1\NutritionCustomFoodController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceTransactionController;
 use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
@@ -96,7 +97,11 @@ Route::prefix('v1')->group(function () {
             Route::get('/foods/{id}', [NutritionFoodController::class, 'show']);
             Route::get('/foods', [NutritionFoodController::class, 'index']);
             Route::post('/foods/autofill', [NutritionFoodController::class, 'autofill']);
-
+            Route::get('/custom-foods', [NutritionCustomFoodController::class, 'index']);
+            Route::post('/custom-foods', [NutritionCustomFoodController::class, 'store']);
+            Route::get('/custom-foods/{id}', [NutritionCustomFoodController::class, 'show']);
+            Route::put('/custom-foods/{id}', [NutritionCustomFoodController::class, 'update']);
+            Route::delete('/custom-foods/{id}', [NutritionCustomFoodController::class, 'destroy']);
 
 
         });

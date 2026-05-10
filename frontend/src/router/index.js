@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HealthView from "@/views/health/HealthView.vue";
+// import CustomFoodsView from '@/views/health/CustomFoodsView.vue'
 /*
 |--------------------------------------------------------------------------
 | Auth Views
@@ -145,7 +146,15 @@ const routes = [
       title: "Life Balance",
     },
   },
-
+  {
+    path: '/health/custom-foods',
+    name: 'health-custom-foods',
+    component: CustomFoodsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Custom Foods'
+    }
+  },
   /*
   |--------------------------------------------------------------------------
   | Finance Routes

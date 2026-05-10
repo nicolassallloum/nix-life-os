@@ -129,6 +129,13 @@ const activeClass =
               </RouterLink>
 
               <RouterLink
+                to="/health/custom-foods"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Custom Foods
+              </RouterLink>
+              <RouterLink
                 to="/health/hydration"
                 :class="linkClass"
                 :active-class="activeClass"
@@ -165,6 +172,7 @@ const activeClass =
               >
                 Lab Tests
               </RouterLink>
+
             </div>
           </div>
 
