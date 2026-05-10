@@ -9,6 +9,47 @@ use Illuminate\Http\Request;
 
 class HealthLabTestController extends Controller
 {
+    public function categories(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab test categories retrieved successfully.',
+            'data' => [
+                [
+                    'key' => 'kidney',
+                    'name' => 'Kidney Function',
+                    'tests' => [
+                        'Creatinine',
+                        'Urea',
+                        'eGFR',
+                    ],
+                ],
+                [
+                    'key' => 'electrolytes',
+                    'name' => 'Electrolytes',
+                    'tests' => [
+                        'Sodium',
+                        'Potassium',
+                        'Phosphorus',
+                    ],
+                ],
+                [
+                    'key' => 'blood',
+                    'name' => 'Blood / Anemia',
+                    'tests' => [
+                        'Hemoglobin',
+                    ],
+                ],
+                [
+                    'key' => 'general',
+                    'name' => 'General Lab Test',
+                    'tests' => [
+                        'Custom Test',
+                    ],
+                ],
+            ],
+        ]);
+    }
     public function index(Request $request): JsonResponse
     {
         $query = HealthLabTest::query()
@@ -50,7 +91,19 @@ class HealthLabTestController extends Controller
 
         $validated['user_id'] = $request->user()->id;
         $validated['test_name'] = $validated['test_name'] ?? 'CKD Blood Test Panel';
+        $validated['category'] = $validated['category'] ?? 'kidney';
         $validated['source_type'] = $validated['source_type'] ?? 'manual';
+
+        $previous = $this->findPreviousResult($request, $validated);
+
+        if ($previous) {
+            $validated['previous_result_id'] = $previous->id;
+            $validated['comparison_status'] = $this->buildComparisonStatus($validated, $previous);
+        }
+
+        $abnormal = $this->detectAbnormalResultFromArray($validated);
+        $validated['is_abnormal'] = $abnormal['is_abnormal'];
+        $validated['abnormal_reason'] = $abnormal['reason'];
 
         $labTest = HealthLabTest::create($validated);
 
@@ -89,8 +142,18 @@ class HealthLabTestController extends Controller
         $validated['test_name'] = $validated['test_name'] ?? $labTest->test_name ?? 'CKD Blood Test Panel';
         $validated['source_type'] = $validated['source_type'] ?? $labTest->source_type ?? 'manual';
 
-        $labTest->update($validated);
+        $previous = $this->findPreviousResult($request, $validated, $labTest->id);
 
+        if ($previous) {
+            $validated['previous_result_id'] = $previous->id;
+            $validated['comparison_status'] = $this->buildComparisonStatus($validated, $previous);
+        }
+
+        $abnormal = $this->detectAbnormalResultFromArray($validated);
+        $validated['is_abnormal'] = $abnormal['is_abnormal'];
+        $validated['abnormal_reason'] = $abnormal['reason'];
+
+        $labTest->update($validated);
         $freshLabTest = $labTest->fresh();
 
         return response()->json([
@@ -179,7 +242,8 @@ class HealthLabTestController extends Controller
             'unit' => ['nullable', 'string', 'max:50'],
             'reference_range' => ['nullable', 'string', 'max:100'],
             'lab_name' => ['nullable', 'string', 'max:255'],
-
+            'category' => ['nullable', 'string', 'max:100', 'in:kidney,electrolytes,blood,general'],
+            'doctor_notes' => ['nullable', 'string', 'max:3000'],
             'creatinine' => ['nullable', 'numeric', 'min:0', 'max:30'],
             'urea' => ['nullable', 'numeric', 'min:0', 'max:500'],
             'egfr' => ['nullable', 'numeric', 'min:0', 'max:200'],
@@ -193,7 +257,106 @@ class HealthLabTestController extends Controller
             'notes' => ['nullable', 'string', 'max:2000'],
         ]);
     }
+private function findPreviousResult(Request $request, array $validated, ?string $excludeId = null): ?HealthLabTest
+{
+    $query = HealthLabTest::query()
+        ->where('user_id', $request->user()->id)
+        ->whereDate('test_date', '<', $validated['test_date'] ?? now()->toDateString());
 
+    if (! empty($validated['category'])) {
+        $query->where('category', $validated['category']);
+    }
+
+    if ($excludeId) {
+        $query->where('id', '!=', $excludeId);
+    }
+
+    return $query
+        ->orderByDesc('test_date')
+        ->orderByDesc('created_at')
+        ->first();
+}
+
+private function buildComparisonStatus(array $current, HealthLabTest $previous): ?string
+{
+    $fields = [
+        'creatinine' => 'lower_is_better',
+        'urea' => 'lower_is_better',
+        'egfr' => 'higher_is_better',
+        'potassium' => 'stable_is_better',
+        'phosphorus' => 'lower_is_better',
+        'hemoglobin' => 'higher_is_better',
+    ];
+
+    $changes = [];
+
+    foreach ($fields as $field => $direction) {
+        if (! isset($current[$field]) || $current[$field] === null || $previous->{$field} === null) {
+            continue;
+        }
+
+        $newValue = (float) $current[$field];
+        $oldValue = (float) $previous->{$field};
+
+        if ($newValue === $oldValue) {
+            continue;
+        }
+
+        if ($direction === 'lower_is_better') {
+            $changes[] = $newValue < $oldValue
+                ? "{$field} improved"
+                : "{$field} increased";
+        }
+
+        if ($direction === 'higher_is_better') {
+            $changes[] = $newValue > $oldValue
+                ? "{$field} improved"
+                : "{$field} decreased";
+        }
+
+        if ($direction === 'stable_is_better') {
+            $changes[] = abs($newValue - $oldValue) <= 0.2
+                ? "{$field} stable"
+                : "{$field} changed";
+        }
+    }
+
+    return count($changes) ? implode(', ', $changes) : 'No major change';
+}
+
+    private function detectAbnormalResultFromArray(array $data): array
+    {
+        $reasons = [];
+
+        if (isset($data['creatinine']) && $data['creatinine'] !== null && (float) $data['creatinine'] > 1.3) {
+            $reasons[] = 'Creatinine above common adult reference range';
+        }
+
+        if (isset($data['urea']) && $data['urea'] !== null && (float) $data['urea'] > 50) {
+            $reasons[] = 'Urea elevated';
+        }
+
+        if (isset($data['egfr']) && $data['egfr'] !== null && (float) $data['egfr'] < 60) {
+            $reasons[] = 'eGFR below 60';
+        }
+
+        if (isset($data['hemoglobin']) && $data['hemoglobin'] !== null && (float) $data['hemoglobin'] < 13) {
+            $reasons[] = 'Hemoglobin low';
+        }
+
+        if (isset($data['potassium']) && $data['potassium'] !== null && (float) $data['potassium'] > 5.0) {
+            $reasons[] = 'Potassium high';
+        }
+
+        if (isset($data['phosphorus']) && $data['phosphorus'] !== null && (float) $data['phosphorus'] > 4.5) {
+            $reasons[] = 'Phosphorus high';
+        }
+
+        return [
+            'is_abnormal' => count($reasons) > 0,
+            'reason' => count($reasons) ? implode('; ', $reasons) : null,
+        ];
+    }
     private function buildKidneyWarnings(?HealthLabTest $labTest): array
     {
         if (! $labTest) {

@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\V1\Health\MedicationDoseController;
 use App\Http\Controllers\Api\V1\Health\SleepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
+
 use App\Http\Controllers\Api\V1\HealthWeightLogController;
 use App\Http\Controllers\Api\V1\HealthHydrationLogController;
 
@@ -220,16 +221,28 @@ Route::prefix('v1')->group(function () {
             Route::patch('/medication-reminders/{id}', [MedicationReminderController::class, 'update']);
             Route::delete('/medication-reminders/{id}', [MedicationReminderController::class, 'destroy']);
 
+            /*
+            |--------------------------------------------------------------------------
+            | Medication Dose Logs
+            |--------------------------------------------------------------------------
+            */
+
             Route::get('/medication-doses/history', [MedicationDoseController::class, 'history']);
             Route::post('/medication-doses/{id}/taken', [MedicationDoseController::class, 'markTaken']);
             Route::post('/medication-doses/{id}/skipped', [MedicationDoseController::class, 'markSkipped']);
 
             /*
             |--------------------------------------------------------------------------
-            | Lab Tests
+            | Lab Test Results Tracking
             |--------------------------------------------------------------------------
+            |
+            | Important:
+            | categories and trends must stay above /lab-tests/{id}
+            | to prevent Laravel from treating "categories" or "trends" as an ID.
+            |
             */
 
+            Route::get('/lab-tests/categories', [HealthLabTestController::class, 'categories']);
             Route::get('/lab-tests/trends', [HealthLabTestController::class, 'trends']);
             Route::get('/lab-tests', [HealthLabTestController::class, 'index']);
             Route::post('/lab-tests', [HealthLabTestController::class, 'store']);

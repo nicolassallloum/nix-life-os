@@ -91,6 +91,36 @@
 
           <div class="form-group full-width">
             <label>Test Name</label>
+            
+            <div class="form-group">
+              <label>Category</label>
+              <select v-model="form.category">
+                <option value="kidney">Kidney Function</option>
+                <option value="electrolytes">Electrolytes</option>
+                <option value="blood">Blood / Anemia</option>
+                <option value="general">General Lab Test</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Result Value</label>
+              <input v-model="form.result_value" type="text" placeholder="Example: Positive / 2.4 / 120" />
+            </div>
+
+            <div class="form-group">
+              <label>Unit</label>
+              <input v-model="form.unit" type="text" placeholder="mg/dL, mmol/L, g/dL" />
+            </div>
+
+            <div class="form-group">
+              <label>Reference Range</label>
+              <input v-model="form.reference_range" type="text" placeholder="Example: 0.7 - 1.3" />
+            </div>
+
+
+
+
+
             <input
               v-model="form.test_name"
               type="text"
@@ -135,6 +165,14 @@
 
           <div class="form-group full-width">
             <label>Notes</label>
+            <div class="form-group full-width">
+              <label>Doctor Notes</label>
+              <textarea
+                v-model="form.doctor_notes"
+                rows="4"
+                placeholder="Doctor interpretation, follow-up instructions, or medication changes."
+              ></textarea>
+            </div>
             <textarea
               v-model="form.notes"
               rows="4"
@@ -191,6 +229,8 @@
                 <th>K</th>
                 <th>Phos</th>
                 <th>Hb</th>
+                <th>Status</th>
+                <th>Comparison</th>
                 <th class="actions-col">Actions</th>
               </tr>
             </thead>
@@ -209,7 +249,22 @@
                 <td :class="valueClass('potassium', item.potassium)">{{ displayValue(item.potassium) }}</td>
                 <td :class="valueClass('phosphorus', item.phosphorus)">{{ displayValue(item.phosphorus) }}</td>
                 <td :class="valueClass('hemoglobin', item.hemoglobin)">{{ displayValue(item.hemoglobin) }}</td>
+                <td>
+                <span v-if="item.is_abnormal" class="abnormal-badge">
+                  Abnormal
+                </span>
+                <span v-else class="normal-badge">
+                  Normal
+                </span>
 
+                <small v-if="item.abnormal_reason">
+                  {{ item.abnormal_reason }}
+                </small>
+              </td>
+
+              <td>
+                <small>{{ item.comparison_status || "-" }}</small>
+              </td>
                 <td class="actions">
                   <button class="small-btn" @click="editLabTest(item)">
                     Edit
@@ -261,6 +316,11 @@ const form = reactive({
   potassium: "",
   phosphorus: "",
   notes: "",
+  category: "kidney",
+  result_value: "",
+  unit: "",
+  reference_range: "",
+  doctor_notes: "",
 });
 
 const latestLab = computed(() => {
@@ -349,7 +409,13 @@ function editLabTest(item) {
 
   form.test_date = item.test_date || new Date().toISOString().slice(0, 10);
   form.test_name = item.test_name || "CKD Blood Test Panel";
+  form.category = item.category || "kidney";
   form.lab_name = item.lab_name || "";
+
+  form.result_value = item.result_value || "";
+  form.unit = item.unit || "";
+  form.reference_range = item.reference_range || "";
+
   form.creatinine = item.creatinine || "";
   form.urea = item.urea || "";
   form.egfr = item.egfr || "";
@@ -357,7 +423,9 @@ function editLabTest(item) {
   form.sodium = item.sodium || "";
   form.potassium = item.potassium || "";
   form.phosphorus = item.phosphorus || "";
+
   form.notes = item.notes || "";
+  form.doctor_notes = item.doctor_notes || "";
 
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
@@ -367,7 +435,13 @@ function resetForm() {
 
   form.test_date = new Date().toISOString().slice(0, 10);
   form.test_name = "CKD Blood Test Panel";
+  form.category = "kidney";
   form.lab_name = "";
+
+  form.result_value = "";
+  form.unit = "";
+  form.reference_range = "";
+
   form.creatinine = "";
   form.urea = "";
   form.egfr = "";
@@ -375,14 +449,22 @@ function resetForm() {
   form.sodium = "";
   form.potassium = "";
   form.phosphorus = "";
+
   form.notes = "";
+  form.doctor_notes = "";
 }
 
 function buildPayload() {
   return {
     test_date: form.test_date,
     test_name: form.test_name || "CKD Blood Test Panel",
+    category: form.category || "kidney",
     lab_name: form.lab_name || null,
+
+    result_value: form.result_value || null,
+    unit: form.unit || null,
+    reference_range: form.reference_range || null,
+
     creatinine: numberOrNull(form.creatinine),
     urea: numberOrNull(form.urea),
     egfr: numberOrNull(form.egfr),
@@ -390,8 +472,10 @@ function buildPayload() {
     sodium: numberOrNull(form.sodium),
     potassium: numberOrNull(form.potassium),
     phosphorus: numberOrNull(form.phosphorus),
+
     source_type: "manual",
     notes: form.notes || null,
+    doctor_notes: form.doctor_notes || null,
   };
 }
 
@@ -629,6 +713,7 @@ function getErrorMessage(error, fallback) {
 }
 
 .form-group input,
+.form-group select,
 .form-group textarea {
   width: 100%;
   border: 1px solid #d1d5db;
@@ -641,6 +726,7 @@ function getErrorMessage(error, fallback) {
 }
 
 .form-group input:focus,
+.form-group select:focus,
 .form-group textarea:focus {
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
@@ -798,7 +884,25 @@ td small {
   font-weight: 800;
   margin-bottom: 4px;
 }
+.abnormal-badge,
+.normal-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
 
+.abnormal-badge {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.normal-badge {
+  background: #dcfce7;
+  color: #166534;
+}
 @media (max-width: 1250px) {
   .summary-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));

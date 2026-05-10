@@ -13,10 +13,12 @@ class HealthLabTest extends Model
         'user_id',
         'test_date',
         'test_name',
+        'category',
         'result_value',
         'unit',
         'reference_range',
         'lab_name',
+
         'creatinine',
         'urea',
         'egfr',
@@ -24,9 +26,16 @@ class HealthLabTest extends Model
         'sodium',
         'potassium',
         'phosphorus',
+
         'source_type',
         'attachment_path',
         'notes',
+        'doctor_notes',
+
+        'is_abnormal',
+        'abnormal_reason',
+        'comparison_status',
+        'previous_result_id',
     ];
 
     protected $casts = [
@@ -38,10 +47,16 @@ class HealthLabTest extends Model
         'sodium' => 'decimal:2',
         'potassium' => 'decimal:2',
         'phosphorus' => 'decimal:2',
+        'is_abnormal' => 'boolean',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function previousResult(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'previous_result_id');
     }
 }

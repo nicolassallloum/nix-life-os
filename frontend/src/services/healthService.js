@@ -150,8 +150,14 @@ const healthService = {
   },
 
   labTests: {
+    categories() {
+      return api.get("/health/lab-tests/categories");
+    },
     list(params = {}) {
       return api.get("/health/lab-tests", { params });
+    },
+    show(id) {
+      return api.get(`/health/lab-tests/${id}`);
     },
     create(payload) {
       return api.post("/health/lab-tests", payload);
