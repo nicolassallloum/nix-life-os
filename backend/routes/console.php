@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Schedule;
 
+Schedule::command('health:generate-alerts')->hourly();
 Schedule::command('ai:daily-insights')
     ->dailyAt('23:55');
 

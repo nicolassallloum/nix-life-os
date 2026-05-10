@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HealthView from "@/views/health/HealthView.vue";
+import HealthAlertsView from "@/views/health/HealthAlertsView.vue";
+import HealthReportsView from '@/views/health/HealthReportsView.vue'
 // import CustomFoodsView from '@/views/health/CustomFoodsView.vue'
 /*
 |--------------------------------------------------------------------------
@@ -184,6 +186,15 @@ const routes = [
     },
   },
   {
+    path: "/health/alerts",
+    name: "health-alerts",
+    component: HealthAlertsView,
+    meta: {
+      requiresAuth: true,
+      title: "Health Alerts",
+    },
+  },
+  {
     path: "/finance/transactions",
     name: "FinanceTransactions",
     component: FinanceTransactionsView,
@@ -297,6 +308,15 @@ const routes = [
       requiresAuth: true,
       title: "Lab Tests",
     },
+  },
+  {
+    path: '/health/reports',
+    name: 'HealthReports',
+    component: HealthReportsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Health Reports'
+    }
   },
 
   /*

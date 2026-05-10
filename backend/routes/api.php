@@ -8,7 +8,8 @@ use App\Http\Controllers\Api\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceTransactionController;
 use App\Http\Controllers\Api\HealthNutritionLogController;
-
+use App\Http\Controllers\Api\V1\HealthAlertController;
+use App\Http\Controllers\Api\V1\HealthReportController;
 use App\Http\Controllers\Api\V1\NutritionFoodController;
 use App\Http\Controllers\Api\V1\NutritionCustomFoodController;
 
@@ -187,6 +188,19 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('health')->group(function () {
 
+            Route::get('/reports/daily', [HealthReportController::class, 'daily']);
+            Route::get('/reports/weekly', [HealthReportController::class, 'weekly']);
+            Route::get('/reports/monthly', [HealthReportController::class, 'monthly']);
+            Route::get('/reports/export-preview', [HealthReportController::class, 'exportPreview']);
+            Route::get('/alerts', [HealthAlertController::class, 'index']);
+            Route::get('/alerts/summary', [HealthAlertController::class, 'summary']);
+            Route::post('/alerts/run', [HealthAlertController::class, 'run']);
+
+            Route::patch('/alerts/{id}/read', [HealthAlertController::class, 'markAsRead']);
+            Route::patch('/alerts/{id}/resolve', [HealthAlertController::class, 'resolve']);
+            Route::patch('/alerts/{id}/dismiss', [HealthAlertController::class, 'dismiss']);
+
+            Route::delete('/alerts/{id}', [HealthAlertController::class, 'destroy']);
             /*
             |--------------------------------------------------------------------------
             | Health Dashboard

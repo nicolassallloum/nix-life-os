@@ -144,6 +144,9 @@ import { hasPermission } from "@/utils/permissions";
         >
           Lab Tests
         </RouterLink>
+        <RouterLink to="/health/alerts" class="sidebar-link">
+          <span>Health Alerts</span>
+        </RouterLink>
         <RouterLink
           to="/health/sleep"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"

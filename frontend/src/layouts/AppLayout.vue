@@ -172,7 +172,16 @@ const activeClass =
               >
                 Lab Tests
               </RouterLink>
-
+              <RouterLink to="/health/alerts" class="sidebar-link">
+                <span>Health Alerts</span>
+              </RouterLink>
+              <RouterLink
+                to="/health/reports"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Health Reports
+              </RouterLink>
             </div>
           </div>
 
