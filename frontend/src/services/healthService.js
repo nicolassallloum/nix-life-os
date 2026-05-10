@@ -123,6 +123,9 @@ const healthService = {
     delete(id) {
       return api.delete(`/health/lab-tests/${id}`);
     },
+    trends(params = {}) {
+      return api.get("/health/lab-tests/trends", { params });
+    },
   },
 };
 

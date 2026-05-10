@@ -12,9 +12,27 @@ class MedicationController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $medications = HealthMedication::query()
-            ->where('user_id', $request->user()->id)
-            ->latest('start_date')
+        $query = HealthMedication::query()
+            ->where('user_id', $request->user()->id);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(medication_name) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(dosage) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(frequency) LIKE ?', ["%{$search}%"])
+                    ->orWhereRaw('LOWER(prescribed_by) LIKE ?', ["%{$search}%"]);
+            });
+        }
+
+        $medications = $query
+            ->orderByRaw("CASE WHEN status = 'active' THEN 1 ELSE 2 END")
+            ->orderByDesc('start_date')
             ->get();
 
         return response()->json([
@@ -27,16 +45,17 @@ class MedicationController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'medication_name' => ['required', 'string', 'max:255'],
             'dosage' => ['required', 'string', 'max:100'],
+            'daily_dose' => ['nullable', 'string', 'max:100'],
+            'dose_times' => ['nullable', 'array'],
+            'dose_times.*' => ['nullable', 'date_format:H:i'],
             'frequency' => ['required', 'string', 'max:100'],
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'status' => ['required', Rule::in(['active', 'paused', 'completed', 'inactive'])],
+            'prescribed_by' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:2000'],
-            'daily_dose' => ['nullable', 'string', 'max:100'],
-            'dose_times' => ['nullable', 'array'],
-            'dose_times.*' => ['nullable', 'date_format:H:i'],
         ]);
 
         $validated['user_id'] = $request->user()->id;
@@ -54,7 +73,8 @@ class MedicationController extends Controller
     {
         $medication = HealthMedication::query()
             ->where('user_id', $request->user()->id)
-            ->findOrFail($id);
+            ->where('id', $id)
+            ->firstOrFail();
 
         return response()->json([
             'success' => true,
@@ -67,18 +87,20 @@ class MedicationController extends Controller
     {
         $medication = HealthMedication::query()
             ->where('user_id', $request->user()->id)
-            ->findOrFail($id);
+            ->where('id', $id)
+            ->firstOrFail();
 
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'medication_name' => ['required', 'string', 'max:255'],
             'dosage' => ['required', 'string', 'max:100'],
-            'frequency' => ['required', 'string', 'max:100'],
-            'start_date' => ['required', 'date'],
             'daily_dose' => ['nullable', 'string', 'max:100'],
             'dose_times' => ['nullable', 'array'],
             'dose_times.*' => ['nullable', 'date_format:H:i'],
+            'frequency' => ['required', 'string', 'max:100'],
+            'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'status' => ['required', Rule::in(['active', 'paused', 'completed', 'inactive'])],
+            'prescribed_by' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:2000'],
         ]);
 
@@ -95,7 +117,8 @@ class MedicationController extends Controller
     {
         $medication = HealthMedication::query()
             ->where('user_id', $request->user()->id)
-            ->findOrFail($id);
+            ->where('id', $id)
+            ->firstOrFail();
 
         $medication->delete();
 

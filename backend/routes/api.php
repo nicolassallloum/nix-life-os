@@ -174,6 +174,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('health')->group(function () {
             Route::get('/dashboard', [HealthDashboardController::class, 'summary']);
             // Route::apiResource('lab-tests', HealthLabTestController::class);
+            Route::get('/lab-tests/trends', [HealthLabTestController::class, 'trends']);
             Route::get('/lab-tests', [HealthLabTestController::class, 'index']);
             Route::post('/lab-tests', [HealthLabTestController::class, 'store']);
             Route::get('/lab-tests/{id}', [HealthLabTestController::class, 'show']);

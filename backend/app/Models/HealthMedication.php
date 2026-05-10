@@ -8,22 +8,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class HealthMedication extends Model
 {
-    use HasUuids;
-    use SoftDeletes;
+    use HasUuids, SoftDeletes;
 
     protected $table = 'health_medications';
 
     protected $fillable = [
         'user_id',
-        'name',
+        'medication_name',
         'dosage',
+        'daily_dose',
+        'dose_times',
         'frequency',
         'start_date',
         'end_date',
         'status',
+        'prescribed_by',
         'notes',
-        'daily_dose',
-        'dose_times',
     ];
 
     protected $casts = [
