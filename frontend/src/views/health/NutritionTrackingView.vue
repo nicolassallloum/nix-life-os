@@ -1,19 +1,14 @@
 <template>
-  <section class="nutrition-page">
+  <div class="nutrition-page">
     <div class="page-header">
       <div>
         <h1>Nutrition Tracking</h1>
-        <p>Track meals, calories, protein, sodium, potassium, and phosphorus.</p>
+        <p>Track daily meals, nutrition values, and CKD nutrient limits.</p>
       </div>
 
-      <div class="date-filter">
-        <label for="selectedDate">Tracking Date</label>
-        <input
-          id="selectedDate"
-          v-model="selectedDate"
-          type="date"
-          @change="loadNutritionData"
-        />
+      <div class="date-box">
+        <label>Date</label>
+        <input type="date" v-model="selectedDate" @change="loadLogs" />
       </div>
     </div>
 
@@ -28,491 +23,571 @@
     <div class="summary-grid">
       <div class="summary-card">
         <span>Calories</span>
-        <strong>{{ formatNumber(summary.total_calories) }}</strong>
-        <small>Limit: {{ summary.limits.calories }} kcal</small>
-        <div :class="statusClass(summary.status.calories)">
-          {{ formatStatus(summary.status.calories) }}
-        </div>
+        <strong>{{ dailyTotals.calories.toFixed(0) }}</strong>
+        <small>kcal</small>
       </div>
 
-      <div class="summary-card">
+      <div class="summary-card" :class="{ warning: dailyTotals.protein > ckdLimits.protein }">
         <span>Protein</span>
-        <strong>{{ formatNumber(summary.total_protein) }} g</strong>
-        <small>Limit: {{ summary.limits.protein }} g</small>
-        <div :class="statusClass(summary.status.protein)">
-          {{ formatStatus(summary.status.protein) }}
-        </div>
+        <strong>{{ dailyTotals.protein.toFixed(1) }}</strong>
+        <small>Limit: {{ ckdLimits.protein }}g</small>
       </div>
 
-      <div class="summary-card">
+      <div class="summary-card" :class="{ warning: dailyTotals.sodium > ckdLimits.sodium }">
         <span>Sodium</span>
-        <strong>{{ formatNumber(summary.total_sodium) }} mg</strong>
-        <small>Limit: {{ summary.limits.sodium }} mg</small>
-        <div :class="statusClass(summary.status.sodium)">
-          {{ formatStatus(summary.status.sodium) }}
-        </div>
+        <strong>{{ dailyTotals.sodium.toFixed(0) }}</strong>
+        <small>Limit: {{ ckdLimits.sodium }}mg</small>
       </div>
 
-      <div class="summary-card">
+      <div class="summary-card" :class="{ warning: dailyTotals.potassium > ckdLimits.potassium }">
         <span>Potassium</span>
-        <strong>{{ formatNumber(summary.total_potassium) }} mg</strong>
-        <small>Limit: {{ summary.limits.potassium }} mg</small>
-        <div :class="statusClass(summary.status.potassium)">
-          {{ formatStatus(summary.status.potassium) }}
-        </div>
+        <strong>{{ dailyTotals.potassium.toFixed(0) }}</strong>
+        <small>Limit: {{ ckdLimits.potassium }}mg</small>
       </div>
 
-      <div class="summary-card">
+      <div class="summary-card" :class="{ warning: dailyTotals.phosphorus > ckdLimits.phosphorus }">
         <span>Phosphorus</span>
-        <strong>{{ formatNumber(summary.total_phosphorus) }} mg</strong>
-        <small>Limit: {{ summary.limits.phosphorus }} mg</small>
-        <div :class="statusClass(summary.status.phosphorus)">
-          {{ formatStatus(summary.status.phosphorus) }}
-        </div>
+        <strong>{{ dailyTotals.phosphorus.toFixed(0) }}</strong>
+        <small>Limit: {{ ckdLimits.phosphorus }}mg</small>
       </div>
     </div>
 
+    <div v-if="limitWarnings.length" class="warning-box">
+      <h3>CKD Nutrient Warnings</h3>
+      <ul>
+        <li v-for="warning in limitWarnings" :key="warning">
+          {{ warning }}
+        </li>
+      </ul>
+    </div>
+
     <div class="content-grid">
-      <div class="panel">
-        <div class="panel-header">
-          <h2>{{ isEditing ? "Edit Meal" : "Add Meal" }}</h2>
-          <button
-            v-if="isEditing"
-            class="btn btn-secondary"
-            type="button"
-            @click="resetForm"
-          >
-            Cancel Edit
-          </button>
+      <section class="form-card">
+        <h2>{{ isEditing ? 'Edit Meal' : 'Add Meal' }}</h2>
+
+        <div class="form-group">
+          <label>Search Food Database</label>
+          <input
+            type="text"
+            v-model="foodSearch"
+            placeholder="Search food, example: rice, chicken, apple"
+            @input="handleFoodSearch"
+          />
+
+          <div v-if="isSearching" class="small-note">
+            Searching foods...
+          </div>
+
+          <div v-if="foodResults.length" class="search-results">
+            <button
+              v-for="food in foodResults"
+              :key="food.id"
+              type="button"
+              @click="selectFood(food)"
+            >
+              <strong>{{ food.name }}</strong>
+              <span>
+                {{ food.default_serving_label || food.default_serving_grams + ' g' }} —
+                {{ Number(food.calories || 0).toFixed(0) }} kcal —
+                CKD: {{ food.ckd_warning_level || 'N/A' }}
+              </span>
+            </button>
+          </div>
         </div>
 
-        <form class="meal-form" @submit.prevent="saveMeal">
-          <div class="form-row">
-            <div class="form-group">
-              <label>Meal Date</label>
-              <input v-model="form.meal_date" type="date" required />
-            </div>
+        <div class="manual-note">
+          You can search food from database or manually enter food values.
+        </div>
 
-            <div class="form-group">
-              <label>Meal Type</label>
-              <select v-model="form.meal_type">
-                <option value="breakfast">Breakfast</option>
-                <option value="lunch">Lunch</option>
-                <option value="dinner">Dinner</option>
-                <option value="snack">Snack</option>
-              </select>
-            </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Meal Type</label>
+            <select v-model="form.meal_type">
+              <option value="breakfast">Breakfast</option>
+              <option value="lunch">Lunch</option>
+              <option value="dinner">Dinner</option>
+              <option value="snack">Snack</option>
+            </select>
           </div>
 
           <div class="form-group">
             <label>Food Name</label>
+            <input type="text" v-model="form.food_name" placeholder="Food name" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Quantity</label>
             <input
-              v-model.trim="form.food_name"
-              type="text"
-              placeholder="Example: Boiled Egg"
-              required
+              type="number"
+              min="0"
+              step="0.1"
+              v-model.number="form.quantity"
+              @input="recalculateFromServing"
             />
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label>Quantity</label>
-              <input v-model.number="form.quantity" type="number" min="0" step="0.01" />
-            </div>
-
-            <div class="form-group">
-              <label>Unit</label>
-              <input v-model.trim="form.unit" type="text" placeholder="piece, plate, bowl" />
-            </div>
+          <div class="form-group">
+            <label>Unit</label>
+            <input type="text" v-model="form.unit" placeholder="g, ml, cup" />
           </div>
+        </div>
 
-          <div class="form-row nutrients">
-            <div class="form-group">
-              <label>Calories</label>
-              <input v-model.number="form.calories" type="number" min="0" step="0.01" />
-            </div>
+        <div v-if="selectedFoodBase" class="selected-food-box">
+          <strong>Selected Database Food:</strong>
+          {{ selectedFoodBase.name }}
+          <br />
+          <span>
+            Base serving:
+            {{ selectedFoodBase.default_serving_label || selectedFoodBase.default_serving_grams + ' g' }}
+          </span>
+          <br />
+          <span v-if="selectedFoodBase.ckd_notes">
+            CKD Notes: {{ selectedFoodBase.ckd_notes }}
+          </span>
+        </div>
 
-            <div class="form-group">
-              <label>Protein</label>
-              <input v-model.number="form.protein" type="number" min="0" step="0.01" />
-            </div>
-
-            <div class="form-group">
-              <label>Sodium</label>
-              <input v-model.number="form.sodium" type="number" min="0" step="0.01" />
-            </div>
-
-            <div class="form-group">
-              <label>Potassium</label>
-              <input v-model.number="form.potassium" type="number" min="0" step="0.01" />
-            </div>
-
-            <div class="form-group">
-              <label>Phosphorus</label>
-              <input v-model.number="form.phosphorus" type="number" min="0" step="0.01" />
-            </div>
+        <div class="nutrition-input-grid">
+          <div class="form-group">
+            <label>Calories</label>
+            <input type="number" step="0.1" v-model.number="form.calories" />
           </div>
 
           <div class="form-group">
-            <label>Notes</label>
-            <textarea
-              v-model.trim="form.notes"
-              rows="3"
-              placeholder="Optional notes"
-            ></textarea>
+            <label>Protein g</label>
+            <input type="number" step="0.1" v-model.number="form.protein" />
           </div>
 
-          <button class="btn btn-primary" type="submit" :disabled="saving">
-            {{ saving ? "Saving..." : isEditing ? "Update Meal" : "Add Meal" }}
-          </button>
-        </form>
-      </div>
+          <div class="form-group">
+            <label>Carbs g</label>
+            <input type="number" step="0.1" v-model.number="form.carbs" />
+          </div>
 
-      <div class="panel">
-        <div class="panel-header">
-          <h2>Meal History</h2>
-          <button class="btn btn-secondary" type="button" @click="loadNutritionData">
+          <div class="form-group">
+            <label>Fat g</label>
+            <input type="number" step="0.1" v-model.number="form.fat" />
+          </div>
+
+          <div class="form-group">
+            <label>Sodium mg</label>
+            <input type="number" step="0.1" v-model.number="form.sodium" />
+          </div>
+
+          <div class="form-group">
+            <label>Potassium mg</label>
+            <input type="number" step="0.1" v-model.number="form.potassium" />
+          </div>
+
+          <div class="form-group">
+            <label>Phosphorus mg</label>
+            <input type="number" step="0.1" v-model.number="form.phosphorus" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea v-model="form.notes" placeholder="Optional notes"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-primary" @click="saveMeal" :disabled="isSaving">
+            {{ isSaving ? 'Saving...' : isEditing ? 'Update Meal' : 'Add Meal' }}
+          </button>
+
+          <button type="button" class="btn-secondary" @click="resetForm">
+            Clear
+          </button>
+        </div>
+      </section>
+
+      <section class="list-card">
+        <div class="list-header">
+          <h2>Daily Meal Logs</h2>
+          <button type="button" @click="loadLogs" class="btn-small">
             Refresh
           </button>
         </div>
 
-        <div v-if="loading" class="empty-state">
+        <div v-if="isLoading" class="empty-state">
           Loading nutrition logs...
         </div>
 
-        <div v-else-if="mealLogs.length === 0" class="empty-state">
-          No meals found for this date. Add your first meal.
+        <div v-else-if="!logs.length" class="empty-state">
+          No nutrition logs found for this date.
         </div>
 
-        <div v-else class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Meal</th>
-                <th>Food</th>
-                <th>Qty</th>
-                <th>Calories</th>
-                <th>Protein</th>
-                <th>Sodium</th>
-                <th>Potassium</th>
-                <th>Phosphorus</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+        <div v-else class="meal-list">
+          <div v-for="log in logs" :key="log.id" class="meal-card">
+            <div class="meal-info">
+              <div class="meal-title">
+                <strong>{{ log.food_name }}</strong>
+                <span>{{ formatMealType(log.meal_type) }}</span>
+              </div>
 
-            <tbody>
-              <tr v-for="meal in mealLogs" :key="meal.id">
-                <td>
-                  <span class="meal-type">{{ meal.meal_type || "-" }}</span>
-                </td>
-                <td>
-                  <strong>{{ meal.food_name }}</strong>
-                  <small v-if="meal.notes">{{ meal.notes }}</small>
-                </td>
-                <td>{{ formatNumber(meal.quantity) }} {{ meal.unit }}</td>
-                <td>{{ formatNumber(meal.calories) }}</td>
-                <td>{{ formatNumber(meal.protein) }}</td>
-                <td>{{ formatNumber(meal.sodium) }}</td>
-                <td>{{ formatNumber(meal.potassium) }}</td>
-                <td>{{ formatNumber(meal.phosphorus) }}</td>
-                <td class="actions">
-                  <button class="btn-small" type="button" @click="editMeal(meal)">
-                    Edit
-                  </button>
-                  <button class="btn-small btn-danger" type="button" @click="deleteMeal(meal.id)">
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+              <div class="meal-meta">
+                {{ Number(log.quantity || 0).toFixed(0) }} {{ log.unit || 'g' }} —
+                {{ Number(log.calories || 0).toFixed(0) }} kcal
+              </div>
+
+              <div class="meal-nutrients">
+                <span>Protein: {{ Number(log.protein || 0).toFixed(1) }}g</span>
+                <span>Sodium: {{ Number(log.sodium || 0).toFixed(0) }}mg</span>
+                <span>Potassium: {{ Number(log.potassium || 0).toFixed(0) }}mg</span>
+                <span>Phosphorus: {{ Number(log.phosphorus || 0).toFixed(0) }}mg</span>
+              </div>
+            </div>
+
+            <div class="meal-actions">
+              <button type="button" @click="editMeal(log)">Edit</button>
+              <button type="button" class="danger" @click="deleteMeal(log.id)">Delete</button>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
     </div>
-  </section>
+  </div>
 </template>
 
-<script setup>
-import { computed, onMounted, reactive, ref } from "vue";
+<script>
+import nutritionService from '@/services/nutritionService'
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_URL ||
-  "http://127.0.0.1:8000/api/v1";
+export default {
+  name: 'NutritionTrackingView',
 
-const today = new Date().toISOString().slice(0, 10);
+  data() {
+    return {
+      selectedDate: new Date().toISOString().slice(0, 10),
 
-const selectedDate = ref(today);
-const mealLogs = ref([]);
-const loading = ref(false);
-const saving = ref(false);
-const errorMessage = ref("");
-const successMessage = ref("");
-const editingId = ref(null);
+      logs: [],
+      foodSearch: '',
+      foodResults: [],
+      selectedFoodBase: null,
 
-const summary = reactive({
-  total_calories: 0,
-  total_protein: 0,
-  total_sodium: 0,
-  total_potassium: 0,
-  total_phosphorus: 0,
-  limits: {
-    calories: 1800,
-    protein: 45,
-    sodium: 2000,
-    potassium: 2000,
-    phosphorus: 800,
+      isLoading: false,
+      isSearching: false,
+      isSaving: false,
+      isEditing: false,
+
+      editingId: null,
+      searchTimer: null,
+
+      errorMessage: '',
+      successMessage: '',
+
+      ckdLimits: {
+        protein: 50,
+        sodium: 2000,
+        potassium: 2000,
+        phosphorus: 800
+      },
+
+      form: this.getEmptyForm()
+    }
   },
-  status: {
-    calories: "within_limit",
-    protein: "within_limit",
-    sodium: "within_limit",
-    potassium: "within_limit",
-    phosphorus: "within_limit",
+
+  computed: {
+    dailyTotals() {
+      return this.logs.reduce(
+        (totals, log) => {
+          totals.calories += Number(log.calories || 0)
+          totals.protein += Number(log.protein || 0)
+          totals.carbs += Number(log.carbs || 0)
+          totals.fat += Number(log.fat || 0)
+          totals.sodium += Number(log.sodium || 0)
+          totals.potassium += Number(log.potassium || 0)
+          totals.phosphorus += Number(log.phosphorus || 0)
+
+          return totals
+        },
+        {
+          calories: 0,
+          protein: 0,
+          carbs: 0,
+          fat: 0,
+          sodium: 0,
+          potassium: 0,
+          phosphorus: 0
+        }
+      )
+    },
+
+    limitWarnings() {
+      const warnings = []
+
+      if (this.dailyTotals.protein > this.ckdLimits.protein) {
+        warnings.push(`Protein limit exceeded: ${this.dailyTotals.protein.toFixed(1)}g / ${this.ckdLimits.protein}g`)
+      }
+
+      if (this.dailyTotals.sodium > this.ckdLimits.sodium) {
+        warnings.push(`Sodium limit exceeded: ${this.dailyTotals.sodium.toFixed(0)}mg / ${this.ckdLimits.sodium}mg`)
+      }
+
+      if (this.dailyTotals.potassium > this.ckdLimits.potassium) {
+        warnings.push(`Potassium limit exceeded: ${this.dailyTotals.potassium.toFixed(0)}mg / ${this.ckdLimits.potassium}mg`)
+      }
+
+      if (this.dailyTotals.phosphorus > this.ckdLimits.phosphorus) {
+        warnings.push(`Phosphorus limit exceeded: ${this.dailyTotals.phosphorus.toFixed(0)}mg / ${this.ckdLimits.phosphorus}mg`)
+      }
+
+      return warnings
+    }
   },
-});
 
-const form = reactive({
-  meal_date: today,
-  meal_type: "breakfast",
-  food_name: "",
-  quantity: 1,
-  unit: "piece",
-  calories: 0,
-  protein: 0,
-  sodium: 0,
-  potassium: 0,
-  phosphorus: 0,
-  notes: "",
-});
+  mounted() {
+    this.form.meal_date = this.selectedDate
+    this.loadLogs()
+  },
 
-const isEditing = computed(() => Boolean(editingId.value));
+  methods: {
+    getEmptyForm() {
+      return {
+        meal_date: new Date().toISOString().slice(0, 10),
+        meal_type: 'breakfast',
+        food_name: '',
+        quantity: 100,
+        unit: 'g',
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+        sodium: 0,
+        potassium: 0,
+        phosphorus: 0,
+        notes: ''
+      }
+    },
 
-function getToken() {
-  return (
-    localStorage.getItem("token") ||
-    localStorage.getItem("auth_token") ||
-    localStorage.getItem("access_token") ||
-    sessionStorage.getItem("token") ||
-    sessionStorage.getItem("auth_token") ||
-    sessionStorage.getItem("access_token") ||
-    ""
-  );
-}
+    async loadLogs() {
+      this.isLoading = true
+      this.errorMessage = ''
+      this.successMessage = ''
+      this.form.meal_date = this.selectedDate
 
-function authHeaders() {
-  const token = getToken();
+      try {
+        const response = await nutritionService.getNutritionLogs(this.selectedDate)
+        const payload = response.data.data
 
-  return {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
+        this.logs = Array.isArray(payload)
+          ? payload
+          : payload?.data || []
+      } catch (error) {
+        this.errorMessage = this.getErrorMessage(error, 'Failed to load nutrition logs.')
+      } finally {
+        this.isLoading = false
+      }
+    },
 
-async function handleResponse(response) {
-  const data = await response.json().catch(() => ({}));
+    handleFoodSearch() {
+      clearTimeout(this.searchTimer)
 
-  if (!response.ok) {
-    const message =
-      data.message ||
-      Object.values(data.errors || {})
-        .flat()
-        .join(" ") ||
-      "Request failed.";
-    throw new Error(message);
+      if (!this.foodSearch || this.foodSearch.trim().length < 2) {
+        this.foodResults = []
+        return
+      }
+
+      this.searchTimer = setTimeout(() => {
+        this.searchFoods()
+      }, 400)
+    },
+
+    async searchFoods() {
+      this.isSearching = true
+      this.errorMessage = ''
+
+      try {
+        const response = await nutritionService.searchFoods(this.foodSearch.trim())
+        const payload = response.data.data
+
+        this.foodResults = Array.isArray(payload)
+          ? payload
+          : payload?.data || []
+      } catch (error) {
+        this.errorMessage = this.getErrorMessage(error, 'Failed to search foods.')
+      } finally {
+        this.isSearching = false
+      }
+    },
+
+    selectFood(food) {
+      this.selectedFoodBase = { ...food }
+
+      this.form.food_name = food.name
+      this.form.quantity = Number(food.default_serving_grams || 100)
+      this.form.unit = 'g'
+
+      this.form.calories = Number(food.calories || 0)
+      this.form.protein = Number(food.protein_g || 0)
+      this.form.carbs = Number(food.carbs_g || 0)
+      this.form.fat = Number(food.fat_g || 0)
+      this.form.sodium = Number(food.sodium_mg || 0)
+      this.form.potassium = Number(food.potassium_mg || 0)
+      this.form.phosphorus = Number(food.phosphorus_mg || 0)
+
+      this.foodSearch = food.name
+      this.foodResults = []
+    },
+
+    recalculateFromServing() {
+      if (!this.selectedFoodBase) {
+        return
+      }
+
+      const baseServing = Number(this.selectedFoodBase.default_serving_grams || 100)
+      const currentServing = Number(this.form.quantity || 0)
+
+      if (baseServing <= 0 || currentServing <= 0) {
+        return
+      }
+
+      const factor = currentServing / baseServing
+
+      this.form.calories = this.roundValue(Number(this.selectedFoodBase.calories || 0) * factor)
+      this.form.protein = this.roundValue(Number(this.selectedFoodBase.protein_g || 0) * factor)
+      this.form.carbs = this.roundValue(Number(this.selectedFoodBase.carbs_g || 0) * factor)
+      this.form.fat = this.roundValue(Number(this.selectedFoodBase.fat_g || 0) * factor)
+      this.form.sodium = this.roundValue(Number(this.selectedFoodBase.sodium_mg || 0) * factor)
+      this.form.potassium = this.roundValue(Number(this.selectedFoodBase.potassium_mg || 0) * factor)
+      this.form.phosphorus = this.roundValue(Number(this.selectedFoodBase.phosphorus_mg || 0) * factor)
+    },
+
+    async saveMeal() {
+      this.errorMessage = ''
+      this.successMessage = ''
+
+      if (!this.form.food_name || !this.form.food_name.trim()) {
+        this.errorMessage = 'Food name is required.'
+        return
+      }
+
+      if (!this.form.quantity || this.form.quantity <= 0) {
+        this.errorMessage = 'Quantity must be greater than zero.'
+        return
+      }
+
+      this.isSaving = true
+
+      const payload = {
+        meal_date: this.selectedDate,
+        meal_type: this.form.meal_type,
+        food_name: this.form.food_name,
+        quantity: this.form.quantity,
+        unit: this.form.unit,
+        calories: this.form.calories || 0,
+        protein: this.form.protein || 0,
+        sodium: this.form.sodium || 0,
+        potassium: this.form.potassium || 0,
+        phosphorus: this.form.phosphorus || 0,
+        notes: this.form.notes || ''
+      }
+
+      try {
+        if (this.isEditing && this.editingId) {
+          await nutritionService.updateNutritionLog(this.editingId, payload)
+          this.successMessage = 'Meal updated successfully.'
+        } else {
+          await nutritionService.createNutritionLog(payload)
+          this.successMessage = 'Meal added successfully.'
+        }
+
+        this.resetForm()
+        await this.loadLogs()
+      } catch (error) {
+        this.errorMessage = this.getErrorMessage(error, 'Failed to save meal.')
+      } finally {
+        this.isSaving = false
+      }
+    },
+
+    editMeal(log) {
+      this.isEditing = true
+      this.editingId = log.id
+      this.selectedFoodBase = null
+
+      this.form = {
+        meal_date: log.meal_date || this.selectedDate,
+        meal_type: log.meal_type || 'breakfast',
+        food_name: log.food_name || '',
+        quantity: Number(log.quantity || 100),
+        unit: log.unit || 'g',
+        calories: Number(log.calories || 0),
+        protein: Number(log.protein || 0),
+        carbs: Number(log.carbs || 0),
+        fat: Number(log.fat || 0),
+        sodium: Number(log.sodium || 0),
+        potassium: Number(log.potassium || 0),
+        phosphorus: Number(log.phosphorus || 0),
+        notes: log.notes || ''
+      }
+
+      this.foodSearch = log.food_name || ''
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    },
+
+    async deleteMeal(id) {
+      const confirmed = window.confirm('Are you sure you want to delete this meal?')
+
+      if (!confirmed) {
+        return
+      }
+
+      this.errorMessage = ''
+      this.successMessage = ''
+
+      try {
+        await nutritionService.deleteNutritionLog(id)
+        this.successMessage = 'Meal deleted successfully.'
+        await this.loadLogs()
+      } catch (error) {
+        this.errorMessage = this.getErrorMessage(error, 'Failed to delete meal.')
+      }
+    },
+
+    resetForm() {
+      this.isEditing = false
+      this.editingId = null
+      this.foodSearch = ''
+      this.foodResults = []
+      this.selectedFoodBase = null
+
+      this.form = this.getEmptyForm()
+      this.form.meal_date = this.selectedDate
+    },
+
+    roundValue(value) {
+      return Math.round(value * 100) / 100
+    },
+
+    formatMealType(type) {
+      if (!type) return 'Meal'
+
+      return type.charAt(0).toUpperCase() + type.slice(1)
+    },
+
+    getErrorMessage(error, fallback) {
+      if (error?.response?.data?.message) {
+        return error.response.data.message
+      }
+
+      if (error?.response?.data?.errors) {
+        const errors = error.response.data.errors
+        const firstKey = Object.keys(errors)[0]
+
+        if (firstKey && errors[firstKey]?.length) {
+          return errors[firstKey][0]
+        }
+      }
+
+      return fallback
+    }
   }
-
-  return data;
 }
-
-function clearMessages() {
-  errorMessage.value = "";
-  successMessage.value = "";
-}
-
-function setSummary(data = {}) {
-  summary.total_calories = Number(data.total_calories || 0);
-  summary.total_protein = Number(data.total_protein || 0);
-  summary.total_sodium = Number(data.total_sodium || 0);
-  summary.total_potassium = Number(data.total_potassium || 0);
-  summary.total_phosphorus = Number(data.total_phosphorus || 0);
-
-  summary.limits = {
-    calories: Number(data.limits?.calories || 1800),
-    protein: Number(data.limits?.protein || 45),
-    sodium: Number(data.limits?.sodium || 2000),
-    potassium: Number(data.limits?.potassium || 2000),
-    phosphorus: Number(data.limits?.phosphorus || 800),
-  };
-
-  summary.status = {
-    calories: data.status?.calories || "within_limit",
-    protein: data.status?.protein || "within_limit",
-    sodium: data.status?.sodium || "within_limit",
-    potassium: data.status?.potassium || "within_limit",
-    phosphorus: data.status?.phosphorus || "within_limit",
-  };
-}
-
-async function loadNutritionData() {
-  loading.value = true;
-  clearMessages();
-
-  try {
-    form.meal_date = selectedDate.value;
-
-    const [logsResponse, summaryResponse] = await Promise.all([
-      fetch(`${API_BASE_URL}/health/nutrition?date=${selectedDate.value}`, {
-        headers: authHeaders(),
-      }),
-      fetch(`${API_BASE_URL}/health/nutrition/summary?date=${selectedDate.value}`, {
-        headers: authHeaders(),
-      }),
-    ]);
-
-    const logsJson = await handleResponse(logsResponse);
-    const summaryJson = await handleResponse(summaryResponse);
-
-    mealLogs.value = Array.isArray(logsJson.data) ? logsJson.data : [];
-    setSummary(summaryJson.data || {});
-  } catch (error) {
-    errorMessage.value = error.message || "Failed to load nutrition data.";
-  } finally {
-    loading.value = false;
-  }
-}
-
-function buildPayload() {
-  return {
-    meal_date: form.meal_date,
-    meal_type: form.meal_type,
-    food_name: form.food_name,
-    quantity: Number(form.quantity || 0),
-    unit: form.unit,
-    calories: Number(form.calories || 0),
-    protein: Number(form.protein || 0),
-    sodium: Number(form.sodium || 0),
-    potassium: Number(form.potassium || 0),
-    phosphorus: Number(form.phosphorus || 0),
-    notes: form.notes,
-  };
-}
-
-async function saveMeal() {
-  saving.value = true;
-  clearMessages();
-
-  try {
-    const url = isEditing.value
-      ? `${API_BASE_URL}/health/nutrition/${editingId.value}`
-      : `${API_BASE_URL}/health/nutrition`;
-
-    const method = isEditing.value ? "PUT" : "POST";
-
-    const response = await fetch(url, {
-      method,
-      headers: authHeaders(),
-      body: JSON.stringify(buildPayload()),
-    });
-
-    await handleResponse(response);
-
-    successMessage.value = isEditing.value
-      ? "Meal updated successfully."
-      : "Meal added successfully.";
-
-    resetForm(false);
-    await loadNutritionData();
-  } catch (error) {
-    errorMessage.value = error.message || "Failed to save meal.";
-  } finally {
-    saving.value = false;
-  }
-}
-
-function editMeal(meal) {
-  editingId.value = meal.id;
-
-  form.meal_date = meal.meal_date || selectedDate.value;
-  form.meal_type = meal.meal_type || "breakfast";
-  form.food_name = meal.food_name || "";
-  form.quantity = Number(meal.quantity || 1);
-  form.unit = meal.unit || "";
-  form.calories = Number(meal.calories || 0);
-  form.protein = Number(meal.protein || 0);
-  form.sodium = Number(meal.sodium || 0);
-  form.potassium = Number(meal.potassium || 0);
-  form.phosphorus = Number(meal.phosphorus || 0);
-  form.notes = meal.notes || "";
-
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-async function deleteMeal(id) {
-  const confirmed = window.confirm("Delete this meal log?");
-  if (!confirmed) return;
-
-  clearMessages();
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/health/nutrition/${id}`, {
-      method: "DELETE",
-      headers: authHeaders(),
-    });
-
-    await handleResponse(response);
-
-    successMessage.value = "Meal deleted successfully.";
-    await loadNutritionData();
-  } catch (error) {
-    errorMessage.value = error.message || "Failed to delete meal.";
-  }
-}
-
-function resetForm(clearMessage = true) {
-  if (clearMessage) {
-    clearMessages();
-  }
-
-  editingId.value = null;
-
-  form.meal_date = selectedDate.value;
-  form.meal_type = "breakfast";
-  form.food_name = "";
-  form.quantity = 1;
-  form.unit = "piece";
-  form.calories = 0;
-  form.protein = 0;
-  form.sodium = 0;
-  form.potassium = 0;
-  form.phosphorus = 0;
-  form.notes = "";
-}
-
-function formatNumber(value) {
-  const number = Number(value || 0);
-  return Number.isInteger(number) ? number.toString() : number.toFixed(2);
-}
-
-function formatStatus(status) {
-  if (!status) return "Within limit";
-  return status.replaceAll("_", " ");
-}
-
-function statusClass(status) {
-  return status === "over_limit" ? "limit-status over" : "limit-status ok";
-}
-
-onMounted(() => {
-  loadNutritionData();
-});
 </script>
 
 <style scoped>
 .nutrition-page {
-  padding: 32px;
-  color: #111827;
+  padding: 24px;
   background: #f8fafc;
   min-height: 100vh;
 }
@@ -520,14 +595,15 @@ onMounted(() => {
 .page-header {
   display: flex;
   justify-content: space-between;
-  gap: 24px;
-  align-items: flex-start;
+  gap: 16px;
+  align-items: center;
   margin-bottom: 24px;
 }
 
 .page-header h1 {
   font-size: 28px;
   font-weight: 800;
+  color: #0f172a;
   margin: 0;
 }
 
@@ -536,70 +612,66 @@ onMounted(() => {
   margin-top: 6px;
 }
 
-.date-filter {
+.date-box {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  min-width: 190px;
+  min-width: 180px;
 }
 
-.date-filter label,
+.date-box label,
 .form-group label {
   font-size: 13px;
   font-weight: 700;
-  color: #475569;
+  color: #334155;
 }
 
 input,
 select,
 textarea {
   width: 100%;
-  border: 1px solid #dbe3ef;
-  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
   padding: 10px 12px;
   font-size: 14px;
-  outline: none;
-  background: #fff;
+  background: #ffffff;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: #111827;
+textarea {
+  min-height: 80px;
+  resize: vertical;
 }
 
 .alert {
   padding: 12px 14px;
-  border-radius: 14px;
+  border-radius: 12px;
   margin-bottom: 16px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .alert-error {
-  background: #fef2f2;
+  background: #fee2e2;
   color: #991b1b;
-  border: 1px solid #fecaca;
 }
 
 .alert-success {
-  background: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #bbf7d0;
+  background: #dcfce7;
+  color: #166534;
 }
 
 .summary-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(150px, 1fr));
+  grid-template-columns: repeat(5, minmax(120px, 1fr));
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .summary-card {
-  background: #fff;
-  border: 1px solid #e5e7eb;
+  background: #ffffff;
   border-radius: 18px;
   padding: 18px;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
 }
 
 .summary-card span {
@@ -607,73 +679,61 @@ textarea:focus {
   color: #64748b;
   font-size: 13px;
   font-weight: 700;
-  margin-bottom: 8px;
 }
 
 .summary-card strong {
   display: block;
-  font-size: 24px;
-  font-weight: 800;
-  margin-bottom: 6px;
+  margin-top: 8px;
+  color: #0f172a;
+  font-size: 26px;
 }
 
 .summary-card small {
   color: #64748b;
 }
 
-.limit-status {
-  margin-top: 10px;
-  display: inline-block;
-  padding: 5px 9px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: capitalize;
+.summary-card.warning {
+  border-color: #f97316;
+  background: #fff7ed;
 }
 
-.limit-status.ok {
-  background: #dcfce7;
-  color: #166534;
+.warning-box {
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #9a3412;
+  padding: 16px;
+  border-radius: 16px;
+  margin-bottom: 20px;
 }
 
-.limit-status.over {
-  background: #fee2e2;
-  color: #991b1b;
+.warning-box h3 {
+  margin: 0 0 8px;
 }
 
 .content-grid {
   display: grid;
   grid-template-columns: 420px 1fr;
   gap: 20px;
-  align-items: flex-start;
 }
 
-.panel {
-  background: #fff;
-  border: 1px solid #e5e7eb;
+.form-card,
+.list-card {
+  background: #ffffff;
   border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
 }
 
-.panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 16px;
+.form-card h2,
+.list-card h2 {
+  margin: 0 0 18px;
+  font-size: 20px;
+  color: #0f172a;
 }
 
-.panel-header h2 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.meal-form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+.form-group {
+  margin-bottom: 14px;
 }
 
 .form-row {
@@ -682,116 +742,181 @@ textarea:focus {
   gap: 12px;
 }
 
-.form-row.nutrients {
-  grid-template-columns: repeat(2, 1fr);
+.nutrition-input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.btn,
-.btn-small {
-  border: none;
+.search-results {
+  margin-top: 8px;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  cursor: pointer;
-  font-weight: 800;
+  overflow: hidden;
 }
 
-.btn {
-  padding: 11px 16px;
-}
-
-.btn-small {
-  padding: 7px 10px;
-  font-size: 12px;
-}
-
-.btn-primary {
-  background: #020617;
-  color: #fff;
-}
-
-.btn-secondary {
-  background: #f1f5f9;
-  color: #0f172a;
-}
-
-.btn-danger {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-}
-
-table {
+.search-results button {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-}
-
-th {
   text-align: left;
-  color: #64748b;
-  font-size: 12px;
-  text-transform: uppercase;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 10px;
+  border: none;
+  background: #ffffff;
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  cursor: pointer;
 }
 
-td {
-  border-bottom: 1px solid #f1f5f9;
-  padding: 12px 10px;
-  vertical-align: top;
+.search-results button:hover {
+  background: #f1f5f9;
 }
 
-td strong {
-  display: block;
-  color: #111827;
-}
-
-td small {
+.search-results span {
   display: block;
   color: #64748b;
   margin-top: 4px;
 }
 
-.meal-type {
-  display: inline-block;
-  padding: 5px 8px;
-  border-radius: 999px;
-  background: #eef2ff;
-  color: #3730a3;
-  font-weight: 800;
-  text-transform: capitalize;
-  font-size: 12px;
+.small-note,
+.manual-note {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 12px;
 }
 
-.actions {
+.selected-food-box {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e3a8a;
+  padding: 12px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+.form-actions {
   display: flex;
-  gap: 8px;
-  white-space: nowrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-small {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: white;
+}
+
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.btn-small {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .empty-state {
-  border: 1px dashed #cbd5e1;
-  border-radius: 16px;
-  padding: 28px;
+  padding: 30px;
   text-align: center;
   color: #64748b;
   background: #f8fafc;
+  border-radius: 16px;
 }
 
-@media (max-width: 1200px) {
+.meal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.meal-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.meal-title {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.meal-title strong {
+  color: #0f172a;
+}
+
+.meal-title span {
+  font-size: 12px;
+  font-weight: 700;
+  color: #2563eb;
+  background: #dbeafe;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.meal-meta {
+  color: #64748b;
+  margin-top: 6px;
+}
+
+.meal-nutrients {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.meal-nutrients span {
+  background: #f1f5f9;
+  color: #334155;
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.meal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.meal-actions button {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 700;
+  background: #e2e8f0;
+}
+
+.meal-actions .danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+@media (max-width: 1100px) {
   .summary-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -801,18 +926,15 @@ td small {
   }
 }
 
-@media (max-width: 700px) {
-  .nutrition-page {
-    padding: 20px;
-  }
-
-  .page-header {
+@media (max-width: 640px) {
+  .page-header,
+  .meal-card {
     flex-direction: column;
   }
 
   .summary-grid,
   .form-row,
-  .form-row.nutrients {
+  .nutrition-input-grid {
     grid-template-columns: 1fr;
   }
 }
