@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Api\V1\NutritionFoodController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
 use App\Http\Controllers\Api\LifeBalanceController;
@@ -88,7 +88,18 @@ Route::prefix('v1')->group(function () {
     */
 
     Route::middleware('auth:sanctum')->group(function () {
+        Route::prefix('nutrition')->group(function () {
+            Route::get('/categories', [NutritionFoodController::class, 'categories']);
 
+            Route::get('/foods/search', [NutritionFoodController::class, 'search']);
+            Route::get('/foods/{id}/servings', [NutritionFoodController::class, 'servings']);
+            Route::get('/foods/{id}', [NutritionFoodController::class, 'show']);
+            Route::get('/foods', [NutritionFoodController::class, 'index']);
+            Route::post('/foods/autofill', [NutritionFoodController::class, 'autofill']);
+
+
+
+        });
         /*
         |--------------------------------------------------------------------------
         | Authenticated User
