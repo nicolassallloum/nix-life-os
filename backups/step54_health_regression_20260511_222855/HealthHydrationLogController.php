@@ -16,8 +16,10 @@ class HealthHydrationLogController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $user = $request->user();
+
         $query = HealthHydrationLog::query()
-            ->where('user_id', $request->user()->id);
+            ->where('user_id', $user->id);
 
         if ($request->filled('date')) {
             $query->whereDate('log_date', $request->date);
@@ -35,7 +37,8 @@ class HealthHydrationLogController extends Controller
             $query->where('drink_type', $request->drink_type);
         }
 
-        $logs = $query
+        $logs = HealthHydrationLog::query()
+            ->where('user_id', $request->user()->id)
             ->orderByDesc('log_date')
             ->orderByDesc('log_time')
             ->paginate($request->integer('per_page', 20));
@@ -43,7 +46,13 @@ class HealthHydrationLogController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Hydration logs retrieved successfully.',
-            'data' => HealthHydrationLogResource::collection($logs)->response()->getData(true),
+            'data' => HealthHydrationLogResource::collection($logs),
+            'meta' => [
+                'current_page' => $logs->currentPage(),
+                'per_page' => $logs->perPage(),
+                'total' => $logs->total(),
+                'last_page' => $logs->lastPage(),
+            ],
         ]);
     }
 
@@ -93,7 +102,7 @@ class HealthHydrationLogController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Hydration log updated successfully.',
-            'data' => new HealthHydrationLogResource($log->fresh()),
+            'data' => new HealthHydrationLogResource($log),
         ]);
     }
 
@@ -114,8 +123,8 @@ class HealthHydrationLogController extends Controller
     public function dailySummary(Request $request): JsonResponse
     {
         $user = $request->user();
+
         $date = $request->get('date', now()->toDateString());
-        $goalMl = (int) $request->get('goal_ml', 1500);
 
         $totalMl = HealthHydrationLog::where('user_id', $user->id)
             ->whereDate('log_date', $date)
@@ -138,16 +147,14 @@ class HealthHydrationLogController extends Controller
             'data' => [
                 'date' => $date,
                 'total_ml' => (float) $totalMl,
-                'total_liters' => round(((float) $totalMl) / 1000, 2),
-                'goal_ml' => $goalMl,
-                'progress_percent' => $goalMl > 0 ? round(((float) $totalMl / $goalMl) * 100, 2) : 0,
+                'total_liters' => round($totalMl / 1000, 2),
                 'breakdown' => $breakdown->map(function ($item) {
                     return [
                         'drink_type' => $item->drink_type,
                         'total_ml' => (float) $item->total_ml,
                         'entries_count' => (int) $item->entries_count,
                     ];
-                })->values(),
+                }),
             ],
         ]);
     }
@@ -170,25 +177,20 @@ class HealthHydrationLogController extends Controller
             ->orderBy('log_date')
             ->get();
 
-        $totalMl = $rows->sum('total_ml');
-        $daysCount = max(1, Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate)) + 1);
-
         return response()->json([
             'success' => true,
             'message' => 'Weekly hydration summary retrieved successfully.',
             'data' => [
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-                'total_ml' => (float) $totalMl,
-                'average_daily_ml' => round(((float) $totalMl) / $daysCount, 2),
                 'days' => $rows->map(function ($item) {
                     return [
                         'log_date' => Carbon::parse($item->log_date)->format('Y-m-d'),
                         'total_ml' => (float) $item->total_ml,
-                        'total_liters' => round(((float) $item->total_ml) / 1000, 2),
+                        'total_liters' => round($item->total_ml / 1000, 2),
                         'entries_count' => (int) $item->entries_count,
                     ];
-                })->values(),
+                }),
             ],
         ]);
     }
@@ -205,7 +207,7 @@ class HealthHydrationLogController extends Controller
         $log = HealthHydrationLog::create([
             'user_id' => $request->user()->id,
             'log_date' => $validated['log_date'] ?? now()->toDateString(),
-            'log_time' => $validated['log_time'] ?? now()->format('H:i:s'),
+            'log_time' => $validated['log_time'] ?? now()->format('H:i'),
             'drink_type' => $validated['drink_type'] ?? 'water',
             'amount_ml' => $validated['amount_ml'],
             'is_ckd_safe' => true,

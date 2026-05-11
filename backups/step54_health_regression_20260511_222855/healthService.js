@@ -9,9 +9,6 @@ const healthService = {
     list(params = {}) {
       return api.get("/health/steps", { params });
     },
-    summary(params = {}) {
-      return api.get("/health/steps/summary", { params });
-    },
     create(payload) {
       return api.post("/health/steps", payload);
     },
@@ -26,9 +23,6 @@ const healthService = {
   weight: {
     list(params = {}) {
       return api.get("/health/weight", { params });
-    },
-    summary(params = {}) {
-      return api.get("/health/weight/summary", { params });
     },
     create(payload) {
       return api.post("/health/weight", payload);
@@ -45,9 +39,6 @@ const healthService = {
     list(params = {}) {
       return api.get("/health/nutrition", { params });
     },
-    summary(params = {}) {
-      return api.get("/health/nutrition/summary", { params });
-    },
     create(payload) {
       return api.post("/health/nutrition", payload);
     },
@@ -62,15 +53,6 @@ const healthService = {
   hydration: {
     list(params = {}) {
       return api.get("/health/hydration", { params });
-    },
-    dailySummary(params = {}) {
-      return api.get("/health/hydration/summary/daily", { params });
-    },
-    weeklySummary(params = {}) {
-      return api.get("/health/hydration/summary/weekly", { params });
-    },
-    quickAdd(payload) {
-      return api.post("/health/hydration/quick-add", payload);
     },
     create(payload) {
       return api.post("/health/hydration", payload);
@@ -117,12 +99,15 @@ const healthService = {
     list(params = {}) {
       return api.get("/health/medications", { params });
     },
+
     create(payload) {
       return api.post("/health/medications", payload);
     },
+
     update(id, payload) {
       return api.put(`/health/medications/${id}`, payload);
     },
+
     delete(id) {
       return api.delete(`/health/medications/${id}`);
     },
@@ -132,15 +117,19 @@ const healthService = {
     list(params = {}) {
       return api.get("/health/medication-reminders", { params });
     },
+
     today(params = {}) {
       return api.get("/health/medication-reminders/today", { params });
     },
+
     create(payload) {
       return api.post("/health/medication-reminders", payload);
     },
+
     update(id, payload) {
       return api.put(`/health/medication-reminders/${id}`, payload);
     },
+
     delete(id) {
       return api.delete(`/health/medication-reminders/${id}`);
     },
@@ -150,9 +139,11 @@ const healthService = {
     history(params = {}) {
       return api.get("/health/medication-doses/history", { params });
     },
+
     markTaken(id) {
       return api.post(`/health/medication-doses/${id}/taken`);
     },
+
     markSkipped(id, payload = {}) {
       return api.post(`/health/medication-doses/${id}/skipped`, payload);
     },
@@ -179,78 +170,6 @@ const healthService = {
     },
     trends(params = {}) {
       return api.get("/health/lab-tests/trends", { params });
-    },
-  },
-
-  alerts: {
-    list(params = {}) {
-      return api.get("/health/alerts", { params });
-    },
-    summary(params = {}) {
-      return api.get("/health/alerts/summary", { params });
-    },
-    run(payload = {}) {
-      return api.post("/health/alerts/run", payload);
-    },
-    markRead(id) {
-      return api.patch(`/health/alerts/${id}/read`);
-    },
-    resolve(id) {
-      return api.patch(`/health/alerts/${id}/resolve`);
-    },
-    dismiss(id) {
-      return api.patch(`/health/alerts/${id}/dismiss`);
-    },
-    delete(id) {
-      return api.delete(`/health/alerts/${id}`);
-    },
-  },
-
-  reports: {
-    daily(params = {}) {
-      return api.get("/health/reports/daily", { params });
-    },
-    weekly(params = {}) {
-      return api.get("/health/reports/weekly", { params });
-    },
-    monthly(params = {}) {
-      return api.get("/health/reports/monthly", { params });
-    },
-    exportPreview(params = {}) {
-      return api.get("/health/reports/export-preview", { params });
-    },
-  },
-
-  nutritionFacts: {
-    categories() {
-      return api.get("/nutrition/categories");
-    },
-    foods(params = {}) {
-      return api.get("/nutrition/foods", { params });
-    },
-    search(params = {}) {
-      return api.get("/nutrition/foods/search", { params });
-    },
-    show(id) {
-      return api.get(`/nutrition/foods/${id}`);
-    },
-    servings(id) {
-      return api.get(`/nutrition/foods/${id}/servings`);
-    },
-    autofill(payload) {
-      return api.post("/nutrition/foods/autofill", payload);
-    },
-    customFoods(params = {}) {
-      return api.get("/nutrition/custom-foods", { params });
-    },
-    createCustomFood(payload) {
-      return api.post("/nutrition/custom-foods", payload);
-    },
-    updateCustomFood(id, payload) {
-      return api.put(`/nutrition/custom-foods/${id}`, payload);
-    },
-    deleteCustomFood(id) {
-      return api.delete(`/nutrition/custom-foods/${id}`);
     },
   },
 };

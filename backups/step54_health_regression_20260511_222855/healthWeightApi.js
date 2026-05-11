@@ -1,7 +1,4 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  import.meta.env.VITE_API_URL ||
-  "http://127.0.0.1:8000/api/v1";
+const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 
 function getToken() {
   return (
@@ -24,7 +21,7 @@ async function request(path, options = {}) {
     },
   });
 
-  const data = await response.json().catch(() => ({}));
+  const data = await response.json();
 
   if (!response.ok) {
     throw data;
@@ -34,14 +31,12 @@ async function request(path, options = {}) {
 }
 
 export const healthWeightApi = {
-  getLogs(params = {}) {
-    const query = new URLSearchParams(params).toString();
-    return request(`/health/weight${query ? `?${query}` : ""}`);
+  getLogs() {
+    return request("/health/weight");
   },
 
-  getSummary(params = {}) {
-    const query = new URLSearchParams(params).toString();
-    return request(`/health/weight/summary${query ? `?${query}` : ""}`);
+  getSummary() {
+    return request("/health/weight/summary");
   },
 
   createLog(payload) {
@@ -64,5 +59,3 @@ export const healthWeightApi = {
     });
   },
 };
-
-export default healthWeightApi;

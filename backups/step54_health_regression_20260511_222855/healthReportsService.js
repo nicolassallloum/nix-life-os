@@ -2,13 +2,13 @@ import api from './api'
 
 export const healthReportsService = {
   getDailyReport(date) {
-    return api.get('/health/reports/daily', {
+    return api.get('/v1/health/reports/daily', {
       params: { date }
     })
   },
 
   getWeeklyReport(startDate, endDate) {
-    return api.get('/health/reports/weekly', {
+    return api.get('/v1/health/reports/weekly', {
       params: {
         start_date: startDate,
         end_date: endDate
@@ -17,13 +17,13 @@ export const healthReportsService = {
   },
 
   getMonthlyReport(month) {
-    return api.get('/health/reports/monthly', {
+    return api.get('/v1/health/reports/monthly', {
       params: { month }
     })
   },
 
   getExportPreview(period, date, month) {
-    return api.get('/health/reports/export-preview', {
+    return api.get('/v1/health/reports/export-preview', {
       params: {
         period,
         date,
@@ -32,5 +32,3 @@ export const healthReportsService = {
     })
   }
 }
-
-export default healthReportsService

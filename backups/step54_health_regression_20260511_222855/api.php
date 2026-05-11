@@ -306,7 +306,6 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/steps', [HealthStepLogController::class, 'index']);
             Route::post('/steps', [HealthStepLogController::class, 'store']);
-            Route::get('/steps/summary', [HealthStepLogController::class, 'summary']);
             Route::get('/steps/{id}', [HealthStepLogController::class, 'show']);
             Route::put('/steps/{id}', [HealthStepLogController::class, 'update']);
             Route::patch('/steps/{id}', [HealthStepLogController::class, 'update']);
@@ -320,7 +319,6 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/weight', [HealthWeightLogController::class, 'index']);
             Route::post('/weight', [HealthWeightLogController::class, 'store']);
-            Route::get('/weight/summary', [HealthWeightLogController::class, 'summary']);
             Route::get('/weight/{id}', [HealthWeightLogController::class, 'show']);
             Route::put('/weight/{id}', [HealthWeightLogController::class, 'update']);
             Route::patch('/weight/{id}', [HealthWeightLogController::class, 'update']);
@@ -348,9 +346,6 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/hydration', [HealthHydrationLogController::class, 'index']);
             Route::post('/hydration', [HealthHydrationLogController::class, 'store']);
-            Route::get('/hydration/summary/daily', [HealthHydrationLogController::class, 'dailySummary']);
-            Route::get('/hydration/summary/weekly', [HealthHydrationLogController::class, 'weeklySummary']);
-            Route::post('/hydration/quick-add', [HealthHydrationLogController::class, 'quickAdd']);
             Route::get('/hydration/{id}', [HealthHydrationLogController::class, 'show']);
             Route::put('/hydration/{id}', [HealthHydrationLogController::class, 'update']);
             Route::patch('/hydration/{id}', [HealthHydrationLogController::class, 'update']);

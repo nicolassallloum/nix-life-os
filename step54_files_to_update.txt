@@ -1,0 +1,6 @@
+backend/routes/api.php
+backend/app/Http/Controllers/Api/V1/Health/HealthDashboardController.php
+backend/app/Http/Controllers/Api/V1/HealthHydrationLogController.php
+frontend/src/services/healthReportsService.js
+frontend/src/services/healthWeightApi.js
+frontend/src/services/healthService.js

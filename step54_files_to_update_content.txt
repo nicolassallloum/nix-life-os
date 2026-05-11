@@ -1,3 +1,11 @@
+============================================================
+STEP 54 FILES TO UPDATE
+Generated At: Mon May 11 21:49:08 EEST 2026
+============================================================
+
+============================================================
+FILE: backend/routes/api.php
+============================================================
 <?php
 
 use Illuminate\Http\Request;
@@ -306,7 +314,6 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/steps', [HealthStepLogController::class, 'index']);
             Route::post('/steps', [HealthStepLogController::class, 'store']);
-            Route::get('/steps/summary', [HealthStepLogController::class, 'summary']);
             Route::get('/steps/{id}', [HealthStepLogController::class, 'show']);
             Route::put('/steps/{id}', [HealthStepLogController::class, 'update']);
             Route::patch('/steps/{id}', [HealthStepLogController::class, 'update']);
@@ -320,7 +327,6 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/weight', [HealthWeightLogController::class, 'index']);
             Route::post('/weight', [HealthWeightLogController::class, 'store']);
-            Route::get('/weight/summary', [HealthWeightLogController::class, 'summary']);
             Route::get('/weight/{id}', [HealthWeightLogController::class, 'show']);
             Route::put('/weight/{id}', [HealthWeightLogController::class, 'update']);
             Route::patch('/weight/{id}', [HealthWeightLogController::class, 'update']);
@@ -348,9 +354,6 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/hydration', [HealthHydrationLogController::class, 'index']);
             Route::post('/hydration', [HealthHydrationLogController::class, 'store']);
-            Route::get('/hydration/summary/daily', [HealthHydrationLogController::class, 'dailySummary']);
-            Route::get('/hydration/summary/weekly', [HealthHydrationLogController::class, 'weeklySummary']);
-            Route::post('/hydration/quick-add', [HealthHydrationLogController::class, 'quickAdd']);
             Route::get('/hydration/{id}', [HealthHydrationLogController::class, 'show']);
             Route::put('/hydration/{id}', [HealthHydrationLogController::class, 'update']);
             Route::patch('/hydration/{id}', [HealthHydrationLogController::class, 'update']);
@@ -423,3 +426,569 @@ Route::prefix('v1')->group(function () {
         */
     });
 });
+============================================================
+FILE: backend/app/Http/Controllers/Api/V1/Health/HealthDashboardController.php
+============================================================
+<?php
+
+namespace App\Http\Controllers\Api\V1\Health;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class HealthDashboardController extends Controller
+{
+    public function summary(Request $request)
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Health dashboard loaded successfully.',
+            'data' => [
+                'steps' => [
+                    'today_steps' => 0,
+                    'goal_steps' => 10000,
+                    'progress_percent' => 0,
+                ],
+                'weight' => [
+                    'latest_weight_kg' => null,
+                    'target_weight_kg' => null,
+                ],
+                'nutrition' => [
+                    'calories' => 0,
+                    'protein_g' => 0,
+                    'sodium_mg' => 0,
+                    'potassium_mg' => 0,
+                    'phosphorus_mg' => 0,
+                ],
+                'hydration' => [
+                    'today_ml' => 0,
+                    'goal_ml' => 1500,
+                    'progress_percent' => 0,
+                ],
+                'sleep' => [
+                    'latest_sleep_hours' => null,
+                    'sleep_quality' => null,
+                ],
+                'mood' => [
+                    'latest_mood' => null,
+                    'mood_score' => null,
+                ],
+                'medications' => [
+                    'active_count' => 0,
+                ],
+                'lab_tests' => [
+                    'latest' => [],
+                ],
+            ],
+        ]);
+    }
+}
+============================================================
+FILE: backend/app/Http/Controllers/Api/V1/HealthHydrationLogController.php
+============================================================
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\StoreHealthHydrationLogRequest;
+use App\Http\Requests\UpdateHealthHydrationLogRequest;
+use App\Http\Resources\HealthHydrationLogResource;
+use App\Models\HealthHydrationLog;
+use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class HealthHydrationLogController extends Controller
+{
+    public function index(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $query = HealthHydrationLog::query()
+            ->where('user_id', $user->id);
+
+        if ($request->filled('date')) {
+            $query->whereDate('log_date', $request->date);
+        }
+
+        if ($request->filled('from_date')) {
+            $query->whereDate('log_date', '>=', $request->from_date);
+        }
+
+        if ($request->filled('to_date')) {
+            $query->whereDate('log_date', '<=', $request->to_date);
+        }
+
+        if ($request->filled('drink_type')) {
+            $query->where('drink_type', $request->drink_type);
+        }
+
+        $logs = HealthHydrationLog::query()
+            ->where('user_id', $request->user()->id)
+            ->orderByDesc('log_date')
+            ->orderByDesc('log_time')
+            ->paginate($request->integer('per_page', 20));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Hydration logs retrieved successfully.',
+            'data' => HealthHydrationLogResource::collection($logs),
+            'meta' => [
+                'current_page' => $logs->currentPage(),
+                'per_page' => $logs->perPage(),
+                'total' => $logs->total(),
+                'last_page' => $logs->lastPage(),
+            ],
+        ]);
+    }
+
+    public function store(StoreHealthHydrationLogRequest $request): JsonResponse
+    {
+        $validated = $request->validated();
+
+        $log = HealthHydrationLog::create([
+            'user_id' => $request->user()->id,
+            'log_date' => $validated['log_date'],
+            'log_time' => $validated['log_time'] ?? now()->format('H:i:s'),
+            'drink_type' => $validated['drink_type'],
+            'amount_ml' => $validated['amount_ml'],
+            'is_ckd_safe' => $validated['is_ckd_safe'] ?? true,
+            'source' => $validated['source'] ?? 'manual',
+            'notes' => $validated['notes'] ?? null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Hydration log created successfully.',
+            'data' => new HealthHydrationLogResource($log),
+        ], 201);
+    }
+
+    public function show(Request $request, string $id): JsonResponse
+    {
+        $log = HealthHydrationLog::where('user_id', $request->user()->id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Hydration log retrieved successfully.',
+            'data' => new HealthHydrationLogResource($log),
+        ]);
+    }
+
+    public function update(UpdateHealthHydrationLogRequest $request, string $id): JsonResponse
+    {
+        $log = HealthHydrationLog::where('user_id', $request->user()->id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $log->update($request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Hydration log updated successfully.',
+            'data' => new HealthHydrationLogResource($log),
+        ]);
+    }
+
+    public function destroy(Request $request, string $id): JsonResponse
+    {
+        $log = HealthHydrationLog::where('user_id', $request->user()->id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $log->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Hydration log deleted successfully.',
+        ]);
+    }
+
+    public function dailySummary(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $date = $request->get('date', now()->toDateString());
+
+        $totalMl = HealthHydrationLog::where('user_id', $user->id)
+            ->whereDate('log_date', $date)
+            ->sum('amount_ml');
+
+        $breakdown = HealthHydrationLog::select(
+                'drink_type',
+                DB::raw('SUM(amount_ml) as total_ml'),
+                DB::raw('COUNT(*) as entries_count')
+            )
+            ->where('user_id', $user->id)
+            ->whereDate('log_date', $date)
+            ->groupBy('drink_type')
+            ->orderByDesc('total_ml')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Daily hydration summary retrieved successfully.',
+            'data' => [
+                'date' => $date,
+                'total_ml' => (float) $totalMl,
+                'total_liters' => round($totalMl / 1000, 2),
+                'breakdown' => $breakdown->map(function ($item) {
+                    return [
+                        'drink_type' => $item->drink_type,
+                        'total_ml' => (float) $item->total_ml,
+                        'entries_count' => (int) $item->entries_count,
+                    ];
+                }),
+            ],
+        ]);
+    }
+
+    public function weeklySummary(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $startDate = $request->get('start_date', now()->startOfWeek()->toDateString());
+        $endDate = $request->get('end_date', now()->endOfWeek()->toDateString());
+
+        $rows = HealthHydrationLog::select(
+                'log_date',
+                DB::raw('SUM(amount_ml) as total_ml'),
+                DB::raw('COUNT(*) as entries_count')
+            )
+            ->where('user_id', $user->id)
+            ->whereBetween('log_date', [$startDate, $endDate])
+            ->groupBy('log_date')
+            ->orderBy('log_date')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Weekly hydration summary retrieved successfully.',
+            'data' => [
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'days' => $rows->map(function ($item) {
+                    return [
+                        'log_date' => Carbon::parse($item->log_date)->format('Y-m-d'),
+                        'total_ml' => (float) $item->total_ml,
+                        'total_liters' => round($item->total_ml / 1000, 2),
+                        'entries_count' => (int) $item->entries_count,
+                    ];
+                }),
+            ],
+        ]);
+    }
+
+    public function quickAdd(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'amount_ml' => ['required', 'numeric', 'min:1', 'max:5000'],
+            'drink_type' => ['nullable', 'string', 'max:50', 'in:water,tea,coffee,juice,soup,milk,other'],
+            'log_date' => ['nullable', 'date'],
+            'log_time' => ['nullable', 'date_format:H:i'],
+        ]);
+
+        $log = HealthHydrationLog::create([
+            'user_id' => $request->user()->id,
+            'log_date' => $validated['log_date'] ?? now()->toDateString(),
+            'log_time' => $validated['log_time'] ?? now()->format('H:i'),
+            'drink_type' => $validated['drink_type'] ?? 'water',
+            'amount_ml' => $validated['amount_ml'],
+            'is_ckd_safe' => true,
+            'source' => 'quick_add',
+            'notes' => 'Quick add hydration entry',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Quick hydration entry added successfully.',
+            'data' => new HealthHydrationLogResource($log),
+        ], 201);
+    }
+}
+============================================================
+FILE: frontend/src/services/healthReportsService.js
+============================================================
+import api from './api'
+
+export const healthReportsService = {
+  getDailyReport(date) {
+    return api.get('/v1/health/reports/daily', {
+      params: { date }
+    })
+  },
+
+  getWeeklyReport(startDate, endDate) {
+    return api.get('/v1/health/reports/weekly', {
+      params: {
+        start_date: startDate,
+        end_date: endDate
+      }
+    })
+  },
+
+  getMonthlyReport(month) {
+    return api.get('/v1/health/reports/monthly', {
+      params: { month }
+    })
+  },
+
+  getExportPreview(period, date, month) {
+    return api.get('/v1/health/reports/export-preview', {
+      params: {
+        period,
+        date,
+        month
+      }
+    })
+  }
+}
+
+============================================================
+FILE: frontend/src/services/healthWeightApi.js
+============================================================
+const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
+
+function getToken() {
+  return (
+    localStorage.getItem("token") ||
+    localStorage.getItem("auth_token") ||
+    localStorage.getItem("access_token")
+  );
+}
+
+async function request(path, options = {}) {
+  const token = getToken();
+
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...options,
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(options.headers || {}),
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw data;
+  }
+
+  return data;
+}
+
+export const healthWeightApi = {
+  getLogs() {
+    return request("/health/weight");
+  },
+
+  getSummary() {
+    return request("/health/weight/summary");
+  },
+
+  createLog(payload) {
+    return request("/health/weight", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+
+  updateLog(id, payload) {
+    return request(`/health/weight/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+  },
+
+  deleteLog(id) {
+    return request(`/health/weight/${id}`, {
+      method: "DELETE",
+    });
+  },
+};
+============================================================
+FILE: frontend/src/services/healthService.js
+============================================================
+import api from "./api";
+
+const healthService = {
+  dashboard() {
+    return api.get("/health/dashboard");
+  },
+
+  steps: {
+    list(params = {}) {
+      return api.get("/health/steps", { params });
+    },
+    create(payload) {
+      return api.post("/health/steps", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/steps/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/steps/${id}`);
+    },
+  },
+
+  weight: {
+    list(params = {}) {
+      return api.get("/health/weight", { params });
+    },
+    create(payload) {
+      return api.post("/health/weight", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/weight/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/weight/${id}`);
+    },
+  },
+
+  nutrition: {
+    list(params = {}) {
+      return api.get("/health/nutrition", { params });
+    },
+    create(payload) {
+      return api.post("/health/nutrition", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/nutrition/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/nutrition/${id}`);
+    },
+  },
+
+  hydration: {
+    list(params = {}) {
+      return api.get("/health/hydration", { params });
+    },
+    create(payload) {
+      return api.post("/health/hydration", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/hydration/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/hydration/${id}`);
+    },
+  },
+
+  sleep: {
+    list(params = {}) {
+      return api.get("/health/sleep", { params });
+    },
+    create(payload) {
+      return api.post("/health/sleep", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/sleep/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/sleep/${id}`);
+    },
+  },
+
+  mood: {
+    list(params = {}) {
+      return api.get("/health/mood", { params });
+    },
+    create(payload) {
+      return api.post("/health/mood", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/mood/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/mood/${id}`);
+    },
+  },
+
+  medications: {
+    list(params = {}) {
+      return api.get("/health/medications", { params });
+    },
+
+    create(payload) {
+      return api.post("/health/medications", payload);
+    },
+
+    update(id, payload) {
+      return api.put(`/health/medications/${id}`, payload);
+    },
+
+    delete(id) {
+      return api.delete(`/health/medications/${id}`);
+    },
+  },
+
+  medicationReminders: {
+    list(params = {}) {
+      return api.get("/health/medication-reminders", { params });
+    },
+
+    today(params = {}) {
+      return api.get("/health/medication-reminders/today", { params });
+    },
+
+    create(payload) {
+      return api.post("/health/medication-reminders", payload);
+    },
+
+    update(id, payload) {
+      return api.put(`/health/medication-reminders/${id}`, payload);
+    },
+
+    delete(id) {
+      return api.delete(`/health/medication-reminders/${id}`);
+    },
+  },
+
+  medicationDoses: {
+    history(params = {}) {
+      return api.get("/health/medication-doses/history", { params });
+    },
+
+    markTaken(id) {
+      return api.post(`/health/medication-doses/${id}/taken`);
+    },
+
+    markSkipped(id, payload = {}) {
+      return api.post(`/health/medication-doses/${id}/skipped`, payload);
+    },
+  },
+
+  labTests: {
+    categories() {
+      return api.get("/health/lab-tests/categories");
+    },
+    list(params = {}) {
+      return api.get("/health/lab-tests", { params });
+    },
+    show(id) {
+      return api.get(`/health/lab-tests/${id}`);
+    },
+    create(payload) {
+      return api.post("/health/lab-tests", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/lab-tests/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/lab-tests/${id}`);
+    },
+    trends(params = {}) {
+      return api.get("/health/lab-tests/trends", { params });
+    },
+  },
+};
+
+export default healthService;
