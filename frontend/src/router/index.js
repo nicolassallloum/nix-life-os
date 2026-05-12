@@ -53,7 +53,7 @@ const MedicationTrackingView = () => import("../views/health/MedicationTrackingV
 |--------------------------------------------------------------------------
 */
 
-const ProjectsDashboardView = () => import("../views/ProjectsDashboardView.vue");
+const ProjectsDashboardView = () => import("../views/projects/ProjectDashboardView.vue");
 const ProjectTasksView = () => import("../views/ProjectTasksView.vue");
 const ProjectMilestonesView = () => import("../views/ProjectMilestonesView.vue");
 const ProjectProgressView = () => import("../views/ProjectProgressView.vue");

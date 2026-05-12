@@ -1,31 +1,35 @@
-import axios from "axios";
+import api from "./api";
 
-const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
-
-function getToken() {
-  return localStorage.getItem("token");
+export async function getProjectDashboard() {
+  const response = await api.get("/projects/dashboard");
+  return response.data;
 }
 
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "application/json",
-  },
-});
+export async function getProjects(params = {}) {
+  const response = await api.get("/projects", {
+    params,
+  });
 
-api.interceptors.request.use((config) => {
-  const token = getToken();
+  return response.data;
+}
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+export async function getProject(projectId) {
+  const response = await api.get(`/projects/${projectId}`);
+  return response.data;
+}
 
-  return config;
-});
+export async function createProject(payload) {
+  const response = await api.post("/projects", payload);
+  return response.data;
+}
 
-export async function getProjects() {
-  const response = await api.get("/projects");
+export async function updateProject(projectId, payload) {
+  const response = await api.patch(`/projects/${projectId}`, payload);
+  return response.data;
+}
+
+export async function deleteProject(projectId) {
+  const response = await api.delete(`/projects/${projectId}`);
   return response.data;
 }
 

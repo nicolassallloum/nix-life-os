@@ -1,20 +1,41 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
-import { getProjects, recalculateProjectProgress } from "../../services/projectService";
+import {
+  getProjectDashboard,
+  getProjects,
+  recalculateProjectProgress,
+} from "../../services/projectService";
+
 import ProjectCard from "../../components/projects/ProjectCard.vue";
 import ProjectKanbanColumn from "../../components/projects/ProjectKanbanColumn.vue";
 
 const projects = ref([]);
+const dashboard = ref({
+  summary: {
+    total_projects: 0,
+    active_projects: 0,
+    completed_projects: 0,
+    overdue_tasks: 0,
+    average_progress: 0,
+  },
+  progress_cards: [],
+  recent_projects: [],
+  charts: {
+    status: [],
+    priority: [],
+  },
+});
+
 const loading = ref(false);
 const errorMessage = ref("");
-const activeView = ref("list");
+const activeView = ref("overview");
 const searchQuery = ref("");
 const selectedStatus = ref("all");
 
 const statuses = [
   {
-    key: "planned",
-    title: "Planned",
+    key: "not_started",
+    title: "Not Started",
   },
   {
     key: "in_progress",
@@ -36,8 +57,8 @@ const statusOptions = [
     label: "All Statuses",
   },
   {
-    value: "planned",
-    label: "Planned",
+    value: "not_started",
+    label: "Not Started",
   },
   {
     value: "in_progress",
@@ -57,25 +78,7 @@ const statusOptions = [
   },
 ];
 
-const totalProjects = computed(() => projects.value.length);
-
-const completedProjects = computed(() => {
-  return projects.value.filter((project) => project.status === "completed").length;
-});
-
-const inProgressProjects = computed(() => {
-  return projects.value.filter((project) => project.status === "in_progress").length;
-});
-
-const averageProgress = computed(() => {
-  if (!projects.value.length) return 0;
-
-  const total = projects.value.reduce((sum, project) => {
-    return sum + Number(project.progress_percentage || 0);
-  }, 0);
-
-  return Math.round(total / projects.value.length);
-});
+const summary = computed(() => dashboard.value.summary || {});
 
 const filteredProjects = computed(() => {
   return projects.value.filter((project) => {
@@ -91,6 +94,16 @@ const filteredProjects = computed(() => {
   });
 });
 
+const maxStatusChartValue = computed(() => {
+  const values = dashboard.value.charts.status.map((item) => Number(item.value || 0));
+  return Math.max(...values, 1);
+});
+
+const maxPriorityChartValue = computed(() => {
+  const values = dashboard.value.charts.priority.map((item) => Number(item.value || 0));
+  return Math.max(...values, 1);
+});
+
 function projectsByStatus(status) {
   return filteredProjects.value.filter((project) => project.status === status);
 }
@@ -104,6 +117,10 @@ function normalizeProjects(payload) {
     return payload.data;
   }
 
+  if (Array.isArray(payload?.data?.data)) {
+    return payload.data.data;
+  }
+
   if (Array.isArray(payload?.projects)) {
     return payload.projects;
   }
@@ -115,19 +132,51 @@ function normalizeProjects(payload) {
   return [];
 }
 
+function chartWidth(value, maxValue) {
+  if (!maxValue) return "0%";
+  return `${Math.round((Number(value || 0) / maxValue) * 100)}%`;
+}
+
+async function loadDashboard() {
+  const response = await getProjectDashboard();
+
+  dashboard.value = {
+    summary: response?.data?.summary || {
+      total_projects: 0,
+      active_projects: 0,
+      completed_projects: 0,
+      overdue_tasks: 0,
+      average_progress: 0,
+    },
+    progress_cards: response?.data?.progress_cards || [],
+    recent_projects: response?.data?.recent_projects || [],
+    charts: {
+      status: response?.data?.charts?.status || [],
+      priority: response?.data?.charts?.priority || [],
+    },
+  };
+}
+
 async function loadProjects() {
+  const response = await getProjects({
+    per_page: 100,
+  });
+
+  projects.value = normalizeProjects(response);
+}
+
+async function loadPage() {
   loading.value = true;
   errorMessage.value = "";
 
   try {
-    const response = await getProjects();
-    projects.value = normalizeProjects(response);
+    await Promise.all([loadDashboard(), loadProjects()]);
   } catch (error) {
     console.error(error);
 
     errorMessage.value =
       error.response?.data?.message ||
-      "Failed to load projects. Please check the backend API.";
+      "Failed to load Projects Dashboard. Please check backend API routes.";
   } finally {
     loading.value = false;
   }
@@ -142,7 +191,7 @@ async function recalculateAllProgress() {
       await recalculateProjectProgress(project.id);
     }
 
-    await loadProjects();
+    await loadPage();
   } catch (error) {
     console.error(error);
 
@@ -155,7 +204,7 @@ async function recalculateAllProgress() {
 }
 
 onMounted(() => {
-  loadProjects();
+  loadPage();
 });
 </script>
 
@@ -169,11 +218,11 @@ onMounted(() => {
           </p>
 
           <h1 class="mt-1 text-3xl font-black text-gray-900">
-            Project Dashboard
+            Projects Dashboard
           </h1>
 
           <p class="mt-2 text-gray-500">
-            Track project progress, milestones, and execution status.
+            Track total projects, active execution, completed work, overdue tasks, progress cards, and charts.
           </p>
         </div>
 
@@ -181,7 +230,7 @@ onMounted(() => {
           <button
             type="button"
             class="rounded-xl bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50"
-            @click="loadProjects"
+            @click="loadPage"
           >
             Refresh
           </button>
@@ -203,128 +252,264 @@ onMounted(() => {
         {{ errorMessage }}
       </div>
 
-      <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
-        <div class="rounded-2xl bg-white p-5 shadow-sm">
-          <p class="text-sm font-medium text-gray-500">Total Projects</p>
-          <p class="mt-2 text-3xl font-black text-gray-900">
-            {{ totalProjects }}
-          </p>
-        </div>
-
-        <div class="rounded-2xl bg-white p-5 shadow-sm">
-          <p class="text-sm font-medium text-gray-500">In Progress</p>
-          <p class="mt-2 text-3xl font-black text-blue-600">
-            {{ inProgressProjects }}
-          </p>
-        </div>
-
-        <div class="rounded-2xl bg-white p-5 shadow-sm">
-          <p class="text-sm font-medium text-gray-500">Completed</p>
-          <p class="mt-2 text-3xl font-black text-emerald-600">
-            {{ completedProjects }}
-          </p>
-        </div>
-
-        <div class="rounded-2xl bg-white p-5 shadow-sm">
-          <p class="text-sm font-medium text-gray-500">Average Progress</p>
-          <p class="mt-2 text-3xl font-black text-gray-900">
-            {{ averageProgress }}%
-          </p>
-        </div>
-      </div>
-
-      <div class="rounded-2xl bg-white p-5 shadow-sm">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div class="flex flex-col gap-3 md:flex-row">
-            <input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Search project..."
-              class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500 md:w-72"
-            />
-
-            <select
-              v-model="selectedStatus"
-              class="rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500"
-            >
-              <option
-                v-for="status in statusOptions"
-                :key="status.value"
-                :value="status.value"
-              >
-                {{ status.label }}
-              </option>
-            </select>
-          </div>
-
-          <div class="flex rounded-xl bg-gray-100 p-1">
-            <button
-              type="button"
-              class="rounded-lg px-4 py-2 text-sm font-bold"
-              :class="
-                activeView === 'list'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-500'
-              "
-              @click="activeView = 'list'"
-            >
-              List View
-            </button>
-
-            <button
-              type="button"
-              class="rounded-lg px-4 py-2 text-sm font-bold"
-              :class="
-                activeView === 'kanban'
-                  ? 'bg-white text-blue-600 shadow-sm'
-                  : 'text-gray-500'
-              "
-              @click="activeView = 'kanban'"
-            >
-              Kanban View
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div
         v-if="loading"
         class="rounded-2xl bg-white p-10 text-center text-sm font-bold text-gray-500 shadow-sm"
       >
-        Loading projects...
+        Loading projects dashboard...
       </div>
 
       <template v-else>
-        <div
-          v-if="activeView === 'list'"
-          class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3"
-        >
-          <ProjectCard
-            v-for="project in filteredProjects"
-            :key="project.id"
-            :project="project"
-          />
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-5">
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Total Projects</p>
+            <p class="mt-2 text-3xl font-black text-gray-900">
+              {{ summary.total_projects || 0 }}
+            </p>
+          </div>
 
-          <div
-            v-if="filteredProjects.length === 0"
-            class="col-span-full rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center text-gray-400"
-          >
-            No projects found.
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Active Projects</p>
+            <p class="mt-2 text-3xl font-black text-blue-600">
+              {{ summary.active_projects || 0 }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Completed Projects</p>
+            <p class="mt-2 text-3xl font-black text-emerald-600">
+              {{ summary.completed_projects || 0 }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Overdue Tasks</p>
+            <p class="mt-2 text-3xl font-black text-red-600">
+              {{ summary.overdue_tasks || 0 }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Average Progress</p>
+            <p class="mt-2 text-3xl font-black text-gray-900">
+              {{ summary.average_progress || 0 }}%
+            </p>
           </div>
         </div>
 
-        <div
-          v-if="activeView === 'kanban'"
-          class="grid grid-cols-1 gap-5 xl:grid-cols-4"
-        >
-          <ProjectKanbanColumn
-            v-for="status in statuses"
-            :key="status.key"
-            :title="status.title"
-            :status="status.key"
-            :projects="projectsByStatus(status.key)"
-          />
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <div class="mb-4 flex items-center justify-between">
+              <h2 class="text-lg font-black text-gray-900">
+                Projects by Status
+              </h2>
+            </div>
+
+            <div
+              v-if="dashboard.charts.status.length === 0"
+              class="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400"
+            >
+              No status chart data available.
+            </div>
+
+            <div v-else class="space-y-4">
+              <div
+                v-for="item in dashboard.charts.status"
+                :key="item.status"
+              >
+                <div class="mb-1 flex justify-between text-sm">
+                  <span class="font-bold text-gray-700">{{ item.label }}</span>
+                  <span class="text-gray-500">{{ item.value }}</span>
+                </div>
+
+                <div class="h-3 overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    class="h-full rounded-full bg-blue-600"
+                    :style="{ width: chartWidth(item.value, maxStatusChartValue) }"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <div class="mb-4 flex items-center justify-between">
+              <h2 class="text-lg font-black text-gray-900">
+                Projects by Priority
+              </h2>
+            </div>
+
+            <div
+              v-if="dashboard.charts.priority.length === 0"
+              class="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400"
+            >
+              No priority chart data available.
+            </div>
+
+            <div v-else class="space-y-4">
+              <div
+                v-for="item in dashboard.charts.priority"
+                :key="item.priority"
+              >
+                <div class="mb-1 flex justify-between text-sm">
+                  <span class="font-bold text-gray-700">{{ item.label }}</span>
+                  <span class="text-gray-500">{{ item.value }}</span>
+                </div>
+
+                <div class="h-3 overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    class="h-full rounded-full bg-purple-600"
+                    :style="{ width: chartWidth(item.value, maxPriorityChartValue) }"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <div class="rounded-2xl bg-white p-5 shadow-sm">
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-lg font-black text-gray-900">
+              Project Progress Cards
+            </h2>
+          </div>
+
+          <div
+            v-if="dashboard.progress_cards.length === 0"
+            class="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400"
+          >
+            No project progress data available.
+          </div>
+
+          <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div
+              v-for="project in dashboard.progress_cards"
+              :key="project.id"
+              class="rounded-2xl border border-gray-100 bg-gray-50 p-4"
+            >
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="font-black text-gray-900">
+                    {{ project.project_name }}
+                  </p>
+                  <p class="mt-1 text-xs text-gray-500">
+                    {{ project.project_code || "No Code" }}
+                  </p>
+                </div>
+
+                <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-gray-600">
+                  {{ project.status }}
+                </span>
+              </div>
+
+              <div class="mt-4">
+                <div class="mb-1 flex justify-between text-xs">
+                  <span class="font-bold text-gray-500">Progress</span>
+                  <span class="font-bold text-gray-700">
+                    {{ project.progress_percentage || 0 }}%
+                  </span>
+                </div>
+
+                <div class="h-3 overflow-hidden rounded-full bg-gray-200">
+                  <div
+                    class="h-full rounded-full bg-emerald-600"
+                    :style="{ width: `${project.progress_percentage || 0}%` }"
+                  ></div>
+                </div>
+              </div>
+
+              <div class="mt-4 text-xs text-gray-500">
+                Tasks:
+                <span class="font-bold text-gray-700">
+                  {{ project.completed_tasks || 0 }} / {{ project.total_tasks || 0 }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white p-5 shadow-sm">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex flex-col gap-3 md:flex-row">
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search project..."
+                class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500 md:w-72"
+              />
+
+              <select
+                v-model="selectedStatus"
+                class="rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500"
+              >
+                <option
+                  v-for="status in statusOptions"
+                  :key="status.value"
+                  :value="status.value"
+                >
+                  {{ status.label }}
+                </option>
+              </select>
+            </div>
+
+            <div class="flex rounded-xl bg-gray-100 p-1">
+              <button
+                type="button"
+                class="rounded-lg px-4 py-2 text-sm font-bold"
+                :class="
+                  activeView === 'overview'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-500'
+                "
+                @click="activeView = 'overview'"
+              >
+                List View
+              </button>
+
+              <button
+                type="button"
+                class="rounded-lg px-4 py-2 text-sm font-bold"
+                :class="
+                  activeView === 'kanban'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-500'
+                "
+                @click="activeView = 'kanban'"
+              >
+                Kanban View
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <template v-if="activeView === 'overview'">
+          <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <ProjectCard
+              v-for="project in filteredProjects"
+              :key="project.id"
+              :project="project"
+            />
+
+            <div
+              v-if="filteredProjects.length === 0"
+              class="col-span-full rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center text-gray-400"
+            >
+              No projects found.
+            </div>
+          </div>
+        </template>
+
+        <template v-if="activeView === 'kanban'">
+          <div class="grid grid-cols-1 gap-5 xl:grid-cols-4">
+            <ProjectKanbanColumn
+              v-for="status in statuses"
+              :key="status.key"
+              :title="status.title"
+              :status="status.key"
+              :projects="projectsByStatus(status.key)"
+            />
+          </div>
+        </template>
       </template>
     </div>
   </div>

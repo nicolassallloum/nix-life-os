@@ -1,0 +1,2232 @@
+==================================================
+STEP 55 - PROJECTS DASHBOARD FILE EXPORT
+Generated at: Mon May 11 22:47:09 EEST 2026
+==================================================
+
+================ FRONTEND FILE TREE ================
+frontend/src/components/projects
+frontend/src/components/projects/ProjectCard.vue
+frontend/src/components/projects/ProjectKanbanColumn.vue
+frontend/src/components/projects/ProjectProgressBar.vue
+frontend/src/services/projectService.js
+frontend/src/views/ProjectMilestonesView.vue
+frontend/src/views/ProjectProgressView.vue
+frontend/src/views/ProjectStatusUpdatesView.vue
+frontend/src/views/ProjectTasksView.vue
+frontend/src/views/ProjectsDashboardView.vue
+frontend/src/views/projects
+frontend/src/views/projects/ProjectDashboardView.vue
+frontend/src/views/projects/ProjectsView.vue
+
+================ BACKEND FILE TREE ================
+backend/app/Http/Controllers/Api/V1/ProjectController.php
+backend/app/Http/Controllers/Api/V1/ProjectMilestoneController.php
+backend/app/Http/Controllers/Api/V1/ProjectProgressController.php
+backend/app/Http/Controllers/Api/V1/ProjectStatusUpdateController.php
+backend/app/Http/Controllers/Api/V1/ProjectTaskController.php
+backend/app/Http/Controllers/ProjectController.php
+backend/app/Http/Resources/ProjectResource.php
+backend/app/Http/Resources/ProjectTaskResource.php
+backend/app/Models/Project.php
+backend/app/Models/ProjectMilestone.php
+backend/app/Models/ProjectStatusUpdate.php
+backend/app/Models/ProjectTask.php
+backend/app/Models/Projects
+backend/app/Models/Projects/Project.php
+backend/app/Services/Projects
+backend/app/Services/Projects/ProjectProgressService.php
+backend/database/migrations/2026_04_26_051913_create_projects_table.php
+backend/database/migrations/2026_04_26_051914_create_project_tasks_table.php
+backend/database/migrations/2026_04_26_055602_create_project_milestones_table.php
+backend/database/migrations/2026_04_26_055602_create_project_status_updates_table.php
+backend/database/migrations/2026_04_26_055613_add_progress_fields_to_project_tasks_table.php
+backend/database/migrations/disabled/2026_04_11_034134_create_projects_table.php
+
+==================================================
+FILE: frontend/src/views/projects/ProjectsDashboardView.vue
+==================================================
+NOT FOUND: frontend/src/views/projects/ProjectsDashboardView.vue
+
+==================================================
+FILE: frontend/src/views/projects/ProjectDashboardView.vue
+==================================================
+<script setup>
+import { computed, onMounted, ref } from "vue";
+import { getProjects, recalculateProjectProgress } from "../../services/projectService";
+import ProjectCard from "../../components/projects/ProjectCard.vue";
+import ProjectKanbanColumn from "../../components/projects/ProjectKanbanColumn.vue";
+
+const projects = ref([]);
+const loading = ref(false);
+const errorMessage = ref("");
+const activeView = ref("list");
+const searchQuery = ref("");
+const selectedStatus = ref("all");
+
+const statuses = [
+  {
+    key: "planned",
+    title: "Planned",
+  },
+  {
+    key: "in_progress",
+    title: "In Progress",
+  },
+  {
+    key: "on_hold",
+    title: "On Hold",
+  },
+  {
+    key: "completed",
+    title: "Completed",
+  },
+];
+
+const statusOptions = [
+  {
+    value: "all",
+    label: "All Statuses",
+  },
+  {
+    value: "planned",
+    label: "Planned",
+  },
+  {
+    value: "in_progress",
+    label: "In Progress",
+  },
+  {
+    value: "on_hold",
+    label: "On Hold",
+  },
+  {
+    value: "completed",
+    label: "Completed",
+  },
+  {
+    value: "cancelled",
+    label: "Cancelled",
+  },
+];
+
+const totalProjects = computed(() => projects.value.length);
+
+const completedProjects = computed(() => {
+  return projects.value.filter((project) => project.status === "completed").length;
+});
+
+const inProgressProjects = computed(() => {
+  return projects.value.filter((project) => project.status === "in_progress").length;
+});
+
+const averageProgress = computed(() => {
+  if (!projects.value.length) return 0;
+
+  const total = projects.value.reduce((sum, project) => {
+    return sum + Number(project.progress_percentage || 0);
+  }, 0);
+
+  return Math.round(total / projects.value.length);
+});
+
+const filteredProjects = computed(() => {
+  return projects.value.filter((project) => {
+    const matchesSearch =
+      !searchQuery.value ||
+      project.project_name?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      project.project_code?.toLowerCase().includes(searchQuery.value.toLowerCase());
+
+    const matchesStatus =
+      selectedStatus.value === "all" || project.status === selectedStatus.value;
+
+    return matchesSearch && matchesStatus;
+  });
+});
+
+function projectsByStatus(status) {
+  return filteredProjects.value.filter((project) => project.status === status);
+}
+
+function normalizeProjects(payload) {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (Array.isArray(payload?.data)) {
+    return payload.data;
+  }
+
+  if (Array.isArray(payload?.projects)) {
+    return payload.projects;
+  }
+
+  if (Array.isArray(payload?.data?.projects)) {
+    return payload.data.projects;
+  }
+
+  return [];
+}
+
+async function loadProjects() {
+  loading.value = true;
+  errorMessage.value = "";
+
+  try {
+    const response = await getProjects();
+    projects.value = normalizeProjects(response);
+  } catch (error) {
+    console.error(error);
+
+    errorMessage.value =
+      error.response?.data?.message ||
+      "Failed to load projects. Please check the backend API.";
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function recalculateAllProgress() {
+  loading.value = true;
+  errorMessage.value = "";
+
+  try {
+    for (const project of projects.value) {
+      await recalculateProjectProgress(project.id);
+    }
+
+    await loadProjects();
+  } catch (error) {
+    console.error(error);
+
+    errorMessage.value =
+      error.response?.data?.message ||
+      "Failed to recalculate project progress.";
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(() => {
+  loadProjects();
+});
+</script>
+
+<template>
+  <div class="min-h-screen bg-gray-100 p-6">
+    <div class="mx-auto max-w-7xl space-y-6">
+      <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+        <div>
+          <p class="text-sm font-bold uppercase tracking-wide text-blue-600">
+            NIX LIFE OS
+          </p>
+
+          <h1 class="mt-1 text-3xl font-black text-gray-900">
+            Project Dashboard
+          </h1>
+
+          <p class="mt-2 text-gray-500">
+            Track project progress, milestones, and execution status.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <button
+            type="button"
+            class="rounded-xl bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50"
+            @click="loadProjects"
+          >
+            Refresh
+          </button>
+
+          <button
+            type="button"
+            class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700"
+            @click="recalculateAllProgress"
+          >
+            Recalculate Progress
+          </button>
+        </div>
+      </div>
+
+      <div
+        v-if="errorMessage"
+        class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700"
+      >
+        {{ errorMessage }}
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div class="rounded-2xl bg-white p-5 shadow-sm">
+          <p class="text-sm font-medium text-gray-500">Total Projects</p>
+          <p class="mt-2 text-3xl font-black text-gray-900">
+            {{ totalProjects }}
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-white p-5 shadow-sm">
+          <p class="text-sm font-medium text-gray-500">In Progress</p>
+          <p class="mt-2 text-3xl font-black text-blue-600">
+            {{ inProgressProjects }}
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-white p-5 shadow-sm">
+          <p class="text-sm font-medium text-gray-500">Completed</p>
+          <p class="mt-2 text-3xl font-black text-emerald-600">
+            {{ completedProjects }}
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-white p-5 shadow-sm">
+          <p class="text-sm font-medium text-gray-500">Average Progress</p>
+          <p class="mt-2 text-3xl font-black text-gray-900">
+            {{ averageProgress }}%
+          </p>
+        </div>
+      </div>
+
+      <div class="rounded-2xl bg-white p-5 shadow-sm">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div class="flex flex-col gap-3 md:flex-row">
+            <input
+              v-model="searchQuery"
+              type="text"
+              placeholder="Search project..."
+              class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500 md:w-72"
+            />
+
+            <select
+              v-model="selectedStatus"
+              class="rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500"
+            >
+              <option
+                v-for="status in statusOptions"
+                :key="status.value"
+                :value="status.value"
+              >
+                {{ status.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="flex rounded-xl bg-gray-100 p-1">
+            <button
+              type="button"
+              class="rounded-lg px-4 py-2 text-sm font-bold"
+              :class="
+                activeView === 'list'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-500'
+              "
+              @click="activeView = 'list'"
+            >
+              List View
+            </button>
+
+            <button
+              type="button"
+              class="rounded-lg px-4 py-2 text-sm font-bold"
+              :class="
+                activeView === 'kanban'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-500'
+              "
+              @click="activeView = 'kanban'"
+            >
+              Kanban View
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        v-if="loading"
+        class="rounded-2xl bg-white p-10 text-center text-sm font-bold text-gray-500 shadow-sm"
+      >
+        Loading projects...
+      </div>
+
+      <template v-else>
+        <div
+          v-if="activeView === 'list'"
+          class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3"
+        >
+          <ProjectCard
+            v-for="project in filteredProjects"
+            :key="project.id"
+            :project="project"
+          />
+
+          <div
+            v-if="filteredProjects.length === 0"
+            class="col-span-full rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center text-gray-400"
+          >
+            No projects found.
+          </div>
+        </div>
+
+        <div
+          v-if="activeView === 'kanban'"
+          class="grid grid-cols-1 gap-5 xl:grid-cols-4"
+        >
+          <ProjectKanbanColumn
+            v-for="status in statuses"
+            :key="status.key"
+            :title="status.title"
+            :status="status.key"
+            :projects="projectsByStatus(status.key)"
+          />
+        </div>
+      </template>
+    </div>
+  </div>
+</template>
+
+==================================================
+FILE: frontend/src/views/projects/ProjectsView.vue
+==================================================
+
+==================================================
+FILE: frontend/src/router/index.js
+==================================================
+import { createRouter, createWebHistory } from "vue-router";
+import HealthView from "@/views/health/HealthView.vue";
+import HealthAlertsView from "@/views/health/HealthAlertsView.vue";
+import HealthReportsView from '@/views/health/HealthReportsView.vue'
+// import CustomFoodsView from '@/views/health/CustomFoodsView.vue'
+/*
+|--------------------------------------------------------------------------
+| Auth Views
+|--------------------------------------------------------------------------
+*/
+
+const LoginView = () => import("../views/auth/LoginView.vue");
+const RegisterView = () => import("../views/auth/RegisterView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| Dashboard Views
+|--------------------------------------------------------------------------
+*/
+
+const UnifiedDashboardView = () => import("../views/dashboard/UnifiedDashboardView.vue");
+const DashboardView = () => import("../views/dashboard/DashboardView.vue");
+const LifeBalanceView = () => import("../views/LifeBalanceView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| Finance Views
+|--------------------------------------------------------------------------
+*/
+
+const FinanceDashboardView = () => import("../views/finance/FinanceDashboardView.vue");
+const FinanceAccountsView = () => import("../views/finance/FinanceAccountsView.vue");
+const FinanceTransactionsView = () => import("../views/finance/FinanceTransactionsView.vue");
+const FinanceBudgetsView = () => import("../views/finance/FinanceBudgetsView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| Health Views
+|--------------------------------------------------------------------------
+*/
+
+const StepsTrackingView = () => import("../views/health/StepsTrackingView.vue");
+const WeightTrackingView = () => import("../views/health/WeightTrackingView.vue");
+const NutritionTrackingView = () => import("../views/health/NutritionTrackingView.vue");
+const HydrationTrackingView = () => import("../views/health/HydrationTrackingView.vue");
+const SleepTrackingView = () => import("../views/health/SleepTrackingView.vue");
+const MoodTrackingView = () => import("../views/health/MoodTrackingView.vue");
+const MedicationTrackingView = () => import("../views/health/MedicationTrackingView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| Project Views
+|--------------------------------------------------------------------------
+*/
+
+const ProjectsDashboardView = () => import("../views/ProjectsDashboardView.vue");
+const ProjectTasksView = () => import("../views/ProjectTasksView.vue");
+const ProjectMilestonesView = () => import("../views/ProjectMilestonesView.vue");
+const ProjectProgressView = () => import("../views/ProjectProgressView.vue");
+const StatusUpdatesView = () => import("../views/ProjectStatusUpdatesView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| Notification Views
+|--------------------------------------------------------------------------
+*/
+
+const NotificationsView = () => import("../views/notifications/NotificationsView.vue");
+const NotificationSettingsView = () => import("../views/notifications/NotificationSettingsView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| System Views
+|--------------------------------------------------------------------------
+*/
+
+const MonitoringDashboardView = () => import("../views/monitoring/MonitoringDashboardView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| Fallback Views
+|--------------------------------------------------------------------------
+*/
+
+const NotFoundView = () => import("../views/NotFoundView.vue");
+
+const routes = [
+  {
+    path: "/",
+    redirect: "/dashboard",
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Auth Routes
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/login",
+    name: "Login",
+    component: LoginView,
+    meta: {
+      guestOnly: true,
+      title: "Login",
+    },
+  },
+  {
+    path: "/register",
+    name: "Register",
+    component: RegisterView,
+    meta: {
+      guestOnly: true,
+      title: "Register",
+    },
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Main Dashboards
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/dashboard",
+    name: "Dashboard",
+    component: DashboardView,
+    meta: {
+      requiresAuth: true,
+      title: "Dashboard",
+    },
+  },
+  {
+    path: "/unified-dashboard",
+    name: "UnifiedDashboard",
+    component: UnifiedDashboardView,
+    meta: {
+      requiresAuth: true,
+      title: "Unified Dashboard",
+    },
+  },
+  {
+    path: "/life-balance",
+    name: "LifeBalance",
+    component: LifeBalanceView,
+    meta: {
+      requiresAuth: true,
+      title: "Life Balance",
+    },
+  },
+  {
+    path: "/health/custom-foods",
+    name: "HealthCustomFoods",
+    component: () => import("@/views/health/CustomFoodsView.vue"),
+    meta: {
+      requiresAuth: true,
+      title: "Custom Foods",
+    },
+  },
+  /*
+  |--------------------------------------------------------------------------
+  | Finance Routes
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/finance",
+    redirect: "/finance/dashboard",
+  },
+  {
+    path: "/finance/dashboard",
+    name: "FinanceDashboard",
+    component: FinanceDashboardView,
+    meta: {
+      requiresAuth: true,
+      title: "Finance Dashboard",
+    },
+  },
+  {
+    path: "/finance/accounts",
+    name: "FinanceAccounts",
+    component: FinanceAccountsView,
+    meta: {
+      requiresAuth: true,
+      title: "Finance Accounts",
+    },
+  },
+  {
+    path: "/health/alerts",
+    name: "health-alerts",
+    component: HealthAlertsView,
+    meta: {
+      requiresAuth: true,
+      title: "Health Alerts",
+    },
+  },
+  {
+    path: "/finance/transactions",
+    name: "FinanceTransactions",
+    component: FinanceTransactionsView,
+    meta: {
+      requiresAuth: true,
+      title: "Finance Transactions",
+    },
+  },
+  {
+    path: "/finance/budgets",
+    name: "FinanceBudgets",
+    component: FinanceBudgetsView,
+    meta: {
+      requiresAuth: true,
+      title: "Finance Budgets",
+    },
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Health Routes
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/health",
+    name: "HealthDashboard",
+    component: HealthView,
+    meta: {
+      requiresAuth: true,
+      title: "Health Dashboard",
+    },
+  },
+  {
+    path: "/health/steps",
+    name: "StepsTracking",
+    component: StepsTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Steps Tracking",
+    },
+  },
+  {
+    path: "/health/weight",
+    name: "WeightTracking",
+    component: WeightTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Weight Tracking",
+    },
+  },
+  {
+    path: "/health/nutrition",
+    name: "NutritionTracking",
+    component: NutritionTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Nutrition Tracking",
+    },
+  },
+  {
+    path: "/health/hydration",
+    name: "HydrationTracking",
+    component: HydrationTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Hydration Tracking",
+    },
+  },
+  {
+    path: "/health/sleep",
+    name: "SleepTracking",
+    component: SleepTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Sleep Tracking",
+    },
+  },
+  {
+    path: "/health/mood",
+    name: "MoodTracking",
+    component: MoodTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Mood Tracking",
+    },
+  },
+  {
+    path: '/health/medications',
+    name: 'health-medications',
+    component: () => import('@/views/health/MedicationTrackingView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Medication Tracking'
+    }
+  },
+  {
+    path: "/health/medicaments",
+    name: "MedicamentsTracking",
+    component: () => import("@/views/health/MedicamentsTrackingView.vue"),
+    meta: {
+      requiresAuth: true,
+      title: "Medicaments",
+    },
+  },
+  {
+    path: "/health/lab-tests",
+    name: "LabTestsTracking",
+    component: () => import("@/views/health/LabTestsTrackingView.vue"),
+    meta: {
+      requiresAuth: true,
+      title: "Lab Tests",
+    },
+  },
+  {
+    path: '/health/reports',
+    name: 'HealthReports',
+    component: HealthReportsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Health Reports'
+    }
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Project Routes
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/projects",
+    redirect: "/projects/dashboard",
+  },
+  {
+    path: "/projects/dashboard",
+    name: "ProjectsDashboard",
+    component: ProjectsDashboardView,
+    meta: {
+      requiresAuth: true,
+      title: "Projects Dashboard",
+    },
+  },
+  {
+    path: "/projects/tasks",
+    name: "ProjectTasks",
+    component: ProjectTasksView,
+    meta: {
+      requiresAuth: true,
+      title: "Project Tasks",
+    },
+  },
+  {
+    path: "/projects/milestones",
+    name: "ProjectMilestones",
+    component: ProjectMilestonesView,
+    meta: {
+      requiresAuth: true,
+      title: "Project Milestones",
+    },
+  },
+  {
+    path: "/projects/progress",
+    name: "ProjectProgress",
+    component: ProjectProgressView,
+    meta: {
+      requiresAuth: true,
+      title: "Project Progress",
+    },
+  },
+  {
+    path: "/projects/status-updates",
+    name: "StatusUpdates",
+    component: StatusUpdatesView,
+    meta: {
+      requiresAuth: true,
+      title: "Status Updates",
+    },
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Notification Routes
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/notifications",
+    name: "Notifications",
+    component: NotificationsView,
+    meta: {
+      requiresAuth: true,
+      title: "Notifications",
+    },
+  },
+  {
+    path: "/notifications/settings",
+    name: "NotificationSettings",
+    component: NotificationSettingsView,
+    meta: {
+      requiresAuth: true,
+      title: "Notification Settings",
+    },
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | System Routes
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/system/monitoring",
+    name: "MonitoringDashboard",
+    component: MonitoringDashboardView,
+    meta: {
+      requiresAuth: true,
+      title: "Logging & Monitoring",
+    },
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | 404 Route
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/:pathMatch(.*)*",
+    name: "NotFound",
+    component: NotFoundView,
+    meta: {
+      title: "Page Not Found",
+    },
+  },
+];
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+  scrollBehavior() {
+    return {
+      top: 0,
+      behavior: "smooth",
+    };
+  },
+});
+
+/*
+|--------------------------------------------------------------------------
+| Router Guard
+|--------------------------------------------------------------------------
+*/
+
+router.beforeEach((to, from, next) => {
+  const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("auth_token") ||
+    localStorage.getItem("access_token");
+
+  const isAuthenticated = Boolean(token);
+
+  if (to.meta?.requiresAuth && !isAuthenticated) {
+    return next({
+      path: "/login",
+      query: {
+        redirect: to.fullPath,
+      },
+    });
+  }
+
+  if (to.meta?.guestOnly && isAuthenticated) {
+    return next("/dashboard");
+  }
+
+  if (to.meta?.title) {
+    document.title = `${to.meta.title} | Nix Life OS`;
+  } else {
+    document.title = "Nix Life OS";
+  }
+
+  return next();
+});
+
+export default router;
+==================================================
+FILE: frontend/src/layouts/AppLayout.vue
+==================================================
+<script setup>
+import { RouterLink, RouterView } from "vue-router";
+
+const linkClass =
+  "block rounded-xl px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950";
+
+const activeClass =
+  "bg-slate-950 text-white hover:bg-slate-950 hover:text-white";
+</script>
+
+<template>
+  <div class="min-h-screen bg-slate-50">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="w-64 shrink-0 border-r border-slate-200 bg-white px-5 py-6">
+        <div class="mb-8">
+          <h1 class="text-2xl font-black tracking-wide text-slate-950">
+            NIX LIFE OS
+          </h1>
+          <p class="mt-1 text-xs text-slate-500">
+            Personal Operating System
+          </p>
+        </div>
+
+        <nav class="space-y-6">
+          <!-- Main -->
+          <div>
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Main
+            </p>
+
+            <div class="space-y-1">
+              <RouterLink
+                to="/unified-dashboard"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Unified Dashboard
+              </RouterLink>
+  
+
+              <RouterLink
+                to="/life-balance"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Life Balance
+              </RouterLink>
+            </div>
+          </div>
+
+          <!-- Finance -->
+          <div>
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Finance
+            </p>
+
+            <div class="space-y-1">
+              <RouterLink
+                to="/finance/dashboard"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Finance Dashboard
+              </RouterLink>
+
+              <RouterLink
+                to="/finance/accounts"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Finance Accounts
+              </RouterLink>
+
+              <RouterLink
+                to="/finance/transactions"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Finance Transactions
+              </RouterLink>
+
+              <RouterLink
+                to="/finance/budgets"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Finance Budgets
+              </RouterLink>
+            </div>
+          </div>
+
+          <!-- Health -->
+          <div>
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Health
+            </p>
+
+            <div class="space-y-1">
+              <RouterLink
+                to="/health"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Health Dashboard
+              </RouterLink>
+              <RouterLink
+                to="/health/steps"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Steps Tracking
+              </RouterLink>
+
+              <RouterLink
+                to="/health/weight"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Weight Tracking
+              </RouterLink>
+
+              <RouterLink
+                to="/health/nutrition"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Nutrition Tracking
+              </RouterLink>
+
+              <RouterLink
+                to="/health/custom-foods"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Custom Foods
+              </RouterLink>
+              <RouterLink
+                to="/health/hydration"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Hydration Tracking
+              </RouterLink>
+              <RouterLink
+                to="/health/sleep"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Sleep Tracking
+              </RouterLink>
+
+              <RouterLink
+                to="/health/medications"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Medication Tracking
+              </RouterLink>
+              <RouterLink
+                to="/health/medicaments"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Medicaments
+              </RouterLink>
+
+              <RouterLink
+                to="/health/lab-tests"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Lab Tests
+              </RouterLink>
+              <RouterLink to="/health/alerts" class="sidebar-link">
+                <span>Health Alerts</span>
+              </RouterLink>
+              <RouterLink
+                to="/health/reports"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Health Reports
+              </RouterLink>
+            </div>
+          </div>
+
+          <!-- Projects -->
+          <div>
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Projects
+            </p>
+
+            <div class="space-y-1">
+              <RouterLink
+                to="/projects/dashboard"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Projects Dashboard
+              </RouterLink>
+
+              <RouterLink
+                to="/projects/tasks"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Project Tasks
+              </RouterLink>
+
+              <RouterLink
+                to="/projects/milestones"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Project Milestones
+              </RouterLink>
+
+              <RouterLink
+                to="/projects/progress"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Project Progress
+              </RouterLink>
+
+              <RouterLink
+                to="/projects/status-updates"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Status Updates
+              </RouterLink>
+            </div>
+          </div>
+
+          <!-- Notifications -->
+          <div>
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Notifications
+            </p>
+
+            <div class="space-y-1">
+              <RouterLink
+                to="/notifications"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Notifications
+              </RouterLink>
+
+              <RouterLink
+                to="/notifications/settings"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Notification Settings
+              </RouterLink>
+            </div>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Page Content -->
+      <main class="min-w-0 flex-1 overflow-x-hidden">
+        <div class="p-6">
+          <RouterView />
+        </div>
+      </main>
+    </div>
+  </div>
+</template>
+==================================================
+FILE: frontend/src/App.vue
+==================================================
+<script setup>
+import { RouterLink, RouterView } from "vue-router";
+import { hasPermission } from "@/utils/permissions";
+</script>
+
+<template>
+  <div class="min-h-screen bg-gray-50 flex">
+    <!-- Main Sidebar -->
+    <aside class="w-72 bg-white border-r border-gray-200 min-h-screen p-6 overflow-y-auto">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        NIX LIFE OS
+      </h1>
+
+      <p class="text-sm text-gray-500 mb-8">
+        Personal Operating System
+      </p>
+
+      <nav class="space-y-2">
+        <!-- Main -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-4 mb-2">
+          Main
+        </p>
+
+        <RouterLink
+          to="/dashboard"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Unified Dashboard
+        </RouterLink>
+
+        <RouterLink
+          to="/life-balance"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Life Balance
+        </RouterLink>
+
+        <!-- Finance -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+          Finance
+        </p>
+
+        <RouterLink
+          to="/finance"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Finance Dashboard
+        </RouterLink>
+
+        <RouterLink
+          to="/finance/accounts"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Finance Accounts
+        </RouterLink>
+
+        <RouterLink
+          to="/finance/transactions"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Finance Transactions
+        </RouterLink>
+
+        <RouterLink
+          to="/finance/budgets"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Finance Budgets
+        </RouterLink>
+
+        <!-- Health -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+          Health
+        </p>
+        <RouterLink
+          to="/health"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Health Dashboard
+        </RouterLink>
+        <RouterLink
+          to="/health/steps"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Steps Tracking
+        </RouterLink>
+
+        <RouterLink
+          to="/health/weight"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Weight Tracking
+        </RouterLink>
+
+        <RouterLink
+          to="/health/nutrition"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Nutrition Tracking
+        </RouterLink>
+        <RouterLink
+          to="/health/custom-foods"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Custom Foods
+        </RouterLink>
+        <RouterLink
+          to="/health/hydration"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Hydration Tracking
+        </RouterLink>
+        <RouterLink
+          to="/health/medications"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Medication Tracking
+        </RouterLink>
+        <RouterLink
+          to="/health/medicaments"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Medicaments
+        </RouterLink>
+
+        <RouterLink
+          to="/health/lab-tests"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Lab Tests
+        </RouterLink>
+        <RouterLink to="/health/alerts" class="sidebar-link">
+          <span>Health Alerts</span>
+        </RouterLink>
+        <RouterLink
+          to="/health/sleep"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Sleep Tracking
+        </RouterLink>
+        <!-- Projects -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+          Projects
+        </p>
+
+        <RouterLink
+          to="/projects"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Projects Dashboard
+        </RouterLink>
+
+        <RouterLink
+          to="/projects/tasks"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Project Tasks
+        </RouterLink>
+
+        <RouterLink
+          to="/projects/milestones"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Project Milestones
+        </RouterLink>
+
+        <RouterLink
+          to="/projects/progress"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Project Progress
+        </RouterLink>
+
+        <RouterLink
+          to="/projects/status-updates"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Status Updates
+        </RouterLink>
+
+        <!-- Notifications -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+          Notifications
+        </p>
+
+        <RouterLink
+          to="/notifications"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Notifications
+        </RouterLink>
+
+        <RouterLink
+          to="/notifications/settings"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Notification Settings
+        </RouterLink>
+
+        <!-- Automation -->
+        <template v-if="hasPermission('automation.view')">
+          <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+            Automation
+          </p>
+
+          <RouterLink
+            to="/automation"
+            class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+            active-class="bg-gray-900 text-white hover:bg-gray-900"
+          >
+            Automation
+          </RouterLink>
+        </template>
+
+        <!-- Security -->
+        <template v-if="hasPermission('security.manage')">
+          <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+            Security
+          </p>
+
+          <RouterLink
+            to="/security/roles"
+            class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+            active-class="bg-gray-900 text-white hover:bg-gray-900"
+          >
+            Security & Roles
+          </RouterLink>
+        </template>
+
+        <!-- System -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+          System
+        </p>
+
+        <RouterLink
+          to="/monitoring"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Logging & Monitoring
+        </RouterLink>
+      </nav>
+    </aside>
+
+    <!-- Page Content -->
+    <main class="flex-1 p-8 overflow-y-auto">
+      <RouterView />
+    </main>
+  </div>
+</template>
+==================================================
+FILE: frontend/src/services/projectService.js
+==================================================
+import axios from "axios";
+
+const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
+
+function getToken() {
+  return localStorage.getItem("token");
+}
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
+});
+
+api.interceptors.request.use((config) => {
+  const token = getToken();
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+export async function getProjects() {
+  const response = await api.get("/projects");
+  return response.data;
+}
+
+export async function getProjectProgress(projectId) {
+  const response = await api.get(`/projects/${projectId}/progress`);
+  return response.data;
+}
+
+export async function getProjectMilestones(projectId) {
+  const response = await api.get(`/projects/${projectId}/milestones`);
+  return response.data;
+}
+
+export async function getProjectStatusUpdates(projectId) {
+  const response = await api.get(`/projects/${projectId}/status-updates`);
+  return response.data;
+}
+
+export async function recalculateProjectProgress(projectId) {
+  const response = await api.post(`/projects/${projectId}/progress/recalculate`);
+  return response.data;
+}
+
+export async function updateProjectStatus(projectId, status) {
+  const response = await api.patch(`/projects/${projectId}`, {
+    status,
+  });
+
+  return response.data;
+}
+
+==================================================
+FILE: frontend/src/services/api.js
+==================================================
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/v1",
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
+});
+
+api.interceptors.request.use(
+  (config) => {
+    const token =
+      localStorage.getItem("token") ||
+      localStorage.getItem("auth_token") ||
+      localStorage.getItem("access_token");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const status = error.response?.status;
+
+    if (status === 401) {
+      console.warn("Unauthorized request. Token may be missing or expired.");
+    }
+
+    if (status === 422) {
+      console.warn("Validation error:", error.response?.data?.errors);
+    }
+
+    if (status >= 500) {
+      console.error("Server error:", error.response?.data || error.message);
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default api;
+
+==================================================
+FILE: backend/routes/api.php
+==================================================
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\LifeBalanceController;
+use App\Http\Controllers\Api\FinanceAccountController;
+use App\Http\Controllers\Api\FinanceTransactionController;
+use App\Http\Controllers\Api\HealthNutritionLogController;
+use App\Http\Controllers\Api\V1\HealthAlertController;
+use App\Http\Controllers\Api\V1\HealthReportController;
+use App\Http\Controllers\Api\V1\NutritionFoodController;
+use App\Http\Controllers\Api\V1\NutritionCustomFoodController;
+
+use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
+use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
+
+use App\Http\Controllers\Api\V1\Health\HealthDashboardController;
+use App\Http\Controllers\Api\V1\Health\HealthLabTestController;
+use App\Http\Controllers\Api\V1\Health\MedicationController;
+use App\Http\Controllers\Api\V1\Health\MedicationReminderController;
+use App\Http\Controllers\Api\V1\Health\MedicationDoseController;
+use App\Http\Controllers\Api\V1\Health\SleepLogController;
+use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
+use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
+
+use App\Http\Controllers\Api\V1\HealthWeightLogController;
+use App\Http\Controllers\Api\V1\HealthHydrationLogController;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Main API prefix generated by Laravel: /api
+| Version prefix in this file: /v1
+| Final API prefix: /api/v1
+|
+*/
+
+/*
+|--------------------------------------------------------------------------
+| Public API Health Check
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/health', function () {
+    return response()->json([
+        'success' => true,
+        'message' => 'Nix Life OS API is running.',
+        'timestamp' => now()->toISOString(),
+    ]);
+});
+
+/*
+|--------------------------------------------------------------------------
+| API Version 1
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('v1')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public Route Loading Test
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/sleep-route-test', function () {
+        return response()->json([
+            'success' => true,
+            'message' => 'API v1 route file is loading correctly.',
+        ]);
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public Auth Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('auth')->group(function () {
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/register', [AuthController::class, 'register']);
+
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::get('/me', [AuthController::class, 'me']);
+            Route::post('/logout', [AuthController::class, 'logout']);
+        });
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Protected Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::middleware('auth:sanctum')->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Authenticated User
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/user', function (Request $request) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Authenticated user loaded successfully.',
+                'data' => $request->user(),
+            ]);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Life Balance
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/life-balance/summary', [LifeBalanceController::class, 'summary']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Finance Module
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('finance')->group(function () {
+            Route::get('/accounts', [FinanceAccountController::class, 'index']);
+            Route::post('/accounts', [FinanceAccountController::class, 'store']);
+            Route::get('/accounts/{id}', [FinanceAccountController::class, 'show']);
+            Route::put('/accounts/{id}', [FinanceAccountController::class, 'update']);
+            Route::patch('/accounts/{id}', [FinanceAccountController::class, 'update']);
+            Route::delete('/accounts/{id}', [FinanceAccountController::class, 'destroy']);
+
+            Route::get('/transactions', [FinanceTransactionController::class, 'index']);
+            Route::post('/transactions', [FinanceTransactionController::class, 'store']);
+            Route::get('/transactions/{id}', [FinanceTransactionController::class, 'show']);
+            Route::put('/transactions/{id}', [FinanceTransactionController::class, 'update']);
+            Route::patch('/transactions/{id}', [FinanceTransactionController::class, 'update']);
+            Route::delete('/transactions/{id}', [FinanceTransactionController::class, 'destroy']);
+
+            Route::get('/budgets', [FinanceBudgetController::class, 'index']);
+            Route::post('/budgets', [FinanceBudgetController::class, 'store']);
+            Route::get('/budgets/{id}', [FinanceBudgetController::class, 'show']);
+            Route::put('/budgets/{id}', [FinanceBudgetController::class, 'update']);
+            Route::patch('/budgets/{id}', [FinanceBudgetController::class, 'update']);
+            Route::delete('/budgets/{id}', [FinanceBudgetController::class, 'destroy']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Nutrition Facts Database Module
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('nutrition')->group(function () {
+            Route::get('/categories', [NutritionFoodController::class, 'categories']);
+
+            Route::get('/foods/search', [NutritionFoodController::class, 'search']);
+            Route::get('/foods/{id}/servings', [NutritionFoodController::class, 'servings']);
+            Route::get('/foods/{id}', [NutritionFoodController::class, 'show']);
+            Route::get('/foods', [NutritionFoodController::class, 'index']);
+            Route::post('/foods/autofill', [NutritionFoodController::class, 'autofill']);
+
+            Route::get('/custom-foods', [NutritionCustomFoodController::class, 'index']);
+            Route::post('/custom-foods', [NutritionCustomFoodController::class, 'store']);
+            Route::get('/custom-foods/{id}', [NutritionCustomFoodController::class, 'show']);
+            Route::put('/custom-foods/{id}', [NutritionCustomFoodController::class, 'update']);
+            Route::patch('/custom-foods/{id}', [NutritionCustomFoodController::class, 'update']);
+            Route::delete('/custom-foods/{id}', [NutritionCustomFoodController::class, 'destroy']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Health Module
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('health')->group(function () {
+
+            Route::get('/reports/daily', [HealthReportController::class, 'daily']);
+            Route::get('/reports/weekly', [HealthReportController::class, 'weekly']);
+            Route::get('/reports/monthly', [HealthReportController::class, 'monthly']);
+            Route::get('/reports/export-preview', [HealthReportController::class, 'exportPreview']);
+            Route::get('/alerts', [HealthAlertController::class, 'index']);
+            Route::get('/alerts/summary', [HealthAlertController::class, 'summary']);
+            Route::post('/alerts/run', [HealthAlertController::class, 'run']);
+
+            Route::patch('/alerts/{id}/read', [HealthAlertController::class, 'markAsRead']);
+            Route::patch('/alerts/{id}/resolve', [HealthAlertController::class, 'resolve']);
+            Route::patch('/alerts/{id}/dismiss', [HealthAlertController::class, 'dismiss']);
+
+            Route::delete('/alerts/{id}', [HealthAlertController::class, 'destroy']);
+            /*
+            |--------------------------------------------------------------------------
+            | Health Dashboard
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/dashboard', [HealthDashboardController::class, 'summary']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Medication Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/medications', [MedicationController::class, 'index']);
+            Route::post('/medications', [MedicationController::class, 'store']);
+            Route::get('/medications/{id}', [MedicationController::class, 'show']);
+            Route::put('/medications/{id}', [MedicationController::class, 'update']);
+            Route::patch('/medications/{id}', [MedicationController::class, 'update']);
+            Route::delete('/medications/{id}', [MedicationController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Medication Reminders
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/medication-reminders', [MedicationReminderController::class, 'index']);
+            Route::get('/medication-reminders/today', [MedicationReminderController::class, 'today']);
+            Route::post('/medication-reminders', [MedicationReminderController::class, 'store']);
+            Route::put('/medication-reminders/{id}', [MedicationReminderController::class, 'update']);
+            Route::patch('/medication-reminders/{id}', [MedicationReminderController::class, 'update']);
+            Route::delete('/medication-reminders/{id}', [MedicationReminderController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Medication Dose Logs
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/medication-doses/history', [MedicationDoseController::class, 'history']);
+            Route::post('/medication-doses/{id}/taken', [MedicationDoseController::class, 'markTaken']);
+            Route::post('/medication-doses/{id}/skipped', [MedicationDoseController::class, 'markSkipped']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Lab Test Results Tracking
+            |--------------------------------------------------------------------------
+            |
+            | Important:
+            | categories and trends must stay above /lab-tests/{id}
+            | to prevent Laravel from treating "categories" or "trends" as an ID.
+            |
+            */
+
+            Route::get('/lab-tests/categories', [HealthLabTestController::class, 'categories']);
+            Route::get('/lab-tests/trends', [HealthLabTestController::class, 'trends']);
+            Route::get('/lab-tests', [HealthLabTestController::class, 'index']);
+            Route::post('/lab-tests', [HealthLabTestController::class, 'store']);
+            Route::get('/lab-tests/{id}', [HealthLabTestController::class, 'show']);
+            Route::put('/lab-tests/{id}', [HealthLabTestController::class, 'update']);
+            Route::patch('/lab-tests/{id}', [HealthLabTestController::class, 'update']);
+            Route::delete('/lab-tests/{id}', [HealthLabTestController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Mood Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/mood', [HealthMoodLogController::class, 'index']);
+            Route::post('/mood', [HealthMoodLogController::class, 'store']);
+            Route::get('/mood/{id}', [HealthMoodLogController::class, 'show']);
+            Route::put('/mood/{id}', [HealthMoodLogController::class, 'update']);
+            Route::patch('/mood/{id}', [HealthMoodLogController::class, 'update']);
+            Route::delete('/mood/{id}', [HealthMoodLogController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Sleep Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/sleep', [SleepLogController::class, 'index']);
+            Route::post('/sleep', [SleepLogController::class, 'store']);
+            Route::get('/sleep/{id}', [SleepLogController::class, 'show']);
+            Route::put('/sleep/{id}', [SleepLogController::class, 'update']);
+            Route::patch('/sleep/{id}', [SleepLogController::class, 'update']);
+            Route::delete('/sleep/{id}', [SleepLogController::class, 'destroy']);
+
+            Route::get('/sleep-test', function () {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Sleep test route works.',
+                ]);
+            });
+
+            /*
+            |--------------------------------------------------------------------------
+            | Steps Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/steps', [HealthStepLogController::class, 'index']);
+            Route::post('/steps', [HealthStepLogController::class, 'store']);
+            Route::get('/steps/summary', [HealthStepLogController::class, 'summary']);
+            Route::get('/steps/{id}', [HealthStepLogController::class, 'show']);
+            Route::put('/steps/{id}', [HealthStepLogController::class, 'update']);
+            Route::patch('/steps/{id}', [HealthStepLogController::class, 'update']);
+            Route::delete('/steps/{id}', [HealthStepLogController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Weight Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/weight', [HealthWeightLogController::class, 'index']);
+            Route::post('/weight', [HealthWeightLogController::class, 'store']);
+            Route::get('/weight/summary', [HealthWeightLogController::class, 'summary']);
+            Route::get('/weight/{id}', [HealthWeightLogController::class, 'show']);
+            Route::put('/weight/{id}', [HealthWeightLogController::class, 'update']);
+            Route::patch('/weight/{id}', [HealthWeightLogController::class, 'update']);
+            Route::delete('/weight/{id}', [HealthWeightLogController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Nutrition Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/nutrition/summary', [HealthNutritionLogController::class, 'summary']);
+            Route::get('/nutrition', [HealthNutritionLogController::class, 'index']);
+            Route::post('/nutrition', [HealthNutritionLogController::class, 'store']);
+            Route::get('/nutrition/{id}', [HealthNutritionLogController::class, 'show']);
+            Route::put('/nutrition/{id}', [HealthNutritionLogController::class, 'update']);
+            Route::patch('/nutrition/{id}', [HealthNutritionLogController::class, 'update']);
+            Route::delete('/nutrition/{id}', [HealthNutritionLogController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Hydration Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/hydration', [HealthHydrationLogController::class, 'index']);
+            Route::post('/hydration', [HealthHydrationLogController::class, 'store']);
+            Route::get('/hydration/summary/daily', [HealthHydrationLogController::class, 'dailySummary']);
+            Route::get('/hydration/summary/weekly', [HealthHydrationLogController::class, 'weeklySummary']);
+            Route::post('/hydration/quick-add', [HealthHydrationLogController::class, 'quickAdd']);
+            Route::get('/hydration/{id}', [HealthHydrationLogController::class, 'show']);
+            Route::put('/hydration/{id}', [HealthHydrationLogController::class, 'update']);
+            Route::patch('/hydration/{id}', [HealthHydrationLogController::class, 'update']);
+            Route::delete('/hydration/{id}', [HealthHydrationLogController::class, 'destroy']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Projects Module
+        |--------------------------------------------------------------------------
+        |
+        | Temporarily disabled because project controllers are missing.
+        |
+        */
+
+        /*
+        Route::prefix('projects')->group(function () {
+            Route::get('/dashboard', [ProjectDashboardController::class, 'summary']);
+            Route::get('/tasks', [ProjectTaskController::class, 'index']);
+            Route::post('/tasks', [ProjectTaskController::class, 'store']);
+            Route::get('/tasks/{id}', [ProjectTaskController::class, 'show']);
+            Route::put('/tasks/{id}', [ProjectTaskController::class, 'update']);
+            Route::patch('/tasks/{id}', [ProjectTaskController::class, 'update']);
+            Route::delete('/tasks/{id}', [ProjectTaskController::class, 'destroy']);
+        });
+        */
+
+        /*
+        |--------------------------------------------------------------------------
+        | Notifications Module
+        |--------------------------------------------------------------------------
+        |
+        | Temporarily disabled because NotificationController does not exist.
+        |
+        */
+
+        /*
+        Route::prefix('notifications')->group(function () {
+            Route::get('/', [NotificationController::class, 'index']);
+            Route::post('/', [NotificationController::class, 'store']);
+            Route::patch('/read-all', [NotificationController::class, 'markAllAsRead']);
+            Route::get('/{id}', [NotificationController::class, 'show']);
+            Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
+            Route::delete('/{id}', [NotificationController::class, 'destroy']);
+        });
+
+        Route::prefix('notification-settings')->group(function () {
+            Route::get('/', [NotificationSettingController::class, 'index']);
+            Route::put('/', [NotificationSettingController::class, 'update']);
+            Route::patch('/', [NotificationSettingController::class, 'update']);
+        });
+        */
+
+        /*
+        |--------------------------------------------------------------------------
+        | Monitoring Module
+        |--------------------------------------------------------------------------
+        |
+        | Temporarily disabled because MonitoringController may not exist.
+        |
+        */
+
+        /*
+        Route::prefix('monitoring')->group(function () {
+            Route::get('/summary', [MonitoringController::class, 'summary']);
+            Route::get('/logs', [MonitoringController::class, 'logs']);
+            Route::get('/errors', [MonitoringController::class, 'errors']);
+            Route::get('/audit-logs', [MonitoringController::class, 'auditLogs']);
+        });
+        */
+    });
+});
+==================================================
+FILE: backend/app/Http/Controllers/Api/V1/ProjectController.php
+==================================================
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\ProjectResource;
+use App\Models\Project;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+
+class ProjectController extends Controller
+{
+    public function index(Request $request)
+    {
+        $projects = Project::query()
+            ->where('user_id', $request->user()->id)
+            ->withCount('tasks')
+            ->when($request->status, fn ($query) => $query->where('status', $request->status))
+            ->when($request->priority, fn ($query) => $query->where('priority', $request->priority))
+            ->latest()
+            ->paginate($request->get('per_page', 15));
+
+        return ProjectResource::collection($projects);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'project_name' => ['required', 'string', 'max:255'],
+            'project_code' => ['nullable', 'string', 'max:100'],
+            'description' => ['nullable', 'string'],
+
+            'status' => [
+                'nullable',
+                Rule::in(['not_started', 'in_progress', 'on_hold', 'completed', 'cancelled']),
+            ],
+
+            'priority' => [
+                'nullable',
+                Rule::in(['low', 'medium', 'high', 'critical']),
+            ],
+
+            'start_date' => ['nullable', 'date'],
+            'target_end_date' => ['nullable', 'date'],
+            'actual_end_date' => ['nullable', 'date'],
+
+            'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+
+            'metadata' => ['nullable', 'array'],
+        ]);
+
+        $validated['user_id'] = $request->user()->id;
+        $validated['status'] = $validated['status'] ?? 'not_started';
+        $validated['priority'] = $validated['priority'] ?? 'medium';
+        $validated['progress_percentage'] = $validated['progress_percentage'] ?? 0;
+
+        $project = Project::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project created successfully.',
+            'data' => new ProjectResource($project),
+        ], 201);
+    }
+
+    public function show(Request $request, Project $project)
+    {
+        $this->authorizeProject($request, $project);
+
+        $project->load(['tasks' => function ($query) {
+            $query->orderBy('task_order')->orderBy('created_at');
+        }]);
+
+        return response()->json([
+            'success' => true,
+            'data' => new ProjectResource($project),
+        ]);
+    }
+
+    public function update(Request $request, Project $project)
+    {
+        $this->authorizeProject($request, $project);
+
+        $validated = $request->validate([
+            'project_name' => ['sometimes', 'required', 'string', 'max:255'],
+            'project_code' => ['nullable', 'string', 'max:100'],
+            'description' => ['nullable', 'string'],
+
+            'status' => [
+                'sometimes',
+                Rule::in(['not_started', 'in_progress', 'on_hold', 'completed', 'cancelled']),
+            ],
+
+            'priority' => [
+                'sometimes',
+                Rule::in(['low', 'medium', 'high', 'critical']),
+            ],
+
+            'start_date' => ['nullable', 'date'],
+            'target_end_date' => ['nullable', 'date'],
+            'actual_end_date' => ['nullable', 'date'],
+
+            'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+
+            'metadata' => ['nullable', 'array'],
+        ]);
+
+        if (($validated['status'] ?? null) === 'completed') {
+            $validated['progress_percentage'] = 100;
+            $validated['actual_end_date'] = $validated['actual_end_date'] ?? now()->toDateString();
+        }
+
+        $project->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project updated successfully.',
+            'data' => new ProjectResource($project->fresh()),
+        ]);
+    }
+
+    public function destroy(Request $request, Project $project)
+    {
+        $this->authorizeProject($request, $project);
+
+        $project->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project deleted successfully.',
+        ]);
+    }
+
+    private function authorizeProject(Request $request, Project $project): void
+    {
+        abort_if($project->user_id !== $request->user()->id, 403, 'Unauthorized project access.');
+    }
+}
+==================================================
+FILE: backend/app/Http/Controllers/Api/V1/ProjectDashboardController.php
+==================================================
+NOT FOUND: backend/app/Http/Controllers/Api/V1/ProjectDashboardController.php
+
+==================================================
+FILE: backend/app/Models/Project.php
+==================================================
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Project extends Model
+{
+    use HasFactory, HasUuids;
+
+    protected $fillable = [
+        'user_id',
+        'project_name',
+        'project_code',
+        'description',
+        'status',
+        'priority',
+        'start_date',
+        'target_end_date',
+        'actual_end_date',
+        'progress_percentage',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date',
+        'target_end_date' => 'date',
+        'actual_end_date' => 'date',
+        'progress_percentage' => 'decimal:2',
+        'metadata' => 'array',
+    ];
+
+    public function tasks()
+    {
+        return $this->hasMany(ProjectTask::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+
+    public function milestones()
+    {
+        return $this->hasMany(ProjectMilestone::class);
+    }
+
+    public function statusUpdates()
+    {
+        return $this->hasMany(ProjectStatusUpdate::class);
+    }
+}
+==================================================
+FILE: backend/app/Models/ProjectTask.php
+==================================================
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+
+class ProjectTask extends Model
+{
+    use HasUuids;
+
+    protected $fillable = [
+        'project_id',
+        'task_name',
+        'description',
+        'status',
+        'priority',
+        'start_date',
+        'target_end_date',
+        'completed_at',
+        'progress_percentage',
+        'weight',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date',
+        'target_end_date' => 'date',
+        'completed_at' => 'datetime',
+        'progress_percentage' => 'integer',
+        'weight' => 'decimal:2',
+        'metadata' => 'array',
+    ];
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+}
+==================================================
+FILE: backend/app/Models/Task.php
+==================================================
+NOT FOUND: backend/app/Models/Task.php
+
+================ PROJECT MIGRATIONS ================
+backend/database/migrations/2026_04_11_034134_create_tasks_table.php
+backend/database/migrations/2026_04_26_051913_create_projects_table.php
+backend/database/migrations/2026_04_26_051914_create_project_tasks_table.php
+backend/database/migrations/2026_04_26_055602_create_project_milestones_table.php
+backend/database/migrations/2026_04_26_055602_create_project_status_updates_table.php
+backend/database/migrations/2026_04_26_055613_add_progress_fields_to_project_tasks_table.php
+backend/database/migrations/disabled/2026_04_11_034134_create_projects_table.php
+
+================ PROJECT ROUTES ================
+
+==================================================
+EXPORT COMPLETED
+Output file: step55_projects_dashboard_files.txt
+==================================================

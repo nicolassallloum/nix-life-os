@@ -2,7 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\ProjectDashboardController;
+use App\Http\Controllers\Api\V1\ProjectTaskController;
+use App\Http\Controllers\Api\V1\ProjectMilestoneController;
+use App\Http\Controllers\Api\V1\ProjectStatusUpdateController;
+use App\Http\Controllers\Api\V1\ProjectProgressController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceAccountController;
@@ -103,7 +108,34 @@ Route::prefix('v1')->group(function () {
         | Authenticated User
         |--------------------------------------------------------------------------
         */
+/*
+|--------------------------------------------------------------------------
+| Projects Module
+|--------------------------------------------------------------------------
+*/
 
+        Route::prefix('projects')->group(function () {
+            Route::get('/dashboard', [ProjectDashboardController::class, 'summary']);
+
+            Route::get('/', [ProjectController::class, 'index']);
+            Route::post('/', [ProjectController::class, 'store']);
+            Route::get('/{project}', [ProjectController::class, 'show']);
+            Route::put('/{project}', [ProjectController::class, 'update']);
+            Route::patch('/{project}', [ProjectController::class, 'update']);
+            Route::delete('/{project}', [ProjectController::class, 'destroy']);
+
+            Route::get('/{project}/progress', [ProjectProgressController::class, 'show']);
+            Route::post('/{project}/progress/recalculate', [ProjectProgressController::class, 'recalculate']);
+
+            Route::get('/{project}/tasks', [ProjectTaskController::class, 'index']);
+            Route::post('/{project}/tasks', [ProjectTaskController::class, 'store']);
+
+            Route::get('/{project}/milestones', [ProjectMilestoneController::class, 'index']);
+            Route::post('/{project}/milestones', [ProjectMilestoneController::class, 'store']);
+
+            Route::get('/{project}/status-updates', [ProjectStatusUpdateController::class, 'index']);
+            Route::post('/{project}/status-updates', [ProjectStatusUpdateController::class, 'store']);
+        });
         Route::get('/user', function (Request $request) {
             return response()->json([
                 'success' => true,
