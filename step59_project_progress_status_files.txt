@@ -1,0 +1,5211 @@
+==================================================
+STEP 59 - PROJECT PROGRESS / STATUS TESTING FILE EXPORT
+Generated at: Wed May 13 23:51:39 EEST 2026
+Project Root: /u01/nix-life-os
+==================================================
+
+================ DOCKER CONTAINERS ================
+NAMES                     IMAGE                   STATUS                    PORTS
+nixlifeos-frontend        nix-life-os-frontend    Up 2 hours                80/tcp
+nixlifeos-backend         nix-life-os-backend     Up 14 minutes (healthy)   9000/tcp
+nixlifeos-ai-engine       nix-life-os-ai-engine   Up 3 days (healthy)       0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
+nixlifeos-nginx           nginx:1.27-alpine       Up 14 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       Up 14 minutes             0.0.0.0:8000->80/tcp, [::]:8000->80/tcp
+nixlifeos-postgres        postgres:18             Up 3 days (healthy)       0.0.0.0:5445->5432/tcp, [::]:5445->5432/tcp
+
+================ BACKEND ROUTES - PROJECTS ================
+  PUT       api/v1/finance/accounts/{id} . Api\FinanceAccountController@update
+  PATCH     api/v1/finance/accounts/{id} . Api\FinanceAccountController@update
+  PUT       api/v1/health/sleep/{id} . Api\V1\Health\SleepLogController@update
+  PATCH     api/v1/health/sleep/{id} . Api\V1\Health\SleepLogController@update
+  PUT       api/v1/health/weight/{id} Api\V1\HealthWeightLogController@update
+  PATCH     api/v1/health/weight/{id} Api\V1\HealthWeightLogController@update
+  GET|HEAD  api/v1/projects ................... Api\V1\ProjectController@index
+  POST      api/v1/projects ................... Api\V1\ProjectController@store
+  GET|HEAD  api/v1/projects/dashboard Api\V1\ProjectDashboardController@summa…
+  GET|HEAD  api/v1/projects/{project} .......... Api\V1\ProjectController@show
+  PUT       api/v1/projects/{project} ........ Api\V1\ProjectController@update
+  PATCH     api/v1/projects/{project} ........ Api\V1\ProjectController@update
+  DELETE    api/v1/projects/{project} ....... Api\V1\ProjectController@destroy
+  GET|HEAD  api/v1/projects/{project}/milestones Api\V1\ProjectMilestoneContr…
+  POST      api/v1/projects/{project}/milestones Api\V1\ProjectMilestoneContr…
+  GET|HEAD  api/v1/projects/{project}/progress Api\V1\ProjectProgressControll…
+  POST      api/v1/projects/{project}/progress/recalculate Api\V1\ProjectProg…
+  GET|HEAD  api/v1/projects/{project}/status-updates Api\V1\ProjectStatusUpda…
+  POST      api/v1/projects/{project}/status-updates Api\V1\ProjectStatusUpda…
+  GET|HEAD  api/v1/projects/{project}/tasks Api\V1\ProjectTaskController@index
+  POST      api/v1/projects/{project}/tasks Api\V1\ProjectTaskController@store
+  GET|HEAD  api/v1/projects/{project}/tasks/{task} Api\V1\ProjectTaskControll…
+  PUT       api/v1/projects/{project}/tasks/{task} Api\V1\ProjectTaskControll…
+  PATCH     api/v1/projects/{project}/tasks/{task} Api\V1\ProjectTaskControll…
+  DELETE    api/v1/projects/{project}/tasks/{task} Api\V1\ProjectTaskControll…
+
+================ BACKEND PROJECT FILE TREE ================
+backend/app/Http/Controllers/Api/V1/ProjectController.php
+backend/app/Http/Controllers/Api/V1/ProjectDashboardController.php
+backend/app/Http/Controllers/Api/V1/ProjectMilestoneController.php
+backend/app/Http/Controllers/Api/V1/ProjectProgressController.php
+backend/app/Http/Controllers/Api/V1/ProjectStatusUpdateController.php
+backend/app/Http/Controllers/Api/V1/ProjectTaskController.php
+backend/app/Http/Controllers/Api/V1/ProjectTaskController.php.bak_step58_20260513_233012
+backend/app/Http/Controllers/ProjectController.php
+backend/app/Http/Controllers/TaskController.php
+backend/app/Http/Requests/Finance/UpdateFinanceIntelligenceSettingRequest.php
+backend/app/Http/Requests/UpdateFinanceAccountRequest.php
+backend/app/Http/Requests/UpdateFinanceCategoryRequest.php
+backend/app/Http/Requests/UpdateFinanceTransactionRequest.php
+backend/app/Http/Requests/UpdateHealthHydrationLogRequest.php
+backend/app/Http/Resources/ProjectResource.php
+backend/app/Http/Resources/ProjectTaskResource.php
+backend/app/Http/Resources/ProjectTaskResource.php.bak_step58_20260513_233012
+backend/app/Models/Project.php
+backend/app/Models/ProjectMilestone.php
+backend/app/Models/ProjectStatusUpdate.php
+backend/app/Models/ProjectTask.php
+backend/app/Models/ProjectTask.php.bak_step58_20260513_233012
+backend/app/Models/Projects/Project.php
+backend/app/Models/Projects/Task.php
+backend/app/Services/Projects/ProjectProgressService.php
+backend/database/migrations/2026_04_11_034134_create_tasks_table.php
+backend/database/migrations/2026_04_26_051913_create_projects_table.php
+backend/database/migrations/2026_04_26_051914_create_project_tasks_table.php
+backend/database/migrations/2026_04_26_055602_create_project_milestones_table.php
+backend/database/migrations/2026_04_26_055602_create_project_status_updates_table.php
+backend/database/migrations/2026_04_26_055613_add_progress_fields_to_project_tasks_table.php
+backend/database/migrations/2026_05_10_232815_add_status_to_health_lab_tests_table.php
+backend/database/migrations/disabled/2026_04_11_034134_create_projects_table.php
+
+================ FRONTEND PROJECT FILE TREE ================
+frontend/src/components/dashboard/DashboardMiniChart.vue
+frontend/src/components/dashboard/DashboardProgressCard.vue
+frontend/src/components/dashboard/DashboardRecentActivity.vue
+frontend/src/components/dashboard/DashboardStatCard.vue
+frontend/src/components/finance/FinanceBudgetProgress.vue
+frontend/src/components/finance/FinanceDashboardCards.vue
+frontend/src/components/finance/FinanceIncomeExpenseChart.vue
+frontend/src/components/projects/ProjectCard.vue
+frontend/src/components/projects/ProjectKanbanColumn.vue
+frontend/src/components/projects/ProjectProgressBar.vue
+frontend/src/services/dashboardApi.js
+frontend/src/services/projectService.js
+frontend/src/views/FinanceDashboardView.vue
+frontend/src/views/ProjectMilestonesView.vue
+frontend/src/views/ProjectProgressView.vue
+frontend/src/views/ProjectStatusUpdatesView.vue
+frontend/src/views/ProjectTasksView.vue
+frontend/src/views/ProjectsDashboardView.vue
+frontend/src/views/dashboard/DashboardView.vue
+frontend/src/views/dashboard/UnifiedDashboardView.vue
+frontend/src/views/finance/FinanceDashboardView.vue
+frontend/src/views/health/nutrition/NutritionDashboardView.vue
+frontend/src/views/monitoring/MonitoringDashboardView.vue
+frontend/src/views/projects/ProjectDashboardView.vue
+frontend/src/views/projects/ProjectsView.vue
+
+================ MAIN BACKEND FILES ================
+
+==================================================
+FILE: backend/routes/api.php
+==================================================
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\ProjectController;
+use App\Http\Controllers\Api\V1\ProjectDashboardController;
+use App\Http\Controllers\Api\V1\ProjectTaskController;
+use App\Http\Controllers\Api\V1\ProjectMilestoneController;
+use App\Http\Controllers\Api\V1\ProjectStatusUpdateController;
+use App\Http\Controllers\Api\V1\ProjectProgressController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\LifeBalanceController;
+use App\Http\Controllers\Api\FinanceAccountController;
+use App\Http\Controllers\Api\FinanceTransactionController;
+use App\Http\Controllers\Api\HealthNutritionLogController;
+use App\Http\Controllers\Api\V1\HealthAlertController;
+use App\Http\Controllers\Api\V1\HealthReportController;
+use App\Http\Controllers\Api\V1\NutritionFoodController;
+use App\Http\Controllers\Api\V1\NutritionCustomFoodController;
+
+use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
+use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
+
+use App\Http\Controllers\Api\V1\Health\HealthDashboardController;
+use App\Http\Controllers\Api\V1\Health\HealthLabTestController;
+use App\Http\Controllers\Api\V1\Health\MedicationController;
+use App\Http\Controllers\Api\V1\Health\MedicationReminderController;
+use App\Http\Controllers\Api\V1\Health\MedicationDoseController;
+use App\Http\Controllers\Api\V1\Health\SleepLogController;
+use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
+use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
+
+use App\Http\Controllers\Api\V1\HealthWeightLogController;
+use App\Http\Controllers\Api\V1\HealthHydrationLogController;
+
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Main API prefix generated by Laravel: /api
+| Version prefix in this file: /v1
+| Final API prefix: /api/v1
+|
+*/
+
+/*
+|--------------------------------------------------------------------------
+| Public API Health Check
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/health', function () {
+    return response()->json([
+        'success' => true,
+        'message' => 'Nix Life OS API is running.',
+        'timestamp' => now()->toISOString(),
+    ]);
+});
+
+/*
+|--------------------------------------------------------------------------
+| API Version 1
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('v1')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public Route Loading Test
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/sleep-route-test', function () {
+        return response()->json([
+            'success' => true,
+            'message' => 'API v1 route file is loading correctly.',
+        ]);
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Public Auth Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('auth')->group(function () {
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/register', [AuthController::class, 'register']);
+
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::get('/me', [AuthController::class, 'me']);
+            Route::post('/logout', [AuthController::class, 'logout']);
+        });
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Protected Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::middleware('auth:sanctum')->group(function () {
+
+        /*
+        |--------------------------------------------------------------------------
+        | Authenticated User
+        |--------------------------------------------------------------------------
+        */
+/*
+|--------------------------------------------------------------------------
+| Projects Module
+|--------------------------------------------------------------------------
+*/
+
+        Route::prefix('projects')->group(function () {
+            Route::get('/dashboard', [ProjectDashboardController::class, 'summary']);
+
+            Route::get('/', [ProjectController::class, 'index']);
+            Route::post('/', [ProjectController::class, 'store']);
+            Route::get('/{project}', [ProjectController::class, 'show']);
+            Route::put('/{project}', [ProjectController::class, 'update']);
+            Route::patch('/{project}', [ProjectController::class, 'update']);
+            Route::delete('/{project}', [ProjectController::class, 'destroy']);
+
+            Route::get('/{project}/progress', [ProjectProgressController::class, 'show']);
+            Route::post('/{project}/progress/recalculate', [ProjectProgressController::class, 'recalculate']);
+
+            Route::get('/{project}/tasks', [ProjectTaskController::class, 'index']);
+            Route::post('/{project}/tasks', [ProjectTaskController::class, 'store']);
+            Route::get('/{project}/tasks/{task}', [ProjectTaskController::class, 'show']);
+            Route::put('/{project}/tasks/{task}', [ProjectTaskController::class, 'update']);
+            Route::patch('/{project}/tasks/{task}', [ProjectTaskController::class, 'update']);
+            Route::delete('/{project}/tasks/{task}', [ProjectTaskController::class, 'destroy']);
+
+            Route::get('/{project}/milestones', [ProjectMilestoneController::class, 'index']);
+            Route::post('/{project}/milestones', [ProjectMilestoneController::class, 'store']);
+
+            Route::get('/{project}/status-updates', [ProjectStatusUpdateController::class, 'index']);
+            Route::post('/{project}/status-updates', [ProjectStatusUpdateController::class, 'store']);
+        });
+        Route::get('/user', function (Request $request) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Authenticated user loaded successfully.',
+                'data' => $request->user(),
+            ]);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Dashboard
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Life Balance
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/life-balance/summary', [LifeBalanceController::class, 'summary']);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Finance Module
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('finance')->group(function () {
+            Route::get('/accounts', [FinanceAccountController::class, 'index']);
+            Route::post('/accounts', [FinanceAccountController::class, 'store']);
+            Route::get('/accounts/{id}', [FinanceAccountController::class, 'show']);
+            Route::put('/accounts/{id}', [FinanceAccountController::class, 'update']);
+            Route::patch('/accounts/{id}', [FinanceAccountController::class, 'update']);
+            Route::delete('/accounts/{id}', [FinanceAccountController::class, 'destroy']);
+
+            Route::get('/transactions', [FinanceTransactionController::class, 'index']);
+            Route::post('/transactions', [FinanceTransactionController::class, 'store']);
+            Route::get('/transactions/{id}', [FinanceTransactionController::class, 'show']);
+            Route::put('/transactions/{id}', [FinanceTransactionController::class, 'update']);
+            Route::patch('/transactions/{id}', [FinanceTransactionController::class, 'update']);
+            Route::delete('/transactions/{id}', [FinanceTransactionController::class, 'destroy']);
+
+            Route::get('/budgets', [FinanceBudgetController::class, 'index']);
+            Route::post('/budgets', [FinanceBudgetController::class, 'store']);
+            Route::get('/budgets/{id}', [FinanceBudgetController::class, 'show']);
+            Route::put('/budgets/{id}', [FinanceBudgetController::class, 'update']);
+            Route::patch('/budgets/{id}', [FinanceBudgetController::class, 'update']);
+            Route::delete('/budgets/{id}', [FinanceBudgetController::class, 'destroy']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Nutrition Facts Database Module
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('nutrition')->group(function () {
+            Route::get('/categories', [NutritionFoodController::class, 'categories']);
+
+            Route::get('/foods/search', [NutritionFoodController::class, 'search']);
+            Route::get('/foods/{id}/servings', [NutritionFoodController::class, 'servings']);
+            Route::get('/foods/{id}', [NutritionFoodController::class, 'show']);
+            Route::get('/foods', [NutritionFoodController::class, 'index']);
+            Route::post('/foods/autofill', [NutritionFoodController::class, 'autofill']);
+
+            Route::get('/custom-foods', [NutritionCustomFoodController::class, 'index']);
+            Route::post('/custom-foods', [NutritionCustomFoodController::class, 'store']);
+            Route::get('/custom-foods/{id}', [NutritionCustomFoodController::class, 'show']);
+            Route::put('/custom-foods/{id}', [NutritionCustomFoodController::class, 'update']);
+            Route::patch('/custom-foods/{id}', [NutritionCustomFoodController::class, 'update']);
+            Route::delete('/custom-foods/{id}', [NutritionCustomFoodController::class, 'destroy']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Health Module
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('health')->group(function () {
+
+            Route::get('/reports/daily', [HealthReportController::class, 'daily']);
+            Route::get('/reports/weekly', [HealthReportController::class, 'weekly']);
+            Route::get('/reports/monthly', [HealthReportController::class, 'monthly']);
+            Route::get('/reports/export-preview', [HealthReportController::class, 'exportPreview']);
+            Route::get('/alerts', [HealthAlertController::class, 'index']);
+            Route::get('/alerts/summary', [HealthAlertController::class, 'summary']);
+            Route::post('/alerts/run', [HealthAlertController::class, 'run']);
+
+            Route::patch('/alerts/{id}/read', [HealthAlertController::class, 'markAsRead']);
+            Route::patch('/alerts/{id}/resolve', [HealthAlertController::class, 'resolve']);
+            Route::patch('/alerts/{id}/dismiss', [HealthAlertController::class, 'dismiss']);
+
+            Route::delete('/alerts/{id}', [HealthAlertController::class, 'destroy']);
+            /*
+            |--------------------------------------------------------------------------
+            | Health Dashboard
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/dashboard', [HealthDashboardController::class, 'summary']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Medication Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/medications', [MedicationController::class, 'index']);
+            Route::post('/medications', [MedicationController::class, 'store']);
+            Route::get('/medications/{id}', [MedicationController::class, 'show']);
+            Route::put('/medications/{id}', [MedicationController::class, 'update']);
+            Route::patch('/medications/{id}', [MedicationController::class, 'update']);
+            Route::delete('/medications/{id}', [MedicationController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Medication Reminders
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/medication-reminders', [MedicationReminderController::class, 'index']);
+            Route::get('/medication-reminders/today', [MedicationReminderController::class, 'today']);
+            Route::post('/medication-reminders', [MedicationReminderController::class, 'store']);
+            Route::put('/medication-reminders/{id}', [MedicationReminderController::class, 'update']);
+            Route::patch('/medication-reminders/{id}', [MedicationReminderController::class, 'update']);
+            Route::delete('/medication-reminders/{id}', [MedicationReminderController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Medication Dose Logs
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/medication-doses/history', [MedicationDoseController::class, 'history']);
+            Route::post('/medication-doses/{id}/taken', [MedicationDoseController::class, 'markTaken']);
+            Route::post('/medication-doses/{id}/skipped', [MedicationDoseController::class, 'markSkipped']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Lab Test Results Tracking
+            |--------------------------------------------------------------------------
+            |
+            | Important:
+            | categories and trends must stay above /lab-tests/{id}
+            | to prevent Laravel from treating "categories" or "trends" as an ID.
+            |
+            */
+
+            Route::get('/lab-tests/categories', [HealthLabTestController::class, 'categories']);
+            Route::get('/lab-tests/trends', [HealthLabTestController::class, 'trends']);
+            Route::get('/lab-tests', [HealthLabTestController::class, 'index']);
+            Route::post('/lab-tests', [HealthLabTestController::class, 'store']);
+            Route::get('/lab-tests/{id}', [HealthLabTestController::class, 'show']);
+            Route::put('/lab-tests/{id}', [HealthLabTestController::class, 'update']);
+            Route::patch('/lab-tests/{id}', [HealthLabTestController::class, 'update']);
+            Route::delete('/lab-tests/{id}', [HealthLabTestController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Mood Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/mood', [HealthMoodLogController::class, 'index']);
+            Route::post('/mood', [HealthMoodLogController::class, 'store']);
+            Route::get('/mood/{id}', [HealthMoodLogController::class, 'show']);
+            Route::put('/mood/{id}', [HealthMoodLogController::class, 'update']);
+            Route::patch('/mood/{id}', [HealthMoodLogController::class, 'update']);
+            Route::delete('/mood/{id}', [HealthMoodLogController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Sleep Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/sleep', [SleepLogController::class, 'index']);
+            Route::post('/sleep', [SleepLogController::class, 'store']);
+            Route::get('/sleep/{id}', [SleepLogController::class, 'show']);
+            Route::put('/sleep/{id}', [SleepLogController::class, 'update']);
+            Route::patch('/sleep/{id}', [SleepLogController::class, 'update']);
+            Route::delete('/sleep/{id}', [SleepLogController::class, 'destroy']);
+
+            Route::get('/sleep-test', function () {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Sleep test route works.',
+                ]);
+            });
+
+            /*
+            |--------------------------------------------------------------------------
+            | Steps Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/steps', [HealthStepLogController::class, 'index']);
+            Route::post('/steps', [HealthStepLogController::class, 'store']);
+            Route::get('/steps/summary', [HealthStepLogController::class, 'summary']);
+            Route::get('/steps/{id}', [HealthStepLogController::class, 'show']);
+            Route::put('/steps/{id}', [HealthStepLogController::class, 'update']);
+            Route::patch('/steps/{id}', [HealthStepLogController::class, 'update']);
+            Route::delete('/steps/{id}', [HealthStepLogController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Weight Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/weight', [HealthWeightLogController::class, 'index']);
+            Route::post('/weight', [HealthWeightLogController::class, 'store']);
+            Route::get('/weight/summary', [HealthWeightLogController::class, 'summary']);
+            Route::get('/weight/{id}', [HealthWeightLogController::class, 'show']);
+            Route::put('/weight/{id}', [HealthWeightLogController::class, 'update']);
+            Route::patch('/weight/{id}', [HealthWeightLogController::class, 'update']);
+            Route::delete('/weight/{id}', [HealthWeightLogController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Nutrition Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/nutrition/summary', [HealthNutritionLogController::class, 'summary']);
+            Route::get('/nutrition', [HealthNutritionLogController::class, 'index']);
+            Route::post('/nutrition', [HealthNutritionLogController::class, 'store']);
+            Route::get('/nutrition/{id}', [HealthNutritionLogController::class, 'show']);
+            Route::put('/nutrition/{id}', [HealthNutritionLogController::class, 'update']);
+            Route::patch('/nutrition/{id}', [HealthNutritionLogController::class, 'update']);
+            Route::delete('/nutrition/{id}', [HealthNutritionLogController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Hydration Tracking
+            |--------------------------------------------------------------------------
+            */
+
+            Route::get('/hydration', [HealthHydrationLogController::class, 'index']);
+            Route::post('/hydration', [HealthHydrationLogController::class, 'store']);
+            Route::get('/hydration/summary/daily', [HealthHydrationLogController::class, 'dailySummary']);
+            Route::get('/hydration/summary/weekly', [HealthHydrationLogController::class, 'weeklySummary']);
+            Route::post('/hydration/quick-add', [HealthHydrationLogController::class, 'quickAdd']);
+            Route::get('/hydration/{id}', [HealthHydrationLogController::class, 'show']);
+            Route::put('/hydration/{id}', [HealthHydrationLogController::class, 'update']);
+            Route::patch('/hydration/{id}', [HealthHydrationLogController::class, 'update']);
+            Route::delete('/hydration/{id}', [HealthHydrationLogController::class, 'destroy']);
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Projects Module
+        |--------------------------------------------------------------------------
+        |
+        | Temporarily disabled because project controllers are missing.
+        |
+        */
+
+        /*
+        Route::prefix('projects')->group(function () {
+            Route::get('/dashboard', [ProjectDashboardController::class, 'summary']);
+            Route::get('/tasks', [ProjectTaskController::class, 'index']);
+            Route::post('/tasks', [ProjectTaskController::class, 'store']);
+            Route::get('/tasks/{id}', [ProjectTaskController::class, 'show']);
+            Route::put('/tasks/{id}', [ProjectTaskController::class, 'update']);
+            Route::patch('/tasks/{id}', [ProjectTaskController::class, 'update']);
+            Route::delete('/tasks/{id}', [ProjectTaskController::class, 'destroy']);
+        });
+        */
+
+        /*
+        |--------------------------------------------------------------------------
+        | Notifications Module
+        |--------------------------------------------------------------------------
+        |
+        | Temporarily disabled because NotificationController does not exist.
+        |
+        */
+
+        /*
+        Route::prefix('notifications')->group(function () {
+            Route::get('/', [NotificationController::class, 'index']);
+            Route::post('/', [NotificationController::class, 'store']);
+            Route::patch('/read-all', [NotificationController::class, 'markAllAsRead']);
+            Route::get('/{id}', [NotificationController::class, 'show']);
+            Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
+            Route::delete('/{id}', [NotificationController::class, 'destroy']);
+        });
+
+        Route::prefix('notification-settings')->group(function () {
+            Route::get('/', [NotificationSettingController::class, 'index']);
+            Route::put('/', [NotificationSettingController::class, 'update']);
+            Route::patch('/', [NotificationSettingController::class, 'update']);
+        });
+        */
+
+        /*
+        |--------------------------------------------------------------------------
+        | Monitoring Module
+        |--------------------------------------------------------------------------
+        |
+        | Temporarily disabled because MonitoringController may not exist.
+        |
+        */
+
+        /*
+        Route::prefix('monitoring')->group(function () {
+            Route::get('/summary', [MonitoringController::class, 'summary']);
+            Route::get('/logs', [MonitoringController::class, 'logs']);
+            Route::get('/errors', [MonitoringController::class, 'errors']);
+            Route::get('/audit-logs', [MonitoringController::class, 'auditLogs']);
+        });
+        */
+    });
+});
+==================================================
+FILE: backend/app/Http/Controllers/Api/V1/ProjectController.php
+==================================================
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\ProjectResource;
+use App\Models\Project;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+
+class ProjectController extends Controller
+{
+    private array $statuses = [
+        'not_started',
+        'in_progress',
+        'on_hold',
+        'completed',
+        'cancelled',
+    ];
+
+    private array $priorities = [
+        'low',
+        'medium',
+        'high',
+        'critical',
+    ];
+
+    public function index(Request $request)
+    {
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', Rule::in($this->statuses)],
+            'priority' => ['nullable', Rule::in($this->priorities)],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $projects = Project::query()
+            ->where('user_id', $request->user()->id)
+            ->withCount('tasks')
+            ->when($validated['search'] ?? null, function ($query, $search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery
+                        ->where('project_name', 'ILIKE', "%{$search}%")
+                        ->orWhere('project_code', 'ILIKE', "%{$search}%")
+                        ->orWhere('description', 'ILIKE', "%{$search}%");
+                });
+            })
+            ->when($validated['status'] ?? null, function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->when($validated['priority'] ?? null, function ($query, $priority) {
+                $query->where('priority', $priority);
+            })
+            ->orderByDesc('created_at')
+            ->paginate($validated['per_page'] ?? 15);
+
+        return ProjectResource::collection($projects)
+            ->additional([
+                'success' => true,
+                'message' => 'Projects loaded successfully.',
+            ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'project_name' => ['required', 'string', 'max:255'],
+            'project_code' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('projects', 'project_code')
+                    ->where(fn ($query) => $query->where('user_id', $request->user()->id)),
+            ],
+            'description' => ['nullable', 'string'],
+
+            'status' => ['nullable', Rule::in($this->statuses)],
+            'priority' => ['nullable', Rule::in($this->priorities)],
+
+            'start_date' => ['nullable', 'date'],
+            'target_end_date' => ['nullable', 'date'],
+            'actual_end_date' => ['nullable', 'date'],
+
+            'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+
+            'metadata' => ['nullable', 'array'],
+        ]);
+
+        $dateValidationResponse = $this->validateProjectDates($validated);
+
+        if ($dateValidationResponse) {
+            return $dateValidationResponse;
+        }
+
+        $validated['user_id'] = $request->user()->id;
+        $validated['status'] = $validated['status'] ?? 'not_started';
+        $validated['priority'] = $validated['priority'] ?? 'medium';
+        $validated['progress_percentage'] = $validated['progress_percentage'] ?? 0;
+
+        if ($validated['status'] === 'completed') {
+            $validated['progress_percentage'] = 100;
+            $validated['actual_end_date'] = $validated['actual_end_date'] ?? now()->toDateString();
+        }
+
+        $project = Project::create($validated)->loadCount('tasks');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project created successfully.',
+            'data' => new ProjectResource($project),
+        ], 201);
+    }
+
+    public function show(Request $request, Project $project)
+    {
+        $this->authorizeProject($request, $project);
+
+        $project->loadCount('tasks');
+
+        $project->load([
+            'tasks' => function ($query) {
+                $query->orderBy('task_order')->orderBy('created_at');
+            },
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project loaded successfully.',
+            'data' => new ProjectResource($project),
+        ]);
+    }
+
+    public function update(Request $request, Project $project)
+    {
+        $this->authorizeProject($request, $project);
+
+        $validated = $request->validate([
+            'project_name' => ['sometimes', 'required', 'string', 'max:255'],
+            'project_code' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('projects', 'project_code')
+                    ->ignore($project->id)
+                    ->where(fn ($query) => $query->where('user_id', $request->user()->id)),
+            ],
+            'description' => ['nullable', 'string'],
+
+            'status' => ['sometimes', Rule::in($this->statuses)],
+            'priority' => ['sometimes', Rule::in($this->priorities)],
+
+            'start_date' => ['nullable', 'date'],
+            'target_end_date' => ['nullable', 'date'],
+            'actual_end_date' => ['nullable', 'date'],
+
+            'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+
+            'metadata' => ['nullable', 'array'],
+        ]);
+
+        $dateValidationResponse = $this->validateProjectDates($validated, $project);
+
+        if ($dateValidationResponse) {
+            return $dateValidationResponse;
+        }
+
+        if (($validated['status'] ?? null) === 'completed') {
+            $validated['progress_percentage'] = 100;
+            $validated['actual_end_date'] = $validated['actual_end_date'] ?? now()->toDateString();
+        }
+
+        if (($validated['status'] ?? null) !== 'completed' && array_key_exists('actual_end_date', $validated)) {
+            $validated['actual_end_date'] = $validated['actual_end_date'] ?: null;
+        }
+
+        $project->update($validated);
+
+        $project = $project->fresh()->loadCount('tasks');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project updated successfully.',
+            'data' => new ProjectResource($project),
+        ]);
+    }
+
+    public function destroy(Request $request, Project $project)
+    {
+        $this->authorizeProject($request, $project);
+
+        $project->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project deleted successfully.',
+        ]);
+    }
+
+    private function authorizeProject(Request $request, Project $project): void
+    {
+        abort_if(
+            $project->user_id !== $request->user()->id,
+            403,
+            'Unauthorized project access.'
+        );
+    }
+
+    private function validateProjectDates(array $validated, ?Project $project = null)
+    {
+        $startDate = $validated['start_date']
+            ?? optional($project?->start_date)->format('Y-m-d');
+
+        $targetEndDate = array_key_exists('target_end_date', $validated)
+            ? $validated['target_end_date']
+            : optional($project?->target_end_date)->format('Y-m-d');
+
+        $actualEndDate = array_key_exists('actual_end_date', $validated)
+            ? $validated['actual_end_date']
+            : optional($project?->actual_end_date)->format('Y-m-d');
+
+        if (!empty($startDate) && !empty($targetEndDate) && $targetEndDate < $startDate) {
+            return response()->json([
+                'message' => 'The target end date must be a date after or equal to start date.',
+                'errors' => [
+                    'target_end_date' => [
+                        'The target end date must be a date after or equal to start date.',
+                    ],
+                ],
+            ], 422);
+        }
+
+        if (!empty($startDate) && !empty($actualEndDate) && $actualEndDate < $startDate) {
+            return response()->json([
+                'message' => 'The actual end date must be a date after or equal to start date.',
+                'errors' => [
+                    'actual_end_date' => [
+                        'The actual end date must be a date after or equal to start date.',
+                    ],
+                ],
+            ], 422);
+        }
+
+        return null;
+    }
+}
+==================================================
+FILE: backend/app/Http/Controllers/Api/V1/ProjectTaskController.php
+==================================================
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\ProjectTaskResource;
+use App\Models\Project;
+use App\Models\ProjectTask;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
+
+class ProjectTaskController extends Controller
+{
+    private array $statuses = [
+        'todo',
+        'in_progress',
+        'blocked',
+        'completed',
+        'cancelled',
+    ];
+
+    private array $priorities = [
+        'low',
+        'medium',
+        'high',
+        'critical',
+    ];
+
+    public function index(Request $request, Project $project)
+    {
+        $this->authorizeProject($request, $project);
+
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', Rule::in($this->statuses)],
+            'priority' => ['nullable', Rule::in($this->priorities)],
+            'overdue' => ['nullable', 'boolean'],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $tasks = ProjectTask::query()
+            ->where('project_id', $project->id)
+            ->where('user_id', $request->user()->id)
+            ->when($validated['search'] ?? null, function ($query, $search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery
+                        ->where('task_title', 'ILIKE', "%{$search}%")
+                        ->orWhere('task_description', 'ILIKE', "%{$search}%");
+                });
+            })
+            ->when($validated['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
+            ->when($validated['priority'] ?? null, fn ($query, $priority) => $query->where('priority', $priority))
+            ->when(array_key_exists('overdue', $validated) && $validated['overdue'], function ($query) {
+                $query
+                    ->whereNotIn('status', ['completed', 'cancelled'])
+                    ->whereNotNull('due_date')
+                    ->whereDate('due_date', '<', now()->toDateString());
+            })
+            ->orderBy('task_order')
+            ->orderByRaw('due_date IS NULL')
+            ->orderBy('due_date')
+            ->latest()
+            ->paginate($validated['per_page'] ?? 15);
+
+        return ProjectTaskResource::collection($tasks)
+            ->additional([
+                'success' => true,
+                'message' => 'Project tasks loaded successfully.',
+            ]);
+    }
+
+    public function store(Request $request, Project $project)
+    {
+        $this->authorizeProject($request, $project);
+
+        $validated = $request->validate([
+            'task_title' => ['required', 'string', 'max:255'],
+            'task_description' => ['nullable', 'string'],
+
+            'status' => ['nullable', Rule::in($this->statuses)],
+            'priority' => ['nullable', Rule::in($this->priorities)],
+
+            'task_order' => ['nullable', 'integer', 'min:1'],
+
+            'start_date' => ['nullable', 'date'],
+            'due_date' => ['nullable', 'date'],
+            'completed_date' => ['nullable', 'date'],
+
+            'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+
+            'metadata' => ['nullable', 'array'],
+        ]);
+
+        $dateValidationResponse = $this->validateTaskDates($validated);
+
+        if ($dateValidationResponse) {
+            return $dateValidationResponse;
+        }
+
+        $validated['project_id'] = $project->id;
+        $validated['user_id'] = $request->user()->id;
+        $validated['status'] = $validated['status'] ?? 'todo';
+        $validated['priority'] = $validated['priority'] ?? 'medium';
+        $validated['task_order'] = $validated['task_order'] ?? $this->nextTaskOrder($project);
+        $validated['progress_percentage'] = $validated['progress_percentage'] ?? 0;
+
+        if ($validated['status'] === 'completed') {
+            $validated['progress_percentage'] = 100;
+            $validated['completed_date'] = $validated['completed_date'] ?? now()->toDateString();
+        }
+
+        $task = ProjectTask::create($validated);
+
+        $this->refreshProjectProgress($project);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project task created successfully.',
+            'data' => new ProjectTaskResource($task->fresh()),
+        ], 201);
+    }
+
+    public function show(Request $request, Project $project, ProjectTask $task)
+    {
+        $this->authorizeProject($request, $project);
+        $this->authorizeTaskBelongsToProject($request, $project, $task);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project task loaded successfully.',
+            'data' => new ProjectTaskResource($task),
+        ]);
+    }
+
+    public function update(Request $request, Project $project, ProjectTask $task)
+    {
+        $this->authorizeProject($request, $project);
+        $this->authorizeTaskBelongsToProject($request, $project, $task);
+
+        $validated = $request->validate([
+            'task_title' => ['sometimes', 'required', 'string', 'max:255'],
+            'task_description' => ['nullable', 'string'],
+
+            'status' => ['sometimes', Rule::in($this->statuses)],
+            'priority' => ['sometimes', Rule::in($this->priorities)],
+
+            'task_order' => ['nullable', 'integer', 'min:1'],
+
+            'start_date' => ['nullable', 'date'],
+            'due_date' => ['nullable', 'date'],
+            'completed_date' => ['nullable', 'date'],
+
+            'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+
+            'metadata' => ['nullable', 'array'],
+        ]);
+
+        $dateValidationResponse = $this->validateTaskDates($validated, $task);
+
+        if ($dateValidationResponse) {
+            return $dateValidationResponse;
+        }
+
+        if (($validated['status'] ?? null) === 'completed') {
+            $validated['progress_percentage'] = 100;
+            $validated['completed_date'] = $validated['completed_date'] ?? now()->toDateString();
+        }
+
+        if (($validated['status'] ?? null) && $validated['status'] !== 'completed') {
+            $validated['completed_date'] = null;
+
+            if (!array_key_exists('progress_percentage', $validated) && $task->status === 'completed') {
+                $validated['progress_percentage'] = 0;
+            }
+        }
+
+        $task->update($validated);
+
+        $this->refreshProjectProgress($project);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project task updated successfully.',
+            'data' => new ProjectTaskResource($task->fresh()),
+        ]);
+    }
+
+    public function destroy(Request $request, Project $project, ProjectTask $task)
+    {
+        $this->authorizeProject($request, $project);
+        $this->authorizeTaskBelongsToProject($request, $project, $task);
+
+        $task->delete();
+
+        $this->refreshProjectProgress($project);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project task deleted successfully.',
+        ]);
+    }
+
+    private function authorizeProject(Request $request, Project $project): void
+    {
+        abort_if(
+            $project->user_id !== $request->user()->id,
+            403,
+            'Unauthorized project access.'
+        );
+    }
+
+    private function authorizeTaskBelongsToProject(Request $request, Project $project, ProjectTask $task): void
+    {
+        abort_if(
+            $task->project_id !== $project->id || $task->user_id !== $request->user()->id,
+            403,
+            'Unauthorized task access.'
+        );
+    }
+
+    private function nextTaskOrder(Project $project): int
+    {
+        return ((int) $project->tasks()->max('task_order')) + 1;
+    }
+
+    private function validateTaskDates(array $validated, ?ProjectTask $task = null)
+    {
+        $startDate = array_key_exists('start_date', $validated)
+            ? $validated['start_date']
+            : optional($task?->start_date)->format('Y-m-d');
+
+        $dueDate = array_key_exists('due_date', $validated)
+            ? $validated['due_date']
+            : optional($task?->due_date)->format('Y-m-d');
+
+        $completedDate = array_key_exists('completed_date', $validated)
+            ? $validated['completed_date']
+            : optional($task?->completed_date)->format('Y-m-d');
+
+        if (!empty($startDate) && !empty($dueDate) && $dueDate < $startDate) {
+            return response()->json([
+                'message' => 'The due date must be a date after or equal to start date.',
+                'errors' => [
+                    'due_date' => [
+                        'The due date must be a date after or equal to start date.',
+                    ],
+                ],
+            ], 422);
+        }
+
+        if (!empty($startDate) && !empty($completedDate) && $completedDate < $startDate) {
+            return response()->json([
+                'message' => 'The completed date must be a date after or equal to start date.',
+                'errors' => [
+                    'completed_date' => [
+                        'The completed date must be a date after or equal to start date.',
+                    ],
+                ],
+            ], 422);
+        }
+
+        return null;
+    }
+
+    private function refreshProjectProgress(Project $project): void
+    {
+        $tasks = $project->tasks()->get();
+
+        if ($tasks->count() === 0) {
+            $project->update([
+                'progress_percentage' => 0,
+                'status' => 'not_started',
+                'actual_end_date' => null,
+            ]);
+
+            return;
+        }
+
+        $avgProgress = round((float) $tasks->avg('progress_percentage'), 2);
+        $completedTasks = $tasks->where('status', 'completed')->count();
+
+        if ($completedTasks === $tasks->count()) {
+            $status = 'completed';
+            $actualEndDate = $project->actual_end_date ?? now()->toDateString();
+            $avgProgress = 100;
+        } elseif ($tasks->where('status', 'blocked')->count() > 0) {
+            $status = 'on_hold';
+            $actualEndDate = null;
+        } elseif ($tasks->where('status', 'in_progress')->count() > 0) {
+            $status = 'in_progress';
+            $actualEndDate = null;
+        } else {
+            $status = 'not_started';
+            $actualEndDate = null;
+        }
+
+        $project->update([
+            'progress_percentage' => $avgProgress,
+            'status' => $status,
+            'actual_end_date' => $actualEndDate,
+        ]);
+    }
+}
+
+==================================================
+FILE: backend/app/Http/Controllers/Api/V1/ProjectMilestoneController.php
+==================================================
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Models\Project;
+use App\Models\ProjectMilestone;
+use App\Models\ProjectStatusUpdate;
+use App\Services\Projects\ProjectProgressService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class ProjectMilestoneController extends Controller
+{
+    public function index(Project $project)
+    {
+        return response()->json([
+            'success' => true,
+            'message' => 'Project milestones retrieved successfully.',
+            'data' => $project->milestones()->orderBy('target_date')->get(),
+        ]);
+    }
+
+    public function store(Request $request, Project $project, ProjectProgressService $service)
+    {
+        $validated = $request->validate([
+            'milestone_name' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'target_date' => ['nullable', 'date'],
+            'status' => ['nullable', 'string', 'in:pending,in_progress,completed,blocked,cancelled'],
+            'progress_percentage' => ['nullable', 'integer', 'min:0', 'max:100'],
+            'weight' => ['nullable', 'numeric', 'min:0.1'],
+            'metadata' => ['nullable', 'array'],
+        ]);
+
+        $milestone = DB::transaction(function () use ($validated, $project, $service) {
+            $milestone = ProjectMilestone::create([
+                'project_id' => $project->id,
+                'milestone_name' => $validated['milestone_name'],
+                'description' => $validated['description'] ?? null,
+                'target_date' => $validated['target_date'] ?? null,
+                'status' => $validated['status'] ?? 'pending',
+                'progress_percentage' => $validated['progress_percentage'] ?? 0,
+                'weight' => $validated['weight'] ?? 1,
+                'metadata' => $validated['metadata'] ?? null,
+                'completed_date' => (($validated['progress_percentage'] ?? 0) >= 100) ? now()->toDateString() : null,
+            ]);
+
+            ProjectStatusUpdate::create([
+                'project_id' => $project->id,
+                'milestone_id' => $milestone->id,
+                'update_title' => 'Milestone created',
+                'update_description' => 'A new milestone was added to the project.',
+                'new_status' => $milestone->status,
+                'new_progress_percentage' => $milestone->progress_percentage,
+                'update_type' => 'milestone_progress',
+                'metadata' => [
+                    'milestone_id' => $milestone->id,
+                    'milestone_name' => $milestone->milestone_name,
+                ],
+            ]);
+
+            $service->recalculate($project->fresh());
+
+            return $milestone;
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project milestone created successfully.',
+            'data' => $milestone,
+        ], 201);
+    }
+
+    public function update(Request $request, ProjectMilestone $milestone, ProjectProgressService $service)
+    {
+        $validated = $request->validate([
+            'milestone_name' => ['sometimes', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+            'target_date' => ['nullable', 'date'],
+            'status' => ['sometimes', 'string', 'in:pending,in_progress,completed,blocked,cancelled'],
+            'progress_percentage' => ['sometimes', 'integer', 'min:0', 'max:100'],
+            'weight' => ['sometimes', 'numeric', 'min:0.1'],
+            'metadata' => ['nullable', 'array'],
+        ]);
+
+        $result = DB::transaction(function () use ($validated, $milestone, $service) {
+            $oldStatus = $milestone->status;
+            $oldProgress = $milestone->progress_percentage;
+
+            if (array_key_exists('progress_percentage', $validated)) {
+                if ($validated['progress_percentage'] >= 100) {
+                    $validated['status'] = 'completed';
+                    $validated['completed_date'] = now()->toDateString();
+                } elseif ($validated['progress_percentage'] > 0 && !isset($validated['status'])) {
+                    $validated['status'] = 'in_progress';
+                    $validated['completed_date'] = null;
+                }
+            }
+
+            if (($validated['status'] ?? null) === 'completed') {
+                $validated['progress_percentage'] = 100;
+                $validated['completed_date'] = now()->toDateString();
+            }
+
+            $milestone->update($validated);
+
+            ProjectStatusUpdate::create([
+                'project_id' => $milestone->project_id,
+                'milestone_id' => $milestone->id,
+                'update_title' => 'Milestone progress updated',
+                'update_description' => 'Milestone status or progress was updated.',
+                'old_status' => $oldStatus,
+                'new_status' => $milestone->fresh()->status,
+                'old_progress_percentage' => $oldProgress,
+                'new_progress_percentage' => $milestone->fresh()->progress_percentage,
+                'update_type' => 'milestone_progress',
+                'metadata' => [
+                    'milestone_id' => $milestone->id,
+                    'milestone_name' => $milestone->milestone_name,
+                ],
+            ]);
+
+            $projectProgress = $service->recalculate($milestone->project->fresh());
+
+            return [
+                'milestone' => $milestone->fresh(),
+                'project_progress' => $projectProgress,
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project milestone updated successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    public function destroy(ProjectMilestone $milestone, ProjectProgressService $service)
+    {
+        $project = $milestone->project;
+
+        $milestone->delete();
+
+        $progress = $service->recalculate($project->fresh());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project milestone deleted successfully.',
+            'data' => $progress,
+        ]);
+    }
+}
+==================================================
+FILE: backend/app/Http/Controllers/Api/V1/ProjectStatusHistoryController.php
+==================================================
+NOT FOUND: backend/app/Http/Controllers/Api/V1/ProjectStatusHistoryController.php
+
+==================================================
+FILE: backend/app/Http/Controllers/Api/V1/ProjectUpdateController.php
+==================================================
+NOT FOUND: backend/app/Http/Controllers/Api/V1/ProjectUpdateController.php
+
+==================================================
+FILE: backend/app/Http/Controllers/Api/V1/ProjectDashboardController.php
+==================================================
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Models\Project;
+use App\Models\ProjectTask;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Throwable;
+
+class ProjectDashboardController extends Controller
+{
+    public function summary(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (!$user) {
+                return response()->json([
+                    'message' => 'Unauthenticated.',
+                ], 401);
+            }
+
+            $userId = $user->id;
+
+            $baseProjects = Project::query()
+                ->where('user_id', $userId);
+
+            $totalProjects = (clone $baseProjects)->count();
+
+            $activeProjects = (clone $baseProjects)
+                ->where('status', 'in_progress')
+                ->count();
+
+            $completedProjects = (clone $baseProjects)
+                ->where('status', 'completed')
+                ->count();
+
+            $averageProgress = (clone $baseProjects)
+                ->avg('progress_percentage');
+
+            $overdueTasks = ProjectTask::query()
+                ->join('projects', 'projects.id', '=', 'project_tasks.project_id')
+                ->where('projects.user_id', $userId)
+                ->whereNotIn('project_tasks.status', ['completed', 'cancelled'])
+                ->whereNotNull('project_tasks.due_date')
+                ->whereDate('project_tasks.due_date', '<', now()->toDateString())
+                ->count();
+
+            $statusChart = (clone $baseProjects)
+                ->select('status', DB::raw('COUNT(*) as total'))
+                ->groupBy('status')
+                ->orderBy('status')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'label' => $this->formatLabel($item->status),
+                        'status' => $item->status,
+                        'value' => (int) $item->total,
+                    ];
+                })
+                ->values();
+
+            $priorityChart = (clone $baseProjects)
+                ->select('priority', DB::raw('COUNT(*) as total'))
+                ->groupBy('priority')
+                ->orderBy('priority')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'label' => $this->formatLabel($item->priority),
+                        'priority' => $item->priority,
+                        'value' => (int) $item->total,
+                    ];
+                })
+                ->values();
+
+            $progressCards = (clone $baseProjects)
+                ->withCount([
+                    'tasks as total_tasks',
+                    'tasks as completed_tasks' => function ($query) {
+                        $query->where('status', 'completed');
+                    },
+                ])
+                ->latest()
+                ->limit(8)
+                ->get()
+                ->map(function ($project) {
+                    return [
+                        'id' => $project->id,
+                        'project_name' => $project->project_name,
+                        'project_code' => $project->project_code,
+                        'status' => $project->status,
+                        'priority' => $project->priority,
+                        'progress_percentage' => (float) ($project->progress_percentage ?? 0),
+                        'total_tasks' => (int) ($project->total_tasks ?? 0),
+                        'completed_tasks' => (int) ($project->completed_tasks ?? 0),
+                        'target_end_date' => $project->target_end_date
+                            ? $project->target_end_date->toDateString()
+                            : null,
+                    ];
+                })
+                ->values();
+
+            $recentProjects = (clone $baseProjects)
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(function ($project) {
+                    return [
+                        'id' => $project->id,
+                        'project_name' => $project->project_name,
+                        'project_code' => $project->project_code,
+                        'status' => $project->status,
+                        'priority' => $project->priority,
+                        'progress_percentage' => (float) ($project->progress_percentage ?? 0),
+                        'start_date' => $project->start_date
+                            ? $project->start_date->toDateString()
+                            : null,
+                        'target_end_date' => $project->target_end_date
+                            ? $project->target_end_date->toDateString()
+                            : null,
+                    ];
+                })
+                ->values();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Projects dashboard loaded successfully.',
+                'data' => [
+                    'summary' => [
+                        'total_projects' => $totalProjects,
+                        'active_projects' => $activeProjects,
+                        'completed_projects' => $completedProjects,
+                        'overdue_tasks' => $overdueTasks,
+                        'average_progress' => round((float) ($averageProgress ?? 0), 2),
+                    ],
+                    'progress_cards' => $progressCards,
+                    'recent_projects' => $recentProjects,
+                    'charts' => [
+                        'status' => $statusChart,
+                        'priority' => $priorityChart,
+                    ],
+                ],
+            ]);
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Projects dashboard failed to load.',
+                'error' => config('app.debug') ? $exception->getMessage() : 'Server Error',
+            ], 500);
+        }
+    }
+
+    private function formatLabel(?string $value): string
+    {
+        if (!$value) {
+            return 'Unknown';
+        }
+
+        return ucwords(str_replace('_', ' ', $value));
+    }
+}
+
+==================================================
+FILE: backend/app/Http/Controllers/Api/V1/ProjectProgressController.php
+==================================================
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Http\Controllers\Controller;
+use App\Models\Project;
+use App\Models\ProjectTask;
+use App\Services\Projects\ProjectProgressService;
+use Illuminate\Http\Request;
+
+class ProjectProgressController extends Controller
+{
+    public function show(Project $project)
+    {
+        $project->load([
+            'tasks',
+            'milestones',
+            'statusUpdates' => fn ($query) => $query->latest()->limit(10),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project progress retrieved successfully.',
+            'data' => [
+                'project_id' => $project->id,
+                'project_name' => $project->project_name,
+                'status' => $project->status,
+                'progress_percentage' => $project->progress_percentage,
+                'tasks' => $project->tasks,
+                'milestones' => $project->milestones,
+                'latest_status_updates' => $project->statusUpdates,
+            ],
+        ]);
+    }
+
+    public function recalculate(Project $project, ProjectProgressService $service)
+    {
+        $result = $service->recalculate($project);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Project progress recalculated successfully.',
+            'data' => $result,
+        ]);
+    }
+
+    public function updateTaskProgress(
+        Request $request,
+        ProjectTask $task,
+        ProjectProgressService $service
+    ) {
+        $validated = $request->validate([
+            'progress_percentage' => ['required', 'integer', 'min:0', 'max:100'],
+            'status' => ['nullable', 'string', 'in:pending,in_progress,completed,blocked,cancelled'],
+        ]);
+
+        $result = $service->updateTaskProgress(
+            $task,
+            $validated['progress_percentage'],
+            $validated['status'] ?? null
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Task progress updated successfully.',
+            'data' => $result,
+        ]);
+    }
+}
+==================================================
+FILE: backend/app/Models/Project.php
+==================================================
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Project extends Model
+{
+    use HasFactory, HasUuids;
+
+    protected $fillable = [
+        'user_id',
+        'project_name',
+        'project_code',
+        'description',
+        'status',
+        'priority',
+        'start_date',
+        'target_end_date',
+        'actual_end_date',
+        'progress_percentage',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date',
+        'target_end_date' => 'date',
+        'actual_end_date' => 'date',
+        'progress_percentage' => 'decimal:2',
+        'metadata' => 'array',
+    ];
+
+    public function tasks()
+    {
+        return $this->hasMany(ProjectTask::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+
+    public function milestones()
+    {
+        return $this->hasMany(ProjectMilestone::class);
+    }
+
+    public function statusUpdates()
+    {
+        return $this->hasMany(ProjectStatusUpdate::class);
+    }
+}
+==================================================
+FILE: backend/app/Models/ProjectTask.php
+==================================================
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+
+class ProjectTask extends Model
+{
+    use HasUuids;
+
+    protected $fillable = [
+        'project_id',
+        'user_id',
+        'task_title',
+        'task_description',
+        'status',
+        'priority',
+        'task_order',
+        'start_date',
+        'due_date',
+        'completed_date',
+        'progress_percentage',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'start_date' => 'date',
+        'due_date' => 'date',
+        'completed_date' => 'date',
+        'progress_percentage' => 'decimal:2',
+        'metadata' => 'array',
+    ];
+
+    protected $appends = [
+        'is_overdue',
+    ];
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function getIsOverdueAttribute(): bool
+    {
+        if (!$this->due_date) {
+            return false;
+        }
+
+        if (in_array($this->status, ['completed', 'cancelled'], true)) {
+            return false;
+        }
+
+        return $this->due_date->isPast() && !$this->due_date->isToday();
+    }
+}
+
+==================================================
+FILE: backend/app/Models/ProjectMilestone.php
+==================================================
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Model;
+
+class ProjectMilestone extends Model
+{
+    use HasUuids;
+
+    protected $fillable = [
+        'project_id',
+        'milestone_name',
+        'description',
+        'target_date',
+        'completed_date',
+        'status',
+        'progress_percentage',
+        'weight',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'target_date' => 'date',
+        'completed_date' => 'date',
+        'progress_percentage' => 'integer',
+        'weight' => 'decimal:2',
+        'metadata' => 'array',
+    ];
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+}
+==================================================
+FILE: backend/app/Models/ProjectStatusHistory.php
+==================================================
+NOT FOUND: backend/app/Models/ProjectStatusHistory.php
+
+==================================================
+FILE: backend/app/Models/ProjectUpdate.php
+==================================================
+NOT FOUND: backend/app/Models/ProjectUpdate.php
+
+================ BACKEND REQUESTS / RESOURCES ================
+
+==================================================
+DIRECTORY SCAN: backend/app/Http/Requests | PATTERN: *Project*
+==================================================
+
+==================================================
+DIRECTORY SCAN: backend/app/Http/Requests | PATTERN: *Task*
+==================================================
+
+==================================================
+DIRECTORY SCAN: backend/app/Http/Requests | PATTERN: *Milestone*
+==================================================
+
+==================================================
+DIRECTORY SCAN: backend/app/Http/Resources | PATTERN: *Project*
+==================================================
+
+==================================================
+FILE: backend/app/Http/Resources/ProjectResource.php
+==================================================
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ProjectResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'user_id' => $this->user_id,
+
+            'project_name' => $this->project_name,
+            'project_code' => $this->project_code,
+            'description' => $this->description,
+
+            'status' => $this->status,
+            'priority' => $this->priority,
+
+            'start_date' => optional($this->start_date)->format('Y-m-d'),
+            'target_end_date' => optional($this->target_end_date)->format('Y-m-d'),
+            'actual_end_date' => optional($this->actual_end_date)->format('Y-m-d'),
+
+            'progress_percentage' => $this->progress_percentage,
+
+            'metadata' => $this->metadata,
+
+            'tasks_count' => $this->whenCounted('tasks'),
+            'tasks' => ProjectTaskResource::collection($this->whenLoaded('tasks')),
+
+            'created_at' => optional($this->created_at)->format('Y-m-d H:i:s'),
+            'updated_at' => optional($this->updated_at)->format('Y-m-d H:i:s'),
+        ];
+    }
+}
+==================================================
+FILE: backend/app/Http/Resources/ProjectTaskResource.php
+==================================================
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ProjectTaskResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'project_id' => $this->project_id,
+            'user_id' => $this->user_id,
+
+            'task_title' => $this->task_title,
+            'task_description' => $this->task_description,
+
+            'status' => $this->status,
+            'priority' => $this->priority,
+            'task_order' => $this->task_order,
+
+            'start_date' => optional($this->start_date)->format('Y-m-d'),
+            'due_date' => optional($this->due_date)->format('Y-m-d'),
+            'completed_date' => optional($this->completed_date)->format('Y-m-d'),
+
+            'progress_percentage' => $this->progress_percentage,
+            'is_overdue' => $this->is_overdue,
+
+            'metadata' => $this->metadata,
+
+            'project' => new ProjectResource($this->whenLoaded('project')),
+
+            'created_at' => optional($this->created_at)->format('Y-m-d H:i:s'),
+            'updated_at' => optional($this->updated_at)->format('Y-m-d H:i:s'),
+        ];
+    }
+}
+
+==================================================
+FILE: backend/app/Http/Resources/ProjectTaskResource.php.bak_step58_20260513_233012
+==================================================
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ProjectTaskResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'project_id' => $this->project_id,
+            'user_id' => $this->user_id,
+
+            'task_title' => $this->task_title,
+            'task_description' => $this->task_description,
+
+            'status' => $this->status,
+            'priority' => $this->priority,
+            'task_order' => $this->task_order,
+
+            'start_date' => optional($this->start_date)->format('Y-m-d'),
+            'due_date' => optional($this->due_date)->format('Y-m-d'),
+            'completed_date' => optional($this->completed_date)->format('Y-m-d'),
+
+            'progress_percentage' => $this->progress_percentage,
+
+            'metadata' => $this->metadata,
+
+            'created_at' => optional($this->created_at)->format('Y-m-d H:i:s'),
+            'updated_at' => optional($this->updated_at)->format('Y-m-d H:i:s'),
+        ];
+    }
+}
+==================================================
+DIRECTORY SCAN: backend/app/Http/Resources | PATTERN: *Task*
+==================================================
+
+==================================================
+FILE: backend/app/Http/Resources/ProjectTaskResource.php
+==================================================
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ProjectTaskResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'project_id' => $this->project_id,
+            'user_id' => $this->user_id,
+
+            'task_title' => $this->task_title,
+            'task_description' => $this->task_description,
+
+            'status' => $this->status,
+            'priority' => $this->priority,
+            'task_order' => $this->task_order,
+
+            'start_date' => optional($this->start_date)->format('Y-m-d'),
+            'due_date' => optional($this->due_date)->format('Y-m-d'),
+            'completed_date' => optional($this->completed_date)->format('Y-m-d'),
+
+            'progress_percentage' => $this->progress_percentage,
+            'is_overdue' => $this->is_overdue,
+
+            'metadata' => $this->metadata,
+
+            'project' => new ProjectResource($this->whenLoaded('project')),
+
+            'created_at' => optional($this->created_at)->format('Y-m-d H:i:s'),
+            'updated_at' => optional($this->updated_at)->format('Y-m-d H:i:s'),
+        ];
+    }
+}
+
+==================================================
+FILE: backend/app/Http/Resources/ProjectTaskResource.php.bak_step58_20260513_233012
+==================================================
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+class ProjectTaskResource extends JsonResource
+{
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'project_id' => $this->project_id,
+            'user_id' => $this->user_id,
+
+            'task_title' => $this->task_title,
+            'task_description' => $this->task_description,
+
+            'status' => $this->status,
+            'priority' => $this->priority,
+            'task_order' => $this->task_order,
+
+            'start_date' => optional($this->start_date)->format('Y-m-d'),
+            'due_date' => optional($this->due_date)->format('Y-m-d'),
+            'completed_date' => optional($this->completed_date)->format('Y-m-d'),
+
+            'progress_percentage' => $this->progress_percentage,
+
+            'metadata' => $this->metadata,
+
+            'created_at' => optional($this->created_at)->format('Y-m-d H:i:s'),
+            'updated_at' => optional($this->updated_at)->format('Y-m-d H:i:s'),
+        ];
+    }
+}
+==================================================
+DIRECTORY SCAN: backend/app/Http/Resources | PATTERN: *Milestone*
+==================================================
+
+================ BACKEND MIGRATIONS ================
+
+==================================================
+FILE: backend/database/migrations/2026_04_11_034134_create_tasks_table.php
+==================================================
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('tasks', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('tasks');
+    }
+};
+
+==================================================
+FILE: backend/database/migrations/2026_04_26_051913_create_projects_table.php
+==================================================
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('projects', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+
+            $table->uuid('user_id');
+
+            $table->string('project_name');
+            $table->string('project_code')->nullable();
+            $table->text('description')->nullable();
+
+            $table->string('status')->default('not_started');
+            /*
+                not_started
+                in_progress
+                on_hold
+                completed
+                cancelled
+            */
+
+            $table->string('priority')->default('medium');
+            /*
+                low
+                medium
+                high
+                critical
+            */
+
+            $table->date('start_date')->nullable();
+            $table->date('target_end_date')->nullable();
+            $table->date('actual_end_date')->nullable();
+
+            $table->decimal('progress_percentage', 5, 2)->default(0);
+
+            $table->jsonb('metadata')->nullable();
+
+            $table->timestamps();
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->cascadeOnDelete();
+
+            $table->index(['user_id', 'status']);
+            $table->index(['user_id', 'priority']);
+            $table->index(['start_date']);
+            $table->index(['target_end_date']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('projects');
+    }
+};
+==================================================
+FILE: backend/database/migrations/2026_04_26_051914_create_project_tasks_table.php
+==================================================
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('project_tasks', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+
+            $table->uuid('project_id');
+            $table->uuid('user_id');
+
+            $table->string('task_title');
+            $table->text('task_description')->nullable();
+
+            $table->string('status')->default('todo');
+            /*
+                todo
+                in_progress
+                blocked
+                completed
+                cancelled
+            */
+
+            $table->string('priority')->default('medium');
+            /*
+                low
+                medium
+                high
+                critical
+            */
+
+            $table->integer('task_order')->default(1);
+
+            $table->date('start_date')->nullable();
+            $table->date('due_date')->nullable();
+            $table->date('completed_date')->nullable();
+
+            $table->decimal('progress_percentage', 5, 2)->default(0);
+
+            $table->jsonb('metadata')->nullable();
+
+            $table->timestamps();
+
+            $table->foreign('project_id')
+                ->references('id')
+                ->on('projects')
+                ->cascadeOnDelete();
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->cascadeOnDelete();
+
+            $table->index(['project_id', 'status']);
+            $table->index(['user_id', 'status']);
+            $table->index(['due_date']);
+            $table->index(['priority']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('project_tasks');
+    }
+};
+==================================================
+FILE: backend/database/migrations/2026_04_26_055602_create_project_milestones_table.php
+==================================================
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('project_milestones', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+
+            $table->uuid('project_id');
+
+            $table->string('milestone_name');
+            $table->text('description')->nullable();
+
+            $table->date('target_date')->nullable();
+            $table->date('completed_date')->nullable();
+
+            $table->enum('status', [
+                'pending',
+                'in_progress',
+                'completed',
+                'blocked',
+                'cancelled'
+            ])->default('pending');
+
+            $table->unsignedTinyInteger('progress_percentage')->default(0);
+            $table->decimal('weight', 8, 2)->default(1);
+
+            $table->jsonb('metadata')->nullable();
+
+            $table->timestamps();
+
+            $table->foreign('project_id')
+                ->references('id')
+                ->on('projects')
+                ->cascadeOnDelete();
+
+            $table->index(['project_id', 'status']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('project_milestones');
+    }
+};
+==================================================
+FILE: backend/database/migrations/2026_04_26_055602_create_project_status_updates_table.php
+==================================================
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('project_status_updates', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+
+            $table->uuid('project_id');
+            $table->uuid('task_id')->nullable();
+            $table->uuid('milestone_id')->nullable();
+
+            $table->string('update_title');
+            $table->text('update_description')->nullable();
+
+            $table->string('old_status')->nullable();
+            $table->string('new_status')->nullable();
+
+            $table->unsignedTinyInteger('old_progress_percentage')->nullable();
+            $table->unsignedTinyInteger('new_progress_percentage')->nullable();
+
+            $table->enum('update_type', [
+                'manual',
+                'task_progress',
+                'milestone_progress',
+                'auto_calculation',
+                'status_change'
+            ])->default('manual');
+
+            $table->jsonb('metadata')->nullable();
+
+            $table->timestamps();
+
+            $table->foreign('project_id')
+                ->references('id')
+                ->on('projects')
+                ->cascadeOnDelete();
+
+            if (Schema::hasTable('project_tasks')) {
+                $table->foreign('task_id')
+                    ->references('id')
+                    ->on('project_tasks')
+                    ->nullOnDelete();
+            }
+
+            $table->foreign('milestone_id')
+                ->references('id')
+                ->on('project_milestones')
+                ->nullOnDelete();
+
+            $table->index(['project_id', 'created_at']);
+            $table->index(['project_id', 'update_type']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('project_status_updates');
+    }
+};
+==================================================
+FILE: backend/database/migrations/2026_04_26_055613_add_progress_fields_to_project_tasks_table.php
+==================================================
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        if (Schema::hasTable('project_tasks')) {
+            Schema::table('project_tasks', function (Blueprint $table) {
+                if (!Schema::hasColumn('project_tasks', 'progress_percentage')) {
+                    $table->unsignedTinyInteger('progress_percentage')->default(0)->after('status');
+                }
+
+                if (!Schema::hasColumn('project_tasks', 'weight')) {
+                    $table->decimal('weight', 8, 2)->default(1)->after('progress_percentage');
+                }
+
+                if (!Schema::hasColumn('project_tasks', 'completed_at')) {
+                    $table->timestamp('completed_at')->nullable()->after('target_end_date');
+                }
+            });
+        }
+    }
+
+    public function down(): void
+    {
+        if (Schema::hasTable('project_tasks')) {
+            Schema::table('project_tasks', function (Blueprint $table) {
+                if (Schema::hasColumn('project_tasks', 'completed_at')) {
+                    $table->dropColumn('completed_at');
+                }
+
+                if (Schema::hasColumn('project_tasks', 'weight')) {
+                    $table->dropColumn('weight');
+                }
+
+                if (Schema::hasColumn('project_tasks', 'progress_percentage')) {
+                    $table->dropColumn('progress_percentage');
+                }
+            });
+        }
+    }
+};
+==================================================
+FILE: backend/database/migrations/2026_05_10_232815_add_status_to_health_lab_tests_table.php
+==================================================
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('health_lab_tests', function (Blueprint $table) {
+            $table->string('status')->default('normal')->after('reference_range');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('health_lab_tests', function (Blueprint $table) {
+            $table->dropColumn('status');
+        });
+    }
+};
+
+==================================================
+FILE: backend/database/migrations/disabled/2026_04_11_034134_create_projects_table.php
+==================================================
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('projects', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('projects');
+    }
+};
+
+================ BACKEND SEEDERS / FACTORIES ================
+
+================ FRONTEND ROUTER / MAIN ================
+
+==================================================
+FILE: frontend/src/router/index.ts
+==================================================
+import { createRouter, createWebHistory } from 'vue-router'
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [],
+})
+
+export default router
+
+==================================================
+FILE: frontend/src/router/index.js
+==================================================
+import { createRouter, createWebHistory } from "vue-router";
+import HealthView from "@/views/health/HealthView.vue";
+import HealthAlertsView from "@/views/health/HealthAlertsView.vue";
+import HealthReportsView from '@/views/health/HealthReportsView.vue'
+// import CustomFoodsView from '@/views/health/CustomFoodsView.vue'
+/*
+|--------------------------------------------------------------------------
+| Auth Views
+|--------------------------------------------------------------------------
+*/
+
+const LoginView = () => import("../views/auth/LoginView.vue");
+const RegisterView = () => import("../views/auth/RegisterView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| Dashboard Views
+|--------------------------------------------------------------------------
+*/
+
+const UnifiedDashboardView = () => import("../views/dashboard/UnifiedDashboardView.vue");
+const DashboardView = () => import("../views/dashboard/DashboardView.vue");
+const LifeBalanceView = () => import("../views/LifeBalanceView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| Finance Views
+|--------------------------------------------------------------------------
+*/
+
+const FinanceDashboardView = () => import("../views/finance/FinanceDashboardView.vue");
+const FinanceAccountsView = () => import("../views/finance/FinanceAccountsView.vue");
+const FinanceTransactionsView = () => import("../views/finance/FinanceTransactionsView.vue");
+const FinanceBudgetsView = () => import("../views/finance/FinanceBudgetsView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| Health Views
+|--------------------------------------------------------------------------
+*/
+
+const StepsTrackingView = () => import("../views/health/StepsTrackingView.vue");
+const WeightTrackingView = () => import("../views/health/WeightTrackingView.vue");
+const NutritionTrackingView = () => import("../views/health/NutritionTrackingView.vue");
+const HydrationTrackingView = () => import("../views/health/HydrationTrackingView.vue");
+const SleepTrackingView = () => import("../views/health/SleepTrackingView.vue");
+const MoodTrackingView = () => import("../views/health/MoodTrackingView.vue");
+const MedicationTrackingView = () => import("../views/health/MedicationTrackingView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| Project Views
+|--------------------------------------------------------------------------
+*/
+
+const ProjectsDashboardView = () => import("../views/projects/ProjectDashboardView.vue");
+const ProjectsView = () => import("../views/projects/ProjectsView.vue");
+const ProjectTasksView = () => import("../views/ProjectTasksView.vue");
+const ProjectMilestonesView = () => import("../views/ProjectMilestonesView.vue");
+const ProjectProgressView = () => import("../views/ProjectProgressView.vue");
+const StatusUpdatesView = () => import("../views/ProjectStatusUpdatesView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| Notification Views
+|--------------------------------------------------------------------------
+*/
+
+const NotificationsView = () => import("../views/notifications/NotificationsView.vue");
+const NotificationSettingsView = () => import("../views/notifications/NotificationSettingsView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| System Views
+|--------------------------------------------------------------------------
+*/
+
+const MonitoringDashboardView = () => import("../views/monitoring/MonitoringDashboardView.vue");
+
+/*
+|--------------------------------------------------------------------------
+| Fallback Views
+|--------------------------------------------------------------------------
+*/
+
+const NotFoundView = () => import("../views/NotFoundView.vue");
+
+const routes = [
+  {
+    path: "/",
+    redirect: "/dashboard",
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Auth Routes
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/login",
+    name: "Login",
+    component: LoginView,
+    meta: {
+      guestOnly: true,
+      title: "Login",
+    },
+  },
+  {
+    path: "/register",
+    name: "Register",
+    component: RegisterView,
+    meta: {
+      guestOnly: true,
+      title: "Register",
+    },
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Main Dashboards
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/dashboard",
+    name: "Dashboard",
+    component: DashboardView,
+    meta: {
+      requiresAuth: true,
+      title: "Dashboard",
+    },
+  },
+  {
+    path: "/unified-dashboard",
+    name: "UnifiedDashboard",
+    component: UnifiedDashboardView,
+    meta: {
+      requiresAuth: true,
+      title: "Unified Dashboard",
+    },
+  },
+  {
+    path: "/life-balance",
+    name: "LifeBalance",
+    component: LifeBalanceView,
+    meta: {
+      requiresAuth: true,
+      title: "Life Balance",
+    },
+  },
+  {
+    path: "/health/custom-foods",
+    name: "HealthCustomFoods",
+    component: () => import("@/views/health/CustomFoodsView.vue"),
+    meta: {
+      requiresAuth: true,
+      title: "Custom Foods",
+    },
+  },
+  /*
+  |--------------------------------------------------------------------------
+  | Finance Routes
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/finance",
+    redirect: "/finance/dashboard",
+  },
+  {
+    path: "/finance/dashboard",
+    name: "FinanceDashboard",
+    component: FinanceDashboardView,
+    meta: {
+      requiresAuth: true,
+      title: "Finance Dashboard",
+    },
+  },
+  {
+    path: "/finance/accounts",
+    name: "FinanceAccounts",
+    component: FinanceAccountsView,
+    meta: {
+      requiresAuth: true,
+      title: "Finance Accounts",
+    },
+  },
+  {
+    path: "/health/alerts",
+    name: "health-alerts",
+    component: HealthAlertsView,
+    meta: {
+      requiresAuth: true,
+      title: "Health Alerts",
+    },
+  },
+  {
+    path: "/finance/transactions",
+    name: "FinanceTransactions",
+    component: FinanceTransactionsView,
+    meta: {
+      requiresAuth: true,
+      title: "Finance Transactions",
+    },
+  },
+  {
+    path: "/finance/budgets",
+    name: "FinanceBudgets",
+    component: FinanceBudgetsView,
+    meta: {
+      requiresAuth: true,
+      title: "Finance Budgets",
+    },
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Health Routes
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/health",
+    name: "HealthDashboard",
+    component: HealthView,
+    meta: {
+      requiresAuth: true,
+      title: "Health Dashboard",
+    },
+  },
+  {
+    path: "/health/steps",
+    name: "StepsTracking",
+    component: StepsTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Steps Tracking",
+    },
+  },
+  {
+    path: "/health/weight",
+    name: "WeightTracking",
+    component: WeightTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Weight Tracking",
+    },
+  },
+  {
+    path: "/health/nutrition",
+    name: "NutritionTracking",
+    component: NutritionTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Nutrition Tracking",
+    },
+  },
+  {
+    path: "/health/hydration",
+    name: "HydrationTracking",
+    component: HydrationTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Hydration Tracking",
+    },
+  },
+  {
+    path: "/health/sleep",
+    name: "SleepTracking",
+    component: SleepTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Sleep Tracking",
+    },
+  },
+  {
+    path: "/health/mood",
+    name: "MoodTracking",
+    component: MoodTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Mood Tracking",
+    },
+  },
+  {
+    path: '/health/medications',
+    name: 'health-medications',
+    component: () => import('@/views/health/MedicationTrackingView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Medication Tracking'
+    }
+  },
+  {
+    path: "/health/medicaments",
+    name: "MedicamentsTracking",
+    component: () => import("@/views/health/MedicamentsTrackingView.vue"),
+    meta: {
+      requiresAuth: true,
+      title: "Medicaments",
+    },
+  },
+  {
+    path: "/health/lab-tests",
+    name: "LabTestsTracking",
+    component: () => import("@/views/health/LabTestsTrackingView.vue"),
+    meta: {
+      requiresAuth: true,
+      title: "Lab Tests",
+    },
+  },
+  {
+    path: '/health/reports',
+    name: 'HealthReports',
+    component: HealthReportsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Health Reports'
+    }
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Project Routes
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/projects",
+    redirect: "/projects/list",
+  },
+  {
+    path: "/projects/list",
+    name: "ProjectsList",
+    component: ProjectsView,
+    meta: {
+      requiresAuth: true,
+      title: "Project List",
+    },
+  },
+  {
+    path: "/projects/dashboard",
+    name: "ProjectsDashboard",
+    component: ProjectsDashboardView,
+    meta: {
+      requiresAuth: true,
+      title: "Projects Dashboard",
+    },
+  },
+  {
+    path: "/projects/tasks",
+    name: "ProjectTasks",
+    component: ProjectTasksView,
+    meta: {
+      requiresAuth: true,
+      title: "Project Tasks",
+    },
+  },
+  {
+    path: "/projects/milestones",
+    name: "ProjectMilestones",
+    component: ProjectMilestonesView,
+    meta: {
+      requiresAuth: true,
+      title: "Project Milestones",
+    },
+  },
+  {
+    path: "/projects/progress",
+    name: "ProjectProgress",
+    component: ProjectProgressView,
+    meta: {
+      requiresAuth: true,
+      title: "Project Progress",
+    },
+  },
+  {
+    path: "/projects/status-updates",
+    name: "StatusUpdates",
+    component: StatusUpdatesView,
+    meta: {
+      requiresAuth: true,
+      title: "Status Updates",
+    },
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Notification Routes
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/notifications",
+    name: "Notifications",
+    component: NotificationsView,
+    meta: {
+      requiresAuth: true,
+      title: "Notifications",
+    },
+  },
+  {
+    path: "/notifications/settings",
+    name: "NotificationSettings",
+    component: NotificationSettingsView,
+    meta: {
+      requiresAuth: true,
+      title: "Notification Settings",
+    },
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | System Routes
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/system/monitoring",
+    name: "MonitoringDashboard",
+    component: MonitoringDashboardView,
+    meta: {
+      requiresAuth: true,
+      title: "Logging & Monitoring",
+    },
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | 404 Route
+  |--------------------------------------------------------------------------
+  */
+
+  {
+    path: "/:pathMatch(.*)*",
+    name: "NotFound",
+    component: NotFoundView,
+    meta: {
+      title: "Page Not Found",
+    },
+  },
+];
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+  scrollBehavior() {
+    return {
+      top: 0,
+      behavior: "smooth",
+    };
+  },
+});
+
+/*
+|--------------------------------------------------------------------------
+| Router Guard
+|--------------------------------------------------------------------------
+*/
+
+router.beforeEach((to, from, next) => {
+  const token =
+    localStorage.getItem("token") ||
+    localStorage.getItem("auth_token") ||
+    localStorage.getItem("access_token");
+
+  const isAuthenticated = Boolean(token);
+
+  if (to.meta?.requiresAuth && !isAuthenticated) {
+    return next({
+      path: "/login",
+      query: {
+        redirect: to.fullPath,
+      },
+    });
+  }
+
+  if (to.meta?.guestOnly && isAuthenticated) {
+    return next("/dashboard");
+  }
+
+  if (to.meta?.title) {
+    document.title = `${to.meta.title} | Nix Life OS`;
+  } else {
+    document.title = "Nix Life OS";
+  }
+
+  return next();
+});
+
+export default router;
+==================================================
+FILE: frontend/src/main.ts
+==================================================
+import "./assets/main.css";
+
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
+
+createApp(App).use(router).mount("#app");
+==================================================
+FILE: frontend/src/main.js
+==================================================
+import "./assets/main.css";
+
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
+
+createApp(App).use(router).mount("#app");
+==================================================
+FILE: frontend/src/App.vue
+==================================================
+<script setup>
+import { RouterLink, RouterView } from "vue-router";
+import { hasPermission } from "@/utils/permissions";
+</script>
+
+<template>
+  <div class="min-h-screen bg-gray-50 flex">
+    <!-- Main Sidebar -->
+    <aside class="w-72 bg-white border-r border-gray-200 min-h-screen p-6 overflow-y-auto">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">
+        NIX LIFE OS
+      </h1>
+
+      <p class="text-sm text-gray-500 mb-8">
+        Personal Operating System
+      </p>
+
+      <nav class="space-y-2">
+        <!-- Main -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-4 mb-2">
+          Main
+        </p>
+
+        <RouterLink
+          to="/dashboard"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Unified Dashboard
+        </RouterLink>
+
+        <RouterLink
+          to="/life-balance"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Life Balance
+        </RouterLink>
+
+        <!-- Finance -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+          Finance
+        </p>
+
+        <RouterLink
+          to="/finance"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Finance Dashboard
+        </RouterLink>
+
+        <RouterLink
+          to="/finance/accounts"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Finance Accounts
+        </RouterLink>
+
+        <RouterLink
+          to="/finance/transactions"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Finance Transactions
+        </RouterLink>
+
+        <RouterLink
+          to="/finance/budgets"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Finance Budgets
+        </RouterLink>
+
+        <!-- Health -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+          Health
+        </p>
+        <RouterLink
+          to="/health"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Health Dashboard
+        </RouterLink>
+        <RouterLink
+          to="/health/steps"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Steps Tracking
+        </RouterLink>
+
+        <RouterLink
+          to="/health/weight"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Weight Tracking
+        </RouterLink>
+
+        <RouterLink
+          to="/health/nutrition"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Nutrition Tracking
+        </RouterLink>
+        <RouterLink
+          to="/health/custom-foods"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Custom Foods
+        </RouterLink>
+        <RouterLink
+          to="/health/hydration"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Hydration Tracking
+        </RouterLink>
+        <RouterLink
+          to="/health/medications"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Medication Tracking
+        </RouterLink>
+        <RouterLink
+          to="/health/medicaments"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Medicaments
+        </RouterLink>
+
+        <RouterLink
+          to="/health/lab-tests"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Lab Tests
+        </RouterLink>
+        <RouterLink to="/health/alerts" class="sidebar-link">
+          <span>Health Alerts</span>
+        </RouterLink>
+        <RouterLink
+          to="/health/sleep"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Sleep Tracking
+        </RouterLink>
+        <!-- Projects -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+          Projects
+        </p>
+
+        <RouterLink
+          to="/projects/list"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Project List
+        </RouterLink>
+
+        <RouterLink
+          to="/projects/dashboard"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Projects Dashboard
+        </RouterLink>
+
+        <RouterLink
+          to="/projects/tasks"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Project Tasks
+        </RouterLink>
+
+        <RouterLink
+          to="/projects/milestones"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Project Milestones
+        </RouterLink>
+
+        <RouterLink
+          to="/projects/progress"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Project Progress
+        </RouterLink>
+
+        <RouterLink
+          to="/projects/status-updates"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Status Updates
+        </RouterLink>
+
+        <!-- Notifications -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+          Notifications
+        </p>
+
+        <RouterLink
+          to="/notifications"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Notifications
+        </RouterLink>
+
+        <RouterLink
+          to="/notifications/settings"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Notification Settings
+        </RouterLink>
+
+        <!-- Automation -->
+        <template v-if="hasPermission('automation.view')">
+          <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+            Automation
+          </p>
+
+          <RouterLink
+            to="/automation"
+            class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+            active-class="bg-gray-900 text-white hover:bg-gray-900"
+          >
+            Automation
+          </RouterLink>
+        </template>
+
+        <!-- Security -->
+        <template v-if="hasPermission('security.manage')">
+          <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+            Security
+          </p>
+
+          <RouterLink
+            to="/security/roles"
+            class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+            active-class="bg-gray-900 text-white hover:bg-gray-900"
+          >
+            Security & Roles
+          </RouterLink>
+        </template>
+
+        <!-- System -->
+        <p class="text-xs font-bold text-gray-400 uppercase mt-8 mb-2">
+          System
+        </p>
+
+        <RouterLink
+          to="/monitoring"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Logging & Monitoring
+        </RouterLink>
+      </nav>
+    </aside>
+
+    <!-- Page Content -->
+    <main class="flex-1 p-8 overflow-y-auto">
+      <RouterView />
+    </main>
+  </div>
+</template>
+================ FRONTEND PROJECT VIEWS ================
+
+==================================================
+FILE: frontend/src/views/projects/ProjectDashboardView.vue
+==================================================
+<script setup>
+import { computed, onMounted, ref } from "vue";
+import {
+  getProjectDashboard,
+  getProjects,
+  recalculateProjectProgress,
+} from "../../services/projectService";
+
+import ProjectCard from "../../components/projects/ProjectCard.vue";
+import ProjectKanbanColumn from "../../components/projects/ProjectKanbanColumn.vue";
+
+const projects = ref([]);
+const dashboard = ref({
+  summary: {
+    total_projects: 0,
+    active_projects: 0,
+    completed_projects: 0,
+    overdue_tasks: 0,
+    average_progress: 0,
+  },
+  progress_cards: [],
+  recent_projects: [],
+  charts: {
+    status: [],
+    priority: [],
+  },
+});
+
+const loading = ref(false);
+const errorMessage = ref("");
+const activeView = ref("overview");
+const searchQuery = ref("");
+const selectedStatus = ref("all");
+
+const statuses = [
+  {
+    key: "not_started",
+    title: "Not Started",
+  },
+  {
+    key: "in_progress",
+    title: "In Progress",
+  },
+  {
+    key: "on_hold",
+    title: "On Hold",
+  },
+  {
+    key: "completed",
+    title: "Completed",
+  },
+];
+
+const statusOptions = [
+  {
+    value: "all",
+    label: "All Statuses",
+  },
+  {
+    value: "not_started",
+    label: "Not Started",
+  },
+  {
+    value: "in_progress",
+    label: "In Progress",
+  },
+  {
+    value: "on_hold",
+    label: "On Hold",
+  },
+  {
+    value: "completed",
+    label: "Completed",
+  },
+  {
+    value: "cancelled",
+    label: "Cancelled",
+  },
+];
+
+const summary = computed(() => dashboard.value.summary || {});
+
+const filteredProjects = computed(() => {
+  return projects.value.filter((project) => {
+    const matchesSearch =
+      !searchQuery.value ||
+      project.project_name?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      project.project_code?.toLowerCase().includes(searchQuery.value.toLowerCase());
+
+    const matchesStatus =
+      selectedStatus.value === "all" || project.status === selectedStatus.value;
+
+    return matchesSearch && matchesStatus;
+  });
+});
+
+const maxStatusChartValue = computed(() => {
+  const values = dashboard.value.charts.status.map((item) => Number(item.value || 0));
+  return Math.max(...values, 1);
+});
+
+const maxPriorityChartValue = computed(() => {
+  const values = dashboard.value.charts.priority.map((item) => Number(item.value || 0));
+  return Math.max(...values, 1);
+});
+
+function projectsByStatus(status) {
+  return filteredProjects.value.filter((project) => project.status === status);
+}
+
+function normalizeProjects(payload) {
+  if (Array.isArray(payload)) {
+    return payload;
+  }
+
+  if (Array.isArray(payload?.data)) {
+    return payload.data;
+  }
+
+  if (Array.isArray(payload?.data?.data)) {
+    return payload.data.data;
+  }
+
+  if (Array.isArray(payload?.projects)) {
+    return payload.projects;
+  }
+
+  if (Array.isArray(payload?.data?.projects)) {
+    return payload.data.projects;
+  }
+
+  return [];
+}
+
+function chartWidth(value, maxValue) {
+  if (!maxValue) return "0%";
+  return `${Math.round((Number(value || 0) / maxValue) * 100)}%`;
+}
+
+async function loadDashboard() {
+  const response = await getProjectDashboard();
+
+  dashboard.value = {
+    summary: response?.data?.summary || {
+      total_projects: 0,
+      active_projects: 0,
+      completed_projects: 0,
+      overdue_tasks: 0,
+      average_progress: 0,
+    },
+    progress_cards: response?.data?.progress_cards || [],
+    recent_projects: response?.data?.recent_projects || [],
+    charts: {
+      status: response?.data?.charts?.status || [],
+      priority: response?.data?.charts?.priority || [],
+    },
+  };
+}
+
+async function loadProjects() {
+  const response = await getProjects({
+    per_page: 100,
+  });
+
+  projects.value = normalizeProjects(response);
+}
+
+async function loadPage() {
+  loading.value = true;
+  errorMessage.value = "";
+
+  try {
+    await Promise.all([loadDashboard(), loadProjects()]);
+  } catch (error) {
+    console.error(error);
+
+    errorMessage.value =
+      error.response?.data?.message ||
+      "Failed to load Projects Dashboard. Please check backend API routes.";
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function recalculateAllProgress() {
+  loading.value = true;
+  errorMessage.value = "";
+
+  try {
+    for (const project of projects.value) {
+      await recalculateProjectProgress(project.id);
+    }
+
+    await loadPage();
+  } catch (error) {
+    console.error(error);
+
+    errorMessage.value =
+      error.response?.data?.message ||
+      "Failed to recalculate project progress.";
+  } finally {
+    loading.value = false;
+  }
+}
+
+onMounted(() => {
+  loadPage();
+});
+</script>
+
+<template>
+  <div class="min-h-screen bg-gray-100 p-6">
+    <div class="mx-auto max-w-7xl space-y-6">
+      <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+        <div>
+          <p class="text-sm font-bold uppercase tracking-wide text-blue-600">
+            NIX LIFE OS
+          </p>
+
+          <h1 class="mt-1 text-3xl font-black text-gray-900">
+            Projects Dashboard
+          </h1>
+
+          <p class="mt-2 text-gray-500">
+            Track total projects, active execution, completed work, overdue tasks, progress cards, and charts.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <button
+            type="button"
+            class="rounded-xl bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50"
+            @click="loadPage"
+          >
+            Refresh
+          </button>
+
+          <button
+            type="button"
+            class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700"
+            @click="recalculateAllProgress"
+          >
+            Recalculate Progress
+          </button>
+        </div>
+      </div>
+
+      <div
+        v-if="errorMessage"
+        class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700"
+      >
+        {{ errorMessage }}
+      </div>
+
+      <div
+        v-if="loading"
+        class="rounded-2xl bg-white p-10 text-center text-sm font-bold text-gray-500 shadow-sm"
+      >
+        Loading projects dashboard...
+      </div>
+
+      <template v-else>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-5">
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Total Projects</p>
+            <p class="mt-2 text-3xl font-black text-gray-900">
+              {{ summary.total_projects || 0 }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Active Projects</p>
+            <p class="mt-2 text-3xl font-black text-blue-600">
+              {{ summary.active_projects || 0 }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Completed Projects</p>
+            <p class="mt-2 text-3xl font-black text-emerald-600">
+              {{ summary.completed_projects || 0 }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Overdue Tasks</p>
+            <p class="mt-2 text-3xl font-black text-red-600">
+              {{ summary.overdue_tasks || 0 }}
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <p class="text-sm font-medium text-gray-500">Average Progress</p>
+            <p class="mt-2 text-3xl font-black text-gray-900">
+              {{ summary.average_progress || 0 }}%
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-5 xl:grid-cols-2">
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <div class="mb-4 flex items-center justify-between">
+              <h2 class="text-lg font-black text-gray-900">
+                Projects by Status
+              </h2>
+            </div>
+
+            <div
+              v-if="dashboard.charts.status.length === 0"
+              class="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400"
+            >
+              No status chart data available.
+            </div>
+
+            <div v-else class="space-y-4">
+              <div
+                v-for="item in dashboard.charts.status"
+                :key="item.status"
+              >
+                <div class="mb-1 flex justify-between text-sm">
+                  <span class="font-bold text-gray-700">{{ item.label }}</span>
+                  <span class="text-gray-500">{{ item.value }}</span>
+                </div>
+
+                <div class="h-3 overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    class="h-full rounded-full bg-blue-600"
+                    :style="{ width: chartWidth(item.value, maxStatusChartValue) }"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-white p-5 shadow-sm">
+            <div class="mb-4 flex items-center justify-between">
+              <h2 class="text-lg font-black text-gray-900">
+                Projects by Priority
+              </h2>
+            </div>
+
+            <div
+              v-if="dashboard.charts.priority.length === 0"
+              class="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400"
+            >
+              No priority chart data available.
+            </div>
+
+            <div v-else class="space-y-4">
+              <div
+                v-for="item in dashboard.charts.priority"
+                :key="item.priority"
+              >
+                <div class="mb-1 flex justify-between text-sm">
+                  <span class="font-bold text-gray-700">{{ item.label }}</span>
+                  <span class="text-gray-500">{{ item.value }}</span>
+                </div>
+
+                <div class="h-3 overflow-hidden rounded-full bg-gray-100">
+                  <div
+                    class="h-full rounded-full bg-purple-600"
+                    :style="{ width: chartWidth(item.value, maxPriorityChartValue) }"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white p-5 shadow-sm">
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="text-lg font-black text-gray-900">
+              Project Progress Cards
+            </h2>
+          </div>
+
+          <div
+            v-if="dashboard.progress_cards.length === 0"
+            class="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-400"
+          >
+            No project progress data available.
+          </div>
+
+          <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div
+              v-for="project in dashboard.progress_cards"
+              :key="project.id"
+              class="rounded-2xl border border-gray-100 bg-gray-50 p-4"
+            >
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="font-black text-gray-900">
+                    {{ project.project_name }}
+                  </p>
+                  <p class="mt-1 text-xs text-gray-500">
+                    {{ project.project_code || "No Code" }}
+                  </p>
+                </div>
+
+                <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-gray-600">
+                  {{ project.status }}
+                </span>
+              </div>
+
+              <div class="mt-4">
+                <div class="mb-1 flex justify-between text-xs">
+                  <span class="font-bold text-gray-500">Progress</span>
+                  <span class="font-bold text-gray-700">
+                    {{ project.progress_percentage || 0 }}%
+                  </span>
+                </div>
+
+                <div class="h-3 overflow-hidden rounded-full bg-gray-200">
+                  <div
+                    class="h-full rounded-full bg-emerald-600"
+                    :style="{ width: `${project.progress_percentage || 0}%` }"
+                  ></div>
+                </div>
+              </div>
+
+              <div class="mt-4 text-xs text-gray-500">
+                Tasks:
+                <span class="font-bold text-gray-700">
+                  {{ project.completed_tasks || 0 }} / {{ project.total_tasks || 0 }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-2xl bg-white p-5 shadow-sm">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex flex-col gap-3 md:flex-row">
+              <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search project..."
+                class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500 md:w-72"
+              />
+
+              <select
+                v-model="selectedStatus"
+                class="rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500"
+              >
+                <option
+                  v-for="status in statusOptions"
+                  :key="status.value"
+                  :value="status.value"
+                >
+                  {{ status.label }}
+                </option>
+              </select>
+            </div>
+
+            <div class="flex rounded-xl bg-gray-100 p-1">
+              <button
+                type="button"
+                class="rounded-lg px-4 py-2 text-sm font-bold"
+                :class="
+                  activeView === 'overview'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-500'
+                "
+                @click="activeView = 'overview'"
+              >
+                List View
+              </button>
+
+              <button
+                type="button"
+                class="rounded-lg px-4 py-2 text-sm font-bold"
+                :class="
+                  activeView === 'kanban'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-500'
+                "
+                @click="activeView = 'kanban'"
+              >
+                Kanban View
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <template v-if="activeView === 'overview'">
+          <div class="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+            <ProjectCard
+              v-for="project in filteredProjects"
+              :key="project.id"
+              :project="project"
+            />
+
+            <div
+              v-if="filteredProjects.length === 0"
+              class="col-span-full rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center text-gray-400"
+            >
+              No projects found.
+            </div>
+          </div>
+        </template>
+
+        <template v-if="activeView === 'kanban'">
+          <div class="grid grid-cols-1 gap-5 xl:grid-cols-4">
+            <ProjectKanbanColumn
+              v-for="status in statuses"
+              :key="status.key"
+              :title="status.title"
+              :status="status.key"
+              :projects="projectsByStatus(status.key)"
+            />
+          </div>
+        </template>
+      </template>
+    </div>
+  </div>
+</template>
+==================================================
+FILE: frontend/src/views/projects/ProjectsView.vue
+==================================================
+<script setup>
+import { computed, onMounted, ref, watch } from "vue";
+import {
+  createProject,
+  getProjects,
+  updateProject,
+} from "@/services/projectService";
+import ProjectProgressBar from "@/components/projects/ProjectProgressBar.vue";
+
+const projects = ref([]);
+const loading = ref(false);
+const saving = ref(false);
+const errorMessage = ref("");
+const successMessage = ref("");
+
+const search = ref("");
+const status = ref("");
+const priority = ref("");
+const currentPage = ref(1);
+const perPage = ref(10);
+
+const showFormModal = ref(false);
+const formMode = ref("create");
+const selectedProjectId = ref(null);
+const validationErrors = ref({});
+
+const form = ref({
+  project_name: "",
+  project_code: "",
+  description: "",
+  status: "not_started",
+  priority: "medium",
+  start_date: "",
+  target_end_date: "",
+  actual_end_date: "",
+  progress_percentage: 0,
+});
+
+const pagination = ref({
+  current_page: 1,
+  last_page: 1,
+  per_page: 10,
+  total: 0,
+});
+
+const statusOptions = [
+  { value: "", label: "All Statuses" },
+  { value: "not_started", label: "Not Started" },
+  { value: "in_progress", label: "In Progress" },
+  { value: "on_hold", label: "On Hold" },
+  { value: "completed", label: "Completed" },
+  { value: "cancelled", label: "Cancelled" },
+];
+
+const formStatusOptions = [
+  { value: "not_started", label: "Not Started" },
+  { value: "in_progress", label: "In Progress" },
+  { value: "on_hold", label: "On Hold" },
+  { value: "completed", label: "Completed" },
+  { value: "cancelled", label: "Cancelled" },
+];
+
+const priorityOptions = [
+  { value: "", label: "All Priorities" },
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+  { value: "critical", label: "Critical" },
+];
+
+const formPriorityOptions = [
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+  { value: "critical", label: "Critical" },
+];
+
+const hasProjects = computed(() => projects.value.length > 0);
+
+const formTitle = computed(() => {
+  return formMode.value === "create" ? "Create Project" : "Edit Project";
+});
+
+const submitButtonText = computed(() => {
+  if (saving.value) return "Saving...";
+  return formMode.value === "create" ? "Create Project" : "Update Project";
+});
+
+function cleanText(value) {
+  if (!value) return "-";
+
+  return value
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function formatDate(value) {
+  if (!value) return "Not set";
+
+  return new Date(value).toLocaleDateString("en-GB", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+}
+
+function statusClass(value) {
+  const classes = {
+    not_started: "bg-gray-100 text-gray-700",
+    in_progress: "bg-blue-100 text-blue-700",
+    on_hold: "bg-yellow-100 text-yellow-700",
+    completed: "bg-emerald-100 text-emerald-700",
+    cancelled: "bg-red-100 text-red-700",
+  };
+
+  return classes[value] || "bg-gray-100 text-gray-700";
+}
+
+function priorityClass(value) {
+  const classes = {
+    low: "bg-gray-100 text-gray-700",
+    medium: "bg-blue-100 text-blue-700",
+    high: "bg-orange-100 text-orange-700",
+    critical: "bg-red-100 text-red-700",
+  };
+
+  return classes[value] || "bg-gray-100 text-gray-700";
+}
+
+function resetForm() {
+  form.value = {
+    project_name: "",
+    project_code: "",
+    description: "",
+    status: "not_started",
+    priority: "medium",
+    start_date: "",
+    target_end_date: "",
+    actual_end_date: "",
+    progress_percentage: 0,
+  };
+
+  selectedProjectId.value = null;
+  validationErrors.value = {};
+}
+
+function normalizeDateForInput(value) {
+  if (!value) return "";
+  return String(value).substring(0, 10);
+}
+
+function openCreateForm() {
+  resetForm();
+  formMode.value = "create";
+  showFormModal.value = true;
+}
+
+function openEditForm(project) {
+  resetForm();
+
+  formMode.value = "edit";
+  selectedProjectId.value = project.id;
+
+  form.value = {
+    project_name: project.project_name || "",
+    project_code: project.project_code || "",
+    description: project.description || "",
+    status: project.status || "not_started",
+    priority: project.priority || "medium",
+    start_date: normalizeDateForInput(project.start_date),
+    target_end_date: normalizeDateForInput(project.target_end_date),
+    actual_end_date: normalizeDateForInput(project.actual_end_date),
+    progress_percentage: Number(project.progress_percentage || 0),
+  };
+
+  showFormModal.value = true;
+}
+
+function closeForm() {
+  showFormModal.value = false;
+  resetForm();
+}
+
+function buildPayload() {
+  return {
+    project_name: form.value.project_name,
+    project_code: form.value.project_code || null,
+    description: form.value.description || null,
+    status: form.value.status,
+    priority: form.value.priority,
+    start_date: form.value.start_date || null,
+    target_end_date: form.value.target_end_date || null,
+    actual_end_date: form.value.actual_end_date || null,
+    progress_percentage: Number(form.value.progress_percentage || 0),
+  };
+}
+
+function getFieldError(field) {
+  return validationErrors.value?.[field]?.[0] || "";
+}
+
+async function loadProjects(page = 1) {
+  loading.value = true;
+  errorMessage.value = "";
+
+  try {
+    const response = await getProjects({
+      search: search.value || undefined,
+      status: status.value || undefined,
+      priority: priority.value || undefined,
+      page,
+      per_page: perPage.value,
+    });
+
+    projects.value = Array.isArray(response?.data) ? response.data : [];
+
+    pagination.value = {
+      current_page: response?.meta?.current_page || 1,
+      last_page: response?.meta?.last_page || 1,
+      per_page: response?.meta?.per_page || perPage.value,
+      total: response?.meta?.total || 0,
+    };
+
+    currentPage.value = pagination.value.current_page;
+  } catch (error) {
+    console.error(error);
+
+    errorMessage.value =
+      error.response?.data?.message ||
+      "Failed to load projects. Please check backend API, token, and route configuration.";
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function submitProjectForm() {
+  saving.value = true;
+  errorMessage.value = "";
+  successMessage.value = "";
+  validationErrors.value = {};
+
+  try {
+    const payload = buildPayload();
+
+    if (formMode.value === "create") {
+      await createProject(payload);
+      successMessage.value = "Project created successfully.";
+    } else {
+      await updateProject(selectedProjectId.value, payload);
+      successMessage.value = "Project updated successfully.";
+    }
+
+    closeForm();
+    await loadProjects(currentPage.value);
+  } catch (error) {
+    console.error(error);
+
+    if (error.response?.status === 422) {
+      validationErrors.value = error.response?.data?.errors || {};
+      errorMessage.value =
+        error.response?.data?.message || "Please fix the validation errors.";
+      return;
+    }
+
+    errorMessage.value =
+      error.response?.data?.message ||
+      "Failed to save project. Please check backend API and database.";
+  } finally {
+    saving.value = false;
+  }
+}
+
+function resetFilters() {
+  search.value = "";
+  status.value = "";
+  priority.value = "";
+  currentPage.value = 1;
+  loadProjects(1);
+}
+
+function goToPage(page) {
+  if (page < 1 || page > pagination.value.last_page) return;
+  loadProjects(page);
+}
+
+let searchTimeout = null;
+
+watch([search, status, priority, perPage], () => {
+  clearTimeout(searchTimeout);
+
+  searchTimeout = setTimeout(() => {
+    currentPage.value = 1;
+    loadProjects(1);
+  }, 350);
+});
+
+watch(
+  () => form.value.status,
+  (newStatus) => {
+    if (newStatus === "completed") {
+      form.value.progress_percentage = 100;
+
+      if (!form.value.actual_end_date) {
+        form.value.actual_end_date = new Date().toISOString().substring(0, 10);
+      }
+    }
+  }
+);
+
+onMounted(() => {
+  loadProjects();
+});
+</script>
+
+<template>
+  <div class="min-h-screen bg-gray-100 p-6">
+    <div class="mx-auto max-w-7xl space-y-6">
+      <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+        <div>
+          <p class="text-sm font-bold uppercase tracking-wide text-blue-600">
+            NIX LIFE OS
+          </p>
+
+          <h1 class="mt-1 text-3xl font-black text-gray-900">
+            Project List
+          </h1>
+
+          <p class="mt-2 text-gray-500">
+            Create, edit, search, filter, validate, and verify project persistence.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3">
+          <button
+            type="button"
+            class="rounded-xl bg-white px-4 py-2 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50"
+            @click="loadProjects(currentPage)"
+          >
+            Refresh
+          </button>
+
+          <button
+            type="button"
+            class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700"
+            @click="openCreateForm"
+          >
+            + Create Project
+          </button>
+        </div>
+      </div>
+
+      <div
+        v-if="successMessage"
+        class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-700"
+      >
+        {{ successMessage }}
+      </div>
+
+      <div
+        v-if="errorMessage"
+        class="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700"
+      >
+        {{ errorMessage }}
+      </div>
+
+      <div class="rounded-2xl bg-white p-5 shadow-sm">
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-5">
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Search by name, code, or description..."
+            class="rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500 md:col-span-2"
+          />
+
+          <select
+            v-model="status"
+            class="rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500"
+          >
+            <option
+              v-for="option in statusOptions"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+
+          <select
+            v-model="priority"
+            class="rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500"
+          >
+            <option
+              v-for="option in priorityOptions"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </option>
+          </select>
+
+          <button
+            type="button"
+            class="rounded-xl bg-gray-900 px-4 py-2 text-sm font-bold text-white hover:bg-gray-800"
+            @click="resetFilters"
+          >
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <div
+        v-if="loading"
+        class="rounded-2xl bg-white p-10 text-center text-sm font-bold text-gray-500 shadow-sm"
+      >
+        Loading projects...
+      </div>
+
+      <div
+        v-else-if="!hasProjects"
+        class="rounded-2xl border border-dashed border-gray-300 bg-white p-12 text-center shadow-sm"
+      >
+        <h2 class="text-xl font-black text-gray-900">
+          No projects found
+        </h2>
+
+        <p class="mt-2 text-sm text-gray-500">
+          Create a new project or change the search filters.
+        </p>
+
+        <button
+          type="button"
+          class="mt-5 rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700"
+          @click="openCreateForm"
+        >
+          Create First Project
+        </button>
+      </div>
+
+      <div v-else class="overflow-hidden rounded-2xl bg-white shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-5 py-3 text-left text-xs font-black uppercase tracking-wide text-gray-500">
+                  Project
+                </th>
+                <th class="px-5 py-3 text-left text-xs font-black uppercase tracking-wide text-gray-500">
+                  Status
+                </th>
+                <th class="px-5 py-3 text-left text-xs font-black uppercase tracking-wide text-gray-500">
+                  Priority
+                </th>
+                <th class="px-5 py-3 text-left text-xs font-black uppercase tracking-wide text-gray-500">
+                  Start Date
+                </th>
+                <th class="px-5 py-3 text-left text-xs font-black uppercase tracking-wide text-gray-500">
+                  Target Date
+                </th>
+                <th class="px-5 py-3 text-left text-xs font-black uppercase tracking-wide text-gray-500">
+                  Progress
+                </th>
+                <th class="px-5 py-3 text-left text-xs font-black uppercase tracking-wide text-gray-500">
+                  Tasks
+                </th>
+                <th class="px-5 py-3 text-right text-xs font-black uppercase tracking-wide text-gray-500">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-100 bg-white">
+              <tr
+                v-for="project in projects"
+                :key="project.id"
+                class="hover:bg-gray-50"
+              >
+                <td class="px-5 py-4">
+                  <p class="font-black text-gray-900">
+                    {{ project.project_name }}
+                  </p>
+
+                  <p class="mt-1 text-xs text-gray-500">
+                    {{ project.project_code || "No Code" }}
+                  </p>
+
+                  <p class="mt-1 line-clamp-1 text-xs text-gray-400">
+                    {{ project.description || "No description available." }}
+                  </p>
+
+                  <p class="mt-1 text-[11px] text-gray-400">
+                    Owner: {{ project.user_id }}
+                  </p>
+                </td>
+
+                <td class="px-5 py-4">
+                  <span
+                    class="rounded-full px-3 py-1 text-xs font-bold"
+                    :class="statusClass(project.status)"
+                  >
+                    {{ cleanText(project.status) }}
+                  </span>
+                </td>
+
+                <td class="px-5 py-4">
+                  <span
+                    class="rounded-full px-3 py-1 text-xs font-bold"
+                    :class="priorityClass(project.priority)"
+                  >
+                    {{ cleanText(project.priority) }}
+                  </span>
+                </td>
+
+                <td class="px-5 py-4 text-sm font-medium text-gray-700">
+                  {{ formatDate(project.start_date) }}
+                </td>
+
+                <td class="px-5 py-4 text-sm font-medium text-gray-700">
+                  {{ formatDate(project.target_end_date) }}
+                </td>
+
+                <td class="min-w-48 px-5 py-4">
+                  <ProjectProgressBar :value="Number(project.progress_percentage || 0)" size="sm" />
+                </td>
+
+                <td class="px-5 py-4 text-sm font-bold text-gray-700">
+                  {{ project.tasks_count || 0 }}
+                </td>
+
+                <td class="px-5 py-4 text-right">
+                  <button
+                    type="button"
+                    class="rounded-xl bg-gray-900 px-4 py-2 text-xs font-bold text-white hover:bg-gray-800"
+                    @click="openEditForm(project)"
+                  >
+                    Edit
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="flex flex-col gap-3 border-t border-gray-100 px-5 py-4 md:flex-row md:items-center md:justify-between">
+          <p class="text-sm text-gray-500">
+            Showing page
+            <span class="font-bold text-gray-800">{{ pagination.current_page }}</span>
+            of
+            <span class="font-bold text-gray-800">{{ pagination.last_page }}</span>
+            —
+            <span class="font-bold text-gray-800">{{ pagination.total }}</span>
+            total projects
+          </p>
+
+          <div class="flex items-center gap-2">
+            <select
+              v-model="perPage"
+              class="rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+            >
+              <option :value="5">5 / page</option>
+              <option :value="10">10 / page</option>
+              <option :value="15">15 / page</option>
+              <option :value="25">25 / page</option>
+              <option :value="50">50 / page</option>
+            </select>
+
+            <button
+              type="button"
+              class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-bold text-gray-700 disabled:cursor-not-allowed disabled:opacity-40"
+              :disabled="pagination.current_page <= 1"
+              @click="goToPage(pagination.current_page - 1)"
+            >
+              Previous
+            </button>
+
+            <button
+              type="button"
+              class="rounded-xl border border-gray-300 px-4 py-2 text-sm font-bold text-gray-700 disabled:cursor-not-allowed disabled:opacity-40"
+              :disabled="pagination.current_page >= pagination.last_page"
+              @click="goToPage(pagination.current_page + 1)"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        v-if="showFormModal"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      >
+        <div class="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white p-6 shadow-xl">
+          <div class="mb-5 flex items-start justify-between gap-4">
+            <div>
+              <h2 class="text-2xl font-black text-gray-900">
+                {{ formTitle }}
+              </h2>
+
+              <p class="mt-1 text-sm text-gray-500">
+                Required field: project name. Owner is assigned automatically from logged-in user.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              class="rounded-xl bg-gray-100 px-3 py-2 text-sm font-bold text-gray-600 hover:bg-gray-200"
+              @click="closeForm"
+            >
+              ✕
+            </button>
+          </div>
+
+          <form class="space-y-5" @submit.prevent="submitProjectForm">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700">
+                  Project Name <span class="text-red-500">*</span>
+                </label>
+
+                <input
+                  v-model="form.project_name"
+                  type="text"
+                  class="w-full rounded-xl border px-4 py-2 text-sm outline-none focus:border-blue-500"
+                  :class="getFieldError('project_name') ? 'border-red-400' : 'border-gray-300'"
+                  placeholder="Example: Nix Life OS Project Module"
+                />
+
+                <p v-if="getFieldError('project_name')" class="mt-1 text-xs font-medium text-red-600">
+                  {{ getFieldError("project_name") }}
+                </p>
+              </div>
+
+              <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700">
+                  Project Code
+                </label>
+
+                <input
+                  v-model="form.project_code"
+                  type="text"
+                  class="w-full rounded-xl border px-4 py-2 text-sm outline-none focus:border-blue-500"
+                  :class="getFieldError('project_code') ? 'border-red-400' : 'border-gray-300'"
+                  placeholder="Example: PRJ-STEP-57"
+                />
+
+                <p v-if="getFieldError('project_code')" class="mt-1 text-xs font-medium text-red-600">
+                  {{ getFieldError("project_code") }}
+                </p>
+              </div>
+
+              <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700">
+                  Status
+                </label>
+
+                <select
+                  v-model="form.status"
+                  class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500"
+                >
+                  <option
+                    v-for="option in formStatusOptions"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ option.label }}
+                  </option>
+                </select>
+
+                <p v-if="getFieldError('status')" class="mt-1 text-xs font-medium text-red-600">
+                  {{ getFieldError("status") }}
+                </p>
+              </div>
+
+              <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700">
+                  Priority
+                </label>
+
+                <select
+                  v-model="form.priority"
+                  class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500"
+                >
+                  <option
+                    v-for="option in formPriorityOptions"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ option.label }}
+                  </option>
+                </select>
+
+                <p v-if="getFieldError('priority')" class="mt-1 text-xs font-medium text-red-600">
+                  {{ getFieldError("priority") }}
+                </p>
+              </div>
+
+              <div>
+                <label class="mb-1 block text-sm font-bold text-gray-700">
+                  Start Date
+                </label>
+
+
+================ FRONTEND PROJECT COMPONENTS ================
+
+==================================================
+FILE: frontend/src/components/projects/ProjectCard.vue
+==================================================
+<script setup>
+import ProjectProgressBar from "./ProjectProgressBar.vue";
+
+const props = defineProps({
+  project: {
+    type: Object,
+    required: true,
+  },
+});
+
+function formatDate(date) {
+  if (!date) return "Not set";
+
+  return new Date(date).toLocaleDateString("en-GB", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
+}
+
+function statusClass(status) {
+  const classes = {
+    planned: "bg-gray-100 text-gray-700",
+    in_progress: "bg-blue-100 text-blue-700",
+    on_hold: "bg-yellow-100 text-yellow-700",
+    completed: "bg-emerald-100 text-emerald-700",
+    cancelled: "bg-red-100 text-red-700",
+  };
+
+  return classes[status] || "bg-gray-100 text-gray-700";
+}
+
+function priorityClass(priority) {
+  const classes = {
+    low: "bg-gray-100 text-gray-700",
+    medium: "bg-blue-100 text-blue-700",
+    high: "bg-orange-100 text-orange-700",
+    critical: "bg-red-100 text-red-700",
+  };
+
+  return classes[priority] || "bg-gray-100 text-gray-700";
+}
+
+function cleanText(value) {
+  if (!value) return "-";
+
+  return value
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+</script>
+
+<template>
+  <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+    <div class="mb-4 flex items-start justify-between gap-3">
+      <div>
+        <h3 class="text-lg font-bold text-gray-900">
+          {{ project.project_name }}
+        </h3>
+
+        <p class="mt-1 text-sm text-gray-500">
+          {{ project.project_code || "No Code" }}
+        </p>
+      </div>
+
+      <span
+        class="rounded-full px-3 py-1 text-xs font-bold"
+        :class="statusClass(project.status)"
+      >
+        {{ cleanText(project.status) }}
+      </span>
+    </div>
+
+    <p class="mb-4 line-clamp-2 text-sm text-gray-600">
+      {{ project.description || "No description available." }}
+    </p>
+
+    <ProjectProgressBar :value="project.progress_percentage" />
+
+    <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+      <div class="rounded-xl bg-gray-50 p-3">
+        <p class="text-xs font-medium text-gray-500">Priority</p>
+        <span
+          class="mt-1 inline-block rounded-full px-2 py-1 text-xs font-bold"
+          :class="priorityClass(project.priority)"
+        >
+          {{ cleanText(project.priority) }}
+        </span>
+      </div>
+
+      <div class="rounded-xl bg-gray-50 p-3">
+        <p class="text-xs font-medium text-gray-500">Target Date</p>
+        <p class="mt-1 font-semibold text-gray-800">
+          {{ formatDate(project.target_end_date) }}
+        </p>
+      </div>
+    </div>
+  </div>
+</template>
+
+==================================================
+FILE: frontend/src/components/projects/ProjectKanbanColumn.vue
+==================================================
+<script setup>
+import ProjectProgressBar from "./ProjectProgressBar.vue";
+
+const props = defineProps({
+  title: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    required: true,
+  },
+  projects: {
+    type: Array,
+    default: () => [],
+  },
+});
+
+function priorityClass(priority) {
+  const classes = {
+    low: "bg-gray-100 text-gray-600",
+    medium: "bg-blue-100 text-blue-700",
+    high: "bg-orange-100 text-orange-700",
+    critical: "bg-red-100 text-red-700",
+  };
+
+  return classes[priority] || "bg-gray-100 text-gray-600";
+}
+
+function cleanText(value) {
+  if (!value) return "-";
+
+  return value
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+</script>
+
+<template>
+  <div class="min-h-[500px] rounded-2xl border border-gray-200 bg-gray-50 p-4">
+    <div class="mb-4 flex items-center justify-between">
+      <h3 class="text-sm font-bold uppercase tracking-wide text-gray-700">
+        {{ title }}
+      </h3>
+
+      <span class="rounded-full bg-white px-3 py-1 text-xs font-bold text-gray-600 shadow-sm">
+        {{ projects.length }}
+      </span>
+    </div>
+
+    <div class="space-y-4">
+      <div
+        v-for="project in projects"
+        :key="project.id"
+        class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm"
+      >
+        <div class="mb-3 flex items-start justify-between gap-2">
+          <div>
+            <h4 class="font-bold text-gray-900">
+              {{ project.project_name }}
+            </h4>
+
+            <p class="text-xs text-gray-500">
+              {{ project.project_code || "No Code" }}
+            </p>
+          </div>
+
+          <span
+            class="rounded-full px-2 py-1 text-[11px] font-bold"
+            :class="priorityClass(project.priority)"
+          >
+            {{ cleanText(project.priority) }}
+          </span>
+        </div>
+
+        <p class="mb-3 line-clamp-2 text-xs text-gray-500">
+          {{ project.description || "No description." }}
+        </p>
+
+        <ProjectProgressBar :value="project.progress_percentage" size="sm" />
+      </div>
+
+      <div
+        v-if="projects.length === 0"
+        class="rounded-2xl border border-dashed border-gray-300 bg-white p-6 text-center text-sm text-gray-400"
+      >
+        No projects
+      </div>
+    </div>
+  </div>
+</template>
+
+==================================================
+FILE: frontend/src/components/projects/ProjectProgressBar.vue
+==================================================
+<script setup>
+const props = defineProps({
+  value: {
+    type: Number,
+    default: 0,
+  },
+  size: {
+    type: String,
+    default: "md",
+  },
+});
+
+function progressColor(value) {
+  if (value >= 80) return "bg-emerald-500";
+  if (value >= 50) return "bg-blue-500";
+  if (value >= 25) return "bg-yellow-500";
+  return "bg-red-500";
+}
+
+function safeValue(value) {
+  if (!value) return 0;
+  if (value < 0) return 0;
+  if (value > 100) return 100;
+  return Math.round(value);
+}
+</script>
+
+<template>
+  <div class="w-full">
+    <div class="mb-1 flex items-center justify-between">
+      <span class="text-xs font-medium text-gray-500">Progress</span>
+      <span class="text-xs font-bold text-gray-700">{{ safeValue(value) }}%</span>
+    </div>
+
+    <div
+      class="w-full overflow-hidden rounded-full bg-gray-200"
+      :class="size === 'sm' ? 'h-2' : 'h-3'"
+    >
+      <div
+        class="h-full rounded-full transition-all duration-500"
+        :class="progressColor(safeValue(value))"
+        :style="{ width: safeValue(value) + '%' }"
+      ></div>
+    </div>
+  </div>
+</template>
+
+================ FRONTEND SERVICES / STORES ================
+
+==================================================
+FILE: frontend/src/services/projectService.js
+==================================================
+import api from "./api";
+
+export async function getProjectDashboard() {
+  const response = await api.get("/projects/dashboard");
+  return response.data;
+}
+
+export async function getProjects(params = {}) {
+  const response = await api.get("/projects", {
+    params,
+  });
+
+  return response.data;
+}
+
+export async function getProject(projectId) {
+  const response = await api.get(`/projects/${projectId}`);
+  return response.data;
+}
+
+export async function createProject(payload) {
+  const response = await api.post("/projects", payload);
+  return response.data;
+}
+
+export async function updateProject(projectId, payload) {
+  const response = await api.put(`/projects/${projectId}`, payload);
+  return response.data;
+}
+
+export async function patchProject(projectId, payload) {
+  const response = await api.patch(`/projects/${projectId}`, payload);
+  return response.data;
+}
+
+export async function deleteProject(projectId) {
+  const response = await api.delete(`/projects/${projectId}`);
+  return response.data;
+}
+
+export async function getProjectProgress(projectId) {
+  const response = await api.get(`/projects/${projectId}/progress`);
+  return response.data;
+}
+
+export async function getProjectMilestones(projectId) {
+  const response = await api.get(`/projects/${projectId}/milestones`);
+  return response.data;
+}
+
+export async function getProjectStatusUpdates(projectId) {
+  const response = await api.get(`/projects/${projectId}/status-updates`);
+  return response.data;
+}
+
+export async function recalculateProjectProgress(projectId) {
+  const response = await api.post(`/projects/${projectId}/progress/recalculate`);
+  return response.data;
+}
+
+export async function updateProjectStatus(projectId, status) {
+  const response = await api.patch(`/projects/${projectId}`, {
+    status,
+  });
+
+  return response.data;
+}
+================ FRONTEND LAYOUT / SIDEBAR FILES ================
+
+==================================================
+FILE: frontend/src/layouts/AppLayout.vue
+==================================================
+<script setup>
+import { RouterLink, RouterView } from "vue-router";
+
+const linkClass =
+  "block rounded-xl px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950";
+
+const activeClass =
+  "bg-slate-950 text-white hover:bg-slate-950 hover:text-white";
+</script>
+
+<template>
+  <div class="min-h-screen bg-slate-50">
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside class="w-64 shrink-0 border-r border-slate-200 bg-white px-5 py-6">
+        <div class="mb-8">
+          <h1 class="text-2xl font-black tracking-wide text-slate-950">
+            NIX LIFE OS
+          </h1>
+          <p class="mt-1 text-xs text-slate-500">
+            Personal Operating System
+          </p>
+        </div>
+
+        <nav class="space-y-6">
+          <!-- Main -->
+          <div>
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Main
+            </p>
+
+            <div class="space-y-1">
+              <RouterLink
+                to="/unified-dashboard"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Unified Dashboard
+              </RouterLink>
+  
+
+              <RouterLink
+                to="/life-balance"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Life Balance
+              </RouterLink>
+            </div>
+          </div>
+
+          <!-- Finance -->
+          <div>
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Finance
+            </p>
+
+            <div class="space-y-1">
+              <RouterLink
+                to="/finance/dashboard"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Finance Dashboard
+              </RouterLink>
+
+              <RouterLink
+                to="/finance/accounts"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Finance Accounts
+              </RouterLink>
+
+              <RouterLink
+                to="/finance/transactions"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Finance Transactions
+              </RouterLink>
+
+              <RouterLink
+                to="/finance/budgets"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Finance Budgets
+              </RouterLink>
+            </div>
+          </div>
+
+          <!-- Health -->
+          <div>
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Health
+            </p>
+
+            <div class="space-y-1">
+              <RouterLink
+                to="/health"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Health Dashboard
+              </RouterLink>
+              <RouterLink
+                to="/health/steps"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Steps Tracking
+              </RouterLink>
+
+              <RouterLink
+                to="/health/weight"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Weight Tracking
+              </RouterLink>
+
+              <RouterLink
+                to="/health/nutrition"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Nutrition Tracking
+              </RouterLink>
+
+              <RouterLink
+                to="/health/custom-foods"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Custom Foods
+              </RouterLink>
+              <RouterLink
+                to="/health/hydration"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Hydration Tracking
+              </RouterLink>
+              <RouterLink
+                to="/health/sleep"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Sleep Tracking
+              </RouterLink>
+
+              <RouterLink
+                to="/health/medications"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Medication Tracking
+              </RouterLink>
+              <RouterLink
+                to="/health/medicaments"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Medicaments
+              </RouterLink>
+
+              <RouterLink
+                to="/health/lab-tests"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Lab Tests
+              </RouterLink>
+              <RouterLink to="/health/alerts" class="sidebar-link">
+                <span>Health Alerts</span>
+              </RouterLink>
+              <RouterLink
+                to="/health/reports"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Health Reports
+              </RouterLink>
+            </div>
+          </div>
+
+          <!-- Projects -->
+          <div>
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Projects
+            </p>
+
+            <div class="space-y-1">
+              <RouterLink
+                to="/projects/dashboard"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Projects Dashboard
+              </RouterLink>
+
+              <RouterLink
+                to="/projects/tasks"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Project Tasks
+              </RouterLink>
+
+              <RouterLink
+                to="/projects/milestones"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Project Milestones
+              </RouterLink>
+
+              <RouterLink
+                to="/projects/progress"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Project Progress
+              </RouterLink>
+
+              <RouterLink
+                to="/projects/status-updates"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Status Updates
+              </RouterLink>
+              <RouterLink
+                to="/projects/list"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Project List
+              </RouterLink>
+            </div>
+          </div>
+
+          <!-- Notifications -->
+          <div>
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Notifications
+            </p>
+
+            <div class="space-y-1">
+              <RouterLink
+                to="/notifications"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Notifications
+              </RouterLink>
+
+              <RouterLink
+                to="/notifications/settings"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Notification Settings
+              </RouterLink>
+            </div>
+          </div>
+        </nav>
+      </aside>
+
+      <!-- Page Content -->
+      <main class="min-w-0 flex-1 overflow-x-hidden">
+        <div class="p-6">
+          <RouterView />
+        </div>
+      </main>
+    </div>
+  </div>
+</template>
+==================================================
+FILE: frontend/src/layouts/FinanceLayout.vue
+==================================================
+<script setup>
+import { RouterView } from "vue-router";
+</script>
+
+<template>
+  <RouterView />
+</template>
+================ PACKAGE FILES ================
+
+==================================================
+FILE: frontend/package.json
+==================================================
+{
+  "name": "frontend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "run-p type-check \"build-only {@}\" --",
+    "preview": "vite preview",
+    "test:unit": "vitest",
+    "build-only": "vite build",
+    "type-check": "vue-tsc --build",
+    "lint": "run-s lint:*",
+    "lint:oxlint": "oxlint . --fix",
+    "lint:eslint": "eslint . --fix --cache",
+    "format": "prettier --write --experimental-cli src/"
+  },
+  "dependencies": {
+    "@vueuse/core": "^14.2.1",
+    "axios": "^1.15.2",
+    "chart.js": "^4.5.1",
+    "dayjs": "^1.11.20",
+    "lucide-vue-next": "^1.0.0",
+    "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
+    "recharts": "^3.8.1",
+    "vue": "^3.5.31",
+    "vue-chartjs": "^5.3.3",
+    "vue-router": "^5.0.4",
+    "vue-sonner": "^2.0.9",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.4",
+    "@tsconfig/node24": "^24.0.4",
+    "@types/jsdom": "^28.0.1",
+    "@types/node": "^24.12.0",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "@vitest/eslint-plugin": "^1.6.13",
+    "@vue/eslint-config-typescript": "^14.7.0",
+    "@vue/test-utils": "^2.4.6",
+    "@vue/tsconfig": "^0.9.1",
+    "autoprefixer": "^10.5.0",
+    "eslint": "^10.1.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-oxlint": "~1.57.0",
+    "eslint-plugin-vue": "~10.8.0",
+    "jiti": "^2.6.1",
+    "jsdom": "^29.0.1",
+    "npm-run-all2": "^8.0.4",
+    "oxlint": "~1.57.0",
+    "postcss": "^8.5.10",
+    "prettier": "3.8.1",
+    "sass": "^1.99.0",
+    "tailwindcss": "^3.4.19",
+    "typescript": "~6.0.0",
+    "vite": "^8.0.3",
+    "vite-plugin-vue-devtools": "^8.1.1",
+    "vitest": "^4.1.2",
+    "vue-tsc": "^3.2.6"
+  },
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
+}
+
+==================================================
+FILE: frontend/vite.config.ts
+==================================================
+import { fileURLToPath, URL } from "node:url";
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    tailwindcss(),
+  ],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
+});
+==================================================
+FILE: frontend/tsconfig.json
+==================================================
+{
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "./tsconfig.app.json"
+    },
+    {
+      "path": "./tsconfig.vitest.json"
+    }
+  ]
+}
+
+==================================================
+FILE: backend/composer.json
+==================================================
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "laravel/laravel",
+    "type": "project",
+    "description": "The skeleton application for the Laravel framework.",
+    "keywords": ["laravel", "framework"],
+    "license": "MIT",
+    "require": {
+        "php": "^8.3",
+        "laravel/framework": "^13.0",
+        "laravel/sanctum": "^4.0",
+        "laravel/tinker": "^3.0",
+        "predis/predis": "^3.4",
+        "spatie/laravel-permission": "^7.4"
+    },
+    "require-dev": {
+        "barryvdh/laravel-debugbar": "^4.2",
+        "fakerphp/faker": "^1.23",
+        "laravel/pail": "^1.2.5",
+        "laravel/pint": "^1.29",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.6",
+        "phpunit/phpunit": "^12.5.12"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Database\\Factories\\": "database/factories/",
+            "Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "setup": [
+            "composer install",
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
+            "@php artisan key:generate",
+            "@php artisan migrate --force",
+            "npm install --ignore-scripts",
+            "npm run build"
+        ],
+        "dev": [
+            "Composer\\Config::disableProcessTimeout",
+            "npx concurrently -c \"#93c5fd,#c4b5fd,#fb7185,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=0\" \"php artisan pail --timeout=0\" \"npm run dev\" --names=server,queue,logs,vite --kill-others"
+        ],
+        "test": [
+            "@php artisan config:clear --ansi",
+            "@php artisan test"
+        ],
+        "post-autoload-dump": [
+            "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
+            "@php artisan package:discover --ansi"
+        ],
+        "post-update-cmd": [
+            "@php artisan vendor:publish --tag=laravel-assets --ansi --force"
+        ],
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php artisan key:generate --ansi",
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
+            "@php artisan migrate --graceful --ansi"
+        ],
+        "pre-package-uninstall": [
+            "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "dont-discover": []
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
+
+================ DATABASE TABLE STRUCTURE CHECKS ================
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
+
+================ PROJECT TABLE COLUMNS ================
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
+
+================ SAMPLE PROJECT DATA COUNTS ================
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
+
+================ STEP 59 EXPORT COMPLETED ================
+Output file: step59_project_progress_status_files.txt

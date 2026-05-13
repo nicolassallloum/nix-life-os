@@ -3,6 +3,7 @@
 namespace App\Services\Projects;
 
 use App\Models\Project;
+use App\Models\ProjectMilestone;
 use App\Models\ProjectStatusUpdate;
 use App\Models\ProjectTask;
 use Illuminate\Support\Facades\DB;
@@ -12,188 +13,247 @@ class ProjectProgressService
     public function recalculate(Project $project): array
     {
         return DB::transaction(function () use ($project) {
-            $oldProgress = (int) ($project->progress_percentage ?? 0);
+            $project = $project->fresh();
+
+            $tasks = $project->tasks()->get();
+            $milestones = $project->milestones()->get();
+
+            $totalTasks = $tasks->count();
+            $completedTasks = $tasks->where('status', 'completed')->count();
+            $pendingTasks = $tasks->whereIn('status', ['todo', 'pending'])->count();
+            $inProgressTasks = $tasks->where('status', 'in_progress')->count();
+            $blockedTasks = $tasks->whereIn('status', ['blocked'])->count();
+            $cancelledTasks = $tasks->where('status', 'cancelled')->count();
+
+            $overdueTasks = $tasks
+                ->filter(fn ($task) => $task->is_overdue)
+                ->count();
+
+            $taskProgress = $totalTasks > 0
+                ? round((float) $tasks->avg('progress_percentage'), 2)
+                : 0;
+
+            $milestoneWeightTotal = (float) $milestones->sum('weight');
+
+            $milestoneProgress = 0;
+
+            if ($milestones->count() > 0 && $milestoneWeightTotal > 0) {
+                $weightedTotal = $milestones->sum(function ($milestone) {
+                    return ((float) $milestone->progress_percentage) * ((float) $milestone->weight);
+                });
+
+                $milestoneProgress = round($weightedTotal / $milestoneWeightTotal, 2);
+            }
+
+            if ($totalTasks > 0 && $milestones->count() > 0) {
+                $projectProgress = round(($taskProgress * 0.7) + ($milestoneProgress * 0.3), 2);
+            } elseif ($totalTasks > 0) {
+                $projectProgress = $taskProgress;
+            } elseif ($milestones->count() > 0) {
+                $projectProgress = $milestoneProgress;
+            } else {
+                $projectProgress = 0;
+            }
+
+            $newStatus = $this->calculateProjectStatus(
+                totalTasks: $totalTasks,
+                completedTasks: $completedTasks,
+                blockedTasks: $blockedTasks,
+                inProgressTasks: $inProgressTasks,
+                progress: $projectProgress,
+                milestones: $milestones
+            );
+
             $oldStatus = $project->status;
+            $oldProgress = (float) ($project->progress_percentage ?? 0);
 
-            $taskScore = $this->calculateTaskScore($project);
-            $milestoneScore = $this->calculateMilestoneScore($project);
-
-            /*
-             * Progress Formula:
-             * Tasks      = 70%
-             * Milestones = 30%
-             */
-            $finalProgress = round(($taskScore * 0.70) + ($milestoneScore * 0.30));
-
-            $newStatus = $this->resolveProjectStatus($finalProgress, $project);
+            $actualEndDate = $newStatus === 'completed'
+                ? ($project->actual_end_date ?? now()->toDateString())
+                : null;
 
             $project->update([
-                'progress_percentage' => $finalProgress,
+                'progress_percentage' => $projectProgress,
                 'status' => $newStatus,
-                'completed_at' => $finalProgress >= 100 ? now() : null,
+                'actual_end_date' => $actualEndDate,
             ]);
 
-            ProjectStatusUpdate::create([
-                'project_id' => $project->id,
-                'update_title' => 'Project progress recalculated',
-                'update_description' => 'Progress was automatically recalculated based on tasks and milestones.',
-                'old_status' => $oldStatus,
-                'new_status' => $newStatus,
-                'old_progress_percentage' => $oldProgress,
-                'new_progress_percentage' => $finalProgress,
-                'update_type' => 'auto_calculation',
-                'metadata' => [
-                    'task_score' => $taskScore,
-                    'milestone_score' => $milestoneScore,
-                    'formula' => 'tasks_70_percent_milestones_30_percent',
-                ],
-            ]);
+            if ($oldStatus !== $newStatus || round($oldProgress, 2) !== round($projectProgress, 2)) {
+                ProjectStatusUpdate::create([
+                    'project_id' => $project->id,
+                    'update_title' => 'Project progress recalculated',
+                    'update_description' => 'Project progress and status were recalculated automatically.',
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                    'old_progress_percentage' => (int) round($oldProgress),
+                    'new_progress_percentage' => (int) round($projectProgress),
+                    'update_type' => 'auto_calculation',
+                    'metadata' => [
+                        'total_tasks' => $totalTasks,
+                        'completed_tasks' => $completedTasks,
+                        'pending_tasks' => $pendingTasks,
+                        'in_progress_tasks' => $inProgressTasks,
+                        'blocked_tasks' => $blockedTasks,
+                        'cancelled_tasks' => $cancelledTasks,
+                        'overdue_tasks' => $overdueTasks,
+                        'task_progress' => $taskProgress,
+                        'milestone_progress' => $milestoneProgress,
+                    ],
+                ]);
+            }
 
-            return [
-                'project_id' => $project->id,
-                'old_progress_percentage' => $oldProgress,
-                'new_progress_percentage' => $finalProgress,
-                'old_status' => $oldStatus,
-                'new_status' => $newStatus,
-                'task_score' => $taskScore,
-                'milestone_score' => $milestoneScore,
-            ];
+            return $this->buildProgressPayload($project->fresh());
         });
     }
 
     public function updateTaskProgress(ProjectTask $task, int $progressPercentage, ?string $status = null): array
     {
         return DB::transaction(function () use ($task, $progressPercentage, $status) {
-            $project = $task->project;
-
-            $oldProgress = (int) ($task->progress_percentage ?? 0);
             $oldStatus = $task->status;
+            $oldProgress = (float) $task->progress_percentage;
 
-            $newStatus = $status ?: $this->resolveTaskStatus($progressPercentage);
+            $newStatus = $status ?: $this->statusFromProgress($progressPercentage);
+
+            if ($progressPercentage >= 100) {
+                $newStatus = 'completed';
+            }
 
             $task->update([
                 'progress_percentage' => $progressPercentage,
                 'status' => $newStatus,
-                'completed_at' => $progressPercentage >= 100 ? now() : null,
+                'completed_date' => $newStatus === 'completed' ? now()->toDateString() : null,
             ]);
 
             ProjectStatusUpdate::create([
-                'project_id' => $project->id,
+                'project_id' => $task->project_id,
                 'task_id' => $task->id,
                 'update_title' => 'Task progress updated',
-                'update_description' => 'Task progress was updated and project progress was recalculated.',
+                'update_description' => 'Task progress or status was updated.',
                 'old_status' => $oldStatus,
                 'new_status' => $newStatus,
-                'old_progress_percentage' => $oldProgress,
+                'old_progress_percentage' => (int) round($oldProgress),
                 'new_progress_percentage' => $progressPercentage,
                 'update_type' => 'task_progress',
                 'metadata' => [
                     'task_id' => $task->id,
-                    'task_name' => $task->task_name ?? null,
+                    'task_title' => $task->task_title,
                 ],
             ]);
 
-            $projectProgress = $this->recalculate($project->fresh());
-
-            return [
-                'task_id' => $task->id,
-                'old_task_progress' => $oldProgress,
-                'new_task_progress' => $progressPercentage,
-                'old_task_status' => $oldStatus,
-                'new_task_status' => $newStatus,
-                'project_progress' => $projectProgress,
-            ];
+            return $this->recalculate($task->project->fresh());
         });
     }
 
-    private function calculateTaskScore(Project $project): float
+    public function buildProgressPayload(Project $project): array
     {
-        $tasks = $project->tasks()->get();
+        $project->load([
+            'tasks' => fn ($query) => $query->orderBy('task_order')->orderBy('created_at'),
+            'milestones' => fn ($query) => $query->orderBy('target_date')->orderBy('created_at'),
+            'statusUpdates' => fn ($query) => $query->latest()->limit(15),
+        ]);
 
-        if ($tasks->isEmpty()) {
-            return 0;
-        }
+        $tasks = $project->tasks;
+        $milestones = $project->milestones;
 
-        $totalWeight = 0;
-        $weightedProgress = 0;
+        $totalTasks = $tasks->count();
+        $completedTasks = $tasks->where('status', 'completed')->count();
+        $pendingTasks = $tasks->whereIn('status', ['todo', 'pending'])->count();
+        $inProgressTasks = $tasks->where('status', 'in_progress')->count();
+        $blockedTasks = $tasks->where('status', 'blocked')->count();
+        $cancelledTasks = $tasks->where('status', 'cancelled')->count();
+        $overdueTasks = $tasks->filter(fn ($task) => $task->is_overdue)->count();
 
-        foreach ($tasks as $task) {
-            $weight = (float) ($task->weight ?? 1);
-            $progress = $this->normalizeProgressByStatus(
-                $task->progress_percentage,
-                $task->status
-            );
+        $totalMilestones = $milestones->count();
+        $completedMilestones = $milestones->where('status', 'completed')->count();
+        $pendingMilestones = $milestones->where('status', 'pending')->count();
+        $inProgressMilestones = $milestones->where('status', 'in_progress')->count();
+        $blockedMilestones = $milestones->where('status', 'blocked')->count();
 
-            $totalWeight += $weight;
-            $weightedProgress += ($progress * $weight);
-        }
-
-        return $totalWeight > 0 ? round($weightedProgress / $totalWeight, 2) : 0;
+        return [
+            'project' => [
+                'id' => $project->id,
+                'project_name' => $project->project_name,
+                'project_code' => $project->project_code,
+                'status' => $project->status,
+                'priority' => $project->priority,
+                'progress_percentage' => (float) ($project->progress_percentage ?? 0),
+                'start_date' => optional($project->start_date)->format('Y-m-d'),
+                'target_end_date' => optional($project->target_end_date)->format('Y-m-d'),
+                'actual_end_date' => optional($project->actual_end_date)->format('Y-m-d'),
+            ],
+            'summary' => [
+                'total_tasks' => $totalTasks,
+                'completed_tasks' => $completedTasks,
+                'pending_tasks' => $pendingTasks,
+                'in_progress_tasks' => $inProgressTasks,
+                'blocked_tasks' => $blockedTasks,
+                'cancelled_tasks' => $cancelledTasks,
+                'overdue_tasks' => $overdueTasks,
+                'total_milestones' => $totalMilestones,
+                'completed_milestones' => $completedMilestones,
+                'pending_milestones' => $pendingMilestones,
+                'in_progress_milestones' => $inProgressMilestones,
+                'blocked_milestones' => $blockedMilestones,
+                'empty_progress_state' => $totalTasks === 0 && $totalMilestones === 0,
+            ],
+            'charts' => [
+                'tasks_by_status' => [
+                    ['status' => 'todo', 'label' => 'To Do', 'value' => $pendingTasks],
+                    ['status' => 'in_progress', 'label' => 'In Progress', 'value' => $inProgressTasks],
+                    ['status' => 'blocked', 'label' => 'Blocked', 'value' => $blockedTasks],
+                    ['status' => 'completed', 'label' => 'Completed', 'value' => $completedTasks],
+                    ['status' => 'cancelled', 'label' => 'Cancelled', 'value' => $cancelledTasks],
+                ],
+                'milestones_by_status' => [
+                    ['status' => 'pending', 'label' => 'Pending', 'value' => $pendingMilestones],
+                    ['status' => 'in_progress', 'label' => 'In Progress', 'value' => $inProgressMilestones],
+                    ['status' => 'blocked', 'label' => 'Blocked', 'value' => $blockedMilestones],
+                    ['status' => 'completed', 'label' => 'Completed', 'value' => $completedMilestones],
+                ],
+            ],
+            'tasks' => $tasks,
+            'milestones' => $milestones,
+            'recent_updates' => $project->statusUpdates,
+            'status_history' => $project->statusUpdates,
+        ];
     }
 
-    private function calculateMilestoneScore(Project $project): float
-    {
-        $milestones = $project->milestones()->get();
-
-        if ($milestones->isEmpty()) {
-            return 0;
+    private function calculateProjectStatus(
+        int $totalTasks,
+        int $completedTasks,
+        int $blockedTasks,
+        int $inProgressTasks,
+        float $progress,
+        $milestones
+    ): string {
+        if ($totalTasks === 0 && $milestones->count() === 0) {
+            return 'not_started';
         }
 
-        $totalWeight = 0;
-        $weightedProgress = 0;
-
-        foreach ($milestones as $milestone) {
-            $weight = (float) ($milestone->weight ?? 1);
-            $progress = $this->normalizeProgressByStatus(
-                $milestone->progress_percentage,
-                $milestone->status
-            );
-
-            $totalWeight += $weight;
-            $weightedProgress += ($progress * $weight);
-        }
-
-        return $totalWeight > 0 ? round($weightedProgress / $totalWeight, 2) : 0;
-    }
-
-    private function normalizeProgressByStatus(?int $progress, ?string $status): int
-    {
-        return match ($status) {
-            'completed' => 100,
-            'in_progress' => max($progress ?? 50, 1),
-            'blocked' => $progress ?? 0,
-            'cancelled' => $progress ?? 0,
-            default => $progress ?? 0,
-        };
-    }
-
-    private function resolveTaskStatus(int $progressPercentage): string
-    {
-        if ($progressPercentage >= 100) {
+        if ($progress >= 100) {
             return 'completed';
         }
 
-        if ($progressPercentage > 0) {
-            return 'in_progress';
+        if ($blockedTasks > 0 || $milestones->where('status', 'blocked')->count() > 0) {
+            return 'on_hold';
         }
 
-        return 'pending';
-    }
-
-    private function resolveProjectStatus(int $progressPercentage, Project $project): string
-    {
-        if ($progressPercentage >= 100) {
-            return 'completed';
-        }
-
-        if ($project->tasks()->where('status', 'blocked')->exists()) {
-            return 'blocked';
-        }
-
-        if ($progressPercentage > 0) {
+        if ($inProgressTasks > 0 || $milestones->where('status', 'in_progress')->count() > 0 || $progress > 0) {
             return 'in_progress';
         }
 
         return 'not_started';
+    }
+
+    private function statusFromProgress(int $progressPercentage): string
+    {
+        if ($progressPercentage >= 100) {
+            return 'completed';
+        }
+
+        if ($progressPercentage > 0) {
+            return 'in_progress';
+        }
+
+        return 'todo';
     }
 }

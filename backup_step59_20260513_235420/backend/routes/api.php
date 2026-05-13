@@ -126,20 +126,9 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/{project}/progress', [ProjectProgressController::class, 'show']);
             Route::post('/{project}/progress/recalculate', [ProjectProgressController::class, 'recalculate']);
-            Route::patch('/{project}/tasks/{task}/progress', [ProjectProgressController::class, 'updateTaskProgress']);
 
             Route::get('/{project}/tasks', [ProjectTaskController::class, 'index']);
             Route::post('/{project}/tasks', [ProjectTaskController::class, 'store']);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Task Progress Update
-            |--------------------------------------------------------------------------
-            | Keep this route before /tasks/{task} update routes.
-            */
-            Route::patch('/{project}/tasks/{task}/progress', [ProjectProgressController::class, 'updateTaskProgress']);
-            Route::put('/{project}/tasks/{task}/progress', [ProjectProgressController::class, 'updateTaskProgress']);
-
             Route::get('/{project}/tasks/{task}', [ProjectTaskController::class, 'show']);
             Route::put('/{project}/tasks/{task}', [ProjectTaskController::class, 'update']);
             Route::patch('/{project}/tasks/{task}', [ProjectTaskController::class, 'update']);
@@ -147,9 +136,6 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/{project}/milestones', [ProjectMilestoneController::class, 'index']);
             Route::post('/{project}/milestones', [ProjectMilestoneController::class, 'store']);
-            Route::put('/{project}/milestones/{milestone}', [ProjectMilestoneController::class, 'update']);
-            Route::patch('/{project}/milestones/{milestone}', [ProjectMilestoneController::class, 'update']);
-            Route::delete('/{project}/milestones/{milestone}', [ProjectMilestoneController::class, 'destroy']);
 
             Route::get('/{project}/status-updates', [ProjectStatusUpdateController::class, 'index']);
             Route::post('/{project}/status-updates', [ProjectStatusUpdateController::class, 'store']);

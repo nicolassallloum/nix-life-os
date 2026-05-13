@@ -34,11 +34,6 @@ class ProjectStatusUpdate extends Model
         return $this->belongsTo(Project::class);
     }
 
-    public function task()
-    {
-        return $this->belongsTo(ProjectTask::class, 'task_id');
-    }
-
     public function milestone()
     {
         return $this->belongsTo(ProjectMilestone::class, 'milestone_id');

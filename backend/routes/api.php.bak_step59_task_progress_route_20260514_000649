@@ -130,16 +130,6 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/{project}/tasks', [ProjectTaskController::class, 'index']);
             Route::post('/{project}/tasks', [ProjectTaskController::class, 'store']);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Task Progress Update
-            |--------------------------------------------------------------------------
-            | Keep this route before /tasks/{task} update routes.
-            */
-            Route::patch('/{project}/tasks/{task}/progress', [ProjectProgressController::class, 'updateTaskProgress']);
-            Route::put('/{project}/tasks/{task}/progress', [ProjectProgressController::class, 'updateTaskProgress']);
-
             Route::get('/{project}/tasks/{task}', [ProjectTaskController::class, 'show']);
             Route::put('/{project}/tasks/{task}', [ProjectTaskController::class, 'update']);
             Route::patch('/{project}/tasks/{task}', [ProjectTaskController::class, 'update']);
