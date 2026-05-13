@@ -11,29 +11,51 @@ class ProjectTask extends Model
 
     protected $fillable = [
         'project_id',
-        'task_name',
-        'description',
+        'user_id',
+        'task_title',
+        'task_description',
         'status',
         'priority',
+        'task_order',
         'start_date',
-        'target_end_date',
-        'completed_at',
+        'due_date',
+        'completed_date',
         'progress_percentage',
-        'weight',
         'metadata',
     ];
 
     protected $casts = [
         'start_date' => 'date',
-        'target_end_date' => 'date',
-        'completed_at' => 'datetime',
-        'progress_percentage' => 'integer',
-        'weight' => 'decimal:2',
+        'due_date' => 'date',
+        'completed_date' => 'date',
+        'progress_percentage' => 'decimal:2',
         'metadata' => 'array',
+    ];
+
+    protected $appends = [
+        'is_overdue',
     ];
 
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function getIsOverdueAttribute(): bool
+    {
+        if (!$this->due_date) {
+            return false;
+        }
+
+        if (in_array($this->status, ['completed', 'cancelled'], true)) {
+            return false;
+        }
+
+        return $this->due_date->isPast() && !$this->due_date->isToday();
     }
 }

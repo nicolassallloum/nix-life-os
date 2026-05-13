@@ -129,10 +129,6 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/{project}/tasks', [ProjectTaskController::class, 'index']);
             Route::post('/{project}/tasks', [ProjectTaskController::class, 'store']);
-            Route::get('/{project}/tasks/{task}', [ProjectTaskController::class, 'show']);
-            Route::put('/{project}/tasks/{task}', [ProjectTaskController::class, 'update']);
-            Route::patch('/{project}/tasks/{task}', [ProjectTaskController::class, 'update']);
-            Route::delete('/{project}/tasks/{task}', [ProjectTaskController::class, 'destroy']);
 
             Route::get('/{project}/milestones', [ProjectMilestoneController::class, 'index']);
             Route::post('/{project}/milestones', [ProjectMilestoneController::class, 'store']);

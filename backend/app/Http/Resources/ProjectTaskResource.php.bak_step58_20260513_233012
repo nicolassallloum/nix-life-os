@@ -26,11 +26,8 @@ class ProjectTaskResource extends JsonResource
             'completed_date' => optional($this->completed_date)->format('Y-m-d'),
 
             'progress_percentage' => $this->progress_percentage,
-            'is_overdue' => $this->is_overdue,
 
             'metadata' => $this->metadata,
-
-            'project' => new ProjectResource($this->whenLoaded('project')),
 
             'created_at' => optional($this->created_at)->format('Y-m-d H:i:s'),
             'updated_at' => optional($this->updated_at)->format('Y-m-d H:i:s'),
