@@ -79,13 +79,19 @@ class ProjectController extends Controller
             'priority' => ['nullable', Rule::in($this->priorities)],
 
             'start_date' => ['nullable', 'date'],
-            'target_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'actual_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'target_end_date' => ['nullable', 'date'],
+            'actual_end_date' => ['nullable', 'date'],
 
             'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
 
             'metadata' => ['nullable', 'array'],
         ]);
+
+        $dateValidationResponse = $this->validateProjectDates($validated);
+
+        if ($dateValidationResponse) {
+            return $dateValidationResponse;
+        }
 
         $validated['user_id'] = $request->user()->id;
         $validated['status'] = $validated['status'] ?? 'not_started';
@@ -145,13 +151,19 @@ class ProjectController extends Controller
             'priority' => ['sometimes', Rule::in($this->priorities)],
 
             'start_date' => ['nullable', 'date'],
-            'target_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
-            'actual_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'target_end_date' => ['nullable', 'date'],
+            'actual_end_date' => ['nullable', 'date'],
 
             'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
 
             'metadata' => ['nullable', 'array'],
         ]);
+
+        $dateValidationResponse = $this->validateProjectDates($validated, $project);
+
+        if ($dateValidationResponse) {
+            return $dateValidationResponse;
+        }
 
         if (($validated['status'] ?? null) === 'completed') {
             $validated['progress_percentage'] = 100;
@@ -192,5 +204,43 @@ class ProjectController extends Controller
             403,
             'Unauthorized project access.'
         );
+    }
+
+    private function validateProjectDates(array $validated, ?Project $project = null)
+    {
+        $startDate = $validated['start_date']
+            ?? optional($project?->start_date)->format('Y-m-d');
+
+        $targetEndDate = array_key_exists('target_end_date', $validated)
+            ? $validated['target_end_date']
+            : optional($project?->target_end_date)->format('Y-m-d');
+
+        $actualEndDate = array_key_exists('actual_end_date', $validated)
+            ? $validated['actual_end_date']
+            : optional($project?->actual_end_date)->format('Y-m-d');
+
+        if (!empty($startDate) && !empty($targetEndDate) && $targetEndDate < $startDate) {
+            return response()->json([
+                'message' => 'The target end date must be a date after or equal to start date.',
+                'errors' => [
+                    'target_end_date' => [
+                        'The target end date must be a date after or equal to start date.',
+                    ],
+                ],
+            ], 422);
+        }
+
+        if (!empty($startDate) && !empty($actualEndDate) && $actualEndDate < $startDate) {
+            return response()->json([
+                'message' => 'The actual end date must be a date after or equal to start date.',
+                'errors' => [
+                    'actual_end_date' => [
+                        'The actual end date must be a date after or equal to start date.',
+                    ],
+                ],
+            ], 422);
+        }
+
+        return null;
     }
 }
