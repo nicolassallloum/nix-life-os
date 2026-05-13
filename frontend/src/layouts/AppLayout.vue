@@ -231,6 +231,13 @@ const activeClass =
               >
                 Status Updates
               </RouterLink>
+              <RouterLink
+                to="/projects/list"
+                :class="linkClass"
+                :active-class="activeClass"
+              >
+                Project List
+              </RouterLink>
             </div>
           </div>
 

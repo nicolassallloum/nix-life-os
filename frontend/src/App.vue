@@ -160,7 +160,15 @@ import { hasPermission } from "@/utils/permissions";
         </p>
 
         <RouterLink
-          to="/projects"
+          to="/projects/list"
+          class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
+          active-class="bg-gray-900 text-white hover:bg-gray-900"
+        >
+          Project List
+        </RouterLink>
+
+        <RouterLink
+          to="/projects/dashboard"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"
           active-class="bg-gray-900 text-white hover:bg-gray-900"
         >

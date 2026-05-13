@@ -24,6 +24,11 @@ export async function createProject(payload) {
 }
 
 export async function updateProject(projectId, payload) {
+  const response = await api.put(`/projects/${projectId}`, payload);
+  return response.data;
+}
+
+export async function patchProject(projectId, payload) {
   const response = await api.patch(`/projects/${projectId}`, payload);
   return response.data;
 }

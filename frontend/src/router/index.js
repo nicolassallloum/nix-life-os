@@ -54,6 +54,7 @@ const MedicationTrackingView = () => import("../views/health/MedicationTrackingV
 */
 
 const ProjectsDashboardView = () => import("../views/projects/ProjectDashboardView.vue");
+const ProjectsView = () => import("../views/projects/ProjectsView.vue");
 const ProjectTasksView = () => import("../views/ProjectTasksView.vue");
 const ProjectMilestonesView = () => import("../views/ProjectMilestonesView.vue");
 const ProjectProgressView = () => import("../views/ProjectProgressView.vue");
@@ -327,7 +328,16 @@ const routes = [
 
   {
     path: "/projects",
-    redirect: "/projects/dashboard",
+    redirect: "/projects/list",
+  },
+  {
+    path: "/projects/list",
+    name: "ProjectsList",
+    component: ProjectsView,
+    meta: {
+      requiresAuth: true,
+      title: "Project List",
+    },
   },
   {
     path: "/projects/dashboard",

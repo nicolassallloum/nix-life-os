@@ -10,39 +10,77 @@ use Illuminate\Validation\Rule;
 
 class ProjectController extends Controller
 {
+    private array $statuses = [
+        'not_started',
+        'in_progress',
+        'on_hold',
+        'completed',
+        'cancelled',
+    ];
+
+    private array $priorities = [
+        'low',
+        'medium',
+        'high',
+        'critical',
+    ];
+
     public function index(Request $request)
     {
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:255'],
+            'status' => ['nullable', Rule::in($this->statuses)],
+            'priority' => ['nullable', Rule::in($this->priorities)],
+            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'page' => ['nullable', 'integer', 'min:1'],
+        ]);
+
         $projects = Project::query()
             ->where('user_id', $request->user()->id)
             ->withCount('tasks')
-            ->when($request->status, fn ($query) => $query->where('status', $request->status))
-            ->when($request->priority, fn ($query) => $query->where('priority', $request->priority))
-            ->latest()
-            ->paginate($request->get('per_page', 15));
+            ->when($validated['search'] ?? null, function ($query, $search) {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery
+                        ->where('project_name', 'ILIKE', "%{$search}%")
+                        ->orWhere('project_code', 'ILIKE', "%{$search}%")
+                        ->orWhere('description', 'ILIKE', "%{$search}%");
+                });
+            })
+            ->when($validated['status'] ?? null, function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->when($validated['priority'] ?? null, function ($query, $priority) {
+                $query->where('priority', $priority);
+            })
+            ->orderByDesc('created_at')
+            ->paginate($validated['per_page'] ?? 15);
 
-        return ProjectResource::collection($projects);
+        return ProjectResource::collection($projects)
+            ->additional([
+                'success' => true,
+                'message' => 'Projects loaded successfully.',
+            ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'project_name' => ['required', 'string', 'max:255'],
-            'project_code' => ['nullable', 'string', 'max:100'],
+            'project_code' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('projects', 'project_code')
+                    ->where(fn ($query) => $query->where('user_id', $request->user()->id)),
+            ],
             'description' => ['nullable', 'string'],
 
-            'status' => [
-                'nullable',
-                Rule::in(['not_started', 'in_progress', 'on_hold', 'completed', 'cancelled']),
-            ],
-
-            'priority' => [
-                'nullable',
-                Rule::in(['low', 'medium', 'high', 'critical']),
-            ],
+            'status' => ['nullable', Rule::in($this->statuses)],
+            'priority' => ['nullable', Rule::in($this->priorities)],
 
             'start_date' => ['nullable', 'date'],
-            'target_end_date' => ['nullable', 'date'],
-            'actual_end_date' => ['nullable', 'date'],
+            'target_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'actual_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
 
             'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
 
@@ -54,7 +92,12 @@ class ProjectController extends Controller
         $validated['priority'] = $validated['priority'] ?? 'medium';
         $validated['progress_percentage'] = $validated['progress_percentage'] ?? 0;
 
-        $project = Project::create($validated);
+        if ($validated['status'] === 'completed') {
+            $validated['progress_percentage'] = 100;
+            $validated['actual_end_date'] = $validated['actual_end_date'] ?? now()->toDateString();
+        }
+
+        $project = Project::create($validated)->loadCount('tasks');
 
         return response()->json([
             'success' => true,
@@ -67,12 +110,17 @@ class ProjectController extends Controller
     {
         $this->authorizeProject($request, $project);
 
-        $project->load(['tasks' => function ($query) {
-            $query->orderBy('task_order')->orderBy('created_at');
-        }]);
+        $project->loadCount('tasks');
+
+        $project->load([
+            'tasks' => function ($query) {
+                $query->orderBy('task_order')->orderBy('created_at');
+            },
+        ]);
 
         return response()->json([
             'success' => true,
+            'message' => 'Project loaded successfully.',
             'data' => new ProjectResource($project),
         ]);
     }
@@ -83,22 +131,22 @@ class ProjectController extends Controller
 
         $validated = $request->validate([
             'project_name' => ['sometimes', 'required', 'string', 'max:255'],
-            'project_code' => ['nullable', 'string', 'max:100'],
+            'project_code' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('projects', 'project_code')
+                    ->ignore($project->id)
+                    ->where(fn ($query) => $query->where('user_id', $request->user()->id)),
+            ],
             'description' => ['nullable', 'string'],
 
-            'status' => [
-                'sometimes',
-                Rule::in(['not_started', 'in_progress', 'on_hold', 'completed', 'cancelled']),
-            ],
-
-            'priority' => [
-                'sometimes',
-                Rule::in(['low', 'medium', 'high', 'critical']),
-            ],
+            'status' => ['sometimes', Rule::in($this->statuses)],
+            'priority' => ['sometimes', Rule::in($this->priorities)],
 
             'start_date' => ['nullable', 'date'],
-            'target_end_date' => ['nullable', 'date'],
-            'actual_end_date' => ['nullable', 'date'],
+            'target_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'actual_end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
 
             'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
 
@@ -110,12 +158,18 @@ class ProjectController extends Controller
             $validated['actual_end_date'] = $validated['actual_end_date'] ?? now()->toDateString();
         }
 
+        if (($validated['status'] ?? null) !== 'completed' && array_key_exists('actual_end_date', $validated)) {
+            $validated['actual_end_date'] = $validated['actual_end_date'] ?: null;
+        }
+
         $project->update($validated);
+
+        $project = $project->fresh()->loadCount('tasks');
 
         return response()->json([
             'success' => true,
             'message' => 'Project updated successfully.',
-            'data' => new ProjectResource($project->fresh()),
+            'data' => new ProjectResource($project),
         ]);
     }
 
@@ -133,6 +187,10 @@ class ProjectController extends Controller
 
     private function authorizeProject(Request $request, Project $project): void
     {
-        abort_if($project->user_id !== $request->user()->id, 403, 'Unauthorized project access.');
+        abort_if(
+            $project->user_id !== $request->user()->id,
+            403,
+            'Unauthorized project access.'
+        );
     }
 }
