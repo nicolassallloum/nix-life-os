@@ -13,7 +13,6 @@ import HealthReportsView from "@/views/health/HealthReportsView.vue";
 const LoginView = () => import("../views/auth/LoginView.vue");
 const RegisterView = () => import("../views/auth/RegisterView.vue");
 const TasksView = () => import("../views/productivity/TasksView.vue");
-const HabitsView = () => import("../views/productivity/HabitsView.vue");
 /*
 |--------------------------------------------------------------------------
 | Dashboard Views
@@ -192,15 +191,6 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: "Tasks",
-    },
-  },
-  {
-    path: "/productivity/habits",
-    name: "Habits",
-    component: HabitsView,
-    meta: {
-      requiresAuth: true,
-      title: "Habits",
     },
   },
   {

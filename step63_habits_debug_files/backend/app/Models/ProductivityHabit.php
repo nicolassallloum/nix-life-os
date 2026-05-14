@@ -34,18 +34,11 @@ class ProductivityHabit extends Model
 
     protected $appends = [
         'is_completed_today',
-        'title',
-        'best_streak_count',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function checkIns()
-    {
-        return $this->hasMany(ProductivityHabitCheckIn::class, 'habit_id');
     }
 
     public function getIsCompletedTodayAttribute(): bool
@@ -55,15 +48,5 @@ class ProductivityHabit extends Model
         }
 
         return $this->last_completed_at?->isToday() ?? false;
-    }
-
-    public function getTitleAttribute(): string
-    {
-        return (string) $this->name;
-    }
-
-    public function getBestStreakCountAttribute(): int
-    {
-        return (int) $this->best_streak;
     }
 }

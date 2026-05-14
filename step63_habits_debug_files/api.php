@@ -10,7 +10,6 @@ use App\Http\Controllers\Api\V1\ProjectMilestoneController;
 use App\Http\Controllers\Api\V1\ProjectStatusUpdateController;
 use App\Http\Controllers\Api\V1\ProjectProgressController;
 use App\Http\Controllers\Api\V1\ProductivityDashboardController;
-use App\Http\Controllers\Api\V1\ProductivityHabitController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceAccountController;
@@ -195,15 +194,6 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('productivity')->group(function () {
             Route::get('/dashboard', [ProductivityDashboardController::class, 'summary']);
-
-            Route::get('/habits', [ProductivityHabitController::class, 'index']);
-            Route::post('/habits', [ProductivityHabitController::class, 'store']);
-            Route::get('/habits/summary/weekly', [ProductivityHabitController::class, 'weeklySummary']);
-            Route::get('/habits/{habit}', [ProductivityHabitController::class, 'show']);
-            Route::put('/habits/{habit}', [ProductivityHabitController::class, 'update']);
-            Route::patch('/habits/{habit}', [ProductivityHabitController::class, 'update']);
-            Route::delete('/habits/{habit}', [ProductivityHabitController::class, 'destroy']);
-            Route::post('/habits/{habit}/check-in', [ProductivityHabitController::class, 'checkIn']);
         });
 
         /*
