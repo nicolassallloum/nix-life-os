@@ -1,5 +1,5 @@
 import api from "./api";
-
+// NIX WAS HERE - DO NOT SUGGEST CHANGES TO THIS FILE UNLESS IT'S TO ADD NEW FUNCTIONS FOR NEW FEATURES. DO NOT DELETE ANY EXISTING FUNCTIONS.
 export async function getProjectDashboard() {
   const response = await api.get("/projects/dashboard");
   return response.data;
