@@ -18,7 +18,6 @@ class ProjectDashboardController extends Controller
 
             if (!$user) {
                 return response()->json([
-                    'success' => false,
                     'message' => 'Unauthenticated.',
                 ], 401);
             }
@@ -38,28 +37,9 @@ class ProjectDashboardController extends Controller
                 ->where('status', 'completed')
                 ->count();
 
-            $onHoldProjects = (clone $baseProjects)
-                ->where('status', 'on_hold')
-                ->count();
-
-            $cancelledProjects = (clone $baseProjects)
-                ->where('status', 'cancelled')
-                ->count();
-
-            $notStartedProjects = (clone $baseProjects)
-                ->where('status', 'not_started')
-                ->count();
-
             $averageProgress = (clone $baseProjects)
                 ->avg('progress_percentage');
 
-            /*
-             |--------------------------------------------------------------------------
-             | Important:
-             |--------------------------------------------------------------------------
-             | project_tasks does NOT have target_end_date.
-             | Overdue task logic must use project_tasks.due_date.
-             */
             $overdueTasks = ProjectTask::query()
                 ->join('projects', 'projects.id', '=', 'project_tasks.project_id')
                 ->where('projects.user_id', $userId)
@@ -68,27 +48,18 @@ class ProjectDashboardController extends Controller
                 ->whereDate('project_tasks.due_date', '<', now()->toDateString())
                 ->count();
 
-            $totalTasks = ProjectTask::query()
-                ->join('projects', 'projects.id', '=', 'project_tasks.project_id')
-                ->where('projects.user_id', $userId)
-                ->count();
-
-            $completedTasks = ProjectTask::query()
-                ->join('projects', 'projects.id', '=', 'project_tasks.project_id')
-                ->where('projects.user_id', $userId)
-                ->where('project_tasks.status', 'completed')
-                ->count();
-
             $statusChart = (clone $baseProjects)
                 ->select('status', DB::raw('COUNT(*) as total'))
                 ->groupBy('status')
                 ->orderBy('status')
                 ->get()
-                ->map(fn ($item) => [
-                    'label' => $this->formatLabel($item->status),
-                    'status' => $item->status,
-                    'value' => (int) $item->total,
-                ])
+                ->map(function ($item) {
+                    return [
+                        'label' => $this->formatLabel($item->status),
+                        'status' => $item->status,
+                        'value' => (int) $item->total,
+                    ];
+                })
                 ->values();
 
             $priorityChart = (clone $baseProjects)
@@ -96,54 +67,62 @@ class ProjectDashboardController extends Controller
                 ->groupBy('priority')
                 ->orderBy('priority')
                 ->get()
-                ->map(fn ($item) => [
-                    'label' => $this->formatLabel($item->priority),
-                    'priority' => $item->priority,
-                    'value' => (int) $item->total,
-                ])
+                ->map(function ($item) {
+                    return [
+                        'label' => $this->formatLabel($item->priority),
+                        'priority' => $item->priority,
+                        'value' => (int) $item->total,
+                    ];
+                })
                 ->values();
 
             $progressCards = (clone $baseProjects)
                 ->withCount([
                     'tasks as total_tasks',
-                    'tasks as completed_tasks' => fn ($query) => $query->where('status', 'completed'),
+                    'tasks as completed_tasks' => function ($query) {
+                        $query->where('status', 'completed');
+                    },
                 ])
                 ->latest()
                 ->limit(8)
                 ->get()
-                ->map(fn ($project) => [
-                    'id' => $project->id,
-                    'project_name' => $project->project_name,
-                    'project_code' => $project->project_code,
-                    'status' => $project->status,
-                    'priority' => $project->priority,
-                    'progress_percentage' => (float) ($project->progress_percentage ?? 0),
-                    'total_tasks' => (int) ($project->total_tasks ?? 0),
-                    'completed_tasks' => (int) ($project->completed_tasks ?? 0),
-                    'target_end_date' => $project->target_end_date
-                        ? $project->target_end_date->toDateString()
-                        : null,
-                ])
+                ->map(function ($project) {
+                    return [
+                        'id' => $project->id,
+                        'project_name' => $project->project_name,
+                        'project_code' => $project->project_code,
+                        'status' => $project->status,
+                        'priority' => $project->priority,
+                        'progress_percentage' => (float) ($project->progress_percentage ?? 0),
+                        'total_tasks' => (int) ($project->total_tasks ?? 0),
+                        'completed_tasks' => (int) ($project->completed_tasks ?? 0),
+                        'target_end_date' => $project->target_end_date
+                            ? $project->target_end_date->toDateString()
+                            : null,
+                    ];
+                })
                 ->values();
 
             $recentProjects = (clone $baseProjects)
                 ->latest()
                 ->limit(10)
                 ->get()
-                ->map(fn ($project) => [
-                    'id' => $project->id,
-                    'project_name' => $project->project_name,
-                    'project_code' => $project->project_code,
-                    'status' => $project->status,
-                    'priority' => $project->priority,
-                    'progress_percentage' => (float) ($project->progress_percentage ?? 0),
-                    'start_date' => $project->start_date
-                        ? $project->start_date->toDateString()
-                        : null,
-                    'target_end_date' => $project->target_end_date
-                        ? $project->target_end_date->toDateString()
-                        : null,
-                ])
+                ->map(function ($project) {
+                    return [
+                        'id' => $project->id,
+                        'project_name' => $project->project_name,
+                        'project_code' => $project->project_code,
+                        'status' => $project->status,
+                        'priority' => $project->priority,
+                        'progress_percentage' => (float) ($project->progress_percentage ?? 0),
+                        'start_date' => $project->start_date
+                            ? $project->start_date->toDateString()
+                            : null,
+                        'target_end_date' => $project->target_end_date
+                            ? $project->target_end_date->toDateString()
+                            : null,
+                    ];
+                })
                 ->values();
 
             return response()->json([
@@ -154,12 +133,7 @@ class ProjectDashboardController extends Controller
                         'total_projects' => $totalProjects,
                         'active_projects' => $activeProjects,
                         'completed_projects' => $completedProjects,
-                        'on_hold_projects' => $onHoldProjects,
-                        'cancelled_projects' => $cancelledProjects,
-                        'not_started_projects' => $notStartedProjects,
                         'overdue_tasks' => $overdueTasks,
-                        'total_tasks' => $totalTasks,
-                        'completed_tasks' => $completedTasks,
                         'average_progress' => round((float) ($averageProgress ?? 0), 2),
                     ],
                     'progress_cards' => $progressCards,
@@ -167,10 +141,6 @@ class ProjectDashboardController extends Controller
                     'charts' => [
                         'status' => $statusChart,
                         'priority' => $priorityChart,
-                    ],
-                    'empty_state' => [
-                        'has_projects' => $totalProjects > 0,
-                        'has_tasks' => $totalTasks > 0,
                     ],
                 ],
             ]);

@@ -6,10 +6,7 @@ export async function getProjectDashboard() {
 }
 
 export async function getProjects(params = {}) {
-  const response = await api.get("/projects", {
-    params,
-  });
-
+  const response = await api.get("/projects", { params });
   return response.data;
 }
 
@@ -38,18 +35,38 @@ export async function deleteProject(projectId) {
   return response.data;
 }
 
+export async function getProjectTasks(projectId, params = {}) {
+  const response = await api.get(`/projects/${projectId}/tasks`, { params });
+  return response.data;
+}
+
+export async function createProjectTask(projectId, payload) {
+  const response = await api.post(`/projects/${projectId}/tasks`, payload);
+  return response.data;
+}
+
+export async function updateProjectTask(projectId, taskId, payload) {
+  const response = await api.put(`/projects/${projectId}/tasks/${taskId}`, payload);
+  return response.data;
+}
+
+export async function patchProjectTask(projectId, taskId, payload) {
+  const response = await api.patch(`/projects/${projectId}/tasks/${taskId}`, payload);
+  return response.data;
+}
+
+export async function deleteProjectTask(projectId, taskId) {
+  const response = await api.delete(`/projects/${projectId}/tasks/${taskId}`);
+  return response.data;
+}
+
+export async function updateProjectTaskProgress(projectId, taskId, payload) {
+  const response = await api.patch(`/projects/${projectId}/tasks/${taskId}/progress`, payload);
+  return response.data;
+}
+
 export async function getProjectProgress(projectId) {
   const response = await api.get(`/projects/${projectId}/progress`);
-  return response.data;
-}
-
-export async function getProjectMilestones(projectId) {
-  const response = await api.get(`/projects/${projectId}/milestones`);
-  return response.data;
-}
-
-export async function getProjectStatusUpdates(projectId) {
-  const response = await api.get(`/projects/${projectId}/status-updates`);
   return response.data;
 }
 
@@ -58,10 +75,37 @@ export async function recalculateProjectProgress(projectId) {
   return response.data;
 }
 
-export async function updateProjectStatus(projectId, status) {
-  const response = await api.patch(`/projects/${projectId}`, {
-    status,
-  });
+export async function getProjectMilestones(projectId) {
+  const response = await api.get(`/projects/${projectId}/milestones`);
+  return response.data;
+}
 
+export async function createProjectMilestone(projectId, payload) {
+  const response = await api.post(`/projects/${projectId}/milestones`, payload);
+  return response.data;
+}
+
+export async function updateProjectMilestone(projectId, milestoneId, payload) {
+  const response = await api.put(`/projects/${projectId}/milestones/${milestoneId}`, payload);
+  return response.data;
+}
+
+export async function deleteProjectMilestone(projectId, milestoneId) {
+  const response = await api.delete(`/projects/${projectId}/milestones/${milestoneId}`);
+  return response.data;
+}
+
+export async function getProjectStatusUpdates(projectId, params = {}) {
+  const response = await api.get(`/projects/${projectId}/status-updates`, { params });
+  return response.data;
+}
+
+export async function createProjectStatusUpdate(projectId, payload) {
+  const response = await api.post(`/projects/${projectId}/status-updates`, payload);
+  return response.data;
+}
+
+export async function updateProjectStatus(projectId, status) {
+  const response = await api.patch(`/projects/${projectId}`, { status });
   return response.data;
 }
