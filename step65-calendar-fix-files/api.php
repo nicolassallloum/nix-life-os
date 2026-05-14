@@ -10,7 +10,6 @@ use App\Http\Controllers\Api\V1\ProjectMilestoneController;
 use App\Http\Controllers\Api\V1\ProjectStatusUpdateController;
 use App\Http\Controllers\Api\V1\ProjectProgressController;
 use App\Http\Controllers\Api\V1\ProductivityDashboardController;
-use App\Http\Controllers\Api\V1\ProductivityCalendarEventController;
 use App\Http\Controllers\Api\V1\ProductivityHabitController;
 use App\Http\Controllers\Api\V1\ProductivityGoalController;
 use App\Http\Controllers\Api\AuthController;

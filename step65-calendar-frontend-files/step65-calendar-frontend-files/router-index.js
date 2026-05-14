@@ -15,7 +15,6 @@ const RegisterView = () => import("../views/auth/RegisterView.vue");
 const TasksView = () => import("../views/productivity/TasksView.vue");
 const GoalsView = () => import("../views/productivity/GoalsView.vue");
 const HabitsView = () => import("../views/productivity/HabitsView.vue");
-const CalendarView = () => import("../views/productivity/CalendarView.vue");
 /*
 |--------------------------------------------------------------------------
 | Dashboard Views
@@ -212,16 +211,6 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: "Habits",
-    },
-  },
-  {
-    path: "/productivity/calendar",
-    name: "ProductivityCalendar",
-    component: CalendarView,
-    alias: ["/calendar", "/schedule", "/productivity/schedule"],
-    meta: {
-      requiresAuth: true,
-      title: "Calendar / Schedule",
     },
   },
   {
