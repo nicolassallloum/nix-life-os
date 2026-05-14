@@ -12,7 +12,7 @@ import HealthReportsView from "@/views/health/HealthReportsView.vue";
 
 const LoginView = () => import("../views/auth/LoginView.vue");
 const RegisterView = () => import("../views/auth/RegisterView.vue");
-
+const TasksView = () => import("../views/productivity/TasksView.vue");
 /*
 |--------------------------------------------------------------------------
 | Dashboard Views
@@ -143,6 +143,19 @@ const routes = [
     },
   },
   {
+    path: "/productivity/tasks",
+    name: "Tasks",
+    component: TasksView,
+    meta: {
+      requiresAuth: true,
+      title: "Tasks",
+    },
+  },
+  {
+    path: "/tasks",
+    redirect: "/productivity/tasks",
+  },
+  {
     path: "/life-balance",
     name: "LifeBalance",
     component: LifeBalanceView,
@@ -171,7 +184,19 @@ const routes = [
       title: "Productivity Dashboard",
     },
   },
-
+  {
+    path: "/productivity/tasks",
+    name: "Tasks",
+    component: TasksView,
+    meta: {
+      requiresAuth: true,
+      title: "Tasks",
+    },
+  },
+  {
+    path: "/tasks",
+    redirect: "/productivity/tasks",
+  },
   /*
   |--------------------------------------------------------------------------
   | Finance Routes

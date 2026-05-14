@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\V1\TaskController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ProjectDashboardController;
 use App\Http\Controllers\Api\V1\ProjectTaskController;
@@ -103,7 +104,23 @@ Route::prefix('v1')->group(function () {
     */
 
     Route::middleware('auth:sanctum')->group(function () {
+        /*
+        |--------------------------------------------------------------------------
+        | Tasks Module
+        |--------------------------------------------------------------------------
+        */
 
+        Route::prefix('tasks')->group(function () {
+            Route::get('/', [TaskController::class, 'index']);
+            Route::post('/', [TaskController::class, 'store']);
+            Route::get('/{task}', [TaskController::class, 'show']);
+            Route::put('/{task}', [TaskController::class, 'update']);
+            Route::patch('/{task}', [TaskController::class, 'update']);
+            Route::delete('/{task}', [TaskController::class, 'destroy']);
+
+            Route::patch('/{task}/complete', [TaskController::class, 'complete']);
+            Route::patch('/{task}/reopen', [TaskController::class, 'reopen']);
+        });
         /*
         |--------------------------------------------------------------------------
         | Authenticated User
