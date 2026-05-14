@@ -1,0 +1,13 @@
+step61-productivity-files/FILES_INCLUDED.txt
+step61-productivity-files/backend/app/Http/Controllers/Api/V1/ProjectTaskController.php
+step61-productivity-files/backend/app/Models/ProjectTask.php
+step61-productivity-files/backend/database/migrations/2026_04_11_034134_create_tasks_table.php
+step61-productivity-files/backend/database/migrations/2026_04_26_051914_create_project_tasks_table.php
+step61-productivity-files/backend/database/migrations/2026_04_26_055613_add_progress_fields_to_project_tasks_table.php
+step61-productivity-files/backend/routes/api.php
+step61-productivity-files/frontend/src/App.vue
+step61-productivity-files/frontend/src/layouts/AppLayout.vue
+step61-productivity-files/frontend/src/layouts/FinanceLayout.vue
+step61-productivity-files/frontend/src/router/index.js
+step61-productivity-files/frontend/src/router/index.ts
+step61-productivity-files/frontend/src/services/api.js

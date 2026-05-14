@@ -49,24 +49,6 @@ const activeClass =
             </div>
           </div>
 
-
-          <!-- Productivity -->
-          <div>
-            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-              Productivity
-            </p>
-
-            <div class="space-y-1">
-              <RouterLink
-                to="/productivity/dashboard"
-                :class="linkClass"
-                :active-class="activeClass"
-              >
-                Productivity Dashboard
-              </RouterLink>
-            </div>
-          </div>
-
           <!-- Finance -->
           <div>
             <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">

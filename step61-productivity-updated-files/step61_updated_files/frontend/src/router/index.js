@@ -1,9 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
-
 import HealthView from "@/views/health/HealthView.vue";
 import HealthAlertsView from "@/views/health/HealthAlertsView.vue";
-import HealthReportsView from "@/views/health/HealthReportsView.vue";
-
+import HealthReportsView from '@/views/health/HealthReportsView.vue'
+// import CustomFoodsView from '@/views/health/CustomFoodsView.vue'
 /*
 |--------------------------------------------------------------------------
 | Auth Views
@@ -22,8 +21,7 @@ const RegisterView = () => import("../views/auth/RegisterView.vue");
 const UnifiedDashboardView = () => import("../views/dashboard/UnifiedDashboardView.vue");
 const DashboardView = () => import("../views/dashboard/DashboardView.vue");
 const LifeBalanceView = () => import("../views/LifeBalanceView.vue");
-const ProductivityDashboardView = () =>
-  import("../views/productivity/ProductivityDashboardView.vue");
+const ProductivityDashboardView = () => import("../views/productivity/ProductivityDashboardView.vue");
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +46,7 @@ const NutritionTrackingView = () => import("../views/health/NutritionTrackingVie
 const HydrationTrackingView = () => import("../views/health/HydrationTrackingView.vue");
 const SleepTrackingView = () => import("../views/health/SleepTrackingView.vue");
 const MoodTrackingView = () => import("../views/health/MoodTrackingView.vue");
+const MedicationTrackingView = () => import("../views/health/MedicationTrackingView.vue");
 
 /*
 |--------------------------------------------------------------------------
@@ -151,27 +150,15 @@ const routes = [
       title: "Life Balance",
     },
   },
-
-  /*
-  |--------------------------------------------------------------------------
-  | Productivity Routes
-  |--------------------------------------------------------------------------
-  */
-
   {
-    path: "/productivity",
-    redirect: "/productivity/dashboard",
-  },
-  {
-    path: "/productivity/dashboard",
-    name: "ProductivityDashboard",
-    component: ProductivityDashboardView,
+    path: "/health/custom-foods",
+    name: "HealthCustomFoods",
+    component: () => import("@/views/health/CustomFoodsView.vue"),
     meta: {
       requiresAuth: true,
-      title: "Productivity Dashboard",
+      title: "Custom Foods",
     },
   },
-
   /*
   |--------------------------------------------------------------------------
   | Finance Routes
@@ -198,6 +185,15 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: "Finance Accounts",
+    },
+  },
+  {
+    path: "/health/alerts",
+    name: "health-alerts",
+    component: HealthAlertsView,
+    meta: {
+      requiresAuth: true,
+      title: "Health Alerts",
     },
   },
   {
@@ -262,15 +258,6 @@ const routes = [
     },
   },
   {
-    path: "/health/custom-foods",
-    name: "HealthCustomFoods",
-    component: () => import("@/views/health/CustomFoodsView.vue"),
-    meta: {
-      requiresAuth: true,
-      title: "Custom Foods",
-    },
-  },
-  {
     path: "/health/hydration",
     name: "HydrationTracking",
     component: HydrationTrackingView,
@@ -280,13 +267,31 @@ const routes = [
     },
   },
   {
-    path: "/health/medications",
-    name: "HealthMedications",
-    component: () => import("@/views/health/MedicationTrackingView.vue"),
+    path: "/health/sleep",
+    name: "SleepTracking",
+    component: SleepTrackingView,
     meta: {
       requiresAuth: true,
-      title: "Medication Tracking",
+      title: "Sleep Tracking",
     },
+  },
+  {
+    path: "/health/mood",
+    name: "MoodTracking",
+    component: MoodTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: "Mood Tracking",
+    },
+  },
+  {
+    path: '/health/medications',
+    name: 'health-medications',
+    component: () => import('@/views/health/MedicationTrackingView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Medication Tracking'
+    }
   },
   {
     path: "/health/medicaments",
@@ -307,22 +312,13 @@ const routes = [
     },
   },
   {
-    path: "/health/alerts",
-    name: "HealthAlerts",
-    component: HealthAlertsView,
-    meta: {
-      requiresAuth: true,
-      title: "Health Alerts",
-    },
-  },
-  {
-    path: "/health/reports",
-    name: "HealthReports",
+    path: '/health/reports',
+    name: 'HealthReports',
     component: HealthReportsView,
     meta: {
       requiresAuth: true,
-      title: "Health Reports",
-    },
+      title: 'Health Reports'
+    }
   },
 
   /*
