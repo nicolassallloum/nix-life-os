@@ -6,6 +6,89 @@ export const productivityService = {
     return response.data;
   },
 
+  /*
+  |--------------------------------------------------------------------------
+  | Goals
+  |--------------------------------------------------------------------------
+  */
+
+  async getGoals(params = {}) {
+    const response = await api.get("/productivity/goals", { params });
+    return response.data;
+  },
+
+  async getGoal(id) {
+    const response = await api.get(`/productivity/goals/${id}`);
+    return response.data;
+  },
+
+  async createGoal(payload) {
+    const response = await api.post("/productivity/goals", payload);
+    return response.data;
+  },
+
+  async updateGoal(id, payload) {
+    const response = await api.put(`/productivity/goals/${id}`, payload);
+    return response.data;
+  },
+
+  async deleteGoal(id) {
+    const response = await api.delete(`/productivity/goals/${id}`);
+    return response.data;
+  },
+
+  async updateGoalProgress(id, payload) {
+    const response = await api.patch(`/productivity/goals/${id}/progress`, payload);
+    return response.data;
+  },
+
+  async completeGoal(id) {
+    const response = await api.patch(`/productivity/goals/${id}/complete`);
+    return response.data;
+  },
+
+  async reopenGoal(id) {
+    const response = await api.patch(`/productivity/goals/${id}/reopen`);
+    return response.data;
+  },
+
+  async recalculateGoalProgress(id) {
+    const response = await api.post(`/productivity/goals/${id}/recalculate-progress`);
+    return response.data;
+  },
+
+  async linkGoalTask(id, taskId) {
+    const response = await api.post(`/productivity/goals/${id}/tasks`, {
+      task_id: taskId,
+    });
+
+    return response.data;
+  },
+
+  async unlinkGoalTask(id, taskId) {
+    const response = await api.delete(`/productivity/goals/${id}/tasks/${taskId}`);
+    return response.data;
+  },
+
+  async linkGoalHabit(id, habitId) {
+    const response = await api.post(`/productivity/goals/${id}/habits`, {
+      habit_id: habitId,
+    });
+
+    return response.data;
+  },
+
+  async unlinkGoalHabit(id, habitId) {
+    const response = await api.delete(`/productivity/goals/${id}/habits/${habitId}`);
+    return response.data;
+  },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Habits
+  |--------------------------------------------------------------------------
+  */
+
   async getHabits(params = {}) {
     const response = await api.get("/productivity/habits", { params });
     return response.data;

@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\ProjectStatusUpdateController;
 use App\Http\Controllers\Api\V1\ProjectProgressController;
 use App\Http\Controllers\Api\V1\ProductivityDashboardController;
 use App\Http\Controllers\Api\V1\ProductivityHabitController;
+use App\Http\Controllers\Api\V1\ProductivityGoalController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceAccountController;
@@ -195,7 +196,23 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('productivity')->group(function () {
             Route::get('/dashboard', [ProductivityDashboardController::class, 'summary']);
+            Route::get('/goals', [ProductivityGoalController::class, 'index']);
+            Route::post('/goals', [ProductivityGoalController::class, 'store']);
+            Route::get('/goals/{goal}', [ProductivityGoalController::class, 'show']);
+            Route::put('/goals/{goal}', [ProductivityGoalController::class, 'update']);
+            Route::patch('/goals/{goal}', [ProductivityGoalController::class, 'update']);
+            Route::delete('/goals/{goal}', [ProductivityGoalController::class, 'destroy']);
 
+            Route::patch('/goals/{goal}/progress', [ProductivityGoalController::class, 'updateProgress']);
+            Route::patch('/goals/{goal}/complete', [ProductivityGoalController::class, 'complete']);
+            Route::patch('/goals/{goal}/reopen', [ProductivityGoalController::class, 'reopen']);
+            Route::post('/goals/{goal}/recalculate-progress', [ProductivityGoalController::class, 'recalculateProgress']);
+
+            Route::post('/goals/{goal}/tasks', [ProductivityGoalController::class, 'linkTask']);
+            Route::delete('/goals/{goal}/tasks/{taskId}', [ProductivityGoalController::class, 'unlinkTask']);
+
+            Route::post('/goals/{goal}/habits', [ProductivityGoalController::class, 'linkHabit']);
+            Route::delete('/goals/{goal}/habits/{habitId}', [ProductivityGoalController::class, 'unlinkHabit']);
             Route::get('/habits', [ProductivityHabitController::class, 'index']);
             Route::post('/habits', [ProductivityHabitController::class, 'store']);
             Route::get('/habits/summary/weekly', [ProductivityHabitController::class, 'weeklySummary']);
