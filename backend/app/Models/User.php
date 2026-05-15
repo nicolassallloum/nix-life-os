@@ -12,7 +12,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles, HasUuids;
@@ -36,7 +35,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function aiRecommendations(): HasMany
+    {
+        return $this->hasMany(AIRecommendation::class, 'user_id');
+    }
 
+    public function aiRecommendationFeedback(): HasMany
+    {
+        return $this->hasMany(AIRecommendationFeedback::class, 'user_id');
+    }
+
+    public function aiDailyScores(): HasMany
+    {
+        return $this->hasMany(AIUserDailyScore::class, 'user_id');
+    }
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
