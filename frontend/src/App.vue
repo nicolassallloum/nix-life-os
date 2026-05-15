@@ -28,7 +28,13 @@ import { hasPermission } from "@/utils/permissions";
         >
           Unified Dashboard
         </RouterLink>
-
+        <RouterLink
+          to="/ai/recommendations"
+          class="nav-link"
+          active-class="active"
+        >
+          AI Recommendations
+        </RouterLink>
         <RouterLink
           to="/life-balance"
           class="block rounded-xl px-4 py-3 text-gray-700 hover:bg-gray-100"

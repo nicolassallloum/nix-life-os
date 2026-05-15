@@ -1,14 +1,14 @@
 import { createRouter, createWebHistory } from "vue-router";
-
+import AIRecommendationsView from '@/views/ai/AIRecommendationsView.vue'
 import HealthView from "@/views/health/HealthView.vue";
 import HealthAlertsView from "@/views/health/HealthAlertsView.vue";
 import HealthReportsView from "@/views/health/HealthReportsView.vue";
 
 /*
-|--------------------------------------------------------------------------
 | Auth Views
 |--------------------------------------------------------------------------
 */
+const AppLayout = () => import("../views/auth/LoginView.vue");
 
 const LoginView = () => import("../views/auth/LoginView.vue");
 const RegisterView = () => import("../views/auth/RegisterView.vue");
@@ -95,6 +95,23 @@ const routes = [
     path: "/",
     redirect: "/dashboard",
   },
+  {
+    path: '/',
+    component: AppLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: 'ai/recommendations',
+        name: 'ai-recommendations',
+        component: AIRecommendationsView,
+        meta: {
+          requiresAuth: true,
+          title: 'AI Recommendations',
+        },
+      },
+    ],
+  },
+
 
   /*
   |--------------------------------------------------------------------------

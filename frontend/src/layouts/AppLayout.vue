@@ -37,7 +37,13 @@ const activeClass =
               >
                 Unified Dashboard
               </RouterLink>
-  
+              <RouterLink
+                to="/ai/recommendations"
+                class="nav-link"
+                active-class="active"
+              >
+                AI Recommendations
+              </RouterLink>
 
               <RouterLink
                 to="/life-balance"
