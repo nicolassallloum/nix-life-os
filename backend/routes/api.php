@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\ProductivityCalendarEventController;
 use App\Http\Controllers\Api\V1\ProductivityHabitController;
 use App\Http\Controllers\Api\V1\ProductivityGoalController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\V1\AIRecommendationController;
 use App\Http\Controllers\Api\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceTransactionController;
@@ -194,7 +195,19 @@ Route::prefix('v1')->group(function () {
         | Productivity Module
         |--------------------------------------------------------------------------
         */
+        Route::prefix('ai')->group(function () {
+            Route::get('/recommendations', [AIRecommendationController::class, 'index']);
+            Route::post('/recommendations/generate', [AIRecommendationController::class, 'generate']);
 
+            Route::patch('/recommendations/{recommendation}/viewed', [AIRecommendationController::class, 'markViewed']);
+            Route::patch('/recommendations/{recommendation}/accept', [AIRecommendationController::class, 'accept']);
+            Route::patch('/recommendations/{recommendation}/dismiss', [AIRecommendationController::class, 'dismiss']);
+            Route::patch('/recommendations/{recommendation}/complete', [AIRecommendationController::class, 'complete']);
+
+            Route::post('/recommendations/{recommendation}/feedback', [AIRecommendationController::class, 'feedback']);
+
+            Route::get('/scores/daily', [AIRecommendationController::class, 'dailyScores']); 
+        });
         Route::prefix('productivity')->group(function () {
             Route::get('/calendar/events', [ProductivityCalendarEventController::class, 'index']);
             Route::post('/calendar/events', [ProductivityCalendarEventController::class, 'store']);
