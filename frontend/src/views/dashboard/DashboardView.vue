@@ -1,4 +1,5 @@
 <template>
+  <AIRecommendationWidget />
   <section class="min-h-screen bg-slate-50 p-6">
     <!-- Header -->
     <div class="mb-8">
@@ -259,7 +260,7 @@
 
 <script setup>
 import { computed, onMounted, ref } from 'vue';
-
+import AIRecommendationWidget from '@/components/ai/AIRecommendationWidget.vue'
 const loading = ref(false);
 const error = ref('');
 const summary = ref({

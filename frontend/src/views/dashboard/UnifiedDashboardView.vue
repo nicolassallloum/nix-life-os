@@ -1,6 +1,7 @@
 <template>
   <div class="p-6 space-y-8">
     <!-- Header -->
+     <AIRecommendationWidget />
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         <p class="text-sm font-semibold text-slate-500 uppercase tracking-wide">
@@ -120,6 +121,7 @@
 </template>
 
 <script setup>
+import AIRecommendationWidget from '@/components/ai/AIRecommendationWidget.vue'
 import { computed, defineComponent, h, onMounted, ref } from "vue";
 import {
   getUnifiedDashboardSummary,
