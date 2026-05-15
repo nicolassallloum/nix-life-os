@@ -17,5 +17,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             NutritionFoodDatabaseSeeder::class,
         ]);
+        $this->call([
+            AIRecommendationRuleSeeder::class,
+        ]);
     }
 }
