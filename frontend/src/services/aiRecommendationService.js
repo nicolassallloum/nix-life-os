@@ -1,38 +1,67 @@
 import api from './api'
 
+const cleanParams = (params = {}) => {
+  const cleaned = {}
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      cleaned[key] = value
+    }
+  })
+
+  return cleaned
+}
+
 const aiRecommendationService = {
   async generateRecommendations(payload = {}) {
-    const response = await api.post('/ai/recommendations/generate', {
+    const body = {
       store_daily_score: payload.store_daily_score ?? true,
-      date: payload.date ?? null,
-    })
+    }
+
+    if (payload.date) {
+      body.date = payload.date
+    }
+
+    const response = await api.post('/ai/recommendations/generate', body)
 
     return response.data
   },
 
   async getRecommendations(params = {}) {
+    const queryParams = cleanParams({
+      module: params.module || undefined,
+      status: params.status || undefined,
+      severity: params.severity || undefined,
+      type: params.type || undefined,
+      limit: params.limit || 50,
+
+      // IMPORTANT:
+      // Send active_only only when true.
+      // Do not send active_only=false because Laravel validates it as string "false".
+      active_only: params.active_only === true ? 1 : undefined,
+    })
+
     const response = await api.get('/ai/recommendations', {
-      params: {
-        module: params.module || undefined,
-        status: params.status || undefined,
-        severity: params.severity || undefined,
-        type: params.type || undefined,
-        active_only: params.active_only ?? undefined,
-        limit: params.limit || 50,
-      },
+      params: queryParams,
     })
 
     return response.data
   },
 
   async getDailyScores(params = {}) {
+    const queryParams = cleanParams({
+      from_date: params.from_date || undefined,
+      to_date: params.to_date || undefined,
+      limit: params.limit || 30,
+
+      // IMPORTANT:
+      // Send generate_today only when true.
+      // Do not send generate_today=false because Laravel validates it as string "false".
+      generate_today: params.generate_today === true ? 1 : undefined,
+    })
+
     const response = await api.get('/ai/scores/daily', {
-      params: {
-        from_date: params.from_date || undefined,
-        to_date: params.to_date || undefined,
-        limit: params.limit || 30,
-        generate_today: params.generate_today ?? false,
-      },
+      params: queryParams,
     })
 
     return response.data
