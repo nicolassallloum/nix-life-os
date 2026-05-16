@@ -1,0 +1,14 @@
+  column_name   |          data_type          | is_nullable 
+----------------+-----------------------------+-------------
+ id             | bigint                      | NO
+ tokenable_type | character varying           | NO
+ tokenable_id   | uuid                        | NO
+ name           | character varying           | NO
+ token          | character varying           | NO
+ abilities      | text                        | YES
+ last_used_at   | timestamp without time zone | YES
+ expires_at     | timestamp without time zone | YES
+ created_at     | timestamp without time zone | YES
+ updated_at     | timestamp without time zone | YES
+(10 rows)
+

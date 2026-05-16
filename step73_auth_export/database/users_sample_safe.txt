@@ -1,0 +1,7 @@
+                  id                  |           name            |           email           |     created_at      
+--------------------------------------+---------------------------+---------------------------+---------------------
+ 019e319f-9de5-707b-aaaa-975130afa4cb | <script>alert(1)</script> | xss.step73@nixlifeos.com  | 2026-05-16 16:30:04
+ 019e3185-81c4-70c6-b9c0-29405d7757a3 | Step73 Auth Tester        | step73.auth@nixlifeos.com | 2026-05-16 16:01:33
+ 019e2d1f-5df8-7220-9bf9-332dbac238ae | Nix                       | test@nixlifeos.com        | 2026-05-15 19:31:30
+(3 rows)
+

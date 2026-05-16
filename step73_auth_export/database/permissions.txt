@@ -1,0 +1,30 @@
+ id |         name         | guard_name |     created_at      
+----+----------------------+------------+---------------------
+ 15 | ai.generate          | web        | 2026-05-15 19:26:30
+ 14 | ai.view              | web        | 2026-05-15 19:26:30
+ 19 | automation.create    | web        | 2026-05-15 19:26:30
+ 21 | automation.delete    | web        | 2026-05-15 19:26:30
+ 20 | automation.update    | web        | 2026-05-15 19:26:30
+ 18 | automation.view      | web        | 2026-05-15 19:26:30
+  1 | dashboard.view       | web        | 2026-05-15 19:26:30
+  3 | finance.create       | web        | 2026-05-15 19:26:30
+  5 | finance.delete       | web        | 2026-05-15 19:26:30
+  4 | finance.update       | web        | 2026-05-15 19:26:30
+  2 | finance.view         | web        | 2026-05-15 19:26:30
+  7 | health.create        | web        | 2026-05-15 19:26:30
+  9 | health.delete        | web        | 2026-05-15 19:26:30
+  8 | health.update        | web        | 2026-05-15 19:26:30
+  6 | health.view          | web        | 2026-05-15 19:26:30
+ 17 | notifications.manage | web        | 2026-05-15 19:26:30
+ 16 | notifications.view   | web        | 2026-05-15 19:26:30
+ 11 | projects.create      | web        | 2026-05-15 19:26:30
+ 13 | projects.delete      | web        | 2026-05-15 19:26:30
+ 12 | projects.update      | web        | 2026-05-15 19:26:30
+ 10 | projects.view        | web        | 2026-05-15 19:26:30
+ 26 | roles.manage         | web        | 2026-05-15 19:26:30
+ 23 | security.manage      | web        | 2026-05-15 19:26:30
+ 22 | security.view        | web        | 2026-05-15 19:26:30
+ 25 | users.manage         | web        | 2026-05-15 19:26:30
+ 24 | users.view           | web        | 2026-05-15 19:26:30
+(26 rows)
+

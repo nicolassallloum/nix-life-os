@@ -8,24 +8,20 @@
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Name</label>
           <input
-            v-model.trim="form.name"
+            v-model="form.name"
             type="text"
             class="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-slate-900"
             placeholder="Nix"
-            autocomplete="name"
-            required
           />
         </div>
 
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
           <input
-            v-model.trim="form.email"
+            v-model="form.email"
             type="email"
             class="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-slate-900"
             placeholder="nix@example.com"
-            autocomplete="email"
-            required
           />
         </div>
 
@@ -35,13 +31,8 @@
             v-model="form.password"
             type="password"
             class="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-slate-900"
-            placeholder="Password123!"
-            autocomplete="new-password"
-            required
+            placeholder="********"
           />
-          <p class="text-xs text-slate-500 mt-1">
-            Use at least 8 characters with uppercase, lowercase, number, and symbol.
-          </p>
         </div>
 
         <div>
@@ -50,82 +41,79 @@
             v-model="form.password_confirmation"
             type="password"
             class="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-slate-900"
-            placeholder="Password123!"
-            autocomplete="new-password"
-            required
+            placeholder="********"
           />
         </div>
 
-        <p v-if="error" class="text-red-600 text-sm">{{ error }}</p>
-        <p v-if="success" class="text-green-600 text-sm">{{ success }}</p>
+        <p v-if="error" class="text-red-600 text-sm">
+          {{ error }}
+        </p>
 
         <button
           type="submit"
           :disabled="loading"
           class="w-full bg-slate-900 text-white rounded-xl py-3 font-semibold hover:bg-slate-800 disabled:opacity-60"
         >
-          {{ loading ? 'Creating account...' : 'Register' }}
+          {{ loading ? "Creating account..." : "Register" }}
         </button>
       </form>
 
       <p class="text-sm text-slate-600 mt-6 text-center">
         Already have an account?
-        <RouterLink to="/login" class="text-slate-900 font-semibold">Login</RouterLink>
+        <RouterLink to="/login" class="text-slate-900 font-semibold">
+          Login
+        </RouterLink>
       </p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue'
-import { useRouter, RouterLink } from 'vue-router'
-import api, { saveAuthSession } from '@/services/api'
+import { reactive, ref } from "vue";
+import { useRouter, RouterLink } from "vue-router";
 
-const router = useRouter()
+const router = useRouter();
 
 const form = reactive({
-  name: '',
-  email: '',
-  password: '',
-  password_confirmation: '',
-})
+  name: "",
+  email: "",
+  password: "",
+  password_confirmation: "",
+});
 
-const loading = ref(false)
-const error = ref('')
-const success = ref('')
+const loading = ref(false);
+const error = ref("");
 
-function extractErrors(responseData) {
-  if (responseData?.errors) {
-    return Object.values(responseData.errors).flat().join(' ')
-  }
-
-  return responseData?.message || 'Registration failed.'
-}
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001/api/v1";
 
 async function register() {
-  loading.value = true
-  error.value = ''
-  success.value = ''
+  loading.value = true;
+  error.value = "";
 
   try {
-    const response = await api.post('/auth/register', { ...form })
-    const data = response.data
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(form),
+    });
 
-    const token = data?.data?.token || data?.token || data?.access_token
-    const user = data?.data?.user || data?.user || null
+    const data = await response.json();
 
-    if (!token) {
-      throw new Error('Registration succeeded but token was not found in the response.')
+    if (!response.ok) {
+      throw new Error(data.message || "Registration failed");
     }
 
-    saveAuthSession(token, user)
-    success.value = 'Registration successful. Redirecting...'
+    localStorage.setItem("nix_token", data.token);
+    localStorage.setItem("nix_user", JSON.stringify(data.user));
 
-    await router.push('/dashboard')
+    router.push("/");
   } catch (err) {
-    error.value = extractErrors(err.response?.data) || err.message
+    error.value = err.message;
   } finally {
-    loading.value = false
+    loading.value = false;
   }
 }
 </script>

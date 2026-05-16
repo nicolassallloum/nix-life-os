@@ -1,0 +1,15 @@
+    column_name    |          data_type          | is_nullable 
+-------------------+-----------------------------+-------------
+ id                | uuid                        | NO
+ name              | character varying           | NO
+ email             | character varying           | NO
+ email_verified_at | timestamp without time zone | YES
+ password          | character varying           | NO
+ role              | character varying           | NO
+ is_active         | boolean                     | NO
+ last_login_at     | timestamp without time zone | YES
+ remember_token    | character varying           | YES
+ created_at        | timestamp without time zone | YES
+ updated_at        | timestamp without time zone | YES
+(11 rows)
+
