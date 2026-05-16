@@ -65,7 +65,6 @@ const NutritionTrackingView = () => import('../views/health/NutritionTrackingVie
 const HydrationTrackingView = () => import('../views/health/HydrationTrackingView.vue')
 const HealthAlertsView = () => import('@/views/health/HealthAlertsView.vue')
 const HealthReportsView = () => import('@/views/health/HealthReportsView.vue')
-const HealthAIInsightsView = () => import('@/views/health/HealthAIInsightsView.vue')
 
 /*
 |--------------------------------------------------------------------------
@@ -356,15 +355,6 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: 'Lab Tests',
-    },
-  },
-  {
-    path: '/health/ai-insights',
-    name: 'HealthAIInsights',
-    component: HealthAIInsightsView,
-    meta: {
-      requiresAuth: true,
-      title: 'Health AI Insights',
     },
   },
   {

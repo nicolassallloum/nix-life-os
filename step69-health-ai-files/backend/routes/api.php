@@ -29,7 +29,6 @@ use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
 use App\Http\Controllers\Api\V1\Finance\FinanceAIInsightController;
 
 use App\Http\Controllers\Api\V1\Health\HealthDashboardController;
-use App\Http\Controllers\Api\V1\Health\HealthAIInsightController;
 use App\Http\Controllers\Api\V1\Health\HealthLabTestController;
 use App\Http\Controllers\Api\V1\Health\MedicationController;
 use App\Http\Controllers\Api\V1\Health\MedicationReminderController;
@@ -335,14 +334,6 @@ Route::prefix('v1')->group(function () {
             */
 
             Route::get('/dashboard', [HealthDashboardController::class, 'summary']);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Health AI Insights
-            |--------------------------------------------------------------------------
-            */
-
-            Route::get('/ai-insights', [HealthAIInsightController::class, 'index']);
 
             /*
             |--------------------------------------------------------------------------

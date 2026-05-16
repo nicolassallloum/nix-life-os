@@ -129,13 +129,6 @@ const activeClass =
                 Health Dashboard
               </RouterLink>
               <RouterLink
-                to="/health/ai-insights"
-                :class="linkClass"
-                :active-class="activeClass"
-              >
-                Health AI Insights
-              </RouterLink>
-              <RouterLink
                 to="/health/steps"
                 :class="linkClass"
                 :active-class="activeClass"

@@ -5,10 +5,6 @@ const healthService = {
     return api.get("/health/dashboard");
   },
 
-  aiInsights(params = {}) {
-    return api.get("/health/ai-insights", { params });
-  },
-
   steps: {
     list(params = {}) {
       return api.get("/health/steps", { params });
