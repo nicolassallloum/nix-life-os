@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\V1\NutritionCustomFoodController;
 
 use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
 use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
+use App\Http\Controllers\Api\V1\Finance\FinanceAIInsightController;
 
 use App\Http\Controllers\Api\V1\Health\HealthDashboardController;
 use App\Http\Controllers\Api\V1\Health\HealthLabTestController;
@@ -258,6 +259,8 @@ Route::prefix('v1')->group(function () {
         */
 
         Route::prefix('finance')->group(function () {
+            Route::get('/ai-insights', [FinanceAIInsightController::class, 'index']);
+
             Route::get('/accounts', [FinanceAccountController::class, 'index']);
             Route::post('/accounts', [FinanceAccountController::class, 'store']);
             Route::get('/accounts/{id}', [FinanceAccountController::class, 'show']);

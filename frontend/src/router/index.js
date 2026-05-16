@@ -51,7 +51,7 @@ const FinanceDashboardView = () => import('../views/finance/FinanceDashboardView
 const FinanceAccountsView = () => import('../views/finance/FinanceAccountsView.vue')
 const FinanceTransactionsView = () => import('../views/finance/FinanceTransactionsView.vue')
 const FinanceBudgetsView = () => import('../views/finance/FinanceBudgetsView.vue')
-
+const FinanceAIInsightsView = () => import('../views/finance/FinanceAIInsightsView.vue')
 /*
 |--------------------------------------------------------------------------
 | Health Views
@@ -237,6 +237,15 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: 'Finance Dashboard',
+    },
+  },
+  {
+    path: '/finance/ai-insights',
+    name: 'FinanceAIInsights',
+    component: FinanceAIInsightsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Finance AI Insights',
     },
   },
   {
