@@ -126,18 +126,6 @@ Route::prefix('v1')->group(function () {
         Route::prefix('tasks')->group(function () {
             Route::get('/', [TaskController::class, 'index']);
             Route::post('/', [TaskController::class, 'store']);
-
-            // STEP 75 V3: malformed bigint IDs must return 404 before implicit model binding.
-            Route::match(['GET', 'PUT', 'PATCH', 'DELETE'], '/{task}', function () {
-                return response()->json(['message' => 'Not Found'], 404);
-            })->where('task', '[^0-9]+');
-            Route::match(['PATCH'], '/{task}/complete', function () {
-                return response()->json(['message' => 'Not Found'], 404);
-            })->where('task', '[^0-9]+');
-            Route::match(['PATCH'], '/{task}/reopen', function () {
-                return response()->json(['message' => 'Not Found'], 404);
-            })->where('task', '[^0-9]+');
-
             Route::get('/{task}', [TaskController::class, 'show'])->whereNumber('task');
             Route::put('/{task}', [TaskController::class, 'update'])->whereNumber('task');
             Route::patch('/{task}', [TaskController::class, 'update'])->whereNumber('task');
@@ -241,18 +229,6 @@ Route::prefix('v1')->group(function () {
             // STEP 74: productivity aliases used by the frontend and global auth tests.
             Route::get('/tasks', [TaskController::class, 'index']);
             Route::post('/tasks', [TaskController::class, 'store']);
-
-            // STEP 75 V3: malformed bigint IDs must return 404 before implicit model binding.
-            Route::match(['GET', 'PUT', 'PATCH', 'DELETE'], '/tasks/{task}', function () {
-                return response()->json(['message' => 'Not Found'], 404);
-            })->where('task', '[^0-9]+');
-            Route::match(['PATCH'], '/tasks/{task}/complete', function () {
-                return response()->json(['message' => 'Not Found'], 404);
-            })->where('task', '[^0-9]+');
-            Route::match(['PATCH'], '/tasks/{task}/reopen', function () {
-                return response()->json(['message' => 'Not Found'], 404);
-            })->where('task', '[^0-9]+');
-
             Route::get('/tasks/{task}', [TaskController::class, 'show'])->whereNumber('task');
             Route::put('/tasks/{task}', [TaskController::class, 'update'])->whereNumber('task');
             Route::patch('/tasks/{task}', [TaskController::class, 'update'])->whereNumber('task');

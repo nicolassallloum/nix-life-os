@@ -20,10 +20,6 @@ class AuthController extends Controller
 
     public function register(Request $request): JsonResponse
     {
-        $request->merge([
-            'email' => mb_strtolower(trim((string) $request->input('email'))),
-        ]);
-
         $validated = $request->validate([
             'name' => [
                 'required',
@@ -32,7 +28,7 @@ class AuthController extends Controller
                 'max:150',
                 "regex:/^[\\pL\\pM\\pN\\s.'-]+$/u",
             ],
-            'email' => ['required', 'string', 'max:190', 'regex:/^[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}$/i', 'unique:users,email'],
+            'email' => ['required', 'string', 'email:rfc', 'max:190', 'unique:users,email'],
             'password' => [
                 'required',
                 'confirmed',
@@ -68,12 +64,8 @@ class AuthController extends Controller
 
     public function login(Request $request): JsonResponse
     {
-        $request->merge([
-            'email' => mb_strtolower(trim((string) $request->input('email'))),
-        ]);
-
         $validated = $request->validate([
-            'email' => ['required', 'string', 'max:190', 'regex:/^[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}$/i'],
+            'email' => ['required', 'string', 'email:rfc'],
             'password' => ['required', 'string'],
         ]);
 
