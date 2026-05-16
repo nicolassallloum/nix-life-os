@@ -2,6 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use App\Models\User as NixUser;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 use App\Http\Controllers\Api\V1\TaskController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ProjectDashboardController;
@@ -220,6 +225,19 @@ Route::prefix('v1')->group(function () {
             Route::delete('/calendar/events/{event}', [ProductivityCalendarEventController::class, 'destroy']);
       
             Route::get('/dashboard', [ProductivityDashboardController::class, 'summary']);
+
+            // STEP 74: productivity aliases used by the frontend and global auth tests.
+            Route::get('/tasks', [TaskController::class, 'index']);
+            Route::post('/tasks', [TaskController::class, 'store']);
+            Route::get('/tasks/{task}', [TaskController::class, 'show']);
+            Route::put('/tasks/{task}', [TaskController::class, 'update']);
+            Route::patch('/tasks/{task}', [TaskController::class, 'update']);
+            Route::delete('/tasks/{task}', [TaskController::class, 'destroy']);
+            Route::patch('/tasks/{task}/complete', [TaskController::class, 'complete']);
+            Route::patch('/tasks/{task}/reopen', [TaskController::class, 'reopen']);
+
+            Route::get('/calendar', [ProductivityCalendarEventController::class, 'index']);
+
             Route::get('/goals', [ProductivityGoalController::class, 'index']);
             Route::post('/goals', [ProductivityGoalController::class, 'store']);
             Route::get('/goals/{goal}', [ProductivityGoalController::class, 'show']);
@@ -543,6 +561,214 @@ Route::prefix('v1')->group(function () {
             Route::patch('/', [NotificationSettingController::class, 'update']);
         });
         */
+
+        /*
+        |--------------------------------------------------------------------------
+        | Notifications Module
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('notifications')->middleware('role:user|admin')->group(function () {
+            Route::get('/', function (Request $request) {
+                $user = $request->user();
+
+                if (! Schema::hasTable('life_notifications')) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Notifications table is not available yet.',
+                        'data' => [],
+                    ]);
+                }
+
+                $notifications = DB::table('life_notifications')
+                    ->where('user_id', $user->id)
+                    ->orderByDesc('created_at')
+                    ->limit(50)
+                    ->get();
+
+                return response()->json([
+                    'success' => true,
+                    'data' => $notifications,
+                ]);
+            });
+
+            Route::patch('/read-all', function (Request $request) {
+                if (! Schema::hasTable('life_notifications')) {
+                    return response()->json(['success' => true, 'message' => 'No notifications table available.']);
+                }
+
+                DB::table('life_notifications')
+                    ->where('user_id', $request->user()->id)
+                    ->update(['read_at' => now(), 'updated_at' => now()]);
+
+                return response()->json(['success' => true, 'message' => 'Notifications marked as read.']);
+            });
+        });
+
+        Route::prefix('notification-settings')->middleware('role:user|admin')->group(function () {
+            Route::get('/', function (Request $request) {
+                if (! Schema::hasTable('notification_preferences')) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Notification preferences table is not available yet.',
+                        'data' => null,
+                    ]);
+                }
+
+                $preferences = DB::table('notification_preferences')
+                    ->where('user_id', $request->user()->id)
+                    ->first();
+
+                return response()->json(['success' => true, 'data' => $preferences]);
+            });
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Automation Module
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('automation')->middleware('role:user|admin')->group(function () {
+            Route::get('/', function (Request $request) {
+                if (! Schema::hasTable('automation_rules')) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Automation rules table is not available yet.',
+                        'data' => [],
+                    ]);
+                }
+
+                $rules = DB::table('automation_rules')
+                    ->where('user_id', $request->user()->id)
+                    ->orderByDesc('created_at')
+                    ->limit(50)
+                    ->get();
+
+                return response()->json(['success' => true, 'data' => $rules]);
+            });
+
+            Route::get('/logs', function (Request $request) {
+                if (! Schema::hasTable('automation_trigger_logs')) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Automation logs table is not available yet.',
+                        'data' => [],
+                    ]);
+                }
+
+                $logs = DB::table('automation_trigger_logs')
+                    ->where('user_id', $request->user()->id)
+                    ->orderByDesc('created_at')
+                    ->limit(50)
+                    ->get();
+
+                return response()->json(['success' => true, 'data' => $logs]);
+            });
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Admin, Security, and User Management Authorization Regression Routes
+        |--------------------------------------------------------------------------
+        */
+
+        Route::prefix('admin')->middleware('role:admin')->group(function () {
+            Route::get('/', function () {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Admin area access granted.',
+                    'data' => [
+                        'users_count' => NixUser::count(),
+                        'roles_count' => Role::count(),
+                        'permissions_count' => Permission::count(),
+                    ],
+                ]);
+            });
+
+            Route::get('/users', function () {
+                return response()->json([
+                    'success' => true,
+                    'data' => NixUser::query()
+                        ->select(['id', 'name', 'email', 'created_at'])
+                        ->latest()
+                        ->limit(100)
+                        ->get()
+                        ->map(fn (NixUser $user) => [
+                            'id' => $user->id,
+                            'name' => $user->name,
+                            'email' => $user->email,
+                            'roles' => method_exists($user, 'getRoleNames') ? $user->getRoleNames()->values() : [],
+                            'permissions' => method_exists($user, 'getAllPermissions')
+                                ? $user->getAllPermissions()->pluck('name')->values()
+                                : [],
+                            'created_at' => $user->created_at,
+                        ]),
+                ]);
+            });
+
+            Route::get('/roles', function () {
+                return response()->json([
+                    'success' => true,
+                    'data' => Role::with('permissions:id,name')->orderBy('name')->get(),
+                ]);
+            });
+
+            Route::get('/permissions', function () {
+                return response()->json([
+                    'success' => true,
+                    'data' => Permission::orderBy('name')->get(['id', 'name', 'guard_name']),
+                ]);
+            });
+        });
+
+        Route::prefix('security')->middleware('role:admin')->group(function () {
+            Route::get('/', function () {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Security area access granted.',
+                ]);
+            });
+
+            Route::get('/audit-logs', function () {
+                if (! Schema::hasTable('audit_logs')) {
+                    return response()->json(['success' => true, 'data' => []]);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'data' => DB::table('audit_logs')->orderByDesc('created_at')->limit(100)->get(),
+                ]);
+            });
+
+            Route::get('/login-history', function () {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Login history endpoint is protected. Add a login-history table later if required.',
+                    'data' => [],
+                ]);
+            });
+        });
+
+        Route::prefix('user-management')->middleware('role:admin')->group(function () {
+            Route::get('/users', function () {
+                return response()->json([
+                    'success' => true,
+                    'data' => NixUser::query()
+                        ->select(['id', 'name', 'email', 'created_at'])
+                        ->latest()
+                        ->limit(100)
+                        ->get(),
+                ]);
+            });
+
+            Route::get('/roles', function () {
+                return response()->json([
+                    'success' => true,
+                    'data' => Role::with('permissions:id,name')->orderBy('name')->get(),
+                ]);
+            });
+        });
 
         /*
         |--------------------------------------------------------------------------

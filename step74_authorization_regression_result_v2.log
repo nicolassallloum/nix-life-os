@@ -1,0 +1,19 @@
+
+==================================================
+ STEP 74 — Protected Routes & Authorization Regression Test V2
+==================================================
+BASE_URL=http://127.0.0.1:8000/api/v1
+
+==================================================
+ Register/login normal user
+==================================================
+Normal user does not exist or password changed. Registering with strong password...
+{
+  "message": "The email field must be a valid email address.",
+  "errors": {
+    "email": [
+      "The email field must be a valid email address."
+    ]
+  }
+}
+FAIL: Unable to create/login normal user. Check password policy or auth controller.

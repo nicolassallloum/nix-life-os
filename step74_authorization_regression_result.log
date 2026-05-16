@@ -1,0 +1,154 @@
+==================================================
+ STEP 74 — Protected Routes & Authorization Tests
+==================================================
+
+1) Login normal user
+Normal user login failed. Trying to register user...
+{
+  "message": "The email field must be a valid email address. (and 3 more errors)",
+  "errors": {
+    "email": [
+      "The email field must be a valid email address."
+    ],
+    "password": [
+      "The password field must contain at least one uppercase and one lowercase letter.",
+      "The password field must contain at least one symbol.",
+      "The password field must contain at least one number."
+    ]
+  }
+}
+USER_TOKEN=...
+
+2) Login admin user if available
+Admin login skipped or failed. Admin tests will still run with empty token and should fail.
+
+==================================================
+ Protected user route list
+==================================================
+
+==================================================
+ Test A — Missing token should return 401
+==================================================
+[MISSING TOKEN] GET /auth/me => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /dashboard/summary => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /finance/accounts => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /finance/transactions => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /finance/budgets => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /health/dashboard => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /health/steps => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /health/weight => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /health/nutrition => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /health/hydration => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /health/medications => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /health/lab-tests => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /health/reports/weekly => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /projects/dashboard => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /projects => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /productivity/dashboard => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /productivity/tasks => HTTP 404 | Expected: 401
+[MISSING TOKEN] GET /productivity/habits => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /productivity/goals => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /productivity/calendar => HTTP 404 | Expected: 401
+[MISSING TOKEN] GET /ai/recommendations => HTTP 401 | Expected: 401
+[MISSING TOKEN] GET /notifications => HTTP 404 | Expected: 401
+[MISSING TOKEN] GET /automation => HTTP 404 | Expected: 401
+[MISSING TOKEN ADMIN] GET /admin => HTTP 404 | Expected: 401
+[MISSING TOKEN ADMIN] GET /admin/users => HTTP 404 | Expected: 401
+[MISSING TOKEN ADMIN] GET /admin/roles => HTTP 404 | Expected: 401
+[MISSING TOKEN ADMIN] GET /admin/permissions => HTTP 404 | Expected: 401
+[MISSING TOKEN ADMIN] GET /security => HTTP 404 | Expected: 401
+[MISSING TOKEN ADMIN] GET /security/audit-logs => HTTP 404 | Expected: 401
+[MISSING TOKEN ADMIN] GET /security/login-history => HTTP 404 | Expected: 401
+[MISSING TOKEN ADMIN] GET /user-management/users => HTTP 404 | Expected: 401
+[MISSING TOKEN ADMIN] GET /user-management/roles => HTTP 404 | Expected: 401
+
+==================================================
+ Test B — Invalid token should return 401
+==================================================
+[INVALID TOKEN] GET /auth/me => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /dashboard/summary => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /finance/accounts => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /finance/transactions => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /finance/budgets => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /health/dashboard => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /health/steps => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /health/weight => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /health/nutrition => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /health/hydration => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /health/medications => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /health/lab-tests => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /health/reports/weekly => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /projects/dashboard => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /projects => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /productivity/dashboard => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /productivity/tasks => HTTP 404 | Expected: 401
+[INVALID TOKEN] GET /productivity/habits => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /productivity/goals => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /productivity/calendar => HTTP 404 | Expected: 401
+[INVALID TOKEN] GET /ai/recommendations => HTTP 401 | Expected: 401
+[INVALID TOKEN] GET /notifications => HTTP 404 | Expected: 401
+[INVALID TOKEN] GET /automation => HTTP 404 | Expected: 401
+[INVALID TOKEN ADMIN] GET /admin => HTTP 404 | Expected: 401
+[INVALID TOKEN ADMIN] GET /admin/users => HTTP 404 | Expected: 401
+[INVALID TOKEN ADMIN] GET /admin/roles => HTTP 404 | Expected: 401
+[INVALID TOKEN ADMIN] GET /admin/permissions => HTTP 404 | Expected: 401
+[INVALID TOKEN ADMIN] GET /security => HTTP 404 | Expected: 401
+[INVALID TOKEN ADMIN] GET /security/audit-logs => HTTP 404 | Expected: 401
+[INVALID TOKEN ADMIN] GET /security/login-history => HTTP 404 | Expected: 401
+[INVALID TOKEN ADMIN] GET /user-management/users => HTTP 404 | Expected: 401
+[INVALID TOKEN ADMIN] GET /user-management/roles => HTTP 404 | Expected: 401
+
+==================================================
+ Test C — Valid normal user token on user routes
+==================================================
+[VALID USER TOKEN] GET /auth/me => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /dashboard/summary => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /finance/accounts => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /finance/transactions => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /finance/budgets => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /health/dashboard => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /health/steps => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /health/weight => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /health/nutrition => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /health/hydration => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /health/medications => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /health/lab-tests => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /health/reports/weekly => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /projects/dashboard => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /projects => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /productivity/dashboard => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /productivity/tasks => HTTP 404 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /productivity/habits => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /productivity/goals => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /productivity/calendar => HTTP 404 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /ai/recommendations => HTTP 401 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /notifications => HTTP 404 | Expected: 200 or valid handled response
+[VALID USER TOKEN] GET /automation => HTTP 404 | Expected: 200 or valid handled response
+
+==================================================
+ Test D — Normal user must not access admin routes
+==================================================
+[NORMAL USER ADMIN ACCESS] GET /admin => HTTP 404 | Expected: 403
+[NORMAL USER ADMIN ACCESS] GET /admin/users => HTTP 404 | Expected: 403
+[NORMAL USER ADMIN ACCESS] GET /admin/roles => HTTP 404 | Expected: 403
+[NORMAL USER ADMIN ACCESS] GET /admin/permissions => HTTP 404 | Expected: 403
+[NORMAL USER ADMIN ACCESS] GET /security => HTTP 404 | Expected: 403
+[NORMAL USER ADMIN ACCESS] GET /security/audit-logs => HTTP 404 | Expected: 403
+[NORMAL USER ADMIN ACCESS] GET /security/login-history => HTTP 404 | Expected: 403
+[NORMAL USER ADMIN ACCESS] GET /user-management/users => HTTP 404 | Expected: 403
+[NORMAL USER ADMIN ACCESS] GET /user-management/roles => HTTP 404 | Expected: 403
+
+==================================================
+ Test E — Admin token on admin routes
+==================================================
+Skipped admin success tests because admin token is empty.
+
+==================================================
+ Test F — Logout blocks protected route
+==================================================
+Logout status: 401
+After logout /auth/me => HTTP 401 | Expected: 401
+
+==================================================
+ STEP 74 CURL Regression Completed
+==================================================

@@ -1,0 +1,152 @@
+
+==================================================
+ STEP 74 — Protected Routes & Authorization Regression Test V3
+==================================================
+BASE_URL=http://127.0.0.1:8000/api/v1
+NORMAL_EMAIL=step74.normal@gmail.com
+ADMIN_EMAIL=step74.admin@gmail.com
+
+==================================================
+ Register/login normal user
+==================================================
+Normal token loaded: 45|7ZSWvK5YJ85vX...
+Admin token loaded: 46|nNi3jBZg1XPZP...
+
+==================================================
+ A — Missing token must return 401
+==================================================
+PASS: MISSING TOKEN GET /auth/me => HTTP 401
+PASS: MISSING TOKEN GET /dashboard/summary => HTTP 401
+PASS: MISSING TOKEN GET /finance/accounts => HTTP 401
+PASS: MISSING TOKEN GET /finance/transactions => HTTP 401
+PASS: MISSING TOKEN GET /finance/budgets => HTTP 401
+PASS: MISSING TOKEN GET /health/dashboard => HTTP 401
+PASS: MISSING TOKEN GET /health/steps => HTTP 401
+PASS: MISSING TOKEN GET /health/weight => HTTP 401
+PASS: MISSING TOKEN GET /health/nutrition => HTTP 401
+PASS: MISSING TOKEN GET /health/hydration => HTTP 401
+PASS: MISSING TOKEN GET /health/medications => HTTP 401
+PASS: MISSING TOKEN GET /health/lab-tests => HTTP 401
+PASS: MISSING TOKEN GET /health/reports/weekly => HTTP 401
+PASS: MISSING TOKEN GET /projects/dashboard => HTTP 401
+PASS: MISSING TOKEN GET /projects => HTTP 401
+PASS: MISSING TOKEN GET /productivity/dashboard => HTTP 401
+PASS: MISSING TOKEN GET /productivity/tasks => HTTP 401
+PASS: MISSING TOKEN GET /productivity/habits => HTTP 401
+PASS: MISSING TOKEN GET /productivity/goals => HTTP 401
+PASS: MISSING TOKEN GET /productivity/calendar => HTTP 401
+PASS: MISSING TOKEN GET /ai/recommendations => HTTP 401
+PASS: MISSING TOKEN GET /notifications => HTTP 401
+PASS: MISSING TOKEN GET /automation => HTTP 401
+PASS: MISSING TOKEN GET /admin => HTTP 401
+PASS: MISSING TOKEN GET /admin/users => HTTP 401
+PASS: MISSING TOKEN GET /admin/roles => HTTP 401
+PASS: MISSING TOKEN GET /admin/permissions => HTTP 401
+PASS: MISSING TOKEN GET /security => HTTP 401
+PASS: MISSING TOKEN GET /security/audit-logs => HTTP 401
+PASS: MISSING TOKEN GET /security/login-history => HTTP 401
+PASS: MISSING TOKEN GET /user-management/users => HTTP 401
+PASS: MISSING TOKEN GET /user-management/roles => HTTP 401
+
+==================================================
+ B — Invalid token must return 401
+==================================================
+PASS: INVALID TOKEN GET /auth/me => HTTP 401
+PASS: INVALID TOKEN GET /dashboard/summary => HTTP 401
+PASS: INVALID TOKEN GET /finance/accounts => HTTP 401
+PASS: INVALID TOKEN GET /finance/transactions => HTTP 401
+PASS: INVALID TOKEN GET /finance/budgets => HTTP 401
+PASS: INVALID TOKEN GET /health/dashboard => HTTP 401
+PASS: INVALID TOKEN GET /health/steps => HTTP 401
+PASS: INVALID TOKEN GET /health/weight => HTTP 401
+PASS: INVALID TOKEN GET /health/nutrition => HTTP 401
+PASS: INVALID TOKEN GET /health/hydration => HTTP 401
+PASS: INVALID TOKEN GET /health/medications => HTTP 401
+PASS: INVALID TOKEN GET /health/lab-tests => HTTP 401
+PASS: INVALID TOKEN GET /health/reports/weekly => HTTP 401
+PASS: INVALID TOKEN GET /projects/dashboard => HTTP 401
+PASS: INVALID TOKEN GET /projects => HTTP 401
+PASS: INVALID TOKEN GET /productivity/dashboard => HTTP 401
+PASS: INVALID TOKEN GET /productivity/tasks => HTTP 401
+PASS: INVALID TOKEN GET /productivity/habits => HTTP 401
+PASS: INVALID TOKEN GET /productivity/goals => HTTP 401
+PASS: INVALID TOKEN GET /productivity/calendar => HTTP 401
+PASS: INVALID TOKEN GET /ai/recommendations => HTTP 401
+PASS: INVALID TOKEN GET /notifications => HTTP 401
+PASS: INVALID TOKEN GET /automation => HTTP 401
+PASS: INVALID TOKEN GET /admin => HTTP 401
+PASS: INVALID TOKEN GET /admin/users => HTTP 401
+PASS: INVALID TOKEN GET /admin/roles => HTTP 401
+PASS: INVALID TOKEN GET /admin/permissions => HTTP 401
+PASS: INVALID TOKEN GET /security => HTTP 401
+PASS: INVALID TOKEN GET /security/audit-logs => HTTP 401
+PASS: INVALID TOKEN GET /security/login-history => HTTP 401
+PASS: INVALID TOKEN GET /user-management/users => HTTP 401
+PASS: INVALID TOKEN GET /user-management/roles => HTTP 401
+
+==================================================
+ C — Valid normal user token should access user routes
+==================================================
+PASS: USER TOKEN GET /auth/me => HTTP 200
+PASS: USER TOKEN GET /dashboard/summary => HTTP 200
+PASS: USER TOKEN GET /finance/accounts => HTTP 200
+PASS: USER TOKEN GET /finance/transactions => HTTP 200
+PASS: USER TOKEN GET /finance/budgets => HTTP 200
+PASS: USER TOKEN GET /health/dashboard => HTTP 200
+PASS: USER TOKEN GET /health/steps => HTTP 200
+PASS: USER TOKEN GET /health/weight => HTTP 200
+PASS: USER TOKEN GET /health/nutrition => HTTP 200
+PASS: USER TOKEN GET /health/hydration => HTTP 200
+PASS: USER TOKEN GET /health/medications => HTTP 200
+PASS: USER TOKEN GET /health/lab-tests => HTTP 200
+PASS: USER TOKEN GET /health/reports/weekly => HTTP 200
+PASS: USER TOKEN GET /projects/dashboard => HTTP 200
+PASS: USER TOKEN GET /projects => HTTP 200
+PASS: USER TOKEN GET /productivity/dashboard => HTTP 200
+PASS: USER TOKEN GET /productivity/tasks => HTTP 200
+PASS: USER TOKEN GET /productivity/habits => HTTP 200
+PASS: USER TOKEN GET /productivity/goals => HTTP 200
+PASS: USER TOKEN GET /productivity/calendar => HTTP 200
+PASS: USER TOKEN GET /ai/recommendations => HTTP 200
+PASS: USER TOKEN GET /notifications => HTTP 200
+PASS: USER TOKEN GET /automation => HTTP 200
+
+==================================================
+ D — Normal user must be blocked from admin/security/user-management
+==================================================
+PASS: NORMAL USER BLOCKED GET /admin => HTTP 403
+PASS: NORMAL USER BLOCKED GET /admin/users => HTTP 403
+PASS: NORMAL USER BLOCKED GET /admin/roles => HTTP 403
+PASS: NORMAL USER BLOCKED GET /admin/permissions => HTTP 403
+PASS: NORMAL USER BLOCKED GET /security => HTTP 403
+PASS: NORMAL USER BLOCKED GET /security/audit-logs => HTTP 403
+PASS: NORMAL USER BLOCKED GET /security/login-history => HTTP 403
+PASS: NORMAL USER BLOCKED GET /user-management/users => HTTP 403
+PASS: NORMAL USER BLOCKED GET /user-management/roles => HTTP 403
+
+==================================================
+ E — Admin token should access admin/security/user-management
+==================================================
+PASS: ADMIN TOKEN GET /admin => HTTP 200
+PASS: ADMIN TOKEN GET /admin/users => HTTP 200
+PASS: ADMIN TOKEN GET /admin/roles => HTTP 200
+PASS: ADMIN TOKEN GET /admin/permissions => HTTP 200
+PASS: ADMIN TOKEN GET /security => HTTP 200
+PASS: ADMIN TOKEN GET /security/audit-logs => HTTP 200
+PASS: ADMIN TOKEN GET /security/login-history => HTTP 200
+PASS: ADMIN TOKEN GET /user-management/users => HTTP 200
+PASS: ADMIN TOKEN GET /user-management/roles => HTTP 200
+
+==================================================
+ F — Logout must invalidate token
+==================================================
+PASS: LOGOUT => HTTP 200
+PASS: AFTER LOGOUT /auth/me => HTTP 401
+
+==================================================
+ Summary
+==================================================
+PASS=107
+FAIL=0
+WARN=0
+STEP 74 RESULT: PASS
