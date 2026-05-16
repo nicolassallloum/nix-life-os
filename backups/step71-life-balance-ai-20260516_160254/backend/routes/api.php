@@ -15,7 +15,6 @@ use App\Http\Controllers\Api\V1\ProductivityHabitController;
 use App\Http\Controllers\Api\V1\ProductivityGoalController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\V1\AIRecommendationController;
-use App\Http\Controllers\Api\V1\LifeBalanceAiRecommendationController;
 use App\Http\Controllers\Api\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceAccountController;
 use App\Http\Controllers\Api\FinanceTransactionController;
@@ -254,9 +253,6 @@ Route::prefix('v1')->group(function () {
         */
 
         Route::get('/life-balance/summary', [LifeBalanceController::class, 'summary']);
-        Route::get('/life-balance/ai-recommendations', [LifeBalanceAiRecommendationController::class, 'index']);
-        Route::get('/life-balance/recommendations', [LifeBalanceAiRecommendationController::class, 'index']);
-        Route::get('/ai/life-balance/recommendations', [LifeBalanceAiRecommendationController::class, 'index']);
 
         /*
         |--------------------------------------------------------------------------

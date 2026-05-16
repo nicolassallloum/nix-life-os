@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import type { RouteRecordRaw } from 'vue-router'
 
 /*
 |--------------------------------------------------------------------------
@@ -18,7 +17,7 @@ const RegisterView = () => import('../views/auth/RegisterView.vue')
 
 const UnifiedDashboardView = () => import('../views/dashboard/UnifiedDashboardView.vue')
 const DashboardView = () => import('../views/dashboard/DashboardView.vue')
-const LifeBalanceView = () => import('../views/life-balance/LifeBalanceView.vue')
+const LifeBalanceView = () => import('../views/LifeBalanceView.vue')
 
 /*
 |--------------------------------------------------------------------------
@@ -68,6 +67,7 @@ const NutritionTrackingView = () => import('../views/health/NutritionTrackingVie
 const HydrationTrackingView = () => import('../views/health/HydrationTrackingView.vue')
 const HealthAlertsView = () => import('@/views/health/HealthAlertsView.vue')
 const HealthReportsView = () => import('@/views/health/HealthReportsView.vue')
+const HealthAIInsightsView = () => import('@/views/health/HealthAIInsightsView.vue')
 
 /*
 |--------------------------------------------------------------------------
@@ -107,17 +107,11 @@ const MonitoringDashboardView = () => import('../views/monitoring/MonitoringDash
 
 const NotFoundView = () => import('../views/NotFoundView.vue')
 
-const routes: RouteRecordRaw[] = [
+const routes = [
   {
     path: '/',
     redirect: '/dashboard',
   },
-
-  /*
-  |--------------------------------------------------------------------------
-  | Auth Routes
-  |--------------------------------------------------------------------------
-  */
 
   {
     path: '/login',
@@ -137,12 +131,6 @@ const routes: RouteRecordRaw[] = [
       title: 'Register',
     },
   },
-
-  /*
-  |--------------------------------------------------------------------------
-  | Main Dashboards
-  |--------------------------------------------------------------------------
-  */
 
   {
     path: '/dashboard',
@@ -172,12 +160,6 @@ const routes: RouteRecordRaw[] = [
     },
   },
 
-  /*
-  |--------------------------------------------------------------------------
-  | AI Routes
-  |--------------------------------------------------------------------------
-  */
-
   {
     path: '/ai',
     redirect: '/ai/recommendations',
@@ -191,12 +173,6 @@ const routes: RouteRecordRaw[] = [
       title: 'AI Recommendations',
     },
   },
-
-  /*
-  |--------------------------------------------------------------------------
-  | Productivity Routes
-  |--------------------------------------------------------------------------
-  */
 
   {
     path: '/productivity',
@@ -263,12 +239,6 @@ const routes: RouteRecordRaw[] = [
     },
   },
 
-  /*
-  |--------------------------------------------------------------------------
-  | Finance Routes
-  |--------------------------------------------------------------------------
-  */
-
   {
     path: '/finance',
     redirect: '/finance/dashboard',
@@ -318,12 +288,6 @@ const routes: RouteRecordRaw[] = [
       title: 'Finance Budgets',
     },
   },
-
-  /*
-  |--------------------------------------------------------------------------
-  | Health Routes
-  |--------------------------------------------------------------------------
-  */
 
   {
     path: '/health',
@@ -407,6 +371,15 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/health/ai-insights',
+    name: 'HealthAIInsights',
+    component: HealthAIInsightsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Health AI Insights',
+    },
+  },
+  {
     path: '/health/alerts',
     name: 'HealthAlerts',
     component: HealthAlertsView,
@@ -424,12 +397,6 @@ const routes: RouteRecordRaw[] = [
       title: 'Health Reports',
     },
   },
-
-  /*
-  |--------------------------------------------------------------------------
-  | Project Routes
-  |--------------------------------------------------------------------------
-  */
 
   {
     path: '/projects',
@@ -490,12 +457,6 @@ const routes: RouteRecordRaw[] = [
     },
   },
 
-  /*
-  |--------------------------------------------------------------------------
-  | Notification Routes
-  |--------------------------------------------------------------------------
-  */
-
   {
     path: '/notifications',
     name: 'Notifications',
@@ -515,12 +476,6 @@ const routes: RouteRecordRaw[] = [
     },
   },
 
-  /*
-  |--------------------------------------------------------------------------
-  | System Routes
-  |--------------------------------------------------------------------------
-  */
-
   {
     path: '/system/monitoring',
     name: 'MonitoringDashboard',
@@ -530,12 +485,6 @@ const routes: RouteRecordRaw[] = [
       title: 'Logging & Monitoring',
     },
   },
-
-  /*
-  |--------------------------------------------------------------------------
-  | 404 Route
-  |--------------------------------------------------------------------------
-  */
 
   {
     path: '/:pathMatch(.*)*',

@@ -18,7 +18,7 @@ const RegisterView = () => import('../views/auth/RegisterView.vue')
 
 const UnifiedDashboardView = () => import('../views/dashboard/UnifiedDashboardView.vue')
 const DashboardView = () => import('../views/dashboard/DashboardView.vue')
-const LifeBalanceView = () => import('../views/life-balance/LifeBalanceView.vue')
+const LifeBalanceView = () => import('../views/LifeBalanceView.vue')
 
 /*
 |--------------------------------------------------------------------------

@@ -1,0 +1,7 @@
+MISSING: backend/app/Http/Controllers/Api/V1/LifeBalanceAiRecommendationController.php
+MISSING: backend/app/Services/LifeBalanceAiRecommendationService.php
+MISSING: backend/app/Services/LifeBalanceService.php
+MISSING: frontend/src/services/lifeBalanceService.js
+MISSING: frontend/src/services/lifeBalanceService.ts
+MISSING: frontend/src/views/life-balance/LifeBalanceRecommendationsView.vue
+MISSING: frontend/src/components/life-balance/LifeBalanceAiRecommendations.vue
