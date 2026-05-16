@@ -218,6 +218,31 @@ class AIRecommendationController extends Controller
     {
         $this->authorizeRecommendationOwner($request, $recommendation);
 
+        /*
+        |--------------------------------------------------------------------------
+        | Backward Compatible Feedback Payload
+        |--------------------------------------------------------------------------
+        | Step 72 QA exposed two payload formats in use:
+        | 1. Current frontend/API format: feedback_type, feedback_value, feedback_comment
+        | 2. Older CURL/test format: feedback, rating, notes
+        |
+        | Normalize both formats here so regression tests, frontend actions, and future
+        | API consumers can submit feedback without receiving a false validation error.
+        */
+        $legacyFeedback = $request->input('feedback');
+
+        $feedbackType = $request->input('feedback_type', $legacyFeedback);
+        $feedbackType = $this->normalizeFeedbackType($feedbackType);
+
+        $feedbackValue = $request->input('feedback_value', $request->input('rating'));
+        $feedbackComment = $request->input('feedback_comment', $request->input('notes'));
+
+        $request->merge([
+            'feedback_type' => $feedbackType,
+            'feedback_value' => $feedbackValue,
+            'feedback_comment' => $feedbackComment,
+        ]);
+
         $validated = $request->validate([
             'feedback_type' => [
                 'required',
@@ -245,6 +270,7 @@ class AIRecommendationController extends Controller
             'feedback_comment' => $validated['feedback_comment'] ?? null,
             'metadata' => [
                 'source' => 'api_feedback_endpoint',
+                'payload_format' => $legacyFeedback !== null ? 'legacy_alias' : 'current',
             ],
         ]);
 
@@ -255,6 +281,20 @@ class AIRecommendationController extends Controller
                 'feedback' => $feedback,
             ],
         ], 201);
+    }
+
+    private function normalizeFeedbackType(?string $feedbackType): ?string
+    {
+        if ($feedbackType === null) {
+            return null;
+        }
+
+        return match (strtolower(trim($feedbackType))) {
+            'helpful', 'positive', 'yes', 'like', 'liked' => AIRecommendationFeedback::TYPE_USEFUL,
+            'unhelpful', 'not_helpful', 'negative', 'no', 'dislike', 'disliked' => AIRecommendationFeedback::TYPE_NOT_USEFUL,
+            'irrelevant' => AIRecommendationFeedback::TYPE_NOT_RELEVANT,
+            default => $feedbackType,
+        };
     }
 
     public function dailyScores(Request $request): JsonResponse

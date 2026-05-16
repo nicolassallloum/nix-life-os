@@ -1,67 +1,28 @@
 import api from './api'
 
-const cleanParams = (params = {}) => {
-  const cleaned = {}
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== '') {
-      cleaned[key] = value
-    }
-  })
-
-  return cleaned
+function removeEmptyParams(params = {}) {
+  return Object.fromEntries(
+    Object.entries(params).filter(([, value]) => value !== '' && value !== null && value !== undefined)
+  )
 }
 
 const aiRecommendationService = {
-  async generateRecommendations(payload = {}) {
-    const body = {
-      store_daily_score: payload.store_daily_score ?? true,
-    }
-
-    if (payload.date) {
-      body.date = payload.date
-    }
-
-    const response = await api.post('/ai/recommendations/generate', body)
+  async getRecommendations(params = {}) {
+    const response = await api.get('/ai/recommendations', {
+      params: removeEmptyParams(params),
+    })
 
     return response.data
   },
 
-  async getRecommendations(params = {}) {
-    const queryParams = cleanParams({
-      module: params.module || undefined,
-      status: params.status || undefined,
-      severity: params.severity || undefined,
-      type: params.type || undefined,
-      limit: params.limit || 50,
-
-      // IMPORTANT:
-      // Send active_only only when true.
-      // Do not send active_only=false because Laravel validates it as string "false".
-      active_only: params.active_only === true ? 1 : undefined,
-    })
-
-    const response = await api.get('/ai/recommendations', {
-      params: queryParams,
-    })
-
+  async generateRecommendations(payload = {}) {
+    const response = await api.post('/ai/recommendations/generate', payload)
     return response.data
   },
 
   async getDailyScores(params = {}) {
-    const queryParams = cleanParams({
-      from_date: params.from_date || undefined,
-      to_date: params.to_date || undefined,
-      limit: params.limit || 30,
-
-      // IMPORTANT:
-      // Send generate_today only when true.
-      // Do not send generate_today=false because Laravel validates it as string "false".
-      generate_today: params.generate_today === true ? 1 : undefined,
-    })
-
     const response = await api.get('/ai/scores/daily', {
-      params: queryParams,
+      params: removeEmptyParams(params),
     })
 
     return response.data
@@ -77,7 +38,7 @@ const aiRecommendationService = {
     return response.data
   },
 
-  async dismissRecommendation(recommendationId, reason = null) {
+  async dismissRecommendation(recommendationId, reason = '') {
     const response = await api.patch(`/ai/recommendations/${recommendationId}/dismiss`, {
       reason,
     })
@@ -90,12 +51,17 @@ const aiRecommendationService = {
     return response.data
   },
 
-  async submitFeedback(recommendationId, payload) {
-    const response = await api.post(`/ai/recommendations/${recommendationId}/feedback`, {
-      feedback_type: payload.feedback_type,
-      feedback_value: payload.feedback_value ?? null,
-      feedback_comment: payload.feedback_comment ?? null,
-    })
+  async submitFeedback(recommendationId, payload = {}) {
+    const normalizedPayload = {
+      feedback_type: payload.feedback_type || payload.feedback || 'useful',
+      feedback_value: payload.feedback_value ?? payload.rating ?? null,
+      feedback_comment: payload.feedback_comment ?? payload.notes ?? null,
+    }
+
+    const response = await api.post(
+      `/ai/recommendations/${recommendationId}/feedback`,
+      normalizedPayload
+    )
 
     return response.data
   },
