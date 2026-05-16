@@ -6,11 +6,6 @@ export const productivityService = {
     return response.data;
   },
 
-  async getAIInsights() {
-    const response = await api.get("/productivity/ai-insights");
-    return response.data;
-  },
-
   /* 
   |--------------------------------------------------------------------------
   | Goals

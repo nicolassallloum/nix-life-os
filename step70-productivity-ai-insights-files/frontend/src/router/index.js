@@ -40,8 +40,6 @@ const TasksView = () => import('../views/productivity/TasksView.vue')
 const GoalsView = () => import('../views/productivity/GoalsView.vue')
 const HabitsView = () => import('../views/productivity/HabitsView.vue')
 const CalendarView = () => import('../views/productivity/CalendarView.vue')
-const ProductivityAIInsightsView = () =>
-  import('../views/productivity/ProductivityAIInsightsView.vue')
 
 /*
 |--------------------------------------------------------------------------
@@ -216,16 +214,6 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: 'Habits',
-    },
-  },
-
-  {
-    path: '/productivity/ai-insights',
-    name: 'ProductivityAIInsights',
-    component: ProductivityAIInsightsView,
-    meta: {
-      requiresAuth: true,
-      title: 'Productivity AI Insights',
     },
   },
   {

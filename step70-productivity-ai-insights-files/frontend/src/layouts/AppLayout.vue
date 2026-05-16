@@ -70,46 +70,6 @@ const activeClass =
               >
                 Productivity Dashboard
               </RouterLink>
-
-              <RouterLink
-                to="/productivity/ai-insights"
-                :class="linkClass"
-                :active-class="activeClass"
-              >
-                Productivity AI Insights
-              </RouterLink>
-
-              <RouterLink
-                to="/productivity/tasks"
-                :class="linkClass"
-                :active-class="activeClass"
-              >
-                Tasks
-              </RouterLink>
-
-              <RouterLink
-                to="/productivity/habits"
-                :class="linkClass"
-                :active-class="activeClass"
-              >
-                Habits
-              </RouterLink>
-
-              <RouterLink
-                to="/productivity/goals"
-                :class="linkClass"
-                :active-class="activeClass"
-              >
-                Goals
-              </RouterLink>
-
-              <RouterLink
-                to="/productivity/calendar"
-                :class="linkClass"
-                :active-class="activeClass"
-              >
-                Calendar / Schedule
-              </RouterLink>
             </div>
           </div>
 

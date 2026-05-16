@@ -34,7 +34,7 @@ use App\Http\Controllers\Api\V1\Health\MedicationDoseController;
 use App\Http\Controllers\Api\V1\Health\SleepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
-
+use App\Http\Controllers\Api\V1\ProductivityAIInsightController;
 use App\Http\Controllers\Api\V1\HealthWeightLogController;
 use App\Http\Controllers\Api\V1\HealthHydrationLogController;
 

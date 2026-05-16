@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import type { RouteRecordRaw } from 'vue-router'
 
 /*
 |--------------------------------------------------------------------------
@@ -40,8 +41,6 @@ const TasksView = () => import('../views/productivity/TasksView.vue')
 const GoalsView = () => import('../views/productivity/GoalsView.vue')
 const HabitsView = () => import('../views/productivity/HabitsView.vue')
 const CalendarView = () => import('../views/productivity/CalendarView.vue')
-const ProductivityAIInsightsView = () =>
-  import('../views/productivity/ProductivityAIInsightsView.vue')
 
 /*
 |--------------------------------------------------------------------------
@@ -67,7 +66,6 @@ const NutritionTrackingView = () => import('../views/health/NutritionTrackingVie
 const HydrationTrackingView = () => import('../views/health/HydrationTrackingView.vue')
 const HealthAlertsView = () => import('@/views/health/HealthAlertsView.vue')
 const HealthReportsView = () => import('@/views/health/HealthReportsView.vue')
-const HealthAIInsightsView = () => import('@/views/health/HealthAIInsightsView.vue')
 
 /*
 |--------------------------------------------------------------------------
@@ -107,11 +105,17 @@ const MonitoringDashboardView = () => import('../views/monitoring/MonitoringDash
 
 const NotFoundView = () => import('../views/NotFoundView.vue')
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: '/',
     redirect: '/dashboard',
   },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Auth Routes
+  |--------------------------------------------------------------------------
+  */
 
   {
     path: '/login',
@@ -131,6 +135,12 @@ const routes = [
       title: 'Register',
     },
   },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Main Dashboards
+  |--------------------------------------------------------------------------
+  */
 
   {
     path: '/dashboard',
@@ -160,6 +170,12 @@ const routes = [
     },
   },
 
+  /*
+  |--------------------------------------------------------------------------
+  | AI Routes
+  |--------------------------------------------------------------------------
+  */
+
   {
     path: '/ai',
     redirect: '/ai/recommendations',
@@ -173,6 +189,12 @@ const routes = [
       title: 'AI Recommendations',
     },
   },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Productivity Routes
+  |--------------------------------------------------------------------------
+  */
 
   {
     path: '/productivity',
@@ -218,16 +240,6 @@ const routes = [
       title: 'Habits',
     },
   },
-
-  {
-    path: '/productivity/ai-insights',
-    name: 'ProductivityAIInsights',
-    component: ProductivityAIInsightsView,
-    meta: {
-      requiresAuth: true,
-      title: 'Productivity AI Insights',
-    },
-  },
   {
     path: '/productivity/calendar',
     name: 'ProductivityCalendar',
@@ -238,6 +250,12 @@ const routes = [
       title: 'Calendar / Schedule',
     },
   },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Finance Routes
+  |--------------------------------------------------------------------------
+  */
 
   {
     path: '/finance',
@@ -288,6 +306,12 @@ const routes = [
       title: 'Finance Budgets',
     },
   },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Health Routes
+  |--------------------------------------------------------------------------
+  */
 
   {
     path: '/health',
@@ -371,15 +395,6 @@ const routes = [
     },
   },
   {
-    path: '/health/ai-insights',
-    name: 'HealthAIInsights',
-    component: HealthAIInsightsView,
-    meta: {
-      requiresAuth: true,
-      title: 'Health AI Insights',
-    },
-  },
-  {
     path: '/health/alerts',
     name: 'HealthAlerts',
     component: HealthAlertsView,
@@ -397,6 +412,12 @@ const routes = [
       title: 'Health Reports',
     },
   },
+
+  /*
+  |--------------------------------------------------------------------------
+  | Project Routes
+  |--------------------------------------------------------------------------
+  */
 
   {
     path: '/projects',
@@ -457,6 +478,12 @@ const routes = [
     },
   },
 
+  /*
+  |--------------------------------------------------------------------------
+  | Notification Routes
+  |--------------------------------------------------------------------------
+  */
+
   {
     path: '/notifications',
     name: 'Notifications',
@@ -476,6 +503,12 @@ const routes = [
     },
   },
 
+  /*
+  |--------------------------------------------------------------------------
+  | System Routes
+  |--------------------------------------------------------------------------
+  */
+
   {
     path: '/system/monitoring',
     name: 'MonitoringDashboard',
@@ -485,6 +518,12 @@ const routes = [
       title: 'Logging & Monitoring',
     },
   },
+
+  /*
+  |--------------------------------------------------------------------------
+  | 404 Route
+  |--------------------------------------------------------------------------
+  */
 
   {
     path: '/:pathMatch(.*)*',
