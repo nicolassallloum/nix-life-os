@@ -1,0 +1,115 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: nixlifeos-postgres
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    environment:
+      POSTGRES_DB: nixlifeos_db
+      POSTGRES_USER: nixlifeos_user
+      POSTGRES_PASSWORD: postgres
+      TZ: ${TZ}
+    ports:
+      - "127.0.0.1:5445:5432"
+    volumes:
+      - nixlifeos_postgres_data:/var/lib/postgresql
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - nixlifeos-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nixlifeos_user -d nixlifeos_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nixlifeos-backend
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    volumes:
+      - ./backend:/var/www/html
+      - nixlifeos_backend_storage:/var/www/html/storage
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nixlifeos-network
+    healthcheck:
+      test: ["CMD-SHELL", "php artisan --version || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  backend-nginx:
+    image: nginx:1.27-alpine
+    container_name: nixlifeos-backend-nginx
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:80"
+    volumes:
+      - ./backend:/var/www/html
+      - ./docker/backend-nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+    networks:
+      - nixlifeos-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nixlifeos-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend-nginx
+    networks:
+      - nixlifeos-network
+
+  ai-engine:
+    build:
+      context: ./ai-engine
+      dockerfile: Dockerfile
+    container_name: nixlifeos-ai-engine
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    ports:
+      - "127.0.0.1:5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nixlifeos-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: nixlifeos-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - frontend
+      - backend-nginx
+      - ai-engine
+    networks:
+      - nixlifeos-network
+
+volumes:
+  nixlifeos_postgres_data:
+  nixlifeos_backend_storage:
+
+networks:
+  nixlifeos-network:
+    driver: bridge

@@ -36,7 +36,7 @@ return [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
             'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '5432'),
+            'port' => env('DB_PORT', '5445'),
             'database' => env('DB_DATABASE', 'nixlifeos_db'),
             'username' => env('DB_USERNAME', 'nixlifeos_user'),
             'password' => env('DB_PASSWORD', 'postgres'),

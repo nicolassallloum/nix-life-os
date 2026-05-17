@@ -74,6 +74,14 @@ Route::get('/health', function () {
     ]);
 });
 
+Route::get('/v1/health', function () {
+    return response()->json([
+        'success' => true,
+        'message' => 'Nix Life OS API v1 is running.',
+        'timestamp' => now()->toISOString(),
+    ]);
+});
+
 /*
 |--------------------------------------------------------------------------
 | API Version 1

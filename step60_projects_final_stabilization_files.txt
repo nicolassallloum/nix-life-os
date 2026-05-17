@@ -11,7 +11,7 @@ nixlifeos-backend         nix-life-os-backend     Up 3 minutes (healthy)   9000/
 nixlifeos-ai-engine       nix-life-os-ai-engine   Up 3 days (healthy)      0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
 nixlifeos-nginx           nginx:1.27-alpine       Up 32 minutes            0.0.0.0:80->80/tcp, [::]:80->80/tcp
 nixlifeos-backend-nginx   nginx:1.27-alpine       Up 3 minutes             0.0.0.0:8000->80/tcp, [::]:8000->80/tcp
-nixlifeos-postgres        postgres:18             Up 3 days (healthy)      0.0.0.0:5445->5432/tcp, [::]:5445->5432/tcp
+nixlifeos-postgres        postgres:18             Up 3 days (healthy)      0.0.0.0:5445->5445/tcp, [::]:5445->5445/tcp
 
 ================ BACKEND ROUTES: PROJECTS ================
   GET|HEAD  api/v1/projects ................... Api\V1\ProjectController@index
@@ -425,9 +425,9 @@ frontend/src/views/ProjectProgressView.vue:114:            <option value="">Sele
 "} 
 [2026-05-12 18:03:14] production.ERROR: SQLSTATE[42703]: Undefined column: 7 ERROR:  column "target_end_date" does not exist
 LINE 1: ... "user_id" = $1) and "status" not in ($2, $3) and "target_en...
-                                                             ^ (Connection: pgsql, Host: postgres, Port: 5432, Database: nixlifeos_db, SQL: select count(*) as aggregate from "project_tasks" where exists (select * from "projects" where "project_tasks"."project_id" = "projects"."id" and "user_id" = 019e1090-339e-71bb-991e-dc1297db8a18) and "status" not in (completed, cancelled) and "target_end_date" is not null and "target_end_date"::date < 2026-05-12) {"userId":"019e1090-339e-71bb-991e-dc1297db8a18","exception":"[object] (Illuminate\\Database\\QueryException(code: 42703): SQLSTATE[42703]: Undefined column: 7 ERROR:  column \"target_end_date\" does not exist
+                                                             ^ (Connection: pgsql, Host: postgres, Port: 5445, Database: nixlifeos_db, SQL: select count(*) as aggregate from "project_tasks" where exists (select * from "projects" where "project_tasks"."project_id" = "projects"."id" and "user_id" = 019e1090-339e-71bb-991e-dc1297db8a18) and "status" not in (completed, cancelled) and "target_end_date" is not null and "target_end_date"::date < 2026-05-12) {"userId":"019e1090-339e-71bb-991e-dc1297db8a18","exception":"[object] (Illuminate\\Database\\QueryException(code: 42703): SQLSTATE[42703]: Undefined column: 7 ERROR:  column \"target_end_date\" does not exist
 LINE 1: ... \"user_id\" = $1) and \"status\" not in ($2, $3) and \"target_en...
-                                                             ^ (Connection: pgsql, Host: postgres, Port: 5432, Database: nixlifeos_db, SQL: select count(*) as aggregate from \"project_tasks\" where exists (select * from \"projects\" where \"project_tasks\".\"project_id\" = \"projects\".\"id\" and \"user_id\" = 019e1090-339e-71bb-991e-dc1297db8a18) and \"status\" not in (completed, cancelled) and \"target_end_date\" is not null and \"target_end_date\"::date < 2026-05-12) at /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php:841)
+                                                             ^ (Connection: pgsql, Host: postgres, Port: 5445, Database: nixlifeos_db, SQL: select count(*) as aggregate from \"project_tasks\" where exists (select * from \"projects\" where \"project_tasks\".\"project_id\" = \"projects\".\"id\" and \"user_id\" = 019e1090-339e-71bb-991e-dc1297db8a18) and \"status\" not in (completed, cancelled) and \"target_end_date\" is not null and \"target_end_date\"::date < 2026-05-12) at /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php:841)
 [stacktrace]
 #0 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(797): Illuminate\\Database\\Connection->runQueryCallback('select count(*)...', Array, Object(Closure))
 #1 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(412): Illuminate\\Database\\Connection->run('select count(*)...', Array, Object(Closure))
@@ -577,9 +577,9 @@ LINE 1: ... \"user_id\" = $1) and \"status\" not in ($2, $3) and \"target_en...
 "} 
 [2026-05-12 18:07:42] production.ERROR: SQLSTATE[42703]: Undefined column: 7 ERROR:  column project_tasks.target_end_date does not exist
 LINE 1: ... and "project_tasks"."status" not in ($2, $3) and "project_t...
-                                                             ^ (Connection: pgsql, Host: postgres, Port: 5432, Database: nixlifeos_db, SQL: select count(*) as aggregate from "project_tasks" inner join "projects" on "projects"."id" = "project_tasks"."project_id" where "projects"."user_id" = 019e1090-339e-71bb-991e-dc1297db8a18 and "project_tasks"."status" not in (completed, cancelled) and "project_tasks"."target_end_date" is not null and "project_tasks"."target_end_date"::date < 2026-05-12) {"userId":"019e1090-339e-71bb-991e-dc1297db8a18","exception":"[object] (Illuminate\\Database\\QueryException(code: 42703): SQLSTATE[42703]: Undefined column: 7 ERROR:  column project_tasks.target_end_date does not exist
+                                                             ^ (Connection: pgsql, Host: postgres, Port: 5445, Database: nixlifeos_db, SQL: select count(*) as aggregate from "project_tasks" inner join "projects" on "projects"."id" = "project_tasks"."project_id" where "projects"."user_id" = 019e1090-339e-71bb-991e-dc1297db8a18 and "project_tasks"."status" not in (completed, cancelled) and "project_tasks"."target_end_date" is not null and "project_tasks"."target_end_date"::date < 2026-05-12) {"userId":"019e1090-339e-71bb-991e-dc1297db8a18","exception":"[object] (Illuminate\\Database\\QueryException(code: 42703): SQLSTATE[42703]: Undefined column: 7 ERROR:  column project_tasks.target_end_date does not exist
 LINE 1: ... and \"project_tasks\".\"status\" not in ($2, $3) and \"project_t...
-                                                             ^ (Connection: pgsql, Host: postgres, Port: 5432, Database: nixlifeos_db, SQL: select count(*) as aggregate from \"project_tasks\" inner join \"projects\" on \"projects\".\"id\" = \"project_tasks\".\"project_id\" where \"projects\".\"user_id\" = 019e1090-339e-71bb-991e-dc1297db8a18 and \"project_tasks\".\"status\" not in (completed, cancelled) and \"project_tasks\".\"target_end_date\" is not null and \"project_tasks\".\"target_end_date\"::date < 2026-05-12) at /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php:841)
+                                                             ^ (Connection: pgsql, Host: postgres, Port: 5445, Database: nixlifeos_db, SQL: select count(*) as aggregate from \"project_tasks\" inner join \"projects\" on \"projects\".\"id\" = \"project_tasks\".\"project_id\" where \"projects\".\"user_id\" = 019e1090-339e-71bb-991e-dc1297db8a18 and \"project_tasks\".\"status\" not in (completed, cancelled) and \"project_tasks\".\"target_end_date\" is not null and \"project_tasks\".\"target_end_date\"::date < 2026-05-12) at /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php:841)
 [stacktrace]
 #0 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(797): Illuminate\\Database\\Connection->runQueryCallback('select count(*)...', Array, Object(Closure))
 #1 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(412): Illuminate\\Database\\Connection->run('select count(*)...', Array, Object(Closure))
@@ -7163,7 +7163,7 @@ APP_URL=http://localhost
 
 DB_CONNECTION=pgsql
 DB_HOST=postgres
-DB_PORT=5432
+DB_PORT=5445
 DB_DATABASE=nixlifeos_db
 DB_USERNAME=nixlifeos_user
 DB_PASSWORD=postgres

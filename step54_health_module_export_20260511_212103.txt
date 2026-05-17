@@ -13,7 +13,7 @@ nixlifeos-frontend        nix-life-os-frontend    Up 20 hours             80/tcp
 nixlifeos-ai-engine       nix-life-os-ai-engine   Up 29 hours (healthy)   0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
 nixlifeos-nginx           nginx:1.27-alpine       Up 20 hours             0.0.0.0:80->80/tcp, [::]:80->80/tcp
 nixlifeos-backend-nginx   nginx:1.27-alpine       Up 20 hours             0.0.0.0:8000->80/tcp, [::]:8000->80/tcp
-nixlifeos-postgres        postgres:18             Up 36 hours (healthy)   0.0.0.0:5445->5432/tcp, [::]:5445->5432/tcp
+nixlifeos-postgres        postgres:18             Up 36 hours (healthy)   0.0.0.0:5445->5445/tcp, [::]:5445->5445/tcp
 
 ============================================================
 2) DOCKER COMPOSE FILES
@@ -17404,12 +17404,12 @@ createApp(App).use(router).mount("#app");
 ============================================================
 22) DATABASE TABLE LIST - HEALTH RELATED
 ============================================================
-psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5445" failed: FATAL:  role "postgres" does not exist
 
 ============================================================
 23) DATABASE ROW COUNTS - HEALTH RELATED
 ============================================================
-psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5445" failed: FATAL:  role "postgres" does not exist
 
 ============================================================
 24) LARAVEL LOG LAST 200 LINES

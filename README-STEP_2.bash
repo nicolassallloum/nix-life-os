@@ -113,7 +113,7 @@ LOG_LEVEL=debug
 
 DB_CONNECTION=pgsql
 DB_HOST=127.0.0.1
-DB_PORT=5432
+DB_PORT=5445
 DB_DATABASE=nixlifeos_db
 DB_USERNAME=nixlifeos_user
 DB_PASSWORD=StrongPass_ChangeMe_2026
@@ -286,7 +286,7 @@ mkdir -p notebooks tests
 mkdir -p src/{config,db,etl,features,models,reports,utils}
 Create analytics/.env:
 PG_HOST=127.0.0.1
-PG_PORT=5432
+PG_PORT=5445
 PG_DB=nixlifeos_db
 PG_USER=nixlifeos_user
 PG_PASSWORD=StrongPass_ChangeMe_2026

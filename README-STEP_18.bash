@@ -598,7 +598,7 @@ nano .env
 Add:
 
 DB_HOST=127.0.0.1
-DB_PORT=5432
+DB_PORT=5445
 DB_NAME=nixlifeos_db
 DB_USER=postgres
 DB_PASSWORD=your_password_here
@@ -622,7 +622,7 @@ load_dotenv()
 def get_connection():
     return psycopg2.connect(
         host=os.getenv("DB_HOST", "127.0.0.1"),
-        port=os.getenv("DB_PORT", "5432"),
+        port=os.getenv("DB_PORT", "5445"),
         database=os.getenv("DB_NAME", "nixlifeos_db"),
         user=os.getenv("DB_USER", "postgres"),
         password=os.getenv("DB_PASSWORD", ""),

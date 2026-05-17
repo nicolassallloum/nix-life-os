@@ -10,7 +10,7 @@ nixlifeos-backend         nix-life-os-backend     Up 4 minutes (healthy)   9000/
 nixlifeos-ai-engine       nix-life-os-ai-engine   Up 3 days (healthy)      0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
 nixlifeos-nginx           nginx:1.27-alpine       Up About an hour         0.0.0.0:80->80/tcp, [::]:80->80/tcp
 nixlifeos-backend-nginx   nginx:1.27-alpine       Up 4 minutes             0.0.0.0:8000->80/tcp, [::]:8000->80/tcp
-nixlifeos-postgres        postgres:18             Up 3 days (healthy)      0.0.0.0:5445->5432/tcp, [::]:5445->5432/tcp
+nixlifeos-postgres        postgres:18             Up 3 days (healthy)      0.0.0.0:5445->5445/tcp, [::]:5445->5445/tcp
 
 ================ BACKEND ROUTE LIST - PROJECT/TASK ================
   GET|HEAD  api/v1/projects ................... Api\V1\ProjectController@index

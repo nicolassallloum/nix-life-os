@@ -1,0 +1,37 @@
+services:
+  postgres:
+    ports: []
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD must be set}
+    read_only: false
+
+  backend:
+    read_only: false
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp
+
+  backend-nginx:
+    ports: []
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  ai-engine:
+    ports: []
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  nginx:
+    ports:
+      - "80:80"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL

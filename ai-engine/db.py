@@ -9,7 +9,7 @@ load_dotenv()
 def get_connection():
     return psycopg2.connect(
         host=os.getenv("DB_HOST", "127.0.0.1"),
-        port=os.getenv("DB_PORT", "5432"),
+        port=os.getenv("DB_PORT", "5445"),
         database=os.getenv("DB_NAME", "nixlifeos_db"),
         user=os.getenv("DB_USER", "postgres"),
         password=os.getenv("DB_PASSWORD", ""),

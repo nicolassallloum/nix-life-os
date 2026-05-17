@@ -26,7 +26,7 @@ Expected:
 Edit:
 nano /u01/nix-life-os/.env
 Recommended production values:
-APP_ENV=productionAPP_DEBUG=falseAPP_URL=http://127.0.0.1TZ=Asia/BeirutDB_CONNECTION=pgsqlDB_HOST=postgresDB_PORT=5432DB_DATABASE=nixlifeos_dbDB_USERNAME=nixlifeos_userDB_PASSWORD=strong_passwordSANCTUM_STATEFUL_DOMAINS=127.0.0.1,localhostSESSION_DOMAIN=127.0.0.1AI_ENGINE_URL=http://nixlifeos-ai-engine:5000
+APP_ENV=productionAPP_DEBUG=falseAPP_URL=http://127.0.0.1TZ=Asia/BeirutDB_CONNECTION=pgsqlDB_HOST=postgresDB_PORT=5445DB_DATABASE=nixlifeos_dbDB_USERNAME=nixlifeos_userDB_PASSWORD=strong_passwordSANCTUM_STATEFUL_DOMAINS=127.0.0.1,localhostSESSION_DOMAIN=127.0.0.1AI_ENGINE_URL=http://nixlifeos-ai-engine:5000
 The TZ=Asia/Beirut value fixes the Docker warning:
 The "TZ" variable is not set. Defaulting to a blank string.
 

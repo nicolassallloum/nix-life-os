@@ -11,7 +11,7 @@ nixlifeos-backend         nix-life-os-backend     Up 14 minutes (healthy)   9000
 nixlifeos-ai-engine       nix-life-os-ai-engine   Up 3 days (healthy)       0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
 nixlifeos-nginx           nginx:1.27-alpine       Up 14 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
 nixlifeos-backend-nginx   nginx:1.27-alpine       Up 14 minutes             0.0.0.0:8000->80/tcp, [::]:8000->80/tcp
-nixlifeos-postgres        postgres:18             Up 3 days (healthy)       0.0.0.0:5445->5432/tcp, [::]:5445->5432/tcp
+nixlifeos-postgres        postgres:18             Up 3 days (healthy)       0.0.0.0:5445->5445/tcp, [::]:5445->5445/tcp
 
 ================ BACKEND ROUTES - PROJECTS ================
   PUT       api/v1/finance/accounts/{id} . Api\FinanceAccountController@update
@@ -5196,16 +5196,16 @@ FILE: backend/composer.json
 }
 
 ================ DATABASE TABLE STRUCTURE CHECKS ================
-psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
-psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
-psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
-psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5445" failed: FATAL:  role "postgres" does not exist
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5445" failed: FATAL:  role "postgres" does not exist
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5445" failed: FATAL:  role "postgres" does not exist
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5445" failed: FATAL:  role "postgres" does not exist
 
 ================ PROJECT TABLE COLUMNS ================
-psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5445" failed: FATAL:  role "postgres" does not exist
 
 ================ SAMPLE PROJECT DATA COUNTS ================
-psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5432" failed: FATAL:  role "postgres" does not exist
+psql: error: connection to server on socket "/var/run/postgresql/.s.PGSQL.5445" failed: FATAL:  role "postgres" does not exist
 
 ================ STEP 59 EXPORT COMPLETED ================
 Output file: step59_project_progress_status_files.txt
