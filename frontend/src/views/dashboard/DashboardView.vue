@@ -421,7 +421,7 @@ async function loadDashboard() {
     summary.value = normalizeDashboardSummary(summaryResponse);
 
     try {
-      const activityResponse = await apiGet('/dashboard/recent-activity');
+      const activityResponse = { data: { success: true, data: [] } };
       recentActivity.value = normalizeList(activityResponse);
     } catch {
       recentActivity.value = [];

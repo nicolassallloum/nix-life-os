@@ -60,7 +60,7 @@ async function apiRequest(endpoint, options = {}) {
       Accept: "application/json",
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-      ...(options.headers || {}),
+      ...options.headers,
     },
   });
 

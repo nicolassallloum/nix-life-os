@@ -170,7 +170,7 @@ async function loadDashboard() {
   dashboard.value = {
     summary: {
       ...fallback.summary,
-      ...(data.summary || {}),
+      ...data.summary,
     },
     progress_cards: Array.isArray(data.progress_cards) ? data.progress_cards : [],
     recent_projects: Array.isArray(data.recent_projects) ? data.recent_projects : [],

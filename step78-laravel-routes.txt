@@ -1,0 +1,227 @@
+
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37m/[39m[34m ............................................... routes/web.php:5[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/health[39m[34m ..................................... routes/api.php:67[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/admin[39m[34m .................................. routes/api.php:701[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/admin/permissions[39m[34m ...................... routes/api.php:741[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/admin/roles[39m[34m ............................ routes/api.php:734[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/admin/users[39m[34m ............................ routes/api.php:713[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/ai/life-balance/recommendations[39m[34m Api\V1\LifeBalanceAiRecomm…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/ai/recommendations[39m[34m Api\V1\AIRecommendationController@index[39m
+  [33mPOST[39m      [37mapi/v1/ai/recommendations/generate[39m[34m Api\V1\AIRecommendationControl…[39m
+  [33mPATCH[39m     [37mapi/v1/ai/recommendations/[39m[33m{recommendation}[39m[37m/accept[39m[34m Api\V1\AIRecomm…[39m
+  [33mPATCH[39m     [37mapi/v1/ai/recommendations/[39m[33m{recommendation}[39m[37m/complete[39m[34m Api\V1\AIReco…[39m
+  [33mPATCH[39m     [37mapi/v1/ai/recommendations/[39m[33m{recommendation}[39m[37m/dismiss[39m[34m Api\V1\AIRecom…[39m
+  [33mPOST[39m      [37mapi/v1/ai/recommendations/[39m[33m{recommendation}[39m[37m/feedback[39m[34m Api\V1\AIReco…[39m
+  [33mPATCH[39m     [37mapi/v1/ai/recommendations/[39m[33m{recommendation}[39m[37m/viewed[39m[34m Api\V1\AIRecomm…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/ai/scores/daily[39m[34m Api\V1\AIRecommendationController@dailySco…[39m
+  [33mPOST[39m      [37mapi/v1/auth/login[39m[34m ....................... Api\AuthController@login[39m
+  [33mPOST[39m      [37mapi/v1/auth/logout[39m[34m ..................... Api\AuthController@logout[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/auth/me[39m[34m ............................. Api\AuthController@me[39m
+  [33mPOST[39m      [37mapi/v1/auth/register[39m[34m ................. Api\AuthController@register[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/automation[39m[34m ............................. routes/api.php:657[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/automation/logs[39m[34m ........................ routes/api.php:675[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/dashboard/summary[39m[34m Api\V1\Dashboard\DashboardController@sum…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/finance/accounts[39m[34m ....... Api\FinanceAccountController@index[39m
+  [33mPOST[39m      [37mapi/v1/finance/accounts[39m[34m ....... Api\FinanceAccountController@store[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/finance/accounts/[39m[33m{id}[39m[34m ... Api\FinanceAccountController@show[39m
+  [33mPUT[39m       [37mapi/v1/finance/accounts/[39m[33m{id}[39m[34m . Api\FinanceAccountController@update[39m
+  [33mPATCH[39m     [37mapi/v1/finance/accounts/[39m[33m{id}[39m[34m . Api\FinanceAccountController@update[39m
+  [31mDELETE[39m    [37mapi/v1/finance/accounts/[39m[33m{id}[39m[34m Api\FinanceAccountController@destroy[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/finance/ai-insights[39m[34m Api\V1\Finance\FinanceAIInsightControl…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/finance/budgets[39m[34m Api\V1\Finance\FinanceBudgetController@ind…[39m
+  [33mPOST[39m      [37mapi/v1/finance/budgets[39m[34m Api\V1\Finance\FinanceBudgetController@sto…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/finance/budgets/[39m[33m{id}[39m[34m Api\V1\Finance\FinanceBudgetControlle…[39m
+  [33mPUT[39m       [37mapi/v1/finance/budgets/[39m[33m{id}[39m[34m Api\V1\Finance\FinanceBudgetControlle…[39m
+  [33mPATCH[39m     [37mapi/v1/finance/budgets/[39m[33m{id}[39m[34m Api\V1\Finance\FinanceBudgetControlle…[39m
+  [31mDELETE[39m    [37mapi/v1/finance/budgets/[39m[33m{id}[39m[34m Api\V1\Finance\FinanceBudgetControlle…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/finance/transactions[39m[34m Api\FinanceTransactionController@index[39m
+  [33mPOST[39m      [37mapi/v1/finance/transactions[39m[34m Api\FinanceTransactionController@store[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/finance/transactions/[39m[33m{id}[39m[34m Api\FinanceTransactionController…[39m
+  [33mPUT[39m       [37mapi/v1/finance/transactions/[39m[33m{id}[39m[34m Api\FinanceTransactionController…[39m
+  [33mPATCH[39m     [37mapi/v1/finance/transactions/[39m[33m{id}[39m[34m Api\FinanceTransactionController…[39m
+  [31mDELETE[39m    [37mapi/v1/finance/transactions/[39m[33m{id}[39m[34m Api\FinanceTransactionController…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/ai-insights[39m[34m Api\V1\Health\HealthAIInsightController…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/alerts[39m[34m .......... Api\V1\HealthAlertController@index[39m
+  [33mPOST[39m      [37mapi/v1/health/alerts/run[39m[34m ........ Api\V1\HealthAlertController@run[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/alerts/summary[39m[34m Api\V1\HealthAlertController@summary[39m
+  [31mDELETE[39m    [37mapi/v1/health/alerts/[39m[33m{id}[39m[34m ... Api\V1\HealthAlertController@destroy[39m
+  [33mPATCH[39m     [37mapi/v1/health/alerts/[39m[33m{id}[39m[37m/dismiss[39m[34m Api\V1\HealthAlertController@di…[39m
+  [33mPATCH[39m     [37mapi/v1/health/alerts/[39m[33m{id}[39m[37m/read[39m[34m Api\V1\HealthAlertController@markA…[39m
+  [33mPATCH[39m     [37mapi/v1/health/alerts/[39m[33m{id}[39m[37m/resolve[39m[34m Api\V1\HealthAlertController@re…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/dashboard[39m[34m Api\V1\Health\HealthDashboardController@s…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/hydration[39m[34m Api\V1\HealthHydrationLogController@index[39m
+  [33mPOST[39m      [37mapi/v1/health/hydration[39m[34m Api\V1\HealthHydrationLogController@store[39m
+  [33mPOST[39m      [37mapi/v1/health/hydration/quick-add[39m[34m Api\V1\HealthHydrationLogContro…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/hydration/summary/daily[39m[34m Api\V1\HealthHydrationLogCo…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/hydration/summary/weekly[39m[34m Api\V1\HealthHydrationLogC…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/hydration/[39m[33m{id}[39m[34m Api\V1\HealthHydrationLogController@…[39m
+  [33mPUT[39m       [37mapi/v1/health/hydration/[39m[33m{id}[39m[34m Api\V1\HealthHydrationLogController@…[39m
+  [33mPATCH[39m     [37mapi/v1/health/hydration/[39m[33m{id}[39m[34m Api\V1\HealthHydrationLogController@…[39m
+  [31mDELETE[39m    [37mapi/v1/health/hydration/[39m[33m{id}[39m[34m Api\V1\HealthHydrationLogController@…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/lab-tests[39m[34m Api\V1\Health\HealthLabTestController@ind…[39m
+  [33mPOST[39m      [37mapi/v1/health/lab-tests[39m[34m Api\V1\Health\HealthLabTestController@sto…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/lab-tests/categories[39m[34m Api\V1\Health\HealthLabTestCon…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/lab-tests/trends[39m[34m Api\V1\Health\HealthLabTestControl…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/lab-tests/[39m[33m{id}[39m[34m Api\V1\Health\HealthLabTestControlle…[39m
+  [33mPUT[39m       [37mapi/v1/health/lab-tests/[39m[33m{id}[39m[34m Api\V1\Health\HealthLabTestControlle…[39m
+  [33mPATCH[39m     [37mapi/v1/health/lab-tests/[39m[33m{id}[39m[34m Api\V1\Health\HealthLabTestControlle…[39m
+  [31mDELETE[39m    [37mapi/v1/health/lab-tests/[39m[33m{id}[39m[34m Api\V1\Health\HealthLabTestControlle…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/medication-doses/history[39m[34m Api\V1\Health\MedicationDo…[39m
+  [33mPOST[39m      [37mapi/v1/health/medication-doses/[39m[33m{id}[39m[37m/skipped[39m[34m Api\V1\Health\Medicat…[39m
+  [33mPOST[39m      [37mapi/v1/health/medication-doses/[39m[33m{id}[39m[37m/taken[39m[34m Api\V1\Health\Medicatio…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/medication-reminders[39m[34m Api\V1\Health\MedicationRemind…[39m
+  [33mPOST[39m      [37mapi/v1/health/medication-reminders[39m[34m Api\V1\Health\MedicationRemind…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/medication-reminders/today[39m[34m Api\V1\Health\Medication…[39m
+  [33mPUT[39m       [37mapi/v1/health/medication-reminders/[39m[33m{id}[39m[34m Api\V1\Health\MedicationR…[39m
+  [33mPATCH[39m     [37mapi/v1/health/medication-reminders/[39m[33m{id}[39m[34m Api\V1\Health\MedicationR…[39m
+  [31mDELETE[39m    [37mapi/v1/health/medication-reminders/[39m[33m{id}[39m[34m Api\V1\Health\MedicationR…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/medications[39m[34m Api\V1\Health\MedicationController@index[39m
+  [33mPOST[39m      [37mapi/v1/health/medications[39m[34m Api\V1\Health\MedicationController@store[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/medications/[39m[33m{id}[39m[34m Api\V1\Health\MedicationController…[39m
+  [33mPUT[39m       [37mapi/v1/health/medications/[39m[33m{id}[39m[34m Api\V1\Health\MedicationController…[39m
+  [33mPATCH[39m     [37mapi/v1/health/medications/[39m[33m{id}[39m[34m Api\V1\Health\MedicationController…[39m
+  [31mDELETE[39m    [37mapi/v1/health/medications/[39m[33m{id}[39m[34m Api\V1\Health\MedicationController…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/mood[39m[34m ... Api\V1\Health\HealthMoodLogController@index[39m
+  [33mPOST[39m      [37mapi/v1/health/mood[39m[34m ... Api\V1\Health\HealthMoodLogController@store[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/mood/[39m[33m{id}[39m[34m Api\V1\Health\HealthMoodLogController@show[39m
+  [33mPUT[39m       [37mapi/v1/health/mood/[39m[33m{id}[39m[34m Api\V1\Health\HealthMoodLogController@upd…[39m
+  [33mPATCH[39m     [37mapi/v1/health/mood/[39m[33m{id}[39m[34m Api\V1\Health\HealthMoodLogController@upd…[39m
+  [31mDELETE[39m    [37mapi/v1/health/mood/[39m[33m{id}[39m[34m Api\V1\Health\HealthMoodLogController@des…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/nutrition[39m[34m ... Api\HealthNutritionLogController@index[39m
+  [33mPOST[39m      [37mapi/v1/health/nutrition[39m[34m ... Api\HealthNutritionLogController@store[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/nutrition/summary[39m[34m Api\HealthNutritionLogController@…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/nutrition/[39m[33m{id}[39m[34m Api\HealthNutritionLogController@show[39m
+  [33mPUT[39m       [37mapi/v1/health/nutrition/[39m[33m{id}[39m[34m Api\HealthNutritionLogController@upd…[39m
+  [33mPATCH[39m     [37mapi/v1/health/nutrition/[39m[33m{id}[39m[34m Api\HealthNutritionLogController@upd…[39m
+  [31mDELETE[39m    [37mapi/v1/health/nutrition/[39m[33m{id}[39m[34m Api\HealthNutritionLogController@des…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/reports/daily[39m[34m .. Api\V1\HealthReportController@daily[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/reports/export-preview[39m[34m Api\V1\HealthReportControlle…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/reports/monthly[39m[34m Api\V1\HealthReportController@month…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/reports/weekly[39m[34m Api\V1\HealthReportController@weekly[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/sleep[39m[34m ....... Api\V1\Health\SleepLogController@index[39m
+  [33mPOST[39m      [37mapi/v1/health/sleep[39m[34m ....... Api\V1\Health\SleepLogController@store[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/sleep-test[39m[34m ...................... routes/api.php:476[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/sleep/[39m[33m{id}[39m[34m ... Api\V1\Health\SleepLogController@show[39m
+  [33mPUT[39m       [37mapi/v1/health/sleep/[39m[33m{id}[39m[34m . Api\V1\Health\SleepLogController@update[39m
+  [33mPATCH[39m     [37mapi/v1/health/sleep/[39m[33m{id}[39m[34m . Api\V1\Health\SleepLogController@update[39m
+  [31mDELETE[39m    [37mapi/v1/health/sleep/[39m[33m{id}[39m[34m Api\V1\Health\SleepLogController@destroy[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/steps[39m[34m .. Api\V1\Health\HealthStepLogController@index[39m
+  [33mPOST[39m      [37mapi/v1/health/steps[39m[34m .. Api\V1\Health\HealthStepLogController@store[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/steps/summary[39m[34m Api\V1\Health\HealthStepLogController…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/steps/[39m[33m{id}[39m[34m Api\V1\Health\HealthStepLogController@sh…[39m
+  [33mPUT[39m       [37mapi/v1/health/steps/[39m[33m{id}[39m[34m Api\V1\Health\HealthStepLogController@up…[39m
+  [33mPATCH[39m     [37mapi/v1/health/steps/[39m[33m{id}[39m[34m Api\V1\Health\HealthStepLogController@up…[39m
+  [31mDELETE[39m    [37mapi/v1/health/steps/[39m[33m{id}[39m[34m Api\V1\Health\HealthStepLogController@de…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/weight[39m[34m ...... Api\V1\HealthWeightLogController@index[39m
+  [33mPOST[39m      [37mapi/v1/health/weight[39m[34m ...... Api\V1\HealthWeightLogController@store[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/weight/summary[39m[34m Api\V1\HealthWeightLogController@sum…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/health/weight/[39m[33m{id}[39m[34m .. Api\V1\HealthWeightLogController@show[39m
+  [33mPUT[39m       [37mapi/v1/health/weight/[39m[33m{id}[39m[34m Api\V1\HealthWeightLogController@update[39m
+  [33mPATCH[39m     [37mapi/v1/health/weight/[39m[33m{id}[39m[34m Api\V1\HealthWeightLogController@update[39m
+  [31mDELETE[39m    [37mapi/v1/health/weight/[39m[33m{id}[39m[34m Api\V1\HealthWeightLogController@destroy[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/life-balance/ai-recommendations[39m[34m Api\V1\LifeBalanceAiRecomm…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/life-balance/recommendations[39m[34m Api\V1\LifeBalanceAiRecommend…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/life-balance/summary[39m[34m .... Api\LifeBalanceController@summary[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/notification-settings[39m[34m .................. routes/api.php:633[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/notifications[39m[34m .......................... routes/api.php:596[39m
+  [33mPATCH[39m     [37mapi/v1/notifications/read-all[39m[34m ................. routes/api.php:619[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/nutrition/categories[39m[34m Api\V1\NutritionFoodController@catego…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/nutrition/custom-foods[39m[34m Api\V1\NutritionCustomFoodControlle…[39m
+  [33mPOST[39m      [37mapi/v1/nutrition/custom-foods[39m[34m Api\V1\NutritionCustomFoodControlle…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/nutrition/custom-foods/[39m[33m{id}[39m[34m Api\V1\NutritionCustomFoodCont…[39m
+  [33mPUT[39m       [37mapi/v1/nutrition/custom-foods/[39m[33m{id}[39m[34m Api\V1\NutritionCustomFoodCont…[39m
+  [33mPATCH[39m     [37mapi/v1/nutrition/custom-foods/[39m[33m{id}[39m[34m Api\V1\NutritionCustomFoodCont…[39m
+  [31mDELETE[39m    [37mapi/v1/nutrition/custom-foods/[39m[33m{id}[39m[34m Api\V1\NutritionCustomFoodCont…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/nutrition/foods[39m[34m ...... Api\V1\NutritionFoodController@index[39m
+  [33mPOST[39m      [37mapi/v1/nutrition/foods/autofill[39m[34m Api\V1\NutritionFoodController@au…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/nutrition/foods/search[39m[34m Api\V1\NutritionFoodController@sear…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/nutrition/foods/[39m[33m{id}[39m[34m .. Api\V1\NutritionFoodController@show[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/nutrition/foods/[39m[33m{id}[39m[37m/servings[39m[34m Api\V1\NutritionFoodControll…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/productivity/ai-insights[39m[34m Api\V1\ProductivityAIInsightContr…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/productivity/calendar[39m[34m Api\V1\ProductivityCalendarEventCont…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/productivity/calendar/events[39m[34m Api\V1\ProductivityCalendarEv…[39m
+  [33mPOST[39m      [37mapi/v1/productivity/calendar/events[39m[34m Api\V1\ProductivityCalendarEv…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/productivity/calendar/events/[39m[33m{event}[39m[34m Api\V1\ProductivityCa…[39m
+  [33mPUT[39m       [37mapi/v1/productivity/calendar/events/[39m[33m{event}[39m[34m Api\V1\ProductivityCa…[39m
+  [31mDELETE[39m    [37mapi/v1/productivity/calendar/events/[39m[33m{event}[39m[34m Api\V1\ProductivityCa…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/productivity/dashboard[39m[34m Api\V1\ProductivityDashboardControl…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/productivity/goals[39m[34m Api\V1\ProductivityGoalController@index[39m
+  [33mPOST[39m      [37mapi/v1/productivity/goals[39m[34m Api\V1\ProductivityGoalController@store[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/productivity/goals/[39m[33m{goal}[39m[34m Api\V1\ProductivityGoalControlle…[39m
+  [33mPUT[39m       [37mapi/v1/productivity/goals/[39m[33m{goal}[39m[34m Api\V1\ProductivityGoalControlle…[39m
+  [33mPATCH[39m     [37mapi/v1/productivity/goals/[39m[33m{goal}[39m[34m Api\V1\ProductivityGoalControlle…[39m
+  [31mDELETE[39m    [37mapi/v1/productivity/goals/[39m[33m{goal}[39m[34m Api\V1\ProductivityGoalControlle…[39m
+  [33mPATCH[39m     [37mapi/v1/productivity/goals/[39m[33m{goal}[39m[37m/complete[39m[34m Api\V1\ProductivityGoal…[39m
+  [33mPOST[39m      [37mapi/v1/productivity/goals/[39m[33m{goal}[39m[37m/habits[39m[34m Api\V1\ProductivityGoalCo…[39m
+  [31mDELETE[39m    [37mapi/v1/productivity/goals/[39m[33m{goal}[39m[37m/habits/[39m[33m{habitId}[39m[34m Api\V1\Producti…[39m
+  [33mPATCH[39m     [37mapi/v1/productivity/goals/[39m[33m{goal}[39m[37m/progress[39m[34m Api\V1\ProductivityGoal…[39m
+  [33mPOST[39m      [37mapi/v1/productivity/goals/[39m[33m{goal}[39m[37m/recalculate-progress[39m[34m Api\V1\Prod…[39m
+  [33mPATCH[39m     [37mapi/v1/productivity/goals/[39m[33m{goal}[39m[37m/reopen[39m[34m Api\V1\ProductivityGoalCo…[39m
+  [33mPOST[39m      [37mapi/v1/productivity/goals/[39m[33m{goal}[39m[37m/tasks[39m[34m Api\V1\ProductivityGoalCon…[39m
+  [31mDELETE[39m    [37mapi/v1/productivity/goals/[39m[33m{goal}[39m[37m/tasks/[39m[33m{taskId}[39m[34m Api\V1\Productivi…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/productivity/habits[39m[34m Api\V1\ProductivityHabitController@ind…[39m
+  [33mPOST[39m      [37mapi/v1/productivity/habits[39m[34m Api\V1\ProductivityHabitController@sto…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/productivity/habits/summary/weekly[39m[34m Api\V1\ProductivityHabi…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/productivity/habits/[39m[33m{habit}[39m[34m Api\V1\ProductivityHabitContro…[39m
+  [33mPUT[39m       [37mapi/v1/productivity/habits/[39m[33m{habit}[39m[34m Api\V1\ProductivityHabitContro…[39m
+  [33mPATCH[39m     [37mapi/v1/productivity/habits/[39m[33m{habit}[39m[34m Api\V1\ProductivityHabitContro…[39m
+  [31mDELETE[39m    [37mapi/v1/productivity/habits/[39m[33m{habit}[39m[34m Api\V1\ProductivityHabitContro…[39m
+  [33mPOST[39m      [37mapi/v1/productivity/habits/[39m[33m{habit}[39m[37m/check-in[39m[34m Api\V1\ProductivityHa…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/productivity/tasks[39m[34m ............ Api\V1\TaskController@index[39m
+  [33mPOST[39m      [37mapi/v1/productivity/tasks[39m[34m ............ Api\V1\TaskController@store[39m
+  [34mGET[39m[34m|[39m[33mPUT[39m[34m|[39m[33mPATCH[39m[34m|[39m[31mDELETE[39m[34m|[39m[34mHEAD[39m [37mapi/v1/productivity/tasks/[39m[33m{task}[39m[34m routes/api.php:2…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/productivity/tasks/[39m[33m{task}[39m[34m ...... Api\V1\TaskController@show[39m
+  [33mPUT[39m       [37mapi/v1/productivity/tasks/[39m[33m{task}[39m[34m .... Api\V1\TaskController@update[39m
+  [33mPATCH[39m     [37mapi/v1/productivity/tasks/[39m[33m{task}[39m[34m .... Api\V1\TaskController@update[39m
+  [31mDELETE[39m    [37mapi/v1/productivity/tasks/[39m[33m{task}[39m[34m ... Api\V1\TaskController@destroy[39m
+  [33mPATCH[39m     [37mapi/v1/productivity/tasks/[39m[33m{task}[39m[37m/complete[39m[34m Api\V1\TaskController@c…[39m
+  [33mPATCH[39m     [37mapi/v1/productivity/tasks/[39m[33m{task}[39m[37m/reopen[39m[34m Api\V1\TaskController@reo…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/projects[39m[34m ................... Api\V1\ProjectController@index[39m
+  [33mPOST[39m      [37mapi/v1/projects[39m[34m ................... Api\V1\ProjectController@store[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/projects/dashboard[39m[34m Api\V1\ProjectDashboardController@summa…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/projects/[39m[33m{project}[39m[34m .......... Api\V1\ProjectController@show[39m
+  [33mPUT[39m       [37mapi/v1/projects/[39m[33m{project}[39m[34m ........ Api\V1\ProjectController@update[39m
+  [33mPATCH[39m     [37mapi/v1/projects/[39m[33m{project}[39m[34m ........ Api\V1\ProjectController@update[39m
+  [31mDELETE[39m    [37mapi/v1/projects/[39m[33m{project}[39m[34m ....... Api\V1\ProjectController@destroy[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/projects/[39m[33m{project}[39m[37m/milestones[39m[34m Api\V1\ProjectMilestoneContr…[39m
+  [33mPOST[39m      [37mapi/v1/projects/[39m[33m{project}[39m[37m/milestones[39m[34m Api\V1\ProjectMilestoneContr…[39m
+  [33mPUT[39m       [37mapi/v1/projects/[39m[33m{project}[39m[37m/milestones/[39m[33m{milestone}[39m[34m Api\V1\ProjectMi…[39m
+  [33mPATCH[39m     [37mapi/v1/projects/[39m[33m{project}[39m[37m/milestones/[39m[33m{milestone}[39m[34m Api\V1\ProjectMi…[39m
+  [31mDELETE[39m    [37mapi/v1/projects/[39m[33m{project}[39m[37m/milestones/[39m[33m{milestone}[39m[34m Api\V1\ProjectMi…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/projects/[39m[33m{project}[39m[37m/progress[39m[34m Api\V1\ProjectProgressControll…[39m
+  [33mPOST[39m      [37mapi/v1/projects/[39m[33m{project}[39m[37m/progress/recalculate[39m[34m Api\V1\ProjectProg…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/projects/[39m[33m{project}[39m[37m/status-updates[39m[34m Api\V1\ProjectStatusUpda…[39m
+  [33mPOST[39m      [37mapi/v1/projects/[39m[33m{project}[39m[37m/status-updates[39m[34m Api\V1\ProjectStatusUpda…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/projects/[39m[33m{project}[39m[37m/tasks[39m[34m Api\V1\ProjectTaskController@index[39m
+  [33mPOST[39m      [37mapi/v1/projects/[39m[33m{project}[39m[37m/tasks[39m[34m Api\V1\ProjectTaskController@store[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/projects/[39m[33m{project}[39m[37m/tasks/[39m[33m{task}[39m[34m Api\V1\ProjectTaskControll…[39m
+  [33mPUT[39m       [37mapi/v1/projects/[39m[33m{project}[39m[37m/tasks/[39m[33m{task}[39m[34m Api\V1\ProjectTaskControll…[39m
+  [33mPATCH[39m     [37mapi/v1/projects/[39m[33m{project}[39m[37m/tasks/[39m[33m{task}[39m[34m Api\V1\ProjectTaskControll…[39m
+  [31mDELETE[39m    [37mapi/v1/projects/[39m[33m{project}[39m[37m/tasks/[39m[33m{task}[39m[34m Api\V1\ProjectTaskControll…[39m
+  [33mPATCH[39m     [37mapi/v1/projects/[39m[33m{project}[39m[37m/tasks/[39m[33m{task}[39m[37m/progress[39m[34m Api\V1\ProjectPro…[39m
+  [33mPUT[39m       [37mapi/v1/projects/[39m[33m{project}[39m[37m/tasks/[39m[33m{task}[39m[37m/progress[39m[34m Api\V1\ProjectPro…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/security[39m[34m ............................... routes/api.php:750[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/security/audit-logs[39m[34m .................... routes/api.php:771[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/security/login-history[39m[34m ................. routes/api.php:782[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/security/permissions[39m[34m ................... routes/api.php:764[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/security/roles[39m[34m ......................... routes/api.php:757[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/sleep-route-test[39m[34m ........................ routes/api.php:89[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/tasks[39m[34m ......................... Api\V1\TaskController@index[39m
+  [33mPOST[39m      [37mapi/v1/tasks[39m[34m ......................... Api\V1\TaskController@store[39m
+  [34mGET[39m[34m|[39m[33mPUT[39m[34m|[39m[33mPATCH[39m[34m|[39m[31mDELETE[39m[34m|[39m[34mHEAD[39m [37mapi/v1/tasks/[39m[33m{task}[39m[34m ........... routes/api.php:131[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/tasks/[39m[33m{task}[39m[34m ................... Api\V1\TaskController@show[39m
+  [33mPUT[39m       [37mapi/v1/tasks/[39m[33m{task}[39m[34m ................. Api\V1\TaskController@update[39m
+  [33mPATCH[39m     [37mapi/v1/tasks/[39m[33m{task}[39m[34m ................. Api\V1\TaskController@update[39m
+  [31mDELETE[39m    [37mapi/v1/tasks/[39m[33m{task}[39m[34m ................ Api\V1\TaskController@destroy[39m
+  [33mPATCH[39m     [37mapi/v1/tasks/[39m[33m{task}[39m[37m/complete[39m[34m ...... Api\V1\TaskController@complete[39m
+  [33mPATCH[39m     [37mapi/v1/tasks/[39m[33m{task}[39m[37m/reopen[39m[34m .......... Api\V1\TaskController@reopen[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/user[39m[34m ................................... routes/api.php:198[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/user-management/roles[39m[34m .................. routes/api.php:803[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mapi/v1/user-management/users[39m[34m .................. routes/api.php:792[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37msanctum/csrf-cookie[39m[34m sanctum.csrf-cookie › Laravel\Sanctum › CsrfC…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mstorage/[39m[33m{path}[39m[34m storage.local › vendor/laravel/framework/src/Illum…[39m
+  [33mPUT[39m       [37mstorage/[39m[33m{path}[39m[34m storage.local.upload › vendor/laravel/framework/sr…[39m
+  [34mGET[39m[34m|[39m[34mHEAD[39m  [37mup[39m[34m vendor/laravel/framework/src/Illuminate/Foundation/Configurati…[39m
+
+                                                          [34;1mShowing [223] routes[39;22m
+

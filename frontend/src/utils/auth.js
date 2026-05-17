@@ -1,166 +1,154 @@
-export const AUTH_TOKEN_KEYS = ['nixlifeos_auth_token', 'auth_token', 'token']
-export const AUTH_USER_KEYS = ['nixlifeos_auth_user', 'auth_user', 'user']
+export const AUTH_TOKEN_KEYS = ['token', 'auth_token', 'access_token', 'nixlifeos_token']
+export const AUTH_USER_KEYS = ['user', 'auth_user', 'nixlifeos_user']
 
-function readFirstStorageValue(keys) {
-  for (const key of keys) {
-    const value = localStorage.getItem(key)
+export const AUTH_TOKEN_KEY = AUTH_TOKEN_KEYS[0]
+export const AUTH_USER_KEY = AUTH_USER_KEYS[0]
 
-    if (value) {
-      return value
+function safeJsonParse(value, fallback = null) {
+  if (!value) return fallback
+
+  try {
+    return JSON.parse(value)
+  } catch {
+    return fallback
+  }
+}
+
+export function getAuthToken() {
+  for (const key of AUTH_TOKEN_KEYS) {
+    const token = localStorage.getItem(key)
+
+    if (token) {
+      return token
     }
   }
 
   return null
 }
 
-function normalizeList(value) {
-  if (!value) {
-    return []
-  }
-
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => {
-        if (typeof item === 'string') {
-          return item
-        }
-
-        return item?.name || item?.slug || item?.code || item?.permission || item?.role || ''
-      })
-      .filter(Boolean)
-  }
-
-  if (typeof value === 'string') {
-    return value
-      .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean)
-  }
-
-  if (typeof value === 'object') {
-    return Object.values(value).flatMap((item) => normalizeList(item))
-  }
-
-  return []
-}
-
-function unique(values) {
-  return [...new Set(values.filter(Boolean))]
-}
-
-export function getAuthToken() {
-  return readFirstStorageValue(AUTH_TOKEN_KEYS)
-}
-
 export function getAuthUser() {
-  const rawUser = readFirstStorageValue(AUTH_USER_KEYS)
+  for (const key of AUTH_USER_KEYS) {
+    const rawUser = localStorage.getItem(key)
 
-  if (!rawUser) {
-    return null
+    if (!rawUser) {
+      continue
+    }
+
+    const parsedUser = safeJsonParse(rawUser, null)
+
+    if (parsedUser) {
+      return parsedUser
+    }
   }
 
-  try {
-    return JSON.parse(rawUser)
-  } catch (_error) {
-    clearAuthSession()
-    return null
-  }
-}
-
-export function getUserRoles(user = getAuthUser()) {
-  return unique([
-    ...normalizeList(user?.roles),
-    ...normalizeList(user?.role),
-    ...normalizeList(user?.data?.roles),
-  ])
-}
-
-export function getUserPermissions(user = getAuthUser()) {
-  return unique([
-    ...normalizeList(user?.permissions),
-    ...normalizeList(user?.permission_names),
-    ...normalizeList(user?.data?.permissions),
-  ])
-}
-
-export function hasRole(role, user = getAuthUser()) {
-  if (!role) {
-    return true
-  }
-
-  return getUserRoles(user).includes(role)
-}
-
-export function hasAnyRole(roles = [], user = getAuthUser()) {
-  const requiredRoles = Array.isArray(roles) ? roles : [roles]
-
-  if (requiredRoles.length === 0) {
-    return true
-  }
-
-  const currentRoles = getUserRoles(user)
-  return requiredRoles.some((role) => currentRoles.includes(role))
-}
-
-export function hasPermission(permission, user = getAuthUser()) {
-  if (!permission) {
-    return true
-  }
-
-  const permissions = getUserPermissions(user)
-  const roles = getUserRoles(user)
-
-  return permissions.includes(permission) || roles.includes('admin')
-}
-
-export function hasAllPermissions(permissions = [], user = getAuthUser()) {
-  const requiredPermissions = Array.isArray(permissions) ? permissions : [permissions]
-
-  if (requiredPermissions.length === 0) {
-    return true
-  }
-
-  return requiredPermissions.every((permission) => hasPermission(permission, user))
-}
-
-export function canAccessRoute(meta = {}, user = getAuthUser()) {
-  if (meta.requiresRole && !hasRole(meta.requiresRole, user)) {
-    return false
-  }
-
-  if (meta.roles && !hasAnyRole(meta.roles, user)) {
-    return false
-  }
-
-  if (meta.permissions && !hasAllPermissions(meta.permissions, user)) {
-    return false
-  }
-
-  if (meta.permission && !hasPermission(meta.permission, user)) {
-    return false
-  }
-
-  return true
+  return null
 }
 
 export function saveAuthSession(token, user = null) {
   if (token) {
+    localStorage.setItem(AUTH_TOKEN_KEY, token)
+
     for (const key of AUTH_TOKEN_KEYS) {
-      localStorage.setItem(key, token)
+      if (key !== AUTH_TOKEN_KEY) {
+        localStorage.removeItem(key)
+      }
     }
   }
 
   if (user) {
-    const serializedUser = JSON.stringify(user)
+    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user))
 
     for (const key of AUTH_USER_KEYS) {
-      localStorage.setItem(key, serializedUser)
+      if (key !== AUTH_USER_KEY) {
+        localStorage.removeItem(key)
+      }
     }
   }
 }
 
 export function clearAuthSession() {
-  for (const key of [...AUTH_TOKEN_KEYS, ...AUTH_USER_KEYS]) {
+  for (const key of AUTH_TOKEN_KEYS) {
     localStorage.removeItem(key)
   }
+
+  for (const key of AUTH_USER_KEYS) {
+    localStorage.removeItem(key)
+  }
+}
+
+export function isAuthenticated() {
+  return Boolean(getAuthToken())
+}
+
+export function getUserRoles() {
+  const user = getAuthUser()
+
+  if (!user) {
+    return []
+  }
+
+  if (Array.isArray(user.roles)) {
+    return user.roles
+      .map((role) => (typeof role === 'string' ? role : role?.name))
+      .filter(Boolean)
+  }
+
+  return []
+}
+
+export function getUserPermissions() {
+  const user = getAuthUser()
+
+  if (!user) {
+    return []
+  }
+
+  if (Array.isArray(user.permissions)) {
+    return user.permissions
+      .map((permission) => (typeof permission === 'string' ? permission : permission?.name))
+      .filter(Boolean)
+  }
+
+  return []
+}
+
+export function hasRole(roleName) {
+  return getUserRoles().includes(roleName)
+}
+
+export function hasAnyRole(roleNames = []) {
+  return roleNames.some((roleName) => hasRole(roleName))
+}
+
+export function hasPermission(permissionName) {
+  return getUserPermissions().includes(permissionName)
+}
+
+export function hasAnyPermission(permissionNames = []) {
+  return permissionNames.some((permissionName) => hasPermission(permissionName))
+}
+
+export function canAccessRoute(route) {
+  const meta = route?.meta || {}
+
+  if (meta.public === true || meta.guest === true) {
+    return true
+  }
+
+  if (meta.requiresAuth === true && !isAuthenticated()) {
+    return false
+  }
+
+  const requiredRoles = Array.isArray(meta.roles) ? meta.roles : []
+  const requiredPermissions = Array.isArray(meta.permissions) ? meta.permissions : []
+
+  if (requiredRoles.length > 0 && !hasAnyRole(requiredRoles)) {
+    return false
+  }
+
+  if (requiredPermissions.length > 0 && !hasAnyPermission(requiredPermissions)) {
+    return false
+  }
+
+  return true
 }

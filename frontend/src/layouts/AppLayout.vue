@@ -139,7 +139,7 @@ watch(
 async function logout() {
   try {
     await api.post('/auth/logout')
-  } catch (_error) {
+  } catch {
     // Keep logout safe when the backend token is already expired or revoked.
   } finally {
     clearAuthSession()

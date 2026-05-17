@@ -19,7 +19,7 @@ export async function apiFetch(path, options = {}) {
         'Content-Type': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(options.headers || {}),
+        ...options.headers,
       },
     })
 

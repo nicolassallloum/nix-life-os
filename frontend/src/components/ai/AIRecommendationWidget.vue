@@ -151,7 +151,7 @@ async function loadWidgetData() {
 
 async function loadScores(generateToday = false) {
   const response = await aiRecommendationService.getDailyScores({
-    generate_today: generateToday,
+    generate_today: generateToday ? 1 : 0,
     limit: 1,
   })
 
@@ -160,7 +160,7 @@ async function loadScores(generateToday = false) {
 
 async function loadRecommendations() {
   const response = await aiRecommendationService.getRecommendations({
-    active_only: true,
+    active_only: 1,
     limit: 5,
   })
 

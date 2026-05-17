@@ -151,8 +151,8 @@ const defaultDashboard = {
 
 const dashboard = computed(() => ({
   ...defaultDashboard,
-  ...(dashboardRaw.value || {}),
-  ...(kpisRaw.value || {}),
+  ...dashboardRaw.value,
+  ...kpisRaw.value,
 }));
 
 function normalizePayload(response) {

@@ -310,7 +310,7 @@ const filters = reactive({
   module: '',
   status: '',
   severity: '',
-  active_only: false,
+  active_only: 0,
   limit: 50,
 })
 
@@ -345,7 +345,7 @@ async function loadRecommendations() {
       module: filters.module,
       status: filters.status,
       severity: filters.severity,
-      active_only: filters.active_only,
+      active_only: filters.active_only ? 1 : 0,
       limit: filters.limit,
     })
 
@@ -364,7 +364,7 @@ async function loadDailyScores(generateToday = false) {
 
   try {
     const response = await aiRecommendationService.getDailyScores({
-      generate_today: generateToday,
+      generate_today: generateToday ? 1 : 0,
       limit: 30,
     })
 
