@@ -1,0 +1,88 @@
+
+  app ........................................................................  
+  name ........................................................... NIX_LIFE_OS  
+  env ............................................................. production  
+  debug ................................................................ false  
+  url ....................................................... http://localhost  
+  frontend_url ......................................... http://localhost:3000  
+  asset_url ............................................................. null  
+  timezone ............................................................... UTC  
+  locale .................................................................. en  
+  fallback_locale ......................................................... en  
+  faker_locale ......................................................... en_US  
+  cipher ......................................................... AES-256-CBC  
+  key .................... base64:V9GEH45d2KhroaZSo422sJl3VJ+2NqJ3D7UJ2yzuKMY=  
+  previous_keys ........................................................... []  
+  maintenance ⇁ driver .................................................. file  
+  maintenance ⇁ store ............................................... database  
+  providers ⇁ 0 .......................... Illuminate\Auth\AuthServiceProvider  
+  providers ⇁ 1 ............. Illuminate\Broadcasting\BroadcastServiceProvider  
+  providers ⇁ 2 ............................ Illuminate\Bus\BusServiceProvider  
+  providers ⇁ 3 ........................ Illuminate\Cache\CacheServiceProvider  
+  providers ⇁ 4  Illuminate\Foundation\Providers\ConsoleSupportServiceProvider  
+  providers ⇁ 5 ............ Illuminate\Concurrency\ConcurrencyServiceProvider  
+  providers ⇁ 6 ...................... Illuminate\Cookie\CookieServiceProvider  
+  providers ⇁ 7 .................. Illuminate\Database\DatabaseServiceProvider  
+  providers ⇁ 8 .............. Illuminate\Encryption\EncryptionServiceProvider  
+  providers ⇁ 9 .............. Illuminate\Filesystem\FilesystemServiceProvider  
+  providers ⇁ 10 ... Illuminate\Foundation\Providers\FoundationServiceProvider  
+  providers ⇁ 11 ...................... Illuminate\Hashing\HashServiceProvider  
+  providers ⇁ 12 ......................... Illuminate\Mail\MailServiceProvider  
+  providers ⇁ 13 ........ Illuminate\Notifications\NotificationServiceProvider  
+  providers ⇁ 14 ............. Illuminate\Pagination\PaginationServiceProvider  
+  providers ⇁ 15 ...... Illuminate\Auth\Passwords\PasswordResetServiceProvider  
+  providers ⇁ 16 ................. Illuminate\Pipeline\PipelineServiceProvider  
+  providers ⇁ 17 ....................... Illuminate\Queue\QueueServiceProvider  
+  providers ⇁ 18 ....................... Illuminate\Redis\RedisServiceProvider  
+  providers ⇁ 19 ................... Illuminate\Session\SessionServiceProvider  
+  providers ⇁ 20 ........... Illuminate\Translation\TranslationServiceProvider  
+  providers ⇁ 21 ............. Illuminate\Validation\ValidationServiceProvider  
+  providers ⇁ 22 ......................... Illuminate\View\ViewServiceProvider  
+  providers ⇁ 23 ............................ App\Providers\AppServiceProvider  
+  aliases ⇁ App ............................... Illuminate\Support\Facades\App  
+  aliases ⇁ Arr ....................................... Illuminate\Support\Arr  
+  aliases ⇁ Artisan ....................... Illuminate\Support\Facades\Artisan  
+  aliases ⇁ Auth ............................. Illuminate\Support\Facades\Auth  
+  aliases ⇁ Benchmark ........................... Illuminate\Support\Benchmark  
+  aliases ⇁ Blade ........................... Illuminate\Support\Facades\Blade  
+  aliases ⇁ Broadcast ................... Illuminate\Support\Facades\Broadcast  
+  aliases ⇁ Bus ............................... Illuminate\Support\Facades\Bus  
+  aliases ⇁ Cache ........................... Illuminate\Support\Facades\Cache  
+  aliases ⇁ Concurrency ............... Illuminate\Support\Facades\Concurrency  
+  aliases ⇁ Config ......................... Illuminate\Support\Facades\Config  
+  aliases ⇁ Context ....................... Illuminate\Support\Facades\Context  
+  aliases ⇁ Cookie ......................... Illuminate\Support\Facades\Cookie  
+  aliases ⇁ Crypt ........................... Illuminate\Support\Facades\Crypt  
+  aliases ⇁ Date ............................. Illuminate\Support\Facades\Date  
+  aliases ⇁ DB ................................. Illuminate\Support\Facades\DB  
+  aliases ⇁ Eloquent ...................... Illuminate\Database\Eloquent\Model  
+  aliases ⇁ Event ........................... Illuminate\Support\Facades\Event  
+  aliases ⇁ File ............................. Illuminate\Support\Facades\File  
+  aliases ⇁ Gate ............................. Illuminate\Support\Facades\Gate  
+  aliases ⇁ Hash ............................. Illuminate\Support\Facades\Hash  
+  aliases ⇁ Http ............................. Illuminate\Support\Facades\Http  
+  aliases ⇁ Js ......................................... Illuminate\Support\Js  
+  aliases ⇁ Lang ............................. Illuminate\Support\Facades\Lang  
+  aliases ⇁ Log ............................... Illuminate\Support\Facades\Log  
+  aliases ⇁ Mail ............................. Illuminate\Support\Facades\Mail  
+  aliases ⇁ Notification ............. Illuminate\Support\Facades\Notification  
+  aliases ⇁ Number ................................. Illuminate\Support\Number  
+  aliases ⇁ Password ..................... Illuminate\Support\Facades\Password  
+  aliases ⇁ Process ....................... Illuminate\Support\Facades\Process  
+  aliases ⇁ Queue ........................... Illuminate\Support\Facades\Queue  
+  aliases ⇁ RateLimiter ............... Illuminate\Support\Facades\RateLimiter  
+  aliases ⇁ Redirect ..................... Illuminate\Support\Facades\Redirect  
+  aliases ⇁ Request ....................... Illuminate\Support\Facades\Request  
+  aliases ⇁ Response ..................... Illuminate\Support\Facades\Response  
+  aliases ⇁ Route ........................... Illuminate\Support\Facades\Route  
+  aliases ⇁ Schedule ..................... Illuminate\Support\Facades\Schedule  
+  aliases ⇁ Schema ......................... Illuminate\Support\Facades\Schema  
+  aliases ⇁ Session ....................... Illuminate\Support\Facades\Session  
+  aliases ⇁ Storage ....................... Illuminate\Support\Facades\Storage  
+  aliases ⇁ Str ....................................... Illuminate\Support\Str  
+  aliases ⇁ Uri ....................................... Illuminate\Support\Uri  
+  aliases ⇁ URL ............................... Illuminate\Support\Facades\URL  
+  aliases ⇁ Validator ................... Illuminate\Support\Facades\Validator  
+  aliases ⇁ View ............................. Illuminate\Support\Facades\View  
+  aliases ⇁ Vite ............................. Illuminate\Support\Facades\Vite  
+
