@@ -1,0 +1,24 @@
+/u01/nix-life-os/frontend/src/views/HealthHydrationView.vue:      body: JSON.stringify({
+/u01/nix-life-os/frontend/src/views/HealthHydrationView.vue:      body: JSON.stringify({
+/u01/nix-life-os/frontend/src/views/ai/AIRecommendationsView.vue:  return JSON.stringify(value || {}, null, 2)
+/u01/nix-life-os/frontend/src/views/ProjectTasksView.vue:        body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/views/ProjectTasksView.vue:        body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/views/ProjectTasksView.vue:      body: JSON.stringify({ status }),
+/u01/nix-life-os/frontend/src/views/health/StepsTrackingView.vue:        body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/views/health/StepsTrackingView.vue:        body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/views/health/WeightTrackingView.vue:      body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/views/health/SleepTrackingView.vue:      body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/views/health/nutrition/FoodItemsView.vue:    body: JSON.stringify(form.value),
+/u01/nix-life-os/frontend/src/views/health/nutrition/MealLoggerView.vue:    body: JSON.stringify(form.value),
+/u01/nix-life-os/frontend/src/views/health/HydrationTrackingView.vue:      body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/views/finance/FinanceAccountsView.vue:      body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/views/finance/FinanceBudgetsView.vue:      body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/components/finance/FinanceAddTransactionForm.vue:      body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/utils/auth.js:    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user))
+/u01/nix-life-os/frontend/src/services/taskService.js:      body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/services/taskService.js:      body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/services/healthWeightApi.js:      body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/services/healthWeightApi.js:      body: JSON.stringify(payload),
+/u01/nix-life-os/frontend/src/services/dashboardApi.js:      bytesApprox: JSON.stringify(payload || {}).length,
+/u01/nix-life-os/frontend/src/main.ts:import "./assets/main.css";
+/u01/nix-life-os/frontend/src/main.js:import "./assets/main.css";

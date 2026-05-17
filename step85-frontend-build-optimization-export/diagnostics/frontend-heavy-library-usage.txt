@@ -1,0 +1,153 @@
+/u01/nix-life-os/frontend/src/views/HealthHydrationView.vue:function getMaxChartValue() {
+/u01/nix-life-os/frontend/src/views/HealthHydrationView.vue:      <!-- Weekly Chart -->
+/u01/nix-life-os/frontend/src/views/HealthHydrationView.vue:        <h2 class="text-xl font-bold text-gray-900">Weekly Hydration Chart</h2>
+/u01/nix-life-os/frontend/src/views/HealthHydrationView.vue:                  getMaxChartValue() > 0
+/u01/nix-life-os/frontend/src/views/HealthHydrationView.vue:                    ? Math.max((day.total_ml / getMaxChartValue()) * 220, 8) + 'px'
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:  charts: {
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:  charts: {
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:const statusChartItems = computed(() => Array.isArray(dashboard.value?.charts?.status) ? dashboard.value.charts.status : []);
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:const priorityChartItems = computed(() => Array.isArray(dashboard.value?.charts?.priority) ? dashboard.value.charts.priority : []);
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:const maxStatusChartValue = computed(() => {
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:  const values = statusChartItems.value.map((item) => Number(item.value || 0));
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:const maxPriorityChartValue = computed(() => {
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:  const values = priorityChartItems.value.map((item) => Number(item.value || 0));
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:function chartWidth(value, maxValue) {
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:    charts: {
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:      status: Array.isArray(data.charts?.status) ? data.charts.status : [],
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:      priority: Array.isArray(data.charts?.priority) ? data.charts.priority : [],
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:            Track total projects, active execution, completed work, overdue tasks, progress cards, and charts.
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:              v-if="statusChartItems.length === 0"
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:              No status chart data available.
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:                v-for="item in statusChartItems"
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:                    :style="{ width: chartWidth(item.value, maxStatusChartValue) }"
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:              v-if="priorityChartItems.length === 0"
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:              No priority chart data available.
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:                v-for="item in priorityChartItems"
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:                    :style="{ width: chartWidth(item.value, maxPriorityChartValue) }"
+/u01/nix-life-os/frontend/src/views/productivity/HabitsView.vue:    <section class="panel chart-panel">
+/u01/nix-life-os/frontend/src/views/productivity/HabitsView.vue:      <div v-if="dailyProgress.length" class="progress-chart">
+/u01/nix-life-os/frontend/src/views/productivity/HabitsView.vue:        <div v-for="day in dailyProgress" :key="day.date" class="chart-row">
+/u01/nix-life-os/frontend/src/views/productivity/HabitsView.vue:            <div class="bar-completed" :style="{ width: chartWidth(day.completed) }"></div>
+/u01/nix-life-os/frontend/src/views/productivity/HabitsView.vue:            <div class="bar-missed" :style="{ width: chartWidth(day.missed) }"></div>
+/u01/nix-life-os/frontend/src/views/productivity/HabitsView.vue:function chartWidth(value) {
+/u01/nix-life-os/frontend/src/views/productivity/HabitsView.vue:.progress-chart {
+/u01/nix-life-os/frontend/src/views/productivity/HabitsView.vue:.chart-row {
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:          Track tasks, habits, goals, calendar events, charts, and daily progress from one screen.
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:        Create productivity tasks, habits, goals, or calendar events to start seeing dashboard KPIs and charts. Zero-value cards are displayed below for validation.
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:      <div class="chart-grid">
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:          <ChartBars :items="dashboard.charts.tasks_by_status" />
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:          <ChartBars :items="dashboard.charts.goals_by_status" />
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:          <ChartBars :items="habitChartItems" label-key="date" value-key="completed" />
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:          <ChartBars :items="calendarChartItems" label-key="date" value-key="events" />
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:  charts: {
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:const ChartBars = defineComponent({
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:  name: "ChartBars",
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:        { class: "chart-bars" },
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:          return h("div", { class: "chart-row", key: item[props.labelKey] }, [
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:            h("div", { class: "chart-row-top" }, [
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:            h("div", { class: "chart-track" }, [
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:              h("div", { class: "chart-fill", style: { width } }),
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:          : [h("div", { class: "mini-empty" }, "No chart data available yet.")])
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:const habitChartItems = computed(() => Array.isArray(dashboard.value?.charts?.habit_completion_last_7_days) ? dashboard.value.charts.habit_completion_last_7_days : []);
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:const calendarChartItems = computed(() => Array.isArray(dashboard.value?.charts?.calendar_next_7_days) ? dashboard.value.charts.calendar_next_7_days : []);
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:      charts: {
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:        ...fallback.charts,
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:        ...data.charts,
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:        tasks_by_status: Array.isArray(data.charts?.tasks_by_status) ? data.charts.tasks_by_status : [],
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:        goals_by_status: Array.isArray(data.charts?.goals_by_status) ? data.charts.goals_by_status : [],
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:        habit_completion_last_7_days: Array.isArray(data.charts?.habit_completion_last_7_days) ? data.charts.habit_completion_last_7_days : [],
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:        calendar_next_7_days: Array.isArray(data.charts?.calendar_next_7_days) ? data.charts.calendar_next_7_days : [],
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:.chart-grid {
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:.chart-grid {
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:.chart-bars {
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:.chart-row-top {
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:.chart-track {
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:.chart-fill {
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:  .chart-grid {
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:  .chart-grid {
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:  LineChart,
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:} from "recharts";
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:  chart: [],
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:                Weight Trend Chart
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:          <div v-if="summary.chart?.length" class="h-80">
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:              <LineChart :data="summary.chart">
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:              </LineChart>
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:            No weight chart data yet.
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:      <!-- Chart Ready Sections -->
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:        <ChartCard
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:          :items="stepsChart"
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:        <ChartCard
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:          :items="hydrationChart"
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:        <ChartCard
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:          :items="weightChart"
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:        <ChartCard
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:          :items="sleepChart"
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:const stepsChart = computed(() => steps.value.slice(-10));
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:const hydrationChart = computed(() => hydration.value.slice(-10));
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:const weightChart = computed(() => weight.value.slice(-10));
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:const sleepChart = computed(() => sleep.value.slice(-10));
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:const ChartCard = defineComponent({
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:    <!-- Trend Chart -->
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:    <div class="chart-card" v-if="!loading">
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:      <div v-if="moodLogs.length === 0" class="empty-chart">
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:      <div v-else class="trend-chart">
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:          v-for="item in chartLogs"
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:          <span class="chart-score">{{ item.mood_score }}</span>
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:const chartLogs = computed(() => {
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:.chart-card,
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:.chart-card,
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:.trend-chart {
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:.chart-score {
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:.empty-chart {
+/u01/nix-life-os/frontend/src/views/health/SleepTrackingView.vue:    <!-- Sleep Trend Chart -->
+/u01/nix-life-os/frontend/src/views/health/SleepTrackingView.vue:        <h2 class="text-lg font-semibold text-slate-900">Sleep Trend Chart</h2>
+/u01/nix-life-os/frontend/src/views/health/HealthNutritionView.vue:const token = localStorage.getItem("token") || "10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108";
+/u01/nix-life-os/frontend/src/views/health/LabTestsTrackingView.vue:            Records loaded for chart-ready trend endpoint:
+/u01/nix-life-os/frontend/src/views/health/LabTestsTrackingView.vue:    trendData.value = response.data?.data?.chart || [];
+/u01/nix-life-os/frontend/src/views/LifeBalanceView.vue:            Simple visual radar-style summary without external chart dependency.
+/u01/nix-life-os/frontend/src/views/LifeBalanceView.vue:            This panel is safe even when chart libraries are not installed.
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:import FinanceIncomeExpenseChart from "@/components/finance/FinanceIncomeExpenseChart.vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:        <FinanceIncomeExpenseChart />
+/u01/nix-life-os/frontend/src/views/ProjectProgressView.vue:const taskChart = computed(() => progress.value?.charts?.tasks_by_status || []);
+/u01/nix-life-os/frontend/src/views/ProjectProgressView.vue:const milestoneChart = computed(() => progress.value?.charts?.milestones_by_status || []);
+/u01/nix-life-os/frontend/src/views/ProjectProgressView.vue:const maxTaskValue = computed(() => Math.max(...taskChart.value.map((item) => Number(item.value || 0)), 1));
+/u01/nix-life-os/frontend/src/views/ProjectProgressView.vue:const maxMilestoneValue = computed(() => Math.max(...milestoneChart.value.map((item) => Number(item.value || 0)), 1));
+/u01/nix-life-os/frontend/src/views/ProjectProgressView.vue:            Verify progress calculation, task counts, milestones, recent updates, history, charts, and empty state.
+/u01/nix-life-os/frontend/src/views/ProjectProgressView.vue:              <div v-for="item in taskChart" :key="item.status">
+/u01/nix-life-os/frontend/src/views/ProjectProgressView.vue:              <div v-for="item in milestoneChart" :key="item.status">
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:  Chart as ChartJS,
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:} from "chart.js";
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:import { Line, Bar, Doughnut } from "vue-chartjs";
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:ChartJS.register(
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:const chartData = computed(() => ({
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:const chartOptions = {
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:        :data="chartData"
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:        :options="chartOptions"
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:        :data="chartData"
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:        :options="chartOptions"
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:        :data="chartData"
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:  Chart as ChartJS,
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:} from 'chart.js'
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:import { Bar } from 'vue-chartjs'
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:const hasChartData = computed(() => monthlyRows.value.some((row) => row.income > 0 || row.expense > 0))
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:const chartData = computed(() => ({
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:const chartOptions = {
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:    error.value = err.response?.data?.message || err.message || 'Unable to load chart data.'
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:      Loading chart...
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:      v-else-if="!hasChartData"
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:      title="No chart data available yet"
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:      message="Add income or expense transactions to generate the monthly finance chart."
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:      <Bar :data="chartData" :options="chartOptions" />
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:          <div v-if="chartMonths.length === 0" class="py-12 text-center text-sm text-slate-500">
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:            No transaction data available for chart.
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:              v-for="month in chartMonths"
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:                      :style="{ width: `${getChartWidth(month.income)}%` }"
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:                      :style="{ width: `${getChartWidth(month.expense)}%` }"
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:const chartMonths = computed(() => {
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:const maxChartValue = computed(() => {
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:  const values = chartMonths.value.flatMap((month) => [
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:const getChartWidth = (value) => {
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:  return Math.round((Number(value || 0) / maxChartValue.value) * 100);
+/u01/nix-life-os/frontend/src/services/dashboardApi.js:export async function getDashboardCharts() {
+/u01/nix-life-os/frontend/src/services/dashboardApi.js:  getDashboardCharts,

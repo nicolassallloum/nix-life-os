@@ -1,0 +1,22 @@
+===== npm scripts =====
+Scripts available in frontend@0.0.0 via `npm run-script`:
+  dev
+    vite
+  build
+    run-p type-check "build-only {@}" --
+  preview
+    vite preview
+  test:unit
+    vitest
+  build-only
+    vite build
+  type-check
+    vue-tsc --build
+  lint
+    run-s lint:*
+  lint:oxlint
+    oxlint . --fix
+  lint:eslint
+    eslint . --fix --cache
+  format
+    prettier --write --experimental-cli src/

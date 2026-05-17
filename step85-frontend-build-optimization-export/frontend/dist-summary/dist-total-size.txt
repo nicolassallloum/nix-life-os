@@ -1,0 +1,1 @@
+1.1M	/u01/nix-life-os/frontend/dist

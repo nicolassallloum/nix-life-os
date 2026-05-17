@@ -1,0 +1,335 @@
+/u01/nix-life-os/frontend/src/env.d.ts:  import type { DefineComponent } from "vue";
+/u01/nix-life-os/frontend/src/views/HealthHydrationView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/monitoring/MonitoringDashboardView.vue:import { ref, onMounted } from "vue";
+/u01/nix-life-os/frontend/src/views/projects/ProjectsView.vue:import { computed, onMounted, ref, watch } from "vue";
+/u01/nix-life-os/frontend/src/views/projects/ProjectsView.vue:} from "@/services/projectService";
+/u01/nix-life-os/frontend/src/views/projects/ProjectsView.vue:import ProjectProgressBar from "@/components/projects/ProjectProgressBar.vue";
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:} from "../../services/projectService";
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:import ProjectCard from "../../components/projects/ProjectCard.vue";
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:import ProjectKanbanColumn from "../../components/projects/ProjectKanbanColumn.vue";
+/u01/nix-life-os/frontend/src/views/ai/AIRecommendationsView.vue:import { computed, onMounted, reactive, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/ai/AIRecommendationsView.vue:import aiRecommendationService from '@/services/aiRecommendationService'
+/u01/nix-life-os/frontend/src/views/dashboard/DashboardView.vue:import { computed, onMounted, ref } from 'vue';
+/u01/nix-life-os/frontend/src/views/dashboard/DashboardView.vue:import AIRecommendationWidget from '@/components/ai/AIRecommendationWidget.vue'
+/u01/nix-life-os/frontend/src/views/dashboard/DashboardView.vue:import EmptyState from '@/components/common/EmptyState.vue'
+/u01/nix-life-os/frontend/src/views/dashboard/UnifiedDashboardView.vue:import AIRecommendationWidget from '@/components/ai/AIRecommendationWidget.vue'
+/u01/nix-life-os/frontend/src/views/dashboard/UnifiedDashboardView.vue:import { computed, defineComponent, h, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/dashboard/UnifiedDashboardView.vue:} from "@/services/dashboardApi";
+/u01/nix-life-os/frontend/src/views/ProjectTasksView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/productivity/GoalsView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/productivity/GoalsView.vue:import productivityService from "@/services/productivityService";
+/u01/nix-life-os/frontend/src/views/productivity/TasksView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/productivity/TasksView.vue:import { taskService } from "@/services/taskService";
+/u01/nix-life-os/frontend/src/views/productivity/HabitsView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/productivity/HabitsView.vue:import productivityService from "@/services/productivityService";
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityAIInsightsView.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityAIInsightsView.vue:import productivityService from '@/services/productivityService'
+/u01/nix-life-os/frontend/src/views/productivity/CalendarView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/productivity/CalendarView.vue:import calendarService from "@/services/calendarService";
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:import { computed, defineComponent, h, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:import productivityService from "@/services/productivityService";
+/u01/nix-life-os/frontend/src/views/ProjectMilestonesView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/ProjectMilestonesView.vue:} from "@/services/projectService";
+/u01/nix-life-os/frontend/src/views/SecurityRolesView.vue:import { ref, onMounted } from "vue";
+/u01/nix-life-os/frontend/src/views/SecurityRolesView.vue:import apiFetch from "@/services/apiFetch";
+/u01/nix-life-os/frontend/src/views/SecurityRolesView.vue:import { getApiErrorMessage } from "@/services/api";
+/u01/nix-life-os/frontend/src/views/health/HealthAlertsView.vue:import HealthAlertsPanel from "@/components/health/HealthAlertsPanel.vue";
+/u01/nix-life-os/frontend/src/views/health/HealthAIInsightsView.vue:import { computed, defineComponent, h, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/HealthAIInsightsView.vue:import healthService from "@/services/healthService";
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:import { onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:} from "recharts";
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:import { healthWeightApi } from "@/services/healthWeightApi";
+/u01/nix-life-os/frontend/src/views/health/HealthStepsView.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/HealthStepsView.vue:} from "../../services/healthService";
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:import { computed, defineComponent, h, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/HealthReportsView.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/health/HealthReportsView.vue:import { healthReportsService } from '@/services/healthReportsService'
+/u01/nix-life-os/frontend/src/views/health/NutritionTrackingView.vue:import nutritionService from '@/services/nutritionService'
+/u01/nix-life-os/frontend/src/views/health/StepsTrackingView.vue:import { computed, onMounted, reactive, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/health/WeightTrackingView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:import { computed, onMounted, reactive, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:import axios from 'axios'
+/u01/nix-life-os/frontend/src/views/health/MedicationTrackingView.vue:import { onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/MedicationTrackingView.vue:import healthService from "@/services/healthService";
+/u01/nix-life-os/frontend/src/views/health/SleepTrackingView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/HealthNutritionView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/HealthNutritionView.vue:import axios from "axios";
+/u01/nix-life-os/frontend/src/views/health/nutrition/FoodItemsView.vue:import { ref, onMounted } from "vue";
+/u01/nix-life-os/frontend/src/views/health/nutrition/NutritionDashboardView.vue:import { ref, onMounted } from "vue";
+/u01/nix-life-os/frontend/src/views/health/nutrition/MealLoggerView.vue:import { ref, onMounted } from "vue";
+/u01/nix-life-os/frontend/src/views/health/LabTestsTrackingView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/LabTestsTrackingView.vue:import healthService from "@/services/healthService";
+/u01/nix-life-os/frontend/src/views/health/HydrationTrackingView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/LifeBalanceView.vue:} from "vue";
+/u01/nix-life-os/frontend/src/views/NotFoundView.vue:import { RouterLink, useRouter } from "vue-router";
+/u01/nix-life-os/frontend/src/views/ProjectStatusUpdatesView.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/ProjectStatusUpdatesView.vue:} from "@/services/projectService";
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:import FinanceDashboardCards from "@/components/finance/FinanceDashboardCards.vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:import FinanceIncomeExpenseChart from "@/components/finance/FinanceIncomeExpenseChart.vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:import FinanceTransactionsTable from "@/components/finance/FinanceTransactionsTable.vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:import FinanceBudgetProgress from "@/components/finance/FinanceBudgetProgress.vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:import FinanceAddTransactionForm from "@/components/finance/FinanceAddTransactionForm.vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:import FinanceAIInsightsWidget from "@/components/finance/FinanceAIInsightsWidget.vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceAccountsView.vue:import { computed, onMounted, ref } from "vue"
+/u01/nix-life-os/frontend/src/views/finance/FinanceTransactionsView.vue:import { computed, onMounted, reactive, ref, watch } from "vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceTransactionsView.vue:import axios from "axios";
+/u01/nix-life-os/frontend/src/views/finance/FinanceAIInsightsView.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/finance/FinanceAIInsightsView.vue:import financeService from '@/services/financeService'
+/u01/nix-life-os/frontend/src/views/finance/FinanceBudgetsView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/ProjectProgressView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/ProjectProgressView.vue:} from "@/services/projectService";
+/u01/nix-life-os/frontend/src/views/auth/RegisterView.vue:import { reactive, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/auth/RegisterView.vue:import { useRouter, RouterLink } from 'vue-router'
+/u01/nix-life-os/frontend/src/views/auth/RegisterView.vue:import api, { saveAuthSession } from '@/services/api'
+/u01/nix-life-os/frontend/src/views/auth/LoginView.vue:import { reactive, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/auth/LoginView.vue:import { useRoute, useRouter, RouterLink } from 'vue-router'
+/u01/nix-life-os/frontend/src/views/auth/LoginView.vue:import api, { saveAuthSession } from '@/services/api'
+/u01/nix-life-os/frontend/src/views/auth/UnauthorizedView.vue:import { RouterLink } from 'vue-router'
+/u01/nix-life-os/frontend/src/views/life-balance/LifeBalanceView.vue:import { computed, defineComponent, h, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/life-balance/LifeBalanceView.vue:import lifeBalanceService from '@/services/lifeBalanceService'
+/u01/nix-life-os/frontend/src/views/notifications/NotificationSettingsView.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/notifications/NotificationSettingsView.vue:} from "../../api/notifications";
+/u01/nix-life-os/frontend/src/views/notifications/NotificationsView.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/notifications/NotificationsView.vue:} from "../../api/notifications";
+/u01/nix-life-os/frontend/src/components/projects/ProjectCard.vue:import ProjectProgressBar from "./ProjectProgressBar.vue";
+/u01/nix-life-os/frontend/src/components/projects/ProjectKanbanColumn.vue:import ProjectProgressBar from "./ProjectProgressBar.vue";
+/u01/nix-life-os/frontend/src/components/ai/AIRecommendationWidget.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/components/ai/AIRecommendationWidget.vue:import aiRecommendationService from '@/services/aiRecommendationService'
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:} from "chart.js";
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:import { Line, Bar, Doughnut } from "vue-chartjs";
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:import { computed } from "vue";
+/u01/nix-life-os/frontend/src/components/health/HealthAlertsPanel.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/components/health/HealthAlertsPanel.vue:import { healthAlertService } from "@/services/healthAlertService";
+/u01/nix-life-os/frontend/src/components/finance/FinanceTransactionsTable.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/components/finance/FinanceTransactionsTable.vue:import { financeService } from '@/services/financeService'
+/u01/nix-life-os/frontend/src/components/finance/FinanceTransactionsTable.vue:import EmptyState from '@/components/common/EmptyState.vue'
+/u01/nix-life-os/frontend/src/components/finance/FinanceAIInsightsWidget.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/components/finance/FinanceAIInsightsWidget.vue:import financeService from '@/services/financeService'
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:} from 'chart.js'
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:import { Bar } from 'vue-chartjs'
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:import { financeService } from '@/services/financeService'
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:import EmptyState from '@/components/common/EmptyState.vue'
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:import FinanceAddTransactionForm from "../../components/finance/FinanceAddTransactionForm.vue";
+/u01/nix-life-os/frontend/src/components/finance/FinanceAddTransactionForm.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/components/finance/FinanceBudgetProgress.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/components/finance/FinanceBudgetProgress.vue:import { financeService } from '@/services/financeService'
+/u01/nix-life-os/frontend/src/components/finance/FinanceBudgetProgress.vue:import EmptyState from '@/components/common/EmptyState.vue'
+/u01/nix-life-os/frontend/src/components/notifications/NotificationBell.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/components/notifications/NotificationBell.vue:import { RouterLink } from "vue-router";
+/u01/nix-life-os/frontend/src/components/notifications/NotificationBell.vue:import { getUnreadNotificationCount } from "../../api/notifications";
+/u01/nix-life-os/frontend/src/utils/permissions.js:} from './auth'
+/u01/nix-life-os/frontend/src/services/api.js:import axios from 'axios'
+/u01/nix-life-os/frontend/src/services/api.js:} from '@/utils/auth'
+/u01/nix-life-os/frontend/src/services/nutritionService.js:import api from './api'
+/u01/nix-life-os/frontend/src/services/apiFetch.js:import { API_BASE_URL, API_TIMEOUT_MS, clearAuthSession, getAuthToken, normalizeApiError } from './api'
+/u01/nix-life-os/frontend/src/services/aiRecommendationService.js:import api from './api'
+/u01/nix-life-os/frontend/src/services/calendarService.js:import api from "./api";
+/u01/nix-life-os/frontend/src/services/healthService.js:import api from "./api";
+/u01/nix-life-os/frontend/src/services/productivityService.js:import api from "./api";
+/u01/nix-life-os/frontend/src/services/healthAlertService.js:import api from "./api";
+/u01/nix-life-os/frontend/src/services/projectService.js:import api from "./api";
+/u01/nix-life-os/frontend/src/services/financeService.ts:import api from './api'
+/u01/nix-life-os/frontend/src/services/dashboardApi.js:import api from './api'
+/u01/nix-life-os/frontend/src/services/healthReportsService.js:import api from './api'
+/u01/nix-life-os/frontend/src/services/api.ts:import axios, { type AxiosError, type AxiosResponse } from 'axios'
+/u01/nix-life-os/frontend/src/services/api.ts:} from '@/utils/auth'
+/u01/nix-life-os/frontend/src/services/nutritionCustomFoodService.js:import api from './api'
+/u01/nix-life-os/frontend/src/stores/counter.ts:import { ref, computed } from 'vue'
+/u01/nix-life-os/frontend/src/stores/counter.ts:import { defineStore } from 'pinia'
+/u01/nix-life-os/frontend/src/main.ts:import { createApp } from "vue";
+/u01/nix-life-os/frontend/src/main.ts:import type { ComponentPublicInstance } from "vue";
+/u01/nix-life-os/frontend/src/main.ts:import App from "./App.vue";
+/u01/nix-life-os/frontend/src/main.ts:import router from "./router";
+/u01/nix-life-os/frontend/src/main.ts:import { getApiErrorMessage } from "./services/api";
+/u01/nix-life-os/frontend/src/api/notifications.js:import axios from "axios";
+/u01/nix-life-os/frontend/src/api/financeApi.js:import axios from "axios";
+/u01/nix-life-os/frontend/src/router/index.ts:import { createRouter, createWebHistory } from 'vue-router'
+/u01/nix-life-os/frontend/src/router/index.ts:import { canAccessRoute, getAuthToken, getAuthUser } from '@/utils/auth'
+/u01/nix-life-os/frontend/src/router/index.js:import { createRouter, createWebHistory } from 'vue-router'
+/u01/nix-life-os/frontend/src/router/index.js:import { canAccessRoute, getAuthToken, getAuthUser } from '@/utils/auth'
+/u01/nix-life-os/frontend/src/main.js:import { createApp } from "vue";
+/u01/nix-life-os/frontend/src/main.js:import App from "./App.vue";
+/u01/nix-life-os/frontend/src/main.js:import router from "./router";
+/u01/nix-life-os/frontend/src/main.js:import { getApiErrorMessage } from "./services/api";
+/u01/nix-life-os/frontend/src/App.vue:import { computed } from 'vue'
+/u01/nix-life-os/frontend/src/App.vue:import { RouterView, useRoute } from 'vue-router'
+/u01/nix-life-os/frontend/src/App.vue:import AppLayout from '@/layouts/AppLayout.vue'
+/u01/nix-life-os/frontend/src/__tests__disabled/App.spec.ts:import { describe, it, expect } from 'vitest'
+/u01/nix-life-os/frontend/src/__tests__disabled/App.spec.ts:import { mount } from '@vue/test-utils'
+/u01/nix-life-os/frontend/src/__tests__disabled/App.spec.ts:import App from '../App.vue'
+/u01/nix-life-os/frontend/src/layouts/AppLayout.vue:import { computed, ref, watch } from 'vue'
+/u01/nix-life-os/frontend/src/layouts/AppLayout.vue:import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
+/u01/nix-life-os/frontend/src/layouts/AppLayout.vue:import api, { clearAuthSession } from '@/services/api'
+/u01/nix-life-os/frontend/src/layouts/AppLayout.vue:import { getAuthUser, hasPermission, hasRole } from '@/utils/auth'
+/u01/nix-life-os/frontend/src/layouts/FinanceLayout.vue:import { RouterView } from "vue-router";
+/u01/nix-life-os/frontend/src/env.d.ts:  import type { DefineComponent } from "vue";
+/u01/nix-life-os/frontend/src/views/HealthHydrationView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/monitoring/MonitoringDashboardView.vue:import { ref, onMounted } from "vue";
+/u01/nix-life-os/frontend/src/views/projects/ProjectsView.vue:import { computed, onMounted, ref, watch } from "vue";
+/u01/nix-life-os/frontend/src/views/projects/ProjectsView.vue:import {
+/u01/nix-life-os/frontend/src/views/projects/ProjectsView.vue:import ProjectProgressBar from "@/components/projects/ProjectProgressBar.vue";
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:import {
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:import ProjectCard from "../../components/projects/ProjectCard.vue";
+/u01/nix-life-os/frontend/src/views/projects/ProjectDashboardView.vue:import ProjectKanbanColumn from "../../components/projects/ProjectKanbanColumn.vue";
+/u01/nix-life-os/frontend/src/views/ai/AIRecommendationsView.vue:import { computed, onMounted, reactive, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/ai/AIRecommendationsView.vue:import aiRecommendationService from '@/services/aiRecommendationService'
+/u01/nix-life-os/frontend/src/views/dashboard/DashboardView.vue:import { computed, onMounted, ref } from 'vue';
+/u01/nix-life-os/frontend/src/views/dashboard/DashboardView.vue:import AIRecommendationWidget from '@/components/ai/AIRecommendationWidget.vue'
+/u01/nix-life-os/frontend/src/views/dashboard/DashboardView.vue:import EmptyState from '@/components/common/EmptyState.vue'
+/u01/nix-life-os/frontend/src/views/dashboard/UnifiedDashboardView.vue:import AIRecommendationWidget from '@/components/ai/AIRecommendationWidget.vue'
+/u01/nix-life-os/frontend/src/views/dashboard/UnifiedDashboardView.vue:import { computed, defineComponent, h, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/dashboard/UnifiedDashboardView.vue:import {
+/u01/nix-life-os/frontend/src/views/ProjectTasksView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/productivity/GoalsView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/productivity/GoalsView.vue:import productivityService from "@/services/productivityService";
+/u01/nix-life-os/frontend/src/views/productivity/TasksView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/productivity/TasksView.vue:import { taskService } from "@/services/taskService";
+/u01/nix-life-os/frontend/src/views/productivity/HabitsView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/productivity/HabitsView.vue:import productivityService from "@/services/productivityService";
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityAIInsightsView.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityAIInsightsView.vue:import productivityService from '@/services/productivityService'
+/u01/nix-life-os/frontend/src/views/productivity/CalendarView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/productivity/CalendarView.vue:import calendarService from "@/services/calendarService";
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:import { computed, defineComponent, h, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/productivity/ProductivityDashboardView.vue:import productivityService from "@/services/productivityService";
+/u01/nix-life-os/frontend/src/views/ProjectMilestonesView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/ProjectMilestonesView.vue:import {
+/u01/nix-life-os/frontend/src/views/SecurityRolesView.vue:import { ref, onMounted } from "vue";
+/u01/nix-life-os/frontend/src/views/SecurityRolesView.vue:import apiFetch from "@/services/apiFetch";
+/u01/nix-life-os/frontend/src/views/SecurityRolesView.vue:import { getApiErrorMessage } from "@/services/api";
+/u01/nix-life-os/frontend/src/views/health/HealthAlertsView.vue:import HealthAlertsPanel from "@/components/health/HealthAlertsPanel.vue";
+/u01/nix-life-os/frontend/src/views/health/HealthAIInsightsView.vue:import { computed, defineComponent, h, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/HealthAIInsightsView.vue:import healthService from "@/services/healthService";
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:import { onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:import {
+/u01/nix-life-os/frontend/src/views/health/HealthWeightView.vue:import { healthWeightApi } from "@/services/healthWeightApi";
+/u01/nix-life-os/frontend/src/views/health/HealthStepsView.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/HealthStepsView.vue:import {
+/u01/nix-life-os/frontend/src/views/health/HealthView.vue:import { computed, defineComponent, h, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/HealthReportsView.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/health/HealthReportsView.vue:import { healthReportsService } from '@/services/healthReportsService'
+/u01/nix-life-os/frontend/src/views/health/NutritionTrackingView.vue:import nutritionService from '@/services/nutritionService'
+/u01/nix-life-os/frontend/src/views/health/StepsTrackingView.vue:import { computed, onMounted, reactive, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/health/WeightTrackingView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:import { computed, onMounted, reactive, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:import axios from 'axios'
+/u01/nix-life-os/frontend/src/views/health/MedicationTrackingView.vue:import { onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/MedicationTrackingView.vue:import healthService from "@/services/healthService";
+/u01/nix-life-os/frontend/src/views/health/SleepTrackingView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/HealthNutritionView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/HealthNutritionView.vue:import axios from "axios";
+/u01/nix-life-os/frontend/src/views/health/nutrition/FoodItemsView.vue:import { ref, onMounted } from "vue";
+/u01/nix-life-os/frontend/src/views/health/nutrition/NutritionDashboardView.vue:import { ref, onMounted } from "vue";
+/u01/nix-life-os/frontend/src/views/health/nutrition/MealLoggerView.vue:import { ref, onMounted } from "vue";
+/u01/nix-life-os/frontend/src/views/health/LabTestsTrackingView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/health/LabTestsTrackingView.vue:import healthService from "@/services/healthService";
+/u01/nix-life-os/frontend/src/views/health/HydrationTrackingView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/LifeBalanceView.vue:import {
+/u01/nix-life-os/frontend/src/views/NotFoundView.vue:import { RouterLink, useRouter } from "vue-router";
+/u01/nix-life-os/frontend/src/views/ProjectStatusUpdatesView.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/ProjectStatusUpdatesView.vue:import {
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:import FinanceDashboardCards from "@/components/finance/FinanceDashboardCards.vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:import FinanceIncomeExpenseChart from "@/components/finance/FinanceIncomeExpenseChart.vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:import FinanceTransactionsTable from "@/components/finance/FinanceTransactionsTable.vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:import FinanceBudgetProgress from "@/components/finance/FinanceBudgetProgress.vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:import FinanceAddTransactionForm from "@/components/finance/FinanceAddTransactionForm.vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceDashboardView.vue:import FinanceAIInsightsWidget from "@/components/finance/FinanceAIInsightsWidget.vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceAccountsView.vue:import { computed, onMounted, ref } from "vue"
+/u01/nix-life-os/frontend/src/views/finance/FinanceTransactionsView.vue:import { computed, onMounted, reactive, ref, watch } from "vue";
+/u01/nix-life-os/frontend/src/views/finance/FinanceTransactionsView.vue:import axios from "axios";
+/u01/nix-life-os/frontend/src/views/finance/FinanceAIInsightsView.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/finance/FinanceAIInsightsView.vue:import financeService from '@/services/financeService'
+/u01/nix-life-os/frontend/src/views/finance/FinanceBudgetsView.vue:import { computed, onMounted, reactive, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/ProjectProgressView.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/ProjectProgressView.vue:import {
+/u01/nix-life-os/frontend/src/views/auth/RegisterView.vue:import { reactive, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/auth/RegisterView.vue:import { useRouter, RouterLink } from 'vue-router'
+/u01/nix-life-os/frontend/src/views/auth/RegisterView.vue:import api, { saveAuthSession } from '@/services/api'
+/u01/nix-life-os/frontend/src/views/auth/LoginView.vue:import { reactive, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/auth/LoginView.vue:import { useRoute, useRouter, RouterLink } from 'vue-router'
+/u01/nix-life-os/frontend/src/views/auth/LoginView.vue:import api, { saveAuthSession } from '@/services/api'
+/u01/nix-life-os/frontend/src/views/auth/UnauthorizedView.vue:import { RouterLink } from 'vue-router'
+/u01/nix-life-os/frontend/src/views/life-balance/LifeBalanceView.vue:import { computed, defineComponent, h, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/views/life-balance/LifeBalanceView.vue:import lifeBalanceService from '@/services/lifeBalanceService'
+/u01/nix-life-os/frontend/src/views/notifications/NotificationSettingsView.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/notifications/NotificationSettingsView.vue:import {
+/u01/nix-life-os/frontend/src/views/notifications/NotificationsView.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/views/notifications/NotificationsView.vue:import {
+/u01/nix-life-os/frontend/src/components/projects/ProjectCard.vue:import ProjectProgressBar from "./ProjectProgressBar.vue";
+/u01/nix-life-os/frontend/src/components/projects/ProjectKanbanColumn.vue:import ProjectProgressBar from "./ProjectProgressBar.vue";
+/u01/nix-life-os/frontend/src/components/ai/AIRecommendationWidget.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/components/ai/AIRecommendationWidget.vue:import aiRecommendationService from '@/services/aiRecommendationService'
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:import {
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:import { Line, Bar, Doughnut } from "vue-chartjs";
+/u01/nix-life-os/frontend/src/components/dashboard/DashboardMiniChart.vue:import { computed } from "vue";
+/u01/nix-life-os/frontend/src/components/health/HealthAlertsPanel.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/components/health/HealthAlertsPanel.vue:import { healthAlertService } from "@/services/healthAlertService";
+/u01/nix-life-os/frontend/src/components/finance/FinanceTransactionsTable.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/components/finance/FinanceTransactionsTable.vue:import { financeService } from '@/services/financeService'
+/u01/nix-life-os/frontend/src/components/finance/FinanceTransactionsTable.vue:import EmptyState from '@/components/common/EmptyState.vue'
+/u01/nix-life-os/frontend/src/components/finance/FinanceAIInsightsWidget.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/components/finance/FinanceAIInsightsWidget.vue:import financeService from '@/services/financeService'
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:import {
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:import { Bar } from 'vue-chartjs'
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:import { financeService } from '@/services/financeService'
+/u01/nix-life-os/frontend/src/components/finance/FinanceIncomeExpenseChart.vue:import EmptyState from '@/components/common/EmptyState.vue'
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:import { computed, onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/components/finance/FinanceDashboardCards.vue:import FinanceAddTransactionForm from "../../components/finance/FinanceAddTransactionForm.vue";
+/u01/nix-life-os/frontend/src/components/finance/FinanceAddTransactionForm.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/components/finance/FinanceBudgetProgress.vue:import { computed, onMounted, ref } from 'vue'
+/u01/nix-life-os/frontend/src/components/finance/FinanceBudgetProgress.vue:import { financeService } from '@/services/financeService'
+/u01/nix-life-os/frontend/src/components/finance/FinanceBudgetProgress.vue:import EmptyState from '@/components/common/EmptyState.vue'
+/u01/nix-life-os/frontend/src/components/notifications/NotificationBell.vue:import { onMounted, ref } from "vue";
+/u01/nix-life-os/frontend/src/components/notifications/NotificationBell.vue:import { RouterLink } from "vue-router";
+/u01/nix-life-os/frontend/src/components/notifications/NotificationBell.vue:import { getUnreadNotificationCount } from "../../api/notifications";
+/u01/nix-life-os/frontend/src/services/api.js:import axios from 'axios'
+/u01/nix-life-os/frontend/src/services/api.js:import {
+/u01/nix-life-os/frontend/src/services/nutritionService.js:import api from './api'
+/u01/nix-life-os/frontend/src/services/apiFetch.js:import { API_BASE_URL, API_TIMEOUT_MS, clearAuthSession, getAuthToken, normalizeApiError } from './api'
+/u01/nix-life-os/frontend/src/services/aiRecommendationService.js:import api from './api'
+/u01/nix-life-os/frontend/src/services/calendarService.js:import api from "./api";
+/u01/nix-life-os/frontend/src/services/healthService.js:import api from "./api";
+/u01/nix-life-os/frontend/src/services/productivityService.js:import api from "./api";
+/u01/nix-life-os/frontend/src/services/healthAlertService.js:import api from "./api";
+/u01/nix-life-os/frontend/src/services/projectService.js:import api from "./api";
+/u01/nix-life-os/frontend/src/services/financeService.ts:import api from './api'
+/u01/nix-life-os/frontend/src/services/dashboardApi.js:import api from './api'
+/u01/nix-life-os/frontend/src/services/healthReportsService.js:import api from './api'
+/u01/nix-life-os/frontend/src/services/api.ts:import axios, { type AxiosError, type AxiosResponse } from 'axios'
+/u01/nix-life-os/frontend/src/services/api.ts:import {
+/u01/nix-life-os/frontend/src/services/nutritionCustomFoodService.js:import api from './api'
+/u01/nix-life-os/frontend/src/stores/counter.ts:import { ref, computed } from 'vue'
+/u01/nix-life-os/frontend/src/stores/counter.ts:import { defineStore } from 'pinia'
+/u01/nix-life-os/frontend/src/main.ts:import "./assets/main.css";
+/u01/nix-life-os/frontend/src/main.ts:import { createApp } from "vue";
+/u01/nix-life-os/frontend/src/main.ts:import type { ComponentPublicInstance } from "vue";
+/u01/nix-life-os/frontend/src/main.ts:import App from "./App.vue";
+/u01/nix-life-os/frontend/src/main.ts:import router from "./router";
+/u01/nix-life-os/frontend/src/main.ts:import { getApiErrorMessage } from "./services/api";
+/u01/nix-life-os/frontend/src/api/notifications.js:import axios from "axios";
+/u01/nix-life-os/frontend/src/api/financeApi.js:import axios from "axios";
+/u01/nix-life-os/frontend/src/router/index.ts:import { createRouter, createWebHistory } from 'vue-router'
+/u01/nix-life-os/frontend/src/router/index.ts:import { canAccessRoute, getAuthToken, getAuthUser } from '@/utils/auth'
+/u01/nix-life-os/frontend/src/router/index.js:import { createRouter, createWebHistory } from 'vue-router'
+/u01/nix-life-os/frontend/src/router/index.js:import { canAccessRoute, getAuthToken, getAuthUser } from '@/utils/auth'
+/u01/nix-life-os/frontend/src/main.js:import "./assets/main.css";
+/u01/nix-life-os/frontend/src/main.js:import { createApp } from "vue";
+/u01/nix-life-os/frontend/src/main.js:import App from "./App.vue";
+/u01/nix-life-os/frontend/src/main.js:import router from "./router";
+/u01/nix-life-os/frontend/src/main.js:import { getApiErrorMessage } from "./services/api";
+/u01/nix-life-os/frontend/src/App.vue:import { computed } from 'vue'
+/u01/nix-life-os/frontend/src/App.vue:import { RouterView, useRoute } from 'vue-router'
+/u01/nix-life-os/frontend/src/App.vue:import AppLayout from '@/layouts/AppLayout.vue'
+/u01/nix-life-os/frontend/src/__tests__disabled/App.spec.ts:import { describe, it, expect } from 'vitest'
+/u01/nix-life-os/frontend/src/__tests__disabled/App.spec.ts:import { mount } from '@vue/test-utils'
+/u01/nix-life-os/frontend/src/__tests__disabled/App.spec.ts:import App from '../App.vue'
+/u01/nix-life-os/frontend/src/layouts/AppLayout.vue:import { computed, ref, watch } from 'vue'
+/u01/nix-life-os/frontend/src/layouts/AppLayout.vue:import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
+/u01/nix-life-os/frontend/src/layouts/AppLayout.vue:import api, { clearAuthSession } from '@/services/api'
+/u01/nix-life-os/frontend/src/layouts/AppLayout.vue:import { getAuthUser, hasPermission, hasRole } from '@/utils/auth'
+/u01/nix-life-os/frontend/src/layouts/FinanceLayout.vue:import { RouterView } from "vue-router";

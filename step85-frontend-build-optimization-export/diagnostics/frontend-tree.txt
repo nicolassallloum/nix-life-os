@@ -1,0 +1,180 @@
+/u01/nix-life-os/frontend
+├── .editorconfig
+├── .env
+├── .eslintcache
+├── .gitattributes
+├── .gitignore
+├── .oxlintrc.json
+├── .prettierrc.json
+├── .vscode
+│   ├── extensions.json
+│   └── settings.json
+├── Dockerfile
+├── README.md
+├── env.d.ts
+├── eslint.config.ts
+├── export_step76_empty_data_files.sh
+├── index.html
+├── layouts
+├── nginx.conf
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── public
+│   └── favicon.ico
+├── router
+├── src
+│   ├── App.vue
+│   ├── __tests__disabled
+│   │   └── App.spec.ts
+│   ├── api
+│   │   ├── financeApi.js
+│   │   └── notifications.js
+│   ├── assets
+│   │   └── main.css
+│   ├── components
+│   │   ├── ai
+│   │   │   └── AIRecommendationWidget.vue
+│   │   ├── common
+│   │   │   └── EmptyState.vue
+│   │   ├── dashboard
+│   │   │   ├── DashboardMiniChart.vue
+│   │   │   ├── DashboardProgressCard.vue
+│   │   │   ├── DashboardRecentActivity.vue
+│   │   │   └── DashboardStatCard.vue
+│   │   ├── finance
+│   │   │   ├── FinanceAIInsightsWidget.vue
+│   │   │   ├── FinanceAddTransactionForm.vue
+│   │   │   ├── FinanceBudgetProgress.vue
+│   │   │   ├── FinanceDashboardCards.vue
+│   │   │   ├── FinanceIncomeExpenseChart.vue
+│   │   │   └── FinanceTransactionsTable.vue
+│   │   ├── health
+│   │   │   └── HealthAlertsPanel.vue
+│   │   ├── notifications
+│   │   │   └── NotificationBell.vue
+│   │   └── projects
+│   │       ├── ProjectCard.vue
+│   │       ├── ProjectKanbanColumn.vue
+│   │       └── ProjectProgressBar.vue
+│   ├── composables
+│   ├── env.d.ts
+│   ├── layouts
+│   │   ├── AppLayout.vue
+│   │   └── FinanceLayout.vue
+│   ├── main.js
+│   ├── main.ts
+│   ├── router
+│   │   ├── index.js
+│   │   └── index.ts
+│   ├── services
+│   │   ├── aiRecommendationService.js
+│   │   ├── api.js
+│   │   ├── api.ts
+│   │   ├── apiFetch.js
+│   │   ├── calendarService.js
+│   │   ├── dashboardApi.js
+│   │   ├── financeService.ts
+│   │   ├── healthAlertService.js
+│   │   ├── healthReportsService.js
+│   │   ├── healthService.js
+│   │   ├── healthWeightApi.js
+│   │   ├── lifeBalanceService.js
+│   │   ├── lifeBalanceService.ts
+│   │   ├── nutritionCustomFoodService.js
+│   │   ├── nutritionService.js
+│   │   ├── productivityService.js
+│   │   ├── projectService.js
+│   │   └── taskService.js
+│   ├── stores
+│   │   └── counter.ts
+│   ├── types
+│   ├── utils
+│   │   ├── auth.d.ts
+│   │   ├── auth.js
+│   │   └── permissions.js
+│   └── views
+│       ├── FinanceDashboardView.vue
+│       ├── HealthHydrationView.vue
+│       ├── LifeBalanceView.vue
+│       ├── NotFoundView.vue
+│       ├── ProjectMilestonesView.vue
+│       ├── ProjectProgressView.vue
+│       ├── ProjectStatusUpdatesView.vue
+│       ├── ProjectTasksView.vue
+│       ├── ProjectsDashboardView.vue
+│       ├── SecurityRolesView.vue
+│       ├── admin
+│       │   ├── AdminOverviewView.vue
+│       │   ├── AdminRolesView.vue
+│       │   └── AdminUsersView.vue
+│       ├── ai
+│       │   └── AIRecommendationsView.vue
+│       ├── auth
+│       │   ├── LoginView.vue
+│       │   ├── RegisterView.vue
+│       │   └── UnauthorizedView.vue
+│       ├── dashboard
+│       │   ├── DashboardView.vue
+│       │   └── UnifiedDashboardView.vue
+│       ├── finance
+│       │   ├── ExpensesView.vue
+│       │   ├── FinanceAIInsightsView.vue
+│       │   ├── FinanceAccountsView.vue
+│       │   ├── FinanceBudgetsView.vue
+│       │   ├── FinanceDashboardView.vue
+│       │   └── FinanceTransactionsView.vue
+│       ├── health
+│       │   ├── CustomFoodsView.vue
+│       │   ├── HealthAIInsightsView.vue
+│       │   ├── HealthAlertsView.vue
+│       │   ├── HealthNutritionView.vue
+│       │   ├── HealthReportsView.vue
+│       │   ├── HealthStepsView.vue
+│       │   ├── HealthView.vue
+│       │   ├── HealthWeightView.vue
+│       │   ├── HydrationTrackingView.vue
+│       │   ├── LabTestsTrackingView.vue
+│       │   ├── MedicamentsTrackingView.vue
+│       │   ├── MedicationTrackingView.vue
+│       │   ├── MoodTrackingView.vue
+│       │   ├── NutritionTrackingView.vue
+│       │   ├── SleepTrackingView.vue
+│       │   ├── StepsTrackingView.vue
+│       │   ├── WeightTrackingView.vue
+│       │   └── nutrition
+│       │       ├── FoodItemsView.vue
+│       │       ├── MealLoggerView.vue
+│       │       └── NutritionDashboardView.vue
+│       ├── life-balance
+│       │   └── LifeBalanceView.vue
+│       ├── monitoring
+│       │   └── MonitoringDashboardView.vue
+│       ├── notifications
+│       │   ├── NotificationSettingsView.vue
+│       │   └── NotificationsView.vue
+│       ├── productivity
+│       │   ├── CalendarView.vue
+│       │   ├── GoalsView.vue
+│       │   ├── HabitsView.vue
+│       │   ├── ProductivityAIInsightsView.vue
+│       │   ├── ProductivityDashboardView.vue
+│       │   └── TasksView.vue
+│       ├── projects
+│       │   ├── ProjectDashboardView.vue
+│       │   └── ProjectsView.vue
+│       ├── security
+│       │   ├── SecurityAuditLogsView.vue
+│       │   └── SecurityOverviewView.vue
+│       └── settings
+├── tailwind.config.js
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+├── tsconfig.vitest.json
+├── views
+│   └── finance
+├── vite.config.js
+└── vite.config.ts
+
+41 directories, 137 files
