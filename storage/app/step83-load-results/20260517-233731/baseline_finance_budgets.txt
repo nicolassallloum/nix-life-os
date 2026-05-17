@@ -1,0 +1,46 @@
+This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 100 requests
+Completed 200 requests
+Finished 200 requests
+
+
+Server Software:        nginx/1.27.5
+Server Hostname:        127.0.0.1
+Server Port:            8000
+
+Document Path:          /api/v1/finance/budgets
+Document Length:        70 bytes
+
+Concurrency Level:      20
+Time taken for tests:   3.082 seconds
+Complete requests:      200
+Failed requests:        0
+Keep-Alive requests:    0
+Total transferred:      79802 bytes
+HTML transferred:       14000 bytes
+Requests per second:    64.90 [#/sec] (mean)
+Time per request:       308.153 [ms] (mean)
+Time per request:       15.408 [ms] (mean, across all concurrent requests)
+Transfer rate:          25.29 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.4      0       5
+Processing:    46  292  80.5    279     497
+Waiting:       44  292  80.4    279     497
+Total:         46  292  80.3    279     497
+
+Percentage of the requests served within a certain time (ms)
+  50%    279
+  66%    309
+  75%    343
+  80%    359
+  90%    394
+  95%    424
+  98%    459
+  99%    489
+ 100%    497 (longest request)

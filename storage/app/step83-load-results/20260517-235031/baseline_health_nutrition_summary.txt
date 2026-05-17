@@ -1,0 +1,46 @@
+This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 100 requests
+Completed 200 requests
+Finished 200 requests
+
+
+Server Software:        nginx/1.27.5
+Server Hostname:        127.0.0.1
+Server Port:            8000
+
+Document Path:          /api/v1/health/nutrition/summary
+Document Length:        420 bytes
+
+Concurrency Level:      20
+Time taken for tests:   2.308 seconds
+Complete requests:      200
+Failed requests:        0
+Keep-Alive requests:    0
+Total transferred:      149801 bytes
+HTML transferred:       84000 bytes
+Requests per second:    86.65 [#/sec] (mean)
+Time per request:       230.808 [ms] (mean)
+Time per request:       11.540 [ms] (mean, across all concurrent requests)
+Transfer rate:          63.38 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.4      0       3
+Processing:    39  217  61.9    209     414
+Waiting:       39  217  62.0    209     414
+Total:         39  218  61.8    209     414
+
+Percentage of the requests served within a certain time (ms)
+  50%    209
+  66%    218
+  75%    227
+  80%    232
+  90%    311
+  95%    364
+  98%    388
+  99%    402
+ 100%    414 (longest request)

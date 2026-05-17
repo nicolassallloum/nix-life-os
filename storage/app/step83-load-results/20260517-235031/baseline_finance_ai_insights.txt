@@ -1,0 +1,46 @@
+This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 100 requests
+Completed 200 requests
+Finished 200 requests
+
+
+Server Software:        nginx/1.27.5
+Server Hostname:        127.0.0.1
+Server Port:            8000
+
+Document Path:          /api/v1/finance/ai-insights
+Document Length:        587 bytes
+
+Concurrency Level:      20
+Time taken for tests:   2.579 seconds
+Complete requests:      200
+Failed requests:        0
+Keep-Alive requests:    0
+Total transferred:      183326 bytes
+HTML transferred:       117400 bytes
+Requests per second:    77.55 [#/sec] (mean)
+Time per request:       257.884 [ms] (mean)
+Time per request:       12.894 [ms] (mean, across all concurrent requests)
+Transfer rate:          69.42 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.1      0       1
+Processing:    34  244  49.3    244     372
+Waiting:       33  243  49.3    244     372
+Total:         35  244  49.2    244     372
+
+Percentage of the requests served within a certain time (ms)
+  50%    244
+  66%    255
+  75%    265
+  80%    269
+  90%    301
+  95%    335
+  98%    346
+  99%    359
+ 100%    372 (longest request)

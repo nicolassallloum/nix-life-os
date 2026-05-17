@@ -1,0 +1,7 @@
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED        STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago     Up 2 days (healthy)       0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         20 hours ago   Up 17 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago     Up 17 minutes             0.0.0.0:8000->80/tcp, [::]:8000->80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        20 hours ago   Up 19 hours               80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago     Up 19 hours               0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago     Up 20 hours (healthy)     0.0.0.0:5445->5432/tcp, [::]:5445->5432/tcp

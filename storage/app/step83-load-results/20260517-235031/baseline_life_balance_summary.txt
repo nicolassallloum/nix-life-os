@@ -1,0 +1,46 @@
+This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 100 requests
+Completed 200 requests
+Finished 200 requests
+
+
+Server Software:        nginx/1.27.5
+Server Hostname:        127.0.0.1
+Server Port:            8000
+
+Document Path:          /api/v1/life-balance/summary
+Document Length:        649 bytes
+
+Concurrency Level:      20
+Time taken for tests:   1.815 seconds
+Complete requests:      200
+Failed requests:        0
+Keep-Alive requests:    0
+Total transferred:      195574 bytes
+HTML transferred:       129800 bytes
+Requests per second:    110.16 [#/sec] (mean)
+Time per request:       181.547 [ms] (mean)
+Time per request:       9.077 [ms] (mean, across all concurrent requests)
+Transfer rate:          105.20 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.3      0       2
+Processing:    23  172  35.3    174     260
+Waiting:       21  172  35.3    174     260
+Total:         24  172  35.1    174     260
+
+Percentage of the requests served within a certain time (ms)
+  50%    174
+  66%    182
+  75%    186
+  80%    191
+  90%    210
+  95%    229
+  98%    243
+  99%    251
+ 100%    260 (longest request)

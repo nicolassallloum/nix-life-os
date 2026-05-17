@@ -1,0 +1,39 @@
+
+  cache ......................................................................  
+  default ........................................................... database  
+  stores ⇁ array ⇁ driver .............................................. array  
+  stores ⇁ array ⇁ serialize ........................................... false  
+  stores ⇁ session ⇁ driver .......................................... session  
+  stores ⇁ session ⇁ key .............................................. _cache  
+  stores ⇁ database ⇁ driver ........................................ database  
+  stores ⇁ database ⇁ connection ........................................ null  
+  stores ⇁ database ⇁ table ............................................ cache  
+  stores ⇁ database ⇁ lock_connection ................................... null  
+  stores ⇁ database ⇁ lock_table ........................................ null  
+  stores ⇁ file ⇁ driver ................................................ file  
+  stores ⇁ file ⇁ path .......................... storage/framework/cache/data  
+  stores ⇁ file ⇁ lock_path ..................... storage/framework/cache/data  
+  stores ⇁ memcached ⇁ driver ...................................... memcached  
+  stores ⇁ memcached ⇁ persistent_id .................................... null  
+  stores ⇁ memcached ⇁ sasl ⇁ 0 ......................................... null  
+  stores ⇁ memcached ⇁ sasl ⇁ 1 ......................................... null  
+  stores ⇁ memcached ⇁ options ............................................ []  
+  stores ⇁ memcached ⇁ servers ⇁ 0 ⇁ host .......................... 127.0.0.1  
+  stores ⇁ memcached ⇁ servers ⇁ 0 ⇁ port .............................. 11211  
+  stores ⇁ memcached ⇁ servers ⇁ 0 ⇁ weight .............................. 100  
+  stores ⇁ redis ⇁ driver .............................................. redis  
+  stores ⇁ redis ⇁ connection .......................................... cache  
+  stores ⇁ redis ⇁ lock_connection ................................... default  
+  stores ⇁ dynamodb ⇁ driver ........................................ dynamodb  
+  stores ⇁ dynamodb ⇁ key ............................................... null  
+  stores ⇁ dynamodb ⇁ secret ............................................ null  
+  stores ⇁ dynamodb ⇁ region ....................................... us-east-1  
+  stores ⇁ dynamodb ⇁ table ............................................ cache  
+  stores ⇁ dynamodb ⇁ endpoint .......................................... null  
+  stores ⇁ octane ⇁ driver ............................................ octane  
+  stores ⇁ failover ⇁ driver ........................................ failover  
+  stores ⇁ failover ⇁ stores ⇁ 0 .................................... database  
+  stores ⇁ failover ⇁ stores ⇁ 1 ....................................... array  
+  prefix .................................................. nix-life-os-cache-  
+  serializable_classes ................................................. false  
+

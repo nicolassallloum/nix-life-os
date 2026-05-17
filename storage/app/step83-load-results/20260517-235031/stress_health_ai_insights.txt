@@ -1,0 +1,49 @@
+This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 100 requests
+Completed 200 requests
+Completed 300 requests
+Completed 400 requests
+Completed 500 requests
+Finished 500 requests
+
+
+Server Software:        nginx/1.27.5
+Server Hostname:        127.0.0.1
+Server Port:            8000
+
+Document Path:          /api/v1/health/ai-insights
+Document Length:        404 bytes
+
+Concurrency Level:      50
+Time taken for tests:   7.533 seconds
+Complete requests:      500
+Failed requests:        0
+Keep-Alive requests:    0
+Total transferred:      366930 bytes
+HTML transferred:       202000 bytes
+Requests per second:    66.37 [#/sec] (mean)
+Time per request:       753.310 [ms] (mean)
+Time per request:       15.066 [ms] (mean, across all concurrent requests)
+Transfer rate:          47.57 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.7      0       4
+Processing:    43  711 129.4    724     892
+Waiting:       43  711 129.4    724     892
+Total:         44  712 129.0    724     892
+
+Percentage of the requests served within a certain time (ms)
+  50%    724
+  66%    740
+  75%    775
+  80%    789
+  90%    822
+  95%    843
+  98%    866
+  99%    880
+ 100%    892 (longest request)

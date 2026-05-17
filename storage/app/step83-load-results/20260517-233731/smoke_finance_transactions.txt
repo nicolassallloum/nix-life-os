@@ -1,0 +1,43 @@
+This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient).....done
+
+
+Server Software:        nginx/1.27.5
+Server Hostname:        127.0.0.1
+Server Port:            8000
+
+Document Path:          /api/v1/finance/transactions
+Document Length:        80 bytes
+
+Concurrency Level:      5
+Time taken for tests:   0.777 seconds
+Complete requests:      50
+Failed requests:        0
+Keep-Alive requests:    0
+Total transferred:      20447 bytes
+HTML transferred:       4000 bytes
+Requests per second:    64.37 [#/sec] (mean)
+Time per request:       77.677 [ms] (mean)
+Time per request:       15.535 [ms] (mean, across all concurrent requests)
+Transfer rate:          25.71 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.3      0       2
+Processing:    32   73  20.1     71     119
+Waiting:       32   73  20.1     71     119
+Total:         32   73  20.1     71     119
+
+Percentage of the requests served within a certain time (ms)
+  50%     71
+  66%     82
+  75%     87
+  80%     94
+  90%    100
+  95%    106
+  98%    119
+  99%    119
+ 100%    119 (longest request)

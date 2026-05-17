@@ -1,0 +1,46 @@
+This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 100 requests
+Completed 200 requests
+Finished 200 requests
+
+
+Server Software:        nginx/1.27.5
+Server Hostname:        127.0.0.1
+Server Port:            8000
+
+Document Path:          /api/v1/health/hydration/summary/daily
+Document Length:        Variable
+
+Concurrency Level:      20
+Time taken for tests:   1.686 seconds
+Complete requests:      200
+Failed requests:        0
+Keep-Alive requests:    0
+Total transferred:      103019 bytes
+HTML transferred:       37200 bytes
+Requests per second:    118.62 [#/sec] (mean)
+Time per request:       168.607 [ms] (mean)
+Time per request:       8.430 [ms] (mean, across all concurrent requests)
+Transfer rate:          59.67 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   1.5      0       8
+Processing:    22  157  38.9    155     279
+Waiting:       21  157  38.9    155     279
+Total:         22  157  38.7    155     279
+
+Percentage of the requests served within a certain time (ms)
+  50%    155
+  66%    166
+  75%    178
+  80%    183
+  90%    198
+  95%    223
+  98%    246
+  99%    276
+ 100%    279 (longest request)

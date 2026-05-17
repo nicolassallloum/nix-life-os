@@ -1,0 +1,50 @@
+This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 100 requests
+Completed 200 requests
+Completed 300 requests
+Completed 400 requests
+Completed 500 requests
+Finished 500 requests
+
+
+Server Software:        nginx/1.27.5
+Server Hostname:        127.0.0.1
+Server Port:            8000
+
+Document Path:          /api/v1/health/dashboard
+Document Length:        965 bytes
+
+Concurrency Level:      50
+Time taken for tests:   5.349 seconds
+Complete requests:      500
+Failed requests:        499
+   (Connect: 0, Receive: 0, Length: 499, Exceptions: 0)
+Keep-Alive requests:    0
+Total transferred:      678395 bytes
+HTML transferred:       513937 bytes
+Requests per second:    93.48 [#/sec] (mean)
+Time per request:       534.865 [ms] (mean)
+Time per request:       10.697 [ms] (mean, across all concurrent requests)
+Transfer rate:          123.86 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.9      0       4
+Processing:    34  498  97.1    509     629
+Waiting:       34  498  97.1    509     628
+Total:         38  498  96.4    509     629
+
+Percentage of the requests served within a certain time (ms)
+  50%    509
+  66%    521
+  75%    532
+  80%    546
+  90%    585
+  95%    600
+  98%    608
+  99%    619
+ 100%    629 (longest request)

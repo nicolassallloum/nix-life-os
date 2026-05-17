@@ -1,0 +1,49 @@
+This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 100 requests
+Completed 200 requests
+Completed 300 requests
+Completed 400 requests
+Completed 500 requests
+Finished 500 requests
+
+
+Server Software:        nginx/1.27.5
+Server Hostname:        127.0.0.1
+Server Port:            8000
+
+Document Path:          /api/v1/productivity/ai-insights
+Document Length:        2861 bytes
+
+Concurrency Level:      50
+Time taken for tests:   9.462 seconds
+Complete requests:      500
+Failed requests:        0
+Keep-Alive requests:    0
+Total transferred:      1595950 bytes
+HTML transferred:       1430500 bytes
+Requests per second:    52.85 [#/sec] (mean)
+Time per request:       946.158 [ms] (mean)
+Time per request:       18.923 [ms] (mean, across all concurrent requests)
+Transfer rate:          164.72 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.7      0       4
+Processing:    62  894 173.3    913    1127
+Waiting:       62  894 173.4    912    1127
+Total:         66  894 172.7    913    1127
+
+Percentage of the requests served within a certain time (ms)
+  50%    913
+  66%    954
+  75%    991
+  80%   1008
+  90%   1046
+  95%   1073
+  98%   1092
+  99%   1106
+ 100%   1127 (longest request)
