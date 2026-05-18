@@ -1,6 +1,8 @@
 import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import tailwindcss from '@tailwindcss/vite'
+
 function manualChunks(id) {
   if (!id.includes('node_modules')) {
     return undefined
@@ -36,7 +38,7 @@ function manualChunks(id) {
 
 export default defineConfig({
   base: '/',
-  plugins: [vue()],
+  plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

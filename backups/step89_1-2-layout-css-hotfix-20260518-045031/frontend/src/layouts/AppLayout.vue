@@ -9,6 +9,11 @@ const router = useRouter()
 const sidebarOpen = ref(false)
 const sidebarCollapsed = ref(false)
 
+const baseLinkClass =
+  'nix-sidebar-link'
+const inactiveLinkClass = 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
+const activeLinkClass = 'nix-sidebar-link-active'
+
 const user = computed(() => getAuthUser())
 const canViewAdmin = computed(() => hasRole('admin'))
 const canViewSecurity = computed(() => hasPermission('security.view'))
@@ -117,7 +122,7 @@ function isActive(item) {
 }
 
 function linkClass(item) {
-  return ['nix-sidebar-link', isActive(item) ? 'nix-sidebar-link-active' : '']
+  return [baseLinkClass, isActive(item) ? activeLinkClass : inactiveLinkClass]
 }
 
 function visibleItems(group) {
@@ -148,35 +153,36 @@ async function logout() {
 </script>
 
 <template>
-  <div class="nix-app-shell">
-    <button
+  <div class="min-h-screen bg-slate-50 text-slate-900">
+    <div
       v-if="sidebarOpen"
-      type="button"
-      class="nix-mobile-backdrop"
-      aria-label="Close menu backdrop"
+      class="fixed inset-0 z-40 bg-slate-950/50 backdrop-blur-sm lg:hidden"
       @click="sidebarOpen = false"
     />
 
     <aside
-      class="nix-sidebar"
-      :class="{
-        'nix-sidebar--open': sidebarOpen,
-        'nix-sidebar--collapsed': sidebarCollapsed,
-      }"
+      class="fixed inset-y-0 left-0 z-50 flex flex-col border-r border-slate-200 bg-white shadow-sm transition-all duration-300"
+      :class="[
+        sidebarCollapsed ? 'lg:w-20' : 'lg:w-72',
+        'w-72',
+        sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+      ]"
     >
-      <div class="nix-sidebar-brand-row">
-        <div class="nix-sidebar-brand-wrap">
-          <div class="nix-sidebar-logo">N</div>
+      <div class="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-4">
+        <div class="flex min-w-0 items-center gap-3">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-sm font-black text-white">
+            N
+          </div>
 
-          <div v-if="!sidebarCollapsed" class="nix-sidebar-brand-text">
-            <h1>NIX LIFE OS</h1>
-            <p>Personal Operating System</p>
+          <div v-if="!sidebarCollapsed" class="min-w-0">
+            <h1 class="truncate text-sm font-black tracking-wide text-slate-950">NIX LIFE OS</h1>
+            <p class="truncate text-xs text-slate-500">Personal Operating System</p>
           </div>
         </div>
 
         <button
           type="button"
-          class="nix-icon-button nix-mobile-close-button"
+          class="nix-icon-button lg:hidden"
           aria-label="Close menu"
           @click="sidebarOpen = false"
         >
@@ -184,17 +190,20 @@ async function logout() {
         </button>
       </div>
 
-      <div v-if="user?.email && !sidebarCollapsed" class="nix-sidebar-user">
-        <p>{{ user.email }}</p>
+      <div v-if="user?.email && !sidebarCollapsed" class="border-b border-slate-100 px-4 py-3">
+        <p class="truncate text-xs font-medium text-slate-500">{{ user.email }}</p>
       </div>
 
-      <nav class="nix-sidebar-nav">
-        <section v-for="group in menuGroups" :key="group.label" v-show="isVisibleGroup(group)" class="nix-sidebar-group">
-          <p v-if="!sidebarCollapsed" class="nix-sidebar-group-label">
+      <nav class="flex-1 space-y-6 overflow-y-auto px-3 py-4">
+        <section v-for="group in menuGroups" :key="group.label" v-show="isVisibleGroup(group)">
+          <p
+            v-if="!sidebarCollapsed"
+            class="mb-2 px-3 text-xs font-bold uppercase tracking-wide text-slate-400"
+          >
             {{ group.label }}
           </p>
 
-          <div class="nix-sidebar-group-links">
+          <div class="space-y-1">
             <RouterLink
               v-for="item in visibleItems(group)"
               :key="item.to"
@@ -202,17 +211,21 @@ async function logout() {
               :class="linkClass(item)"
               :title="sidebarCollapsed ? item.label : undefined"
             >
-              <span v-if="sidebarCollapsed" class="nix-sidebar-dot" />
-              <span v-else class="nix-sidebar-link-text">{{ item.label }}</span>
+              <span
+                v-if="sidebarCollapsed"
+                class="mx-auto h-2 w-2 rounded-full bg-current opacity-70"
+              />
+              <span v-else class="truncate">{{ item.label }}</span>
             </RouterLink>
           </div>
         </section>
       </nav>
 
-      <div class="nix-sidebar-footer">
+      <div class="border-t border-slate-200 p-3">
         <button
           type="button"
-          class="nix-button-secondary nix-logout-button"
+          class="nix-button-secondary w-full justify-center"
+          :class="sidebarCollapsed ? 'px-2' : ''"
           @click="logout"
         >
           {{ sidebarCollapsed ? '⏻' : 'Logout' }}
@@ -221,15 +234,15 @@ async function logout() {
     </aside>
 
     <div
-      class="nix-main-shell"
-      :class="{ 'nix-main-shell--collapsed': sidebarCollapsed }"
+      class="min-h-screen transition-all duration-300"
+      :class="sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-72'"
     >
-      <header class="nix-app-header">
-        <div class="nix-app-header-inner">
-          <div class="nix-header-title-wrap">
+      <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <div class="flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+          <div class="flex min-w-0 items-center gap-3">
             <button
               type="button"
-              class="nix-icon-button nix-mobile-menu-button"
+              class="nix-icon-button lg:hidden"
               aria-label="Open menu"
               @click="sidebarOpen = true"
             >
@@ -238,21 +251,27 @@ async function logout() {
 
             <button
               type="button"
-              class="nix-icon-button nix-desktop-collapse-button"
+              class="nix-icon-button hidden lg:inline-flex"
               aria-label="Toggle sidebar"
               @click="sidebarCollapsed = !sidebarCollapsed"
             >
               ☰
             </button>
 
-            <div class="nix-route-title-block">
-              <h1>{{ routeTitle }}</h1>
-              <p>{{ routeSubtitle }}</p>
+            <div class="min-w-0">
+              <h1 class="truncate text-lg font-black text-slate-950 sm:text-xl">
+                {{ routeTitle }}
+              </h1>
+              <p class="hidden truncate text-xs text-slate-500 sm:block">
+                {{ routeSubtitle }}
+              </p>
             </div>
           </div>
 
-          <div class="nix-header-actions">
-            <span class="nix-ui-status-badge">UI Stable</span>
+          <div class="flex shrink-0 items-center gap-2">
+            <span class="hidden rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 sm:inline-flex">
+              UI Stable
+            </span>
           </div>
         </div>
       </header>
