@@ -45,7 +45,7 @@ const loadPreferences = async () => {
     }
   } catch (error) {
     console.error('Failed to load preferences', error)
-    loadError.value = 'Notification settings could not be loaded. Default local values are shown. If the backend Docker service is off, this is expected.'
+    loadError.value = 'Notification settings could not be loaded. If the backend Docker service is off, this is expected.'
   } finally {
     loading.value = false
   }
@@ -88,11 +88,11 @@ onMounted(() => {
       Loading notification settings...
     </div>
 
-    <div v-if="loadError" class="nix-alert-warning">
+    <div v-else-if="loadError" class="nix-alert-warning">
       {{ loadError }}
     </div>
 
-    <form class="nix-settings-form" @submit.prevent="savePreferences">
+    <form v-else class="nix-settings-form" @submit.prevent="savePreferences">
       <section class="nix-card nix-settings-card">
         <div class="nix-card-header">
           <div>
