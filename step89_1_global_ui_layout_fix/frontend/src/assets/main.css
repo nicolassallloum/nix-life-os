@@ -1,0 +1,238 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #app {
+    min-height: 100%;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    @apply bg-slate-50 text-slate-900 antialiased;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    @apply cursor-pointer;
+  }
+
+  button:disabled,
+  input:disabled,
+  select:disabled,
+  textarea:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+
+  /* Safety net for old screens that still have plain browser buttons. */
+  button:not([class]) {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  }
+
+  input:not([class]),
+  select:not([class]),
+  textarea:not([class]) {
+    @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100;
+  }
+}
+
+@layer components {
+  .nix-page-shell {
+    @apply min-h-[calc(100vh-4rem)] overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8;
+  }
+
+  .nix-page-container {
+    @apply mx-auto w-full max-w-7xl space-y-6;
+  }
+
+  .nix-section {
+    @apply space-y-5;
+  }
+
+  .nix-section-header {
+    @apply flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .nix-section-title {
+    @apply text-xl font-black text-slate-950;
+  }
+
+  .nix-section-subtitle {
+    @apply text-sm text-slate-500;
+  }
+
+  .nix-card {
+    @apply rounded-2xl border border-slate-200 bg-white p-5 shadow-sm;
+  }
+
+  .nix-card-hover {
+    @apply rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:border-blue-200 hover:shadow-md;
+  }
+
+  .nix-card-header {
+    @apply mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between;
+  }
+
+  .nix-card-title {
+    @apply text-base font-bold text-slate-950;
+  }
+
+  .nix-card-subtitle {
+    @apply text-sm text-slate-500;
+  }
+
+  .nix-grid {
+    @apply grid gap-4;
+  }
+
+  .nix-grid-2 {
+    @apply grid gap-4 md:grid-cols-2;
+  }
+
+  .nix-grid-3 {
+    @apply grid gap-4 md:grid-cols-2 xl:grid-cols-3;
+  }
+
+  .nix-grid-4 {
+    @apply grid gap-4 sm:grid-cols-2 xl:grid-cols-4;
+  }
+
+  .nix-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:hover:bg-blue-600;
+  }
+
+  .nix-button-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  }
+
+  .nix-button-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+  }
+
+  .nix-icon-button {
+    @apply inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  }
+
+  .nix-input {
+    @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100;
+  }
+
+  .nix-select {
+    @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100;
+  }
+
+  .nix-label {
+    @apply mb-1 block text-sm font-semibold text-slate-700;
+  }
+
+  .nix-form-grid {
+    @apply grid gap-4 md:grid-cols-2;
+  }
+
+  .nix-form-actions {
+    @apply flex flex-col-reverse gap-3 sm:flex-row sm:justify-end;
+  }
+
+  .nix-table-wrapper {
+    @apply overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm;
+  }
+
+  .nix-table-scroll {
+    @apply w-full overflow-x-auto;
+  }
+
+  .nix-table {
+    @apply min-w-full divide-y divide-slate-200 text-sm;
+  }
+
+  .nix-table thead {
+    @apply bg-slate-50;
+  }
+
+  .nix-table th {
+    @apply whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500;
+  }
+
+  .nix-table td {
+    @apply whitespace-nowrap px-4 py-3 text-slate-700;
+  }
+
+  .nix-table tbody {
+    @apply divide-y divide-slate-100 bg-white;
+  }
+
+  .nix-alert {
+    @apply rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-sm;
+  }
+
+  .nix-alert-error {
+    @apply rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700;
+  }
+
+  .nix-alert-success {
+    @apply rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700;
+  }
+
+  .nix-alert-warning {
+    @apply rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700;
+  }
+
+  .nix-alert-info {
+    @apply rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-700;
+  }
+
+  .nix-empty-state {
+    @apply flex min-h-48 flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center;
+  }
+
+  .nix-loading-state {
+    @apply flex min-h-32 items-center justify-center rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500;
+  }
+
+  .nix-sidebar-link {
+    @apply flex min-h-10 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors;
+  }
+
+  .nix-sidebar-link-active {
+    @apply bg-slate-950 text-white shadow-sm hover:bg-slate-950 hover:text-white;
+  }
+
+  .nix-badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold;
+  }
+
+  .nix-badge-success {
+    @apply bg-emerald-50 text-emerald-700;
+  }
+
+  .nix-badge-danger {
+    @apply bg-red-50 text-red-700;
+  }
+
+  .nix-badge-warning {
+    @apply bg-amber-50 text-amber-700;
+  }
+
+  .nix-badge-info {
+    @apply bg-blue-50 text-blue-700;
+  }
+}

@@ -7,12 +7,11 @@ import { getAuthUser, hasPermission, hasRole } from '@/utils/auth'
 const route = useRoute()
 const router = useRouter()
 const sidebarOpen = ref(false)
-const sidebarCollapsed = ref(false)
 
 const baseLinkClass =
-  'nix-sidebar-link'
-const inactiveLinkClass = 'text-slate-600 hover:bg-slate-100 hover:text-slate-950'
-const activeLinkClass = 'nix-sidebar-link-active'
+  'flex items-center rounded-xl px-4 py-2.5 text-sm font-medium transition-colors'
+const inactiveLinkClass = 'text-slate-700 hover:bg-slate-100 hover:text-slate-950'
+const activeLinkClass = 'bg-slate-950 text-white shadow-sm hover:bg-slate-950 hover:text-white'
 
 const user = computed(() => getAuthUser())
 const canViewAdmin = computed(() => hasRole('admin'))
@@ -108,9 +107,6 @@ const menuGroups = computed(() => [
   },
 ])
 
-const routeTitle = computed(() => route.meta?.title || 'Nix Life OS')
-const routeSubtitle = computed(() => route.meta?.subtitle || 'Personal Operating System')
-
 function isActive(item) {
   return item.match.some((path) => {
     if (item.exact || path === '/health' || path === '/notifications' || path === '/admin' || path === '/security') {
@@ -144,7 +140,7 @@ async function logout() {
   try {
     await api.post('/auth/logout')
   } catch {
-    // Keep logout safe when the backend token is already expired, revoked, or temporarily unavailable.
+    // Keep logout safe when the backend token is already expired or revoked.
   } finally {
     clearAuthSession()
     await router.replace('/login')
@@ -153,131 +149,75 @@ async function logout() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50 text-slate-900">
-    <div
-      v-if="sidebarOpen"
-      class="fixed inset-0 z-40 bg-slate-950/50 backdrop-blur-sm lg:hidden"
-      @click="sidebarOpen = false"
-    />
-
-    <aside
-      class="fixed inset-y-0 left-0 z-50 flex flex-col border-r border-slate-200 bg-white shadow-sm transition-all duration-300"
-      :class="[
-        sidebarCollapsed ? 'lg:w-20' : 'lg:w-72',
-        'w-72',
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
-      ]"
-    >
-      <div class="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-slate-200 px-4">
-        <div class="flex min-w-0 items-center gap-3">
-          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-sm font-black text-white">
-            N
-          </div>
-
-          <div v-if="!sidebarCollapsed" class="min-w-0">
-            <h1 class="truncate text-sm font-black tracking-wide text-slate-950">NIX LIFE OS</h1>
-            <p class="truncate text-xs text-slate-500">Personal Operating System</p>
-          </div>
-        </div>
-
-        <button
-          type="button"
-          class="nix-icon-button lg:hidden"
-          aria-label="Close menu"
-          @click="sidebarOpen = false"
-        >
-          ✕
-        </button>
+  <div class="min-h-screen bg-slate-50">
+    <header class="sticky top-0 z-40 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
+      <div>
+        <h1 class="text-lg font-black tracking-wide text-slate-950">NIX LIFE OS</h1>
+        <p class="text-xs text-slate-500">Personal Operating System</p>
       </div>
 
-      <div v-if="user?.email && !sidebarCollapsed" class="border-b border-slate-100 px-4 py-3">
-        <p class="truncate text-xs font-medium text-slate-500">{{ user.email }}</p>
-      </div>
+      <button
+        type="button"
+        class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700"
+        @click="sidebarOpen = !sidebarOpen"
+      >
+        {{ sidebarOpen ? 'Close' : 'Menu' }}
+      </button>
+    </header>
 
-      <nav class="flex-1 space-y-6 overflow-y-auto px-3 py-4">
-        <section v-for="group in menuGroups" :key="group.label" v-show="isVisibleGroup(group)">
-          <p
-            v-if="!sidebarCollapsed"
-            class="mb-2 px-3 text-xs font-bold uppercase tracking-wide text-slate-400"
+    <div v-if="sidebarOpen" class="fixed inset-0 z-30 bg-slate-950/40 lg:hidden" @click="sidebarOpen = false" />
+
+    <div class="flex min-h-screen">
+      <aside
+        class="fixed inset-y-0 left-0 z-40 w-72 shrink-0 transform border-r border-slate-200 bg-white px-5 py-6 transition-transform duration-200 lg:static lg:z-auto lg:w-64 lg:translate-x-0"
+        :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+      >
+        <div class="mb-8 flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <h1 class="text-2xl font-black tracking-wide text-slate-950">NIX LIFE OS</h1>
+            <p class="mt-1 text-xs text-slate-500">Personal Operating System</p>
+            <p v-if="user?.email" class="mt-3 truncate text-xs text-slate-500">{{ user.email }}</p>
+          </div>
+
+          <button
+            type="button"
+            class="rounded-lg border border-slate-200 px-2 py-1 text-xs text-slate-600 lg:hidden"
+            @click="sidebarOpen = false"
           >
-            {{ group.label }}
-          </p>
-
-          <div class="space-y-1">
-            <RouterLink
-              v-for="item in visibleItems(group)"
-              :key="item.to"
-              :to="item.to"
-              :class="linkClass(item)"
-              :title="sidebarCollapsed ? item.label : undefined"
-            >
-              <span
-                v-if="sidebarCollapsed"
-                class="mx-auto h-2 w-2 rounded-full bg-current opacity-70"
-              />
-              <span v-else class="truncate">{{ item.label }}</span>
-            </RouterLink>
-          </div>
-        </section>
-      </nav>
-
-      <div class="border-t border-slate-200 p-3">
-        <button
-          type="button"
-          class="nix-button-secondary w-full justify-center"
-          :class="sidebarCollapsed ? 'px-2' : ''"
-          @click="logout"
-        >
-          {{ sidebarCollapsed ? '⏻' : 'Logout' }}
-        </button>
-      </div>
-    </aside>
-
-    <div
-      class="min-h-screen transition-all duration-300"
-      :class="sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-72'"
-    >
-      <header class="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div class="flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-          <div class="flex min-w-0 items-center gap-3">
-            <button
-              type="button"
-              class="nix-icon-button lg:hidden"
-              aria-label="Open menu"
-              @click="sidebarOpen = true"
-            >
-              ☰
-            </button>
-
-            <button
-              type="button"
-              class="nix-icon-button hidden lg:inline-flex"
-              aria-label="Toggle sidebar"
-              @click="sidebarCollapsed = !sidebarCollapsed"
-            >
-              ☰
-            </button>
-
-            <div class="min-w-0">
-              <h1 class="truncate text-lg font-black text-slate-950 sm:text-xl">
-                {{ routeTitle }}
-              </h1>
-              <p class="hidden truncate text-xs text-slate-500 sm:block">
-                {{ routeSubtitle }}
-              </p>
-            </div>
-          </div>
-
-          <div class="flex shrink-0 items-center gap-2">
-            <span class="hidden rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 sm:inline-flex">
-              UI Stable
-            </span>
-          </div>
+            ✕
+          </button>
         </div>
-      </header>
 
-      <main class="nix-page-shell">
-        <div class="nix-page-container">
+        <nav class="max-h-[calc(100vh-9rem)] space-y-6 overflow-y-auto pr-1">
+          <section v-for="group in menuGroups" :key="group.label" v-show="isVisibleGroup(group)">
+            <p class="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              {{ group.label }}
+            </p>
+
+            <div class="space-y-1">
+              <RouterLink
+                v-for="item in visibleItems(group)"
+                :key="item.to"
+                :to="item.to"
+                :class="linkClass(item)"
+              >
+                {{ item.label }}
+              </RouterLink>
+            </div>
+          </section>
+
+          <button
+            type="button"
+            class="w-full rounded-xl border border-slate-200 px-4 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            @click="logout"
+          >
+            Logout
+          </button>
+        </nav>
+      </aside>
+
+      <main class="min-w-0 flex-1 overflow-x-hidden lg:ml-0">
+        <div class="p-4 sm:p-6 lg:p-8">
           <RouterView />
         </div>
       </main>
