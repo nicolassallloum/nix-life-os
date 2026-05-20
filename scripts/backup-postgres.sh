@@ -1,15 +1,43 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-set -e
+PROJECT_DIR="/u01/nix-life-os"
+BACKUP_DIR="$PROJECT_DIR/backups/postgres"
+TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 
-BACKUP_DIR="/u01/nix-life-os/backups/postgres"
-DATE=$(date +"%Y-%m-%d_%H-%M-%S")
-CONTAINER_NAME="nixlifeos-postgres"
-DB_NAME="nixlifeos_db"
-DB_USER="nixlifeos_user"
+DB_CONTAINER="nixlifeos-postgres"
+DB_NAME="${POSTGRES_DB:-nixlifeos_db}"
+DB_USER="${POSTGRES_USER:-nixlifeos_user}"
+
+BACKUP_FILE="$BACKUP_DIR/${DB_NAME}_${TIMESTAMP}.dump"
 
 mkdir -p "$BACKUP_DIR"
 
-docker exec "$CONTAINER_NAME" pg_dump -U "$DB_USER" "$DB_NAME" > "$BACKUP_DIR/nixlifeos_db_$DATE.sql"
+echo "=================================================="
+echo "Nix Life OS PostgreSQL Backup"
+echo "=================================================="
+echo "Database  : $DB_NAME"
+echo "User      : $DB_USER"
+echo "Container : $DB_CONTAINER"
+echo "Output    : $BACKUP_FILE"
+echo "Started   : $(date)"
+echo "=================================================="
 
-echo "Backup completed: $BACKUP_DIR/nixlifeos_db_$DATE.sql"
+docker exec "$DB_CONTAINER" pg_dump \
+  -U "$DB_USER" \
+  -d "$DB_NAME" \
+  -F c \
+  -b \
+  -v \
+  -f "/tmp/${DB_NAME}_${TIMESTAMP}.dump"
+
+docker cp "$DB_CONTAINER:/tmp/${DB_NAME}_${TIMESTAMP}.dump" "$BACKUP_FILE"
+
+docker exec "$DB_CONTAINER" rm -f "/tmp/${DB_NAME}_${TIMESTAMP}.dump"
+
+echo "=================================================="
+echo "Backup completed successfully."
+echo "File: $BACKUP_FILE"
+echo "Size: $(du -h "$BACKUP_FILE" | awk '{print $1}')"
+echo "Finished: $(date)"
+echo "=================================================="
