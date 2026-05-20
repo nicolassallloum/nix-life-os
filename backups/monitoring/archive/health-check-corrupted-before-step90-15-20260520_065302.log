@@ -1,0 +1,419 @@
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 03:08:31 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 03:08:31 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 03:08:31 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 03:08:31 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+./scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 03:10:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 03:10:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 03:10:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 03:10:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 03:15:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 03:15:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 03:15:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 03:15:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 03:20:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 03:20:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 03:20:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 03:20:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 03:25:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 03:25:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 03:25:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 03:25:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 03:30:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 03:30:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 03:30:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 03:30:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 03:35:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 03:35:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 03:35:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 03:35:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 03:40:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 03:40:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 03:40:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 03:40:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 03:45:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 03:45:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 03:45:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 03:45:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 03:50:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 03:50:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 03:50:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 03:50:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 03:55:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 03:55:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 03:55:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 03:55:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 04:00:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 04:00:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 04:00:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 04:00:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 04:05:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 04:05:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 04:05:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 04:05:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 04:10:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 04:10:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 04:10:02 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 04:10:02 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 04:15:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 04:15:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 04:15:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 04:15:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 04:20:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 04:20:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 04:20:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 04:20:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 04:25:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 04:25:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 04:25:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 04:25:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 04:30:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 04:30:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 04:30:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 04:30:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 04:35:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 04:35:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 04:35:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 04:35:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 04:40:02 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 04:40:02 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 04:40:02 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 04:40:02 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 04:45:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 04:45:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 04:45:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 04:45:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 04:50:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 04:50:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 04:50:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 04:50:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 04:55:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 04:55:02 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 04:55:02 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 04:55:02 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 05:00:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 05:00:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 05:00:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 05:00:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 05:05:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 05:05:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 05:05:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 05:05:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 05:10:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 05:10:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 05:10:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 05:10:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 05:15:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 05:15:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 05:15:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 05:15:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 05:20:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 05:20:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 05:20:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 05:20:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 05:25:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 05:25:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 05:25:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 05:25:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 05:30:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 05:30:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 05:30:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 05:30:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 05:35:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 05:35:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 05:35:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 05:35:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 05:40:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 05:40:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 05:40:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 05:40:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 05:45:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 05:45:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 05:45:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 05:45:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 05:50:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 05:50:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 05:50:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 05:50:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 05:55:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 05:55:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 05:55:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 05:55:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 06:00:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 06:00:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 06:00:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 06:00:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 06:05:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 06:05:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 06:05:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 06:05:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 06:45:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 06:45:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 06:45:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 06:45:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 06:50:01 EEST
+Base URL: http://127.0.0.1
+==================================================
+[2026-05-20 06:50:01 EEST] PASS - Frontend - HTTP 200
+[2026-05-20 06:50:01 EEST] PASS - Frontend Health - HTTP 200
+[2026-05-20 06:50:01 EEST] PASS - Nginx Health - HTTP 200
+bash: scripts/health-check.shh========================alhost:5000/health: No such file or directory
+/u01/nix-life-os/scripts/health-check.sh: line 43: nix@DESKTOP-0VMMAOM:/u01/nix-life-os$: No such file or directory
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-20 06:51:00 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-20 06:51:00 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-20 06:51:00 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-20 06:51:00 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED         STATUS                   PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       7 minutes ago   Up 6 minutes (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         7 minutes ago   Up 6 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   7 minutes ago   Up 6 minutes             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        4 hours ago     Up 2 hours               80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           7 minutes ago   Up 6 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        7 minutes ago   Up 7 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-20 06:51:01 EEST
+==================================================
