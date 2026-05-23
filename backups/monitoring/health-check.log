@@ -3188,3 +3188,728 @@ AI Engine Internal Health
 Nix Life OS Health Check: PASS
 Finished: 2026-05-23 13:35:03 EEST
 ==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 13:40:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 13:40:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 13:40:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 13:40:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 2 days (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 2 days             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days             80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 2 days             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 3 days (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 13:40:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 13:45:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 13:45:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 13:45:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 13:45:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 2 days (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 2 days             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days             80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 46 seconds         0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 3 days (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 13:45:03 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 13:50:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 13:50:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 13:50:01 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 13:50:01 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 2 days (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 2 days             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days             80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 5 minutes          0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 3 days (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 13:50:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 14:30:28 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 14:30:28 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 14:30:28 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 14:30:29 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 2 days (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 2 days             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days             80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 46 minutes         0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 3 days (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 14:30:29 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 14:35:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 14:35:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 14:35:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 14:35:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 2 days (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 2 days             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days             80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 50 minutes         0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 3 days (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 14:35:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 14:40:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 14:40:02 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 14:40:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 14:40:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 2 days (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 2 days             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days             80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 4 minutes          0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 3 days (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 14:40:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 14:45:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 14:45:02 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 14:45:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 14:45:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                             PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)                5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 20 seconds (health: starting)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 20 seconds                      80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                          80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 9 seconds                       0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 3 days (healthy)                5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 14:45:03 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 14:50:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 14:50:02 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 14:50:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 14:50:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                            PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)               5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 5 minutes (healthy)            9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 5 minutes                      80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                         80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 5 minutes                      0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 2 seconds (health: starting)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 14:50:03 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 14:55:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 14:55:02 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 14:55:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 14:55:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)       5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 10 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 10 minutes             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                 80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 10 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 5 minutes (healthy)    5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 14:55:03 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 15:00:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 15:00:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 15:00:01 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 15:00:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)       5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 15 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 15 minutes             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                 80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 15 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 10 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 15:00:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 15:05:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 15:05:02 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 15:05:04 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 15:05:04 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)       5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 20 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 20 minutes             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                 80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 20 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 15 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 15:05:04 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 15:10:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 15:10:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 15:10:01 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 15:10:01 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)       5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 25 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 25 minutes             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                 80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 25 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 20 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 15:10:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 15:15:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 15:15:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 15:15:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 15:15:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)       5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 30 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 30 minutes             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                 80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 30 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 25 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 15:15:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 15:20:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 15:20:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 15:20:01 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 15:20:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)       5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 35 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 35 minutes             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                 80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 35 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 30 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 15:20:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 15:25:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 15:25:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 15:25:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 15:25:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)       5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 45 seconds (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 45 seconds             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                 80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 45 seconds             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 35 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 15:25:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 15:30:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 15:30:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 15:30:01 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 15:30:01 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)       5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 5 minutes (healthy)    9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 5 minutes              80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                 80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 5 minutes              0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 40 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 15:30:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 15:35:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 15:35:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 15:35:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 15:35:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)       5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 10 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 10 minutes             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                 80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 10 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 45 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 15:35:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 15:40:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 15:40:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 15:40:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 15:40:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)       5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 15 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 15 minutes             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                 80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 15 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 50 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 15:40:03 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 15:45:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 15:45:02 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 15:45:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 15:45:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)       5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 20 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 20 minutes             80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                 80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 20 minutes             0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up 55 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 15:45:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 15:50:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 15:50:02 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 15:50:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 15:50:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                       PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)          5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 25 minutes (healthy)      9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 25 minutes                80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                    80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 25 minutes                0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up About an hour (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 15:50:03 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 15:55:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 15:55:02 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 15:55:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 15:55:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                       PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)          5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 30 minutes (healthy)      9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 30 minutes                80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                    80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 30 minutes                0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up About an hour (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 15:55:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 16:00:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 16:00:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 16:00:01 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 16:00:01 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                       PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)          5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 35 minutes (healthy)      9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 35 minutes                80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                    80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 35 minutes                0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up About an hour (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 16:00:01 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 16:05:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 16:05:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 16:05:01 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 16:05:01 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                       PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)          5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 40 minutes (healthy)      9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 40 minutes                80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                    80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 40 minutes                0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up About an hour (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 16:05:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 16:10:02 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 16:10:02 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 16:10:02 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 16:10:02 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                       PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)          5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 45 minutes (healthy)      9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 45 minutes                80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                    80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 45 minutes                0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up About an hour (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 16:10:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-23 16:15:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-23 16:15:01 EEST] PASS - Frontend HTTPS - HTTP 200
+[2026-05-23 16:15:01 EEST] PASS - Backend API HTTPS - HTTP 200
+[2026-05-23 16:15:01 EEST] PASS - AI Public Block HTTPS - HTTP 404
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED      STATUS                       PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       3 days ago   Up 3 days (healthy)          5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         3 days ago   Up 50 minutes (healthy)      9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 days ago   Up 50 minutes                80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        3 days ago   Up 2 days                    80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           3 days ago   Up 50 minutes                0.0.0.0:80->80/tcp, [::]:80->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        3 days ago   Up About an hour (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: PASS
+Finished: 2026-05-23 16:15:02 EEST
+==================================================
