@@ -5,7 +5,7 @@ import { updateServiceWorker } from './registerServiceWorker'
 import OfflineBanner from '@/components/offline/OfflineBanner.vue'
 import { syncEngineService } from '@/services/offline/sync-engine.service'
 import { useOfflineStore } from '@/stores/offline.store'
-
+import { offlineDevtoolsService } from '@/services/offline/offline-devtools.service'
 const updateAvailable = ref(false)
 const swRegistration = ref(null)
 
@@ -13,7 +13,9 @@ const offlineStore = useOfflineStore()
 
 onMounted(async () => {
   await offlineStore.initialize()
-
+  if (import.meta.env.DEV) {
+    window.NixOfflineDevtools = offlineDevtoolsService
+  }
   syncEngineService.initializeAutoSync()
 
   if (navigator.onLine) {
