@@ -3,11 +3,29 @@ import { onMounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
 import { updateServiceWorker } from './registerServiceWorker'
 import OfflineBanner from '@/components/offline/OfflineBanner.vue'
+import { syncEngineService } from '@/services/offline/sync-engine.service'
+import { useOfflineStore } from '@/stores/offline.store'
 
 const updateAvailable = ref(false)
 const swRegistration = ref(null)
 
-onMounted(() => {
+const offlineStore = useOfflineStore()
+
+onMounted(async () => {
+  await offlineStore.initialize()
+
+  syncEngineService.initializeAutoSync()
+
+  if (navigator.onLine) {
+    await syncEngineService.syncPending()
+    await offlineStore.refreshSyncCounts()
+  }
+
+  window.addEventListener('online', async () => {
+    await syncEngineService.syncPending()
+    await offlineStore.refreshSyncCounts()
+  })
+
   window.addEventListener('pwa-update-available', (event) => {
     swRegistration.value = event.detail
     updateAvailable.value = true

@@ -89,6 +89,15 @@ const routes = [
     meta: { requiresAuth: true, title: 'Unified Dashboard' },
   },
   {
+    path: '/offline/sync-center',
+    name: 'OfflineSyncCenter',
+    component: () => import('@/views/offline/SyncCenterView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Offline Sync Center',
+    },
+  },
+  {
     path: '/life-balance',
     name: 'LifeBalance',
     component: LifeBalanceView,

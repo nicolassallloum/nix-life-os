@@ -248,6 +248,16 @@ const routes = [
     component: SleepTrackingView,
     meta: { requiresAuth: true, title: 'Sleep Tracking' },
   },
+
+  {
+    path: '/offline/sync-center',
+    name: 'OfflineSyncCenter',
+    component: () => import('@/views/offline/SyncCenterView.vue'),
+    meta: {
+      requiresAuth: true,
+      title: 'Offline Sync Center',
+    },
+  },
   {
     path: '/health/medications',
     name: 'HealthMedications',
