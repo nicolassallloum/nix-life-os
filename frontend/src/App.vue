@@ -1,27 +1,31 @@
 <script setup>
-import { onMounted, ref } from 'vue';
-import { updateServiceWorker } from './registerServiceWorker';
+import { onMounted, ref } from 'vue'
+import { RouterView } from 'vue-router'
+import { updateServiceWorker } from './registerServiceWorker'
+import OfflineBanner from '@/components/offline/OfflineBanner.vue'
 
-const updateAvailable = ref(false);
-const swRegistration = ref(null);
+const updateAvailable = ref(false)
+const swRegistration = ref(null)
 
 onMounted(() => {
-  window.addEventListener('pwa-update-available', event => {
-    swRegistration.value = event.detail;
-    updateAvailable.value = true;
-  });
+  window.addEventListener('pwa-update-available', (event) => {
+    swRegistration.value = event.detail
+    updateAvailable.value = true
+  })
 
   navigator.serviceWorker?.addEventListener('controllerchange', () => {
-    window.location.reload();
-  });
-});
+    window.location.reload()
+  })
+})
 
 function refreshApp() {
-  updateServiceWorker(swRegistration.value);
+  updateServiceWorker(swRegistration.value)
 }
 </script>
 
 <template>
+  <OfflineBanner />
+
   <RouterView />
 
   <div
@@ -72,5 +76,19 @@ function refreshApp() {
   color: white;
   cursor: pointer;
   background: linear-gradient(135deg, #22d3ee, #8b5cf6);
+}
+
+@media (max-width: 640px) {
+  .pwa-update-banner {
+    right: 16px;
+    bottom: 16px;
+    width: calc(100vw - 32px);
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pwa-update-banner button {
+    width: 100%;
+  }
 }
 </style>
