@@ -7847,3 +7847,259 @@ AI Engine Internal Health
 Nix Life OS Health Check: FAIL
 Finished: 2026-05-24 20:30:02 EEST
 ==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-24 20:35:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-24 20:35:02 EEST] FAIL - Frontend HTTPS - Expected 200 but got 502
+[2026-05-24 20:35:02 EEST] FAIL - Backend API HTTPS - Expected 200 but got 502
+[2026-05-24 20:35:02 EEST] FAIL - AI Public Block HTTPS - Expected 404 but got 502
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED          STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       26 hours ago     Up 31 minutes (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         26 hours ago     Up 31 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   2 hours ago      Up 31 minutes             127.0.0.1:8000->80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        23 minutes ago   Up 23 minutes             80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        26 hours ago     Up 31 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: FAIL
+Finished: 2026-05-24 20:35:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-24 20:40:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-24 20:40:01 EEST] FAIL - Frontend HTTPS - Expected 200 but got 502
+[2026-05-24 20:40:02 EEST] FAIL - Backend API HTTPS - Expected 200 but got 502
+[2026-05-24 20:40:02 EEST] FAIL - AI Public Block HTTPS - Expected 404 but got 502
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED          STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       26 hours ago     Up 36 minutes (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         26 hours ago     Up 36 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 hours ago      Up 36 minutes             127.0.0.1:8000->80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        28 minutes ago   Up 28 minutes             80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        26 hours ago     Up 36 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: FAIL
+Finished: 2026-05-24 20:40:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-24 20:45:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-24 20:45:01 EEST] FAIL - Frontend HTTPS - Expected 200 but got 502
+[2026-05-24 20:45:01 EEST] FAIL - Backend API HTTPS - Expected 200 but got 502
+[2026-05-24 20:45:01 EEST] FAIL - AI Public Block HTTPS - Expected 404 but got 502
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED          STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       26 hours ago     Up 41 minutes (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         26 hours ago     Up 41 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 hours ago      Up 41 minutes             127.0.0.1:8000->80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        33 minutes ago   Up 33 minutes             80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        26 hours ago     Up 41 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: FAIL
+Finished: 2026-05-24 20:45:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-24 20:50:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-24 20:50:02 EEST] FAIL - Frontend HTTPS - Expected 200 but got 502
+[2026-05-24 20:50:02 EEST] FAIL - Backend API HTTPS - Expected 200 but got 502
+[2026-05-24 20:50:02 EEST] FAIL - AI Public Block HTTPS - Expected 404 but got 502
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED          STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       26 hours ago     Up 46 minutes (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         26 hours ago     Up 46 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 hours ago      Up 46 minutes             127.0.0.1:8000->80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        38 minutes ago   Up 38 minutes             80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        26 hours ago     Up 46 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: FAIL
+Finished: 2026-05-24 20:50:03 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-24 20:55:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-24 20:55:02 EEST] FAIL - Frontend HTTPS - Expected 200 but got 502
+[2026-05-24 20:55:02 EEST] FAIL - Backend API HTTPS - Expected 200 but got 502
+[2026-05-24 20:55:02 EEST] FAIL - AI Public Block HTTPS - Expected 404 but got 502
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED          STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       26 hours ago     Up 51 minutes (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         26 hours ago     Up 51 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 hours ago      Up 51 minutes             127.0.0.1:8000->80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        10 seconds ago   Up 9 seconds              80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        26 hours ago     Up 51 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: FAIL
+Finished: 2026-05-24 20:55:03 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-24 21:00:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-24 21:00:01 EEST] FAIL - Frontend HTTPS - Expected 200 but got 502
+[2026-05-24 21:00:02 EEST] FAIL - Backend API HTTPS - Expected 200 but got 502
+[2026-05-24 21:00:02 EEST] FAIL - AI Public Block HTTPS - Expected 404 but got 502
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED          STATUS                    PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       26 hours ago     Up 56 minutes (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         26 hours ago     Up 56 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 hours ago      Up 56 minutes             127.0.0.1:8000->80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        5 minutes ago    Up 5 minutes              80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           39 minutes ago   Up About a minute         127.0.0.1:8088->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        26 hours ago     Up 56 minutes (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: FAIL
+Finished: 2026-05-24 21:00:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-24 21:05:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-24 21:05:02 EEST] FAIL - Frontend HTTPS - Expected 200 but got 502
+[2026-05-24 21:05:02 EEST] FAIL - Backend API HTTPS - Expected 200 but got 502
+[2026-05-24 21:05:02 EEST] FAIL - AI Public Block HTTPS - Expected 404 but got 502
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED          STATUS                       PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       26 hours ago     Up About an hour (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         26 hours ago     Up About an hour (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 hours ago      Up About an hour             127.0.0.1:8000->80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        10 minutes ago   Up 10 minutes                80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           44 minutes ago   Up 6 minutes                 127.0.0.1:8088->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        26 hours ago     Up About an hour (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: FAIL
+Finished: 2026-05-24 21:05:02 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-24 21:10:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-24 21:10:02 EEST] FAIL - Frontend HTTPS - Expected 200 but got 502
+[2026-05-24 21:10:02 EEST] FAIL - Backend API HTTPS - Expected 200 but got 502
+[2026-05-24 21:10:02 EEST] FAIL - AI Public Block HTTPS - Expected 404 but got 502
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED          STATUS                       PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       26 hours ago     Up About an hour (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         26 hours ago     Up About an hour (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 hours ago      Up About an hour             127.0.0.1:8000->80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        15 minutes ago   Up 15 minutes                80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           49 minutes ago   Up 11 minutes                127.0.0.1:8088->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        26 hours ago     Up About an hour (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: FAIL
+Finished: 2026-05-24 21:10:03 EEST
+==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-05-24 21:15:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-05-24 21:15:02 EEST] FAIL - Frontend HTTPS - Expected 200 but got 502
+[2026-05-24 21:15:03 EEST] FAIL - Backend API HTTPS - Expected 200 but got 502
+[2026-05-24 21:15:03 EEST] FAIL - AI Public Block HTTPS - Expected 404 but got 502
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED          STATUS                       PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       26 hours ago     Up About an hour (healthy)   5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         26 hours ago     Up About an hour (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   3 hours ago      Up About an hour             127.0.0.1:8000->80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        20 minutes ago   Up 20 minutes                80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           54 minutes ago   Up 16 minutes                127.0.0.1:8088->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        26 hours ago     Up About an hour (healthy)   5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: FAIL
+Finished: 2026-05-24 21:15:04 EEST
+==================================================

@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-
+// import { registerServiceWorker } from './registerServiceWorker';
 import './assets/main.css'
 // import { registerSW } from 'virtual:pwa-register'
 
@@ -10,7 +10,7 @@ const app = createApp(App)
 app.use(router)
 
 app.mount('#app')
-
+// registerServiceWorker();
 // registerSW({
 //   immediate: true,
 
