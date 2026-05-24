@@ -1,0 +1,160 @@
+<template>
+  <nav class="flex min-h-full flex-col px-3 py-4">
+    <!-- Brand for Desktop -->
+    <div class="mb-6 hidden px-3 lg:block">
+      <div class="flex items-center gap-3">
+        <div
+          class="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-500 text-lg font-black text-slate-950"
+        >
+          N
+        </div>
+
+        <div class="min-w-0">
+          <h1 class="truncate text-base font-bold text-white">
+            Nix Life OS
+          </h1>
+          <p class="truncate text-xs text-slate-400">
+            Personal Operating System
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Menu -->
+    <div class="space-y-1">
+      <RouterLink
+        v-for="item in mainMenu"
+        :key="item.path"
+        :to="item.path"
+        class="group flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
+        active-class="border border-cyan-500/30 bg-cyan-500/10 text-cyan-300"
+        @click="$emit('navigate')"
+      >
+        <span class="shrink-0 text-lg leading-none">
+          {{ item.icon }}
+        </span>
+
+        <span class="min-w-0 flex-1 truncate">
+          {{ item.label }}
+        </span>
+      </RouterLink>
+    </div>
+
+    <!-- Life Modules -->
+    <div class="mt-6">
+      <p class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+        Life Modules
+      </p>
+
+      <div class="space-y-1">
+        <RouterLink
+          v-for="item in lifeMenu"
+          :key="item.path"
+          :to="item.path"
+          class="group flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
+          active-class="border border-cyan-500/30 bg-cyan-500/10 text-cyan-300"
+          @click="$emit('navigate')"
+        >
+          <span class="shrink-0 text-lg leading-none">
+            {{ item.icon }}
+          </span>
+
+          <span class="min-w-0 flex-1 truncate">
+            {{ item.label }}
+          </span>
+        </RouterLink>
+      </div>
+    </div>
+
+    <!-- System -->
+    <div class="mt-6">
+      <p class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+        System
+      </p>
+
+      <div class="space-y-1">
+        <RouterLink
+          v-for="item in systemMenu"
+          :key="item.path"
+          :to="item.path"
+          class="group flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
+          active-class="border border-cyan-500/30 bg-cyan-500/10 text-cyan-300"
+          @click="$emit('navigate')"
+        >
+          <span class="shrink-0 text-lg leading-none">
+            {{ item.icon }}
+          </span>
+
+          <span class="min-w-0 flex-1 truncate">
+            {{ item.label }}
+          </span>
+        </RouterLink>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-auto pt-6">
+      <div class="rounded-2xl border border-slate-800 bg-slate-950/70 p-3">
+        <p class="text-xs font-semibold text-white">
+          Mobile Ready
+        </p>
+        <p class="mt-1 text-xs leading-5 text-slate-400">
+          Optimized for dashboard, finance, health, projects, and productivity.
+        </p>
+      </div>
+    </div>
+  </nav>
+</template>
+
+<script setup>
+defineEmits(['navigate'])
+
+const mainMenu = [
+  {
+    label: 'Dashboard',
+    path: '/dashboard',
+    icon: '🏠'
+  },
+  {
+    label: 'Life Balance',
+    path: '/life-balance',
+    icon: '⚖️'
+  }
+]
+
+const lifeMenu = [
+  {
+    label: 'Finance',
+    path: '/finance',
+    icon: '💰'
+  },
+  {
+    label: 'Health',
+    path: '/health',
+    icon: '❤️'
+  },
+  {
+    label: 'Projects',
+    path: '/projects',
+    icon: '📁'
+  },
+  {
+    label: 'Productivity',
+    path: '/productivity',
+    icon: '✅'
+  }
+]
+
+const systemMenu = [
+  {
+    label: 'Settings',
+    path: '/settings',
+    icon: '⚙️'
+  },
+  {
+    label: 'Profile',
+    path: '/profile',
+    icon: '👤'
+  }
+]
+</script>

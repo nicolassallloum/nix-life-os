@@ -1,124 +1,117 @@
-<script setup>
-import { onMounted, ref } from 'vue'
-import { RouterView } from 'vue-router'
-import { updateServiceWorker } from './registerServiceWorker'
-import OfflineBanner from '@/components/offline/OfflineBanner.vue'
-import { syncEngineService } from '@/services/offline/sync-engine.service'
-import { useOfflineStore } from '@/stores/offline.store'
-import { offlineDevtoolsService } from '@/services/offline/offline-devtools.service'
-
-const updateAvailable = ref(false)
-const swRegistration = ref(null)
-
-const offlineStore = useOfflineStore()
-
-if (import.meta.env.DEV && typeof window !== 'undefined') {
-  window.NixOfflineDevtools = offlineDevtoolsService
-}
-
-onMounted(async () => {
-  await offlineStore.initialize()
-
-  /**
-   * In development, do not auto-sync.
-   * Reason: localhost:5173 is Vite, and API routes may return 404
-   * unless backend proxy is configured.
-   */
-  if (!import.meta.env.DEV) {
-    syncEngineService.initializeAutoSync()
-
-    if (navigator.onLine) {
-      await syncEngineService.syncPending()
-      await offlineStore.refreshSyncCounts()
-    }
-
-    window.addEventListener('online', async () => {
-      await syncEngineService.syncPending()
-      await offlineStore.refreshSyncCounts()
-    })
-  }
-
-  window.addEventListener('pwa-update-available', (event) => {
-    swRegistration.value = event.detail
-    updateAvailable.value = true
-  })
-
-  navigator.serviceWorker?.addEventListener('controllerchange', () => {
-    window.location.reload()
-  })
-})
-
-function refreshApp() {
-  updateServiceWorker(swRegistration.value)
-}
-</script>
-
 <template>
-  <OfflineBanner />
+  <div class="min-h-screen w-full overflow-x-hidden bg-slate-950 text-white">
+    <!-- Mobile Header -->
+    <MobileHeader @open-sidebar="sidebarOpen = true" />
 
-  <RouterView />
+    <div class="flex min-h-screen w-full">
+      <!-- Desktop Sidebar -->
+      <aside
+        class="hidden w-72 shrink-0 border-r border-slate-800 bg-slate-900/95 lg:block"
+      >
+        <div class="sticky top-0 h-screen overflow-y-auto">
+          <Sidebar />
+        </div>
+      </aside>
 
-  <div
-    v-if="updateAvailable"
-    class="pwa-update-banner"
-  >
-    <div>
-      <strong>New version available</strong>
-      <p>Refresh to update Nix Life OS.</p>
+      <!-- Mobile Sidebar Drawer -->
+      <Transition name="fade">
+        <div
+          v-if="sidebarOpen"
+          class="fixed inset-0 z-50 lg:hidden"
+        >
+          <!-- Overlay -->
+          <div
+            class="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            @click="closeSidebar"
+          ></div>
+
+          <!-- Drawer -->
+          <Transition name="slide">
+            <aside
+              class="relative z-50 h-full w-72 max-w-[85vw] overflow-y-auto border-r border-slate-800 bg-slate-900 shadow-2xl"
+            >
+              <div
+                class="sticky top-0 z-10 flex items-center justify-between border-b border-slate-800 bg-slate-900 px-4 py-3"
+              >
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-bold text-white">
+                    Nix Life OS
+                  </p>
+                  <p class="truncate text-xs text-slate-400">
+                    Mobile Menu
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-700 text-slate-200 hover:bg-slate-800"
+                  aria-label="Close navigation menu"
+                  @click="closeSidebar"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <Sidebar @navigate="closeSidebar" />
+            </aside>
+          </Transition>
+        </div>
+      </Transition>
+
+      <!-- Main Content -->
+      <main class="min-w-0 flex-1 pb-20 lg:pb-0">
+        <div class="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+          <RouterView />
+        </div>
+      </main>
     </div>
 
-    <button @click="refreshApp">
-      Refresh
-    </button>
+    <!-- Mobile Bottom Navigation -->
+    <MobileBottomNav />
   </div>
 </template>
 
+<script setup>
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
+
+import Sidebar from '@/components/layout/Sidebar.vue'
+import MobileHeader from '@/components/layout/MobileHeader.vue'
+import MobileBottomNav from '@/components/layout/MobileBottomNav.vue'
+
+const sidebarOpen = ref(false)
+const route = useRoute()
+
+const closeSidebar = () => {
+  sidebarOpen.value = false
+}
+
+watch(
+  () => route.fullPath,
+  () => {
+    sidebarOpen.value = false
+  }
+)
+</script>
+
 <style scoped>
-.pwa-update-banner {
-  position: fixed;
-  right: 24px;
-  bottom: 24px;
-  z-index: 9999;
-  width: min(420px, calc(100vw - 48px));
-  padding: 18px 20px;
-  border-radius: 20px;
-  background: rgba(15, 23, 42, 0.96);
-  border: 1px solid rgba(34, 211, 238, 0.28);
-  color: #f8fafc;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
 }
 
-.pwa-update-banner p {
-  margin: 4px 0 0;
-  color: #94a3b8;
-  font-size: 14px;
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
-.pwa-update-banner button {
-  border: 0;
-  border-radius: 999px;
-  padding: 10px 16px;
-  font-weight: 700;
-  color: white;
-  cursor: pointer;
-  background: linear-gradient(135deg, #22d3ee, #8b5cf6);
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.25s ease;
 }
 
-@media (max-width: 640px) {
-  .pwa-update-banner {
-    right: 16px;
-    bottom: 16px;
-    width: calc(100vw - 32px);
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .pwa-update-banner button {
-    width: 100%;
-  }
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(-100%);
 }
 </style>
