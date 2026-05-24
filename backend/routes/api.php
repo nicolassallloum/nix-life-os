@@ -20,13 +20,16 @@ use App\Http\Controllers\Api\V1\ProductivityHabitController;
 use App\Http\Controllers\Api\V1\ProductivityGoalController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\V1\AIRecommendationController;
-use App\Http\Controllers\Api\V1\NotificationController;
+use App\Http\Controllers\Api\V1\NotificationController as LegacyNotificationController;
 use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\LifeBalanceAiRecommendationController;
 use App\Http\Controllers\Api\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceAccountController;
-use App\Http\Controllers\Api\V1\PushSubscriptionController;
-
+use App\Http\Controllers\Api\V1\PushSubscriptionController as LegacyPushSubscriptionController;
+use App\Http\Controllers\Api\V1\Notifications\NotificationController as PushNotificationController;
+use App\Http\Controllers\Api\V1\Notifications\PushSubscriptionController as NotificationPushSubscriptionController;
+use App\Http\Controllers\Api\V1\Notifications\NotificationPreferenceController as PushNotificationPreferenceController;
+use App\Http\Controllers\Api\V1\Notifications\NotificationTestController as PushNotificationTestController;
 use App\Http\Controllers\Api\FinanceTransactionController;
 use App\Http\Controllers\Api\HealthNutritionLogController;
 use App\Http\Controllers\Api\V1\HealthAlertController;
@@ -37,6 +40,9 @@ use App\Http\Controllers\Api\V1\ProductivityAIInsightController;
 use App\Http\Controllers\Api\V1\Dashboard\DashboardController;
 use App\Http\Controllers\Api\V1\Finance\FinanceBudgetController;
 use App\Http\Controllers\Api\V1\Finance\FinanceAIInsightController;
+use App\Http\Controllers\Api\V1\Finance\BudgetAlertRuleController;
+use App\Http\Controllers\Api\V1\Health\HydrationReminderController;
+use App\Http\Controllers\Api\V1\Productivity\TaskReminderController;
 
 use App\Http\Controllers\Api\V1\Health\HealthDashboardController;
 use App\Http\Controllers\Api\V1\Health\HealthAIInsightController;
@@ -114,7 +120,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:20,1');
         Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
-        Route::post('/push/subscriptions', [PushSubscriptionController::class, 'store']);
+        Route::post('/push/subscriptions', [LegacyPushSubscriptionController::class, 'store']);
 
         Route::middleware(['auth:sanctum', 'api.performance'])->group(function () {
             Route::get('/me', [AuthController::class, 'me']);
@@ -272,6 +278,13 @@ Route::prefix('v1')->group(function () {
       
             Route::get('/dashboard', [ProductivityDashboardController::class, 'summary']);
 
+            /*
+            |--------------------------------------------------------------------------
+            | Task Reminders
+            |--------------------------------------------------------------------------
+            */
+            Route::apiResource('task-reminders', TaskReminderController::class);
+
             // STEP 74: productivity aliases used by the frontend and global auth tests.
             Route::get('/tasks', [TaskController::class, 'index']);
             Route::post('/tasks', [TaskController::class, 'store']);
@@ -384,6 +397,13 @@ Route::prefix('v1')->group(function () {
             Route::put('/budgets/{id}', [FinanceBudgetController::class, 'update']);
             Route::patch('/budgets/{id}', [FinanceBudgetController::class, 'update']);
             Route::delete('/budgets/{id}', [FinanceBudgetController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Budget Alert Rules
+            |--------------------------------------------------------------------------
+            */
+            Route::apiResource('budget-alert-rules', BudgetAlertRuleController::class);
         });
 
         /*
@@ -471,6 +491,13 @@ Route::prefix('v1')->group(function () {
             Route::put('/medication-reminders/{id}', [MedicationReminderController::class, 'update']);
             Route::patch('/medication-reminders/{id}', [MedicationReminderController::class, 'update']);
             Route::delete('/medication-reminders/{id}', [MedicationReminderController::class, 'destroy']);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Hydration Reminders
+            |--------------------------------------------------------------------------
+            */
+            Route::apiResource('hydration-reminders', HydrationReminderController::class);
 
             /*
             |--------------------------------------------------------------------------
@@ -645,44 +672,35 @@ Route::prefix('v1')->group(function () {
         |--------------------------------------------------------------------------
         | Notifications Module
         |--------------------------------------------------------------------------
+        | STEP 104 PWA push notification routes.
+        | Keep static routes before /{notification} to avoid route conflicts.
         */
 
         Route::prefix('notifications')->middleware('role:user|admin')->group(function () {
-            Route::get('/', function (Request $request) {
-                $user = $request->user();
+            Route::get('/', [PushNotificationController::class, 'index']);
+            Route::patch('/read-all', [PushNotificationController::class, 'markAllAsRead']);
 
-                if (! Schema::hasTable('life_notifications')) {
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Notifications table is not available yet.',
-                        'data' => [],
-                    ]);
-                }
+            Route::get('/unread-count', [LegacyNotificationController::class, 'unreadCount']);
 
-                $notifications = DB::table('life_notifications')
-                    ->where('user_id', $user->id)
-                    ->orderByDesc('created_at')
-                    ->limit(50)
-                    ->get();
+            Route::get('/preferences', [PushNotificationPreferenceController::class, 'index']);
+            Route::put('/preferences', [PushNotificationPreferenceController::class, 'update']);
+            Route::patch('/preferences', [PushNotificationPreferenceController::class, 'update']);
 
-                return response()->json([
-                    'success' => true,
-                    'data' => $notifications,
-                ]);
-            });
+            Route::post('/push-subscriptions', [NotificationPushSubscriptionController::class, 'store']);
+            Route::delete('/push-subscriptions', [NotificationPushSubscriptionController::class, 'destroy']);
 
-            Route::patch('/read-all', function (Request $request) {
-                if (! Schema::hasTable('life_notifications')) {
-                    return response()->json(['success' => true, 'message' => 'No notifications table available.']);
-                }
+            Route::post('/test', [PushNotificationTestController::class, 'sendTest']);
 
-                DB::table('life_notifications')
-                    ->where('user_id', $request->user()->id)
-                    ->update(['read_at' => now(), 'updated_at' => now()]);
-
-                return response()->json(['success' => true, 'message' => 'Notifications marked as read.']);
-            });
+            Route::get('/{notification}', [PushNotificationController::class, 'show']);
+            Route::patch('/{notification}/read', [PushNotificationController::class, 'markAsRead']);
+            Route::delete('/{notification}', [PushNotificationController::class, 'destroy']);
         });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Legacy Notification Settings Alias
+        |--------------------------------------------------------------------------
+        */
 
         Route::prefix('notification-settings')->middleware('role:user|admin')->group(function () {
             Route::get('/', function (Request $request) {
@@ -704,13 +722,9 @@ Route::prefix('v1')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | STEP 81 E2E Stabilization: Notification Aliases + Reports
+        | Reports Module
         |--------------------------------------------------------------------------
         */
-        Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->middleware('role:user|admin');
-        Route::get('/notifications/{id}', [NotificationController::class, 'show'])->middleware('role:user|admin');
-        Route::patch('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->middleware('role:user|admin');
-        Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->middleware('role:user|admin');
 
         Route::prefix('reports')->middleware('role:user|admin')->group(function () {
             Route::get('/', [ReportController::class, 'index']);

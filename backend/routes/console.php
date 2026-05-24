@@ -1,7 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Schedule;
-
+use App\Jobs\CheckMedicationRemindersJob;
+use App\Jobs\CheckHydrationRemindersJob;
+use App\Jobs\CheckTaskRemindersJob;
+use App\Jobs\CheckBudgetAlertsJob;
+use App\Jobs\CheckHealthWarningsJob;
 Schedule::command('health:generate-alerts')->hourly();
 Schedule::command('ai:daily-insights')
     ->dailyAt('23:55');
@@ -35,3 +39,8 @@ Schedule::command('medications:send-reminders')
     ->everyMinute()
     ->withoutOverlapping();
 
+Schedule::job(new CheckMedicationRemindersJob)->everyMinute();
+Schedule::job(new CheckHydrationRemindersJob)->everyFiveMinutes();
+Schedule::job(new CheckTaskRemindersJob)->everyFiveMinutes();
+Schedule::job(new CheckBudgetAlertsJob)->everyTenMinutes();
+Schedule::job(new CheckHealthWarningsJob)->hourly();

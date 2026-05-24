@@ -301,3 +301,53 @@ async function clearAllCaches() {
       .map(cacheName => caches.delete(cacheName))
   );
 }
+self.addEventListener('push', (event) => {
+  if (!event.data) {
+    return
+  }
+
+  const data = event.data.json()
+
+  const title = data.title || 'Nix Life OS'
+  const options = {
+    body: data.body || '',
+    icon: data.icon || '/icons/icon-192x192.png',
+    badge: data.badge || '/icons/badge-72x72.png',
+    data: {
+      url: data.action_url || '/',
+      notification_id: data.notification_id || null,
+      payload: data.payload || {},
+    },
+    vibrate: [100, 50, 100],
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(title, options)
+  )
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+
+  const targetUrl = event.notification.data?.url || '/'
+
+  event.waitUntil(
+    clients.matchAll({
+      type: 'window',
+      includeUncontrolled: true,
+    }).then((clientList) => {
+      for (const client of clientList) {
+        if ('focus' in client) {
+          client.navigate(targetUrl)
+          return client.focus()
+        }
+      }
+
+      if (clients.openWindow) {
+        return clients.openWindow(targetUrl)
+      }
+
+      return null
+    })
+  )
+})
