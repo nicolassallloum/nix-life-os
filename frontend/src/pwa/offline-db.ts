@@ -49,4 +49,4 @@ export async function addToSyncQueue(entityType: string, operationType: string, 
     retryCount: 0,
     createdAt: new Date().toISOString()
   })
-}.env.production
+}

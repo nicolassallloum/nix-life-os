@@ -191,23 +191,17 @@ self.addEventListener('push', event => {
     }
   }
 
-  event.waitUntil(
+    event.waitUntil(
     self.registration.showNotification(payload.title, {
-      body: payload.body,
-      icon: payload.icon,
-      badge: payload.badge,
-      data: {
+        body: payload.body,
+        icon: payload.icon,
+        badge: payload.badge,
+        data: {
         url: payload.url
-      },
-      vibrate: [100, 50, 100],
-      actions: [
-        {
-          action: 'open',
-          title: 'Open Nix Life OS'
-        }
-      ]
+        },
+        
     })
-  )
+    )
 })
 
 /**

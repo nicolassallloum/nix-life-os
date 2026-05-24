@@ -18,4 +18,4 @@ export async function clearPwaDataOnLogout() {
   }
 
   localStorage.removeItem('auth_token')
-}main.ts
+}
