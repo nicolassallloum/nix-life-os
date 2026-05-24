@@ -1,13 +1,14 @@
-<script setup>
-import { computed } from 'vue'
-import { RouterView, useRoute } from 'vue-router'
-import AppLayout from '@/layouts/AppLayout.vue'
-
-const route = useRoute()
-const usesPublicLayout = computed(() => route.meta?.publicLayout === true)
+<script setup lang="ts">
+import InstallPrompt from '@/components/pwa/InstallPrompt.vue'
+import OfflineBanner from '@/components/pwa/OfflineBanner.vue'
+import UpdateAvailablePrompt from '@/components/pwa/UpdateAvailablePrompt.vue'
 </script>
 
 <template>
-  <RouterView v-if="usesPublicLayout" />
-  <AppLayout v-else />
+  <OfflineBanner />
+  <UpdateAvailablePrompt />
+
+  <RouterView />
+
+  <InstallPrompt />
 </template>

@@ -1,12 +1,13 @@
 import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import vueDevTools from 'vite-plugin-vue-devtools'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   plugins: [
     vue(),
+    vueDevTools(),
 
     VitePWA({
       registerType: 'prompt',
@@ -15,8 +16,7 @@ export default defineConfig({
         'favicon.ico',
         'pwa/offline.html',
         'pwa/icons/icon-192x192.png',
-        'pwa/icons/icon-512x512.png',
-        'pwa/icons/maskable-icon-512x512.png'
+        'pwa/icons/icon-512x512.png'
       ],
 
       manifest: {
@@ -53,13 +53,14 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
+
         navigateFallback: '/index.html',
 
         runtimeCaching: [
           {
             urlPattern: ({ request }) =>
-              request.destination === 'script' ||
               request.destination === 'style' ||
+              request.destination === 'script' ||
               request.destination === 'worker',
             handler: 'CacheFirst',
             options: {

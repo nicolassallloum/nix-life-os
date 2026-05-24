@@ -25,6 +25,8 @@ use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\LifeBalanceAiRecommendationController;
 use App\Http\Controllers\Api\LifeBalanceController;
 use App\Http\Controllers\Api\FinanceAccountController;
+use App\Http\Controllers\Api\V1\PushSubscriptionController;
+
 use App\Http\Controllers\Api\FinanceTransactionController;
 use App\Http\Controllers\Api\HealthNutritionLogController;
 use App\Http\Controllers\Api\V1\HealthAlertController;
@@ -112,6 +114,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('auth')->group(function () {
         Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:20,1');
         Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
+        Route::post('/push/subscriptions', [PushSubscriptionController::class, 'store']);
 
         Route::middleware(['auth:sanctum', 'api.performance'])->group(function () {
             Route::get('/me', [AuthController::class, 'me']);

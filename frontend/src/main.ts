@@ -1,35 +1,34 @@
-import "./assets/main.css";
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
 
-import { createApp } from "vue";
-import type { ComponentPublicInstance } from "vue";
-import App from "./App.vue";
-import router from "./router";
-import { getApiErrorMessage } from "./services/api";
+import './assets/main.css'
+import { registerSW } from 'virtual:pwa-register'
 
-const app = createApp(App);
+const app = createApp(App)
 
-function getComponentName(instance: ComponentPublicInstance | null): string {
-  const internalInstance = instance as unknown as {
-    type?: {
-      name?: string;
-      __name?: string;
-    };
-  } | null;
+app.use(router)
 
-  return internalInstance?.type?.name || internalInstance?.type?.__name || "UnknownComponent";
-}
+app.mount('#app')
 
-app.config.errorHandler = (error, instance, info) => {
-  console.error("Vue global error:", {
-    message: getApiErrorMessage(error, "Unexpected frontend error."),
-    info,
-    component: getComponentName(instance),
-    error,
-  });
-};
+registerSW({
+  immediate: true,
 
-window.addEventListener("unhandledrejection", (event: PromiseRejectionEvent) => {
-  console.error("Unhandled promise rejection:", getApiErrorMessage(event.reason));
-});
+  onNeedRefresh() {
+    console.log('[PWA] New version available.')
+  },
 
-app.use(router).mount("#app");
+  onOfflineReady() {
+    console.log('[PWA] App ready to work offline.')
+  },
+
+  onRegistered(registration) {
+    console.log('[PWA] Service Worker registered:', registration)
+  },
+
+  onRegisterError(error) {
+    console.error('[PWA] Service Worker registration failed:', error)
+  }
+})
+
+window.__NIX_PWA_UPDATE__ = updateSW

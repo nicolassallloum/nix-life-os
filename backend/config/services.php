@@ -37,5 +37,10 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'push' => [
+        'subject' => env('PUSH_VAPID_SUBJECT'),
+            'public_key' => env('PUSH_VAPID_PUBLIC_KEY'),
+            'private_key' => env('PUSH_VAPID_PRIVATE_KEY'),
+    ],
 
 ];
