@@ -26,3 +26,7 @@ frontend/.vite/
 Thumbs.db
 .vscode/*
 !.vscode/extensions.json
+# Windows / WSL metadata files
+*Zone.Identifier
+*:Zone.Identifier
+*.Zone.Identifier
