@@ -30,3 +30,14 @@ Thumbs.db
 *Zone.Identifier
 *:Zone.Identifier
 *.Zone.Identifier
+
+# Windows metadata files
+*Zone.Identifier
+*.Zone.Identifier
+*:Zone.Identifier
+
+# Mac metadata files
+.DS_Store
+
+# Temporary package files
+*.tar.gz:Zone.Identifier
