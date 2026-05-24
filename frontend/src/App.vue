@@ -6,27 +6,37 @@ import OfflineBanner from '@/components/offline/OfflineBanner.vue'
 import { syncEngineService } from '@/services/offline/sync-engine.service'
 import { useOfflineStore } from '@/stores/offline.store'
 import { offlineDevtoolsService } from '@/services/offline/offline-devtools.service'
+
 const updateAvailable = ref(false)
 const swRegistration = ref(null)
 
 const offlineStore = useOfflineStore()
 
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  window.NixOfflineDevtools = offlineDevtoolsService
+}
+
 onMounted(async () => {
   await offlineStore.initialize()
-  if (import.meta.env.DEV) {
-    window.NixOfflineDevtools = offlineDevtoolsService
-  }
-  syncEngineService.initializeAutoSync()
 
-  if (navigator.onLine) {
-    await syncEngineService.syncPending()
-    await offlineStore.refreshSyncCounts()
-  }
+  /**
+   * In development, do not auto-sync.
+   * Reason: localhost:5173 is Vite, and API routes may return 404
+   * unless backend proxy is configured.
+   */
+  if (!import.meta.env.DEV) {
+    syncEngineService.initializeAutoSync()
 
-  window.addEventListener('online', async () => {
-    await syncEngineService.syncPending()
-    await offlineStore.refreshSyncCounts()
-  })
+    if (navigator.onLine) {
+      await syncEngineService.syncPending()
+      await offlineStore.refreshSyncCounts()
+    }
+
+    window.addEventListener('online', async () => {
+      await syncEngineService.syncPending()
+      await offlineStore.refreshSyncCounts()
+    })
+  }
 
   window.addEventListener('pwa-update-available', (event) => {
     swRegistration.value = event.detail
