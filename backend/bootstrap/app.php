@@ -4,6 +4,7 @@ use App\Http\Middleware\ApiAuditLogger;
 use App\Http\Middleware\ApiPerformanceLogger;
 use App\Http\Middleware\EnsureUserHasPermission;
 use App\Http\Middleware\EnsureUserHasRole;
+use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\SecurityHeaders;
 use App\Services\Monitoring\LoggingService;
 use App\Support\SensitiveDataRedactor;
@@ -28,6 +29,7 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException as SymfonyRouteNotFoundException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -37,10 +39,23 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->api(prepend: [
+            ForceJsonResponse::class,
+        ]);
+
         $middleware->api(append: [
             SecurityHeaders::class,
             \App\Http\Middleware\ApiPerformanceLogger::class,
         ]);
+
+
+        $middleware->redirectGuestsTo(function (\Illuminate\Http\Request $request) {
+            if ($request->is('api/*') || $request->expectsJson()) {
+                return null;
+            }
+
+            return '/login';
+        });
 
 
         $middleware->alias([
@@ -131,12 +146,17 @@ return Application::configure(basePath: dirname(__DIR__))
             }
 
             $requestId = $request->header('X-Request-ID') ?: (function_exists('str') ? (string) str()->uuid() : null);
+
             $status = SymfonyResponse::HTTP_INTERNAL_SERVER_ERROR;
             $message = 'Server error. Please try again later.';
             $errorCode = 'SERVER_ERROR';
             $extra = [];
 
-            if ($e instanceof AuthenticationException || $e instanceof TokenMismatchException) {
+            if ($e instanceof SymfonyRouteNotFoundException && str_contains($e->getMessage(), 'Route [login] not defined')) {
+                $status = SymfonyResponse::HTTP_UNAUTHORIZED;
+                $message = 'Unauthenticated. Please login again.';
+                $errorCode = 'UNAUTHENTICATED';
+            } elseif ($e instanceof AuthenticationException || $e instanceof TokenMismatchException) {
                 $status = SymfonyResponse::HTTP_UNAUTHORIZED;
                 $message = 'Unauthenticated. Please login again.';
                 $errorCode = 'UNAUTHENTICATED';
