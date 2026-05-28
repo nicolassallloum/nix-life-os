@@ -14,8 +14,9 @@ Route::middleware(['auth:sanctum', 'role:admin'])
         Route::get('/users/{id}', [AdminUserController::class, 'show']);
         Route::put('/users/{id}', [AdminUserController::class, 'update']);
         Route::patch('/users/{id}', [AdminUserController::class, 'update']);
+        Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
 
-        Route::post('/users/{id}/change-password', [AdminUserController::class, 'changePassword']);
         Route::post('/users/{id}/activate', [AdminUserController::class, 'activate']);
         Route::post('/users/{id}/deactivate', [AdminUserController::class, 'deactivate']);
+        Route::post('/users/{id}/change-password', [AdminUserController::class, 'changePassword']);
     });

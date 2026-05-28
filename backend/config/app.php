@@ -1,94 +1,84 @@
 <?php
 
-use App\Http\Middleware\ApiAuditLogger;
-use App\Http\Middleware\ApiPerformanceLogger;
-use App\Http\Middleware\EnsureUserHasPermission;
-use App\Http\Middleware\EnsureUserHasRole;
-use App\Services\Monitoring\LoggingService;
-use Illuminate\Foundation\Application;
-use Illuminate\Foundation\Configuration\Exceptions;
-use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Middleware\HandleCors;
-use Illuminate\Http\Request;
-use Spatie\Permission\Middleware\PermissionMiddleware;
-use Spatie\Permission\Middleware\RoleMiddleware;
-use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+return [
 
-return Application::configure(basePath: dirname(__DIR__))
-    ->withRouting(
-        web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php',
-        commands: __DIR__.'/../routes/console.php',
-        health: '/up',
-    )
-    ->withMiddleware(function (Middleware $middleware) {
-        /*
-        |--------------------------------------------------------------------------
-        | API Middleware
-        |--------------------------------------------------------------------------
-        |
-        | HandleCors must run before protected API routes so browser requests
-        | from the Vue frontend can pass OPTIONS and POST requests.
-        |
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | Application Name
+    |--------------------------------------------------------------------------
+    */
 
-        $middleware->api(prepend: [
-            HandleCors::class,
-        ]);
+    'name' => env('APP_NAME', 'Nix Life OS'),
 
-        /*
-        |--------------------------------------------------------------------------
-        | API Middleware Aliases
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | Application Environment
+    |--------------------------------------------------------------------------
+    */
 
-        $middleware->alias([
-            'api.audit' => ApiAuditLogger::class,
-            'api.performance' => ApiPerformanceLogger::class,
+    'env' => env('APP_ENV', 'production'),
 
-            // Spatie Laravel Permission aliases used by API route protection.
-            'role' => RoleMiddleware::class,
-            'permission' => PermissionMiddleware::class,
-            'role_or_permission' => RoleOrPermissionMiddleware::class,
+    /*
+    |--------------------------------------------------------------------------
+    | Application Debug Mode
+    |--------------------------------------------------------------------------
+    */
 
-            // Project-local aliases kept for backward compatibility.
-            'nix.role' => EnsureUserHasRole::class,
-            'nix.permission' => EnsureUserHasPermission::class,
-        ]);
+    'debug' => (bool) env('APP_DEBUG', false),
 
-        /*
-        |--------------------------------------------------------------------------
-        | API Unauthenticated Redirect Handling
-        |--------------------------------------------------------------------------
-        |
-        | API requests should return JSON 401 instead of redirecting to /login.
-        |
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | Application URL
+    |--------------------------------------------------------------------------
+    */
 
-        $middleware->redirectGuestsTo(function (Request $request) {
-            if ($request->is('api/*') || $request->expectsJson()) {
-                return null;
-            }
+    'url' => env('APP_URL', 'http://localhost'),
 
-            return '/login';
-        });
-    })
-    ->withExceptions(function (Exceptions $exceptions) {
-        /*
-        |--------------------------------------------------------------------------
-        | Exception Reporting
-        |--------------------------------------------------------------------------
-        */
+    /*
+    |--------------------------------------------------------------------------
+    | Application Timezone
+    |--------------------------------------------------------------------------
+    */
 
-        $exceptions->report(function (\Throwable $e) {
-            try {
-                LoggingService::error($e, 'global_exception_handler');
-            } catch (\Throwable $loggingException) {
-                logger()->error('Global exception logging failed.', [
-                    'exception_class' => $e::class,
-                    'logging_exception_class' => $loggingException::class,
-                ]);
-            }
-        });
-    })
-    ->create();
+    'timezone' => env('APP_TIMEZONE', 'Asia/Beirut'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Application Locale Configuration
+    |--------------------------------------------------------------------------
+    */
+
+    'locale' => env('APP_LOCALE', 'en'),
+
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+
+    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Encryption Key
+    |--------------------------------------------------------------------------
+    */
+
+    'cipher' => 'AES-256-CBC',
+
+    'key' => env('APP_KEY'),
+
+    'previous_keys' => [
+        ...array_filter(
+            explode(',', env('APP_PREVIOUS_KEYS', ''))
+        ),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Maintenance Mode Driver
+    |--------------------------------------------------------------------------
+    */
+
+    'maintenance' => [
+        'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
+        'store' => env('APP_MAINTENANCE_STORE', 'database'),
+    ],
+
+];

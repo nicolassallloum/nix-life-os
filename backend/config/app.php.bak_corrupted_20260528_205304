@@ -4,8 +4,7 @@ use App\Http\Middleware\ApiAuditLogger;
 use App\Http\Middleware\ApiPerformanceLogger;
 use App\Http\Middleware\EnsureUserHasPermission;
 use App\Http\Middleware\EnsureUserHasRole;
-use App\Http\Middleware\ForceJsonResponse;
-use App\Http\Middleware\SecurityHeaders;
+use App\Services\Monitoring\LoggingService;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -27,23 +26,43 @@ return Application::configure(basePath: dirname(__DIR__))
         |--------------------------------------------------------------------------
         | API Middleware
         |--------------------------------------------------------------------------
-        | HandleCors must be first so OPTIONS/POST requests from Vue work.
+        |
+        | HandleCors must run before protected API routes so browser requests
+        | from the Vue frontend can pass OPTIONS and POST requests.
+        |
         */
 
         $middleware->api(prepend: [
             HandleCors::class,
-            ForceJsonResponse::class,
-        ]);
-
-        $middleware->api(append: [
-            SecurityHeaders::class,
-            ApiPerformanceLogger::class,
         ]);
 
         /*
         |--------------------------------------------------------------------------
-        | API Authentication Redirect
+        | API Middleware Aliases
         |--------------------------------------------------------------------------
+        */
+
+        $middleware->alias([
+            'api.audit' => ApiAuditLogger::class,
+            'api.performance' => ApiPerformanceLogger::class,
+
+            // Spatie Laravel Permission aliases used by API route protection.
+            'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
+
+            // Project-local aliases kept for backward compatibility.
+            'nix.role' => EnsureUserHasRole::class,
+            'nix.permission' => EnsureUserHasPermission::class,
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | API Unauthenticated Redirect Handling
+        |--------------------------------------------------------------------------
+        |
+        | API requests should return JSON 401 instead of redirecting to /login.
+        |
         */
 
         $middleware->redirectGuestsTo(function (Request $request) {
@@ -53,52 +72,23 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return '/login';
         });
-
-        /*
-        |--------------------------------------------------------------------------
-        | Middleware Aliases
-        |--------------------------------------------------------------------------
-        */
-
-        $middleware->alias([
-            'api.audit' => ApiAuditLogger::class,
-            'api.performance' => ApiPerformanceLogger::class,
-            'security.headers' => SecurityHeaders::class,
-
-            'role' => RoleMiddleware::class,
-            'permission' => PermissionMiddleware::class,
-            'role_or_permission' => RoleOrPermissionMiddleware::class,
-
-            'nix.role' => EnsureUserHasRole::class,
-            'nix.permission' => EnsureUserHasPermission::class,
-        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         /*
         |--------------------------------------------------------------------------
-        | API JSON Exceptions
+        | Exception Reporting
         |--------------------------------------------------------------------------
-        | Keep this section simple and safe. Do not call request(), Log facade,
-        | or database logging here during Artisan boot.
         */
 
-        $exceptions->shouldRenderJsonWhen(function (Request $request, \Throwable $e) {
-            return $request->is('api/*') || $request->expectsJson();
-        });
-
-        $exceptions->render(function (\Throwable $e, Request $request) {
-            if (! $request->is('api/*') && ! $request->expectsJson()) {
-                return null;
+        $exceptions->report(function (\Throwable $e) {
+            try {
+                LoggingService::error($e, 'global_exception_handler');
+            } catch (\Throwable $loggingException) {
+                logger()->error('Global exception logging failed.', [
+                    'exception_class' => $e::class,
+                    'logging_exception_class' => $loggingException::class,
+                ]);
             }
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Server error. Please try again later.',
-                'error' => [
-                    'code' => 'SERVER_ERROR',
-                    'status' => 500,
-                ],
-            ], 500);
         });
     })
     ->create();

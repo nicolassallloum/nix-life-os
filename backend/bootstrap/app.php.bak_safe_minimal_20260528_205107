@@ -6,11 +6,13 @@ use App\Http\Middleware\EnsureUserHasPermission;
 use App\Http\Middleware\EnsureUserHasRole;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\SecurityHeaders;
+use App\Services\Monitoring\LoggingService;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
@@ -23,13 +25,6 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        /*
-        |--------------------------------------------------------------------------
-        | API Middleware
-        |--------------------------------------------------------------------------
-        | HandleCors must be first so OPTIONS/POST requests from Vue work.
-        */
-
         $middleware->api(prepend: [
             HandleCors::class,
             ForceJsonResponse::class,
@@ -40,12 +35,6 @@ return Application::configure(basePath: dirname(__DIR__))
             ApiPerformanceLogger::class,
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | API Authentication Redirect
-        |--------------------------------------------------------------------------
-        */
-
         $middleware->redirectGuestsTo(function (Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return null;
@@ -53,12 +42,6 @@ return Application::configure(basePath: dirname(__DIR__))
 
             return '/login';
         });
-
-        /*
-        |--------------------------------------------------------------------------
-        | Middleware Aliases
-        |--------------------------------------------------------------------------
-        */
 
         $middleware->alias([
             'api.audit' => ApiAuditLogger::class,
@@ -74,21 +57,35 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        /*
-        |--------------------------------------------------------------------------
-        | API JSON Exceptions
-        |--------------------------------------------------------------------------
-        | Keep this section simple and safe. Do not call request(), Log facade,
-        | or database logging here during Artisan boot.
-        */
-
         $exceptions->shouldRenderJsonWhen(function (Request $request, \Throwable $e) {
             return $request->is('api/*') || $request->expectsJson();
+        });
+
+        $exceptions->report(function (\Throwable $e) {
+            try {
+                if (class_exists(LoggingService::class)) {
+                    LoggingService::error($e, 'global_exception_handler');
+                }
+            } catch (\Throwable $loggingException) {
+                Log::error('Global exception logging failed.', [
+                    'exception_class' => $e::class,
+                    'logging_exception_class' => $loggingException::class,
+                    'message' => $loggingException->getMessage(),
+                ]);
+            }
+
+            return false;
         });
 
         $exceptions->render(function (\Throwable $e, Request $request) {
             if (! $request->is('api/*') && ! $request->expectsJson()) {
                 return null;
+            }
+
+            $requestId = $request->header('X-Request-ID');
+
+            if (! $requestId && function_exists('str')) {
+                $requestId = (string) str()->uuid();
             }
 
             return response()->json([
@@ -98,6 +95,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'code' => 'SERVER_ERROR',
                     'status' => 500,
                 ],
+                'request_id' => $requestId,
             ], 500);
         });
     })

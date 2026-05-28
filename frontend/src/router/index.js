@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { canAccessRoute, getAuthToken, getAuthUser } from '@/utils/auth'
-
+import AdminAccountsManagementView from '../views/admin/AdminAccountsManagementView.vue'
+import AdminUsersManagementView from '../views/admin/AdminUsersManagementView.vue'
 const LoginView = () => import('@/views/auth/LoginView.vue')
 const RegisterView = () => import('@/views/auth/RegisterView.vue')
 const UnauthorizedView = () => import('@/views/auth/UnauthorizedView.vue')
@@ -96,6 +97,26 @@ const routes = [
     meta: {
       requiresAuth: true,
       requiresAdmin: true,
+    },
+  },
+  {
+    path: '/admin/users-management',
+    name: 'admin.users-management',
+    component: AdminUsersManagementView,
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+      title: 'Users Management',
+    },
+  },
+  {
+    path: '/admin/accounts-management',
+    name: 'admin.accounts-management',
+    component: AdminAccountsManagementView,
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+      title: 'Accounts Management',
     },
   },
   {

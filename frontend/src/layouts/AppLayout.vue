@@ -205,6 +205,14 @@ async function logout() {
               <span v-if="sidebarCollapsed" class="nix-sidebar-dot" />
               <span v-else class="nix-sidebar-link-text">{{ item.label }}</span>
             </RouterLink>
+            <RouterLink
+              to="/admin/users-management"
+              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition hover:bg-indigo-600/20 hover:text-white"
+              active-class="bg-indigo-600 text-white"
+            >
+              <span>👥</span>
+              <span>Users Management</span>
+            </RouterLink>
           </div>
         </section>
       </nav>
