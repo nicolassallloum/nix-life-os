@@ -15,8 +15,8 @@ use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Middleware\HandleCors;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
@@ -30,6 +30,7 @@ use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException as SymfonyRouteNotFoundException;
+use \Throwable;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -39,17 +40,38 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        /*
+        |--------------------------------------------------------------------------
+        | API Middleware
+        |--------------------------------------------------------------------------
+        |
+        | HandleCors must run before custom JSON/security/performance middleware.
+        | This allows Chrome/Vite requests from:
+        | http://127.0.0.1:5173
+        | http://localhost:5173
+        |
+        */
+
         $middleware->api(prepend: [
+            HandleCors::class,
             ForceJsonResponse::class,
         ]);
 
         $middleware->api(append: [
             SecurityHeaders::class,
-            \App\Http\Middleware\ApiPerformanceLogger::class,
+            ApiPerformanceLogger::class,
         ]);
 
+        /*
+        |--------------------------------------------------------------------------
+        | Unauthenticated API Redirect Handling
+        |--------------------------------------------------------------------------
+        |
+        | API requests should return JSON 401 instead of redirecting to /login.
+        |
+        */
 
-        $middleware->redirectGuestsTo(function (\Illuminate\Http\Request $request) {
+        $middleware->redirectGuestsTo(function (Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return null;
             }
@@ -57,6 +79,11 @@ return Application::configure(basePath: dirname(__DIR__))
             return '/login';
         });
 
+        /*
+        |--------------------------------------------------------------------------
+        | Middleware Aliases
+        |--------------------------------------------------------------------------
+        */
 
         $middleware->alias([
             'api.audit' => ApiAuditLogger::class,
@@ -74,17 +101,23 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        $exceptions->shouldRenderJsonWhen(function (Request $request, Throwable $e) {
+        /*
+        |--------------------------------------------------------------------------
+        | Force JSON for API Exceptions
+        |--------------------------------------------------------------------------
+        */
+
+        $exceptions->shouldRenderJsonWhen(function (Request $request, \Throwable $e) {
             return $request->is('api/*') || $request->expectsJson();
         });
 
-        $exceptions->report(function (Throwable $e) {
-            /*
-             * STEP 79 — Log cleanup policy
-             *
-             * Expected client-side/API control-flow responses must not pollute
-             * storage/logs/laravel.log as production.ERROR stack traces.
-             */
+        /*
+        |--------------------------------------------------------------------------
+        | Exception Reporting Policy
+        |--------------------------------------------------------------------------
+        */
+
+        $exceptions->report(function (\Throwable $e) {
             $ignoredExceptions = [
                 AuthenticationException::class,
                 AuthorizationException::class,
@@ -112,8 +145,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 }
 
                 // Database connection failures cannot be saved into the database.
-                // Let Laravel write one clean file log entry instead of recursive
-                // "Error logging failed" records.
                 if (in_array($sqlState, ['08006', '08001', '08003', '08004', '08007'], true)) {
                     Log::error('Database unavailable.', SensitiveDataRedactor::redact([
                         'exception_class' => $e::class,
@@ -129,7 +160,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 if (class_exists(LoggingService::class)) {
                     LoggingService::error($e, 'global_exception_handler');
                 }
-            } catch (Throwable $loggingException) {
+            } catch (\Throwable $loggingException) {
                 Log::error('Global exception logging failed.', [
                     'exception_class' => $e::class,
                     'logging_exception_class' => $loggingException::class,
@@ -140,12 +171,19 @@ return Application::configure(basePath: dirname(__DIR__))
             return false;
         });
 
+        /*
+        |--------------------------------------------------------------------------
+        | API Exception Renderer
+        |--------------------------------------------------------------------------
+        */
+
         $exceptions->render(function (Throwable $e, Request $request) {
             if (! $request->is('api/*') && ! $request->expectsJson()) {
                 return null;
             }
 
-            $requestId = $request->header('X-Request-ID') ?: (function_exists('str') ? (string) str()->uuid() : null);
+            $requestId = $request->header('X-Request-ID')
+                ?: (function_exists('str') ? (string) str()->uuid() : null);
 
             $status = SymfonyResponse::HTTP_INTERNAL_SERVER_ERROR;
             $message = 'Server error. Please try again later.';
@@ -179,7 +217,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 $errorCode = 'METHOD_NOT_ALLOWED';
             } elseif ($e instanceof TooManyRequestsHttpException) {
                 $status = SymfonyResponse::HTTP_TOO_MANY_REQUESTS;
-                $message = 'Too many requests. Please wait and try again.';
+                $message = 'Too many requests. Please try again later.';
                 $errorCode = 'TOO_MANY_REQUESTS';
             } elseif ($e instanceof QueryException) {
                 $sqlState = (string) ($e->errorInfo[0] ?? $e->getCode());
@@ -188,35 +226,46 @@ return Application::configure(basePath: dirname(__DIR__))
                     $status = SymfonyResponse::HTTP_NOT_FOUND;
                     $message = 'The requested resource was not found.';
                     $errorCode = 'NOT_FOUND';
-                } else {
-                    $status = SymfonyResponse::HTTP_SERVICE_UNAVAILABLE;
-                    $message = 'Database service is temporarily unavailable. Please try again shortly.';
-                    $errorCode = 'DATABASE_UNAVAILABLE';
                 }
             } elseif ($e instanceof HttpExceptionInterface) {
                 $status = $e->getStatusCode();
-                $message = match ($status) {
-                    Response::HTTP_BAD_REQUEST => 'Bad request.',
-                    Response::HTTP_UNAUTHORIZED => 'Unauthenticated. Please login again.',
-                    Response::HTTP_FORBIDDEN => 'Forbidden. You do not have permission to perform this action.',
-                    Response::HTTP_NOT_FOUND => 'The requested resource was not found.',
-                    Response::HTTP_UNPROCESSABLE_ENTITY => 'Validation failed.',
-                    Response::HTTP_TOO_MANY_REQUESTS => 'Too many requests. Please wait and try again.',
-                    default => $status >= 500 ? 'Server error. Please try again later.' : 'Request failed.',
-                };
-                $errorCode = strtoupper(str_replace(' ', '_', SymfonyResponse::$statusTexts[$status] ?? 'HTTP_ERROR'));
+
+                if ($status === SymfonyResponse::HTTP_NOT_FOUND) {
+                    $message = 'The requested resource was not found.';
+                    $errorCode = 'NOT_FOUND';
+                } elseif ($status === SymfonyResponse::HTTP_METHOD_NOT_ALLOWED) {
+                    $message = 'HTTP method is not allowed for this endpoint.';
+                    $errorCode = 'METHOD_NOT_ALLOWED';
+                } elseif ($status === SymfonyResponse::HTTP_TOO_MANY_REQUESTS) {
+                    $message = 'Too many requests. Please try again later.';
+                    $errorCode = 'TOO_MANY_REQUESTS';
+                } elseif ($status === SymfonyResponse::HTTP_FORBIDDEN) {
+                    $message = 'Forbidden. You do not have permission to perform this action.';
+                    $errorCode = 'FORBIDDEN';
+                } elseif ($status === SymfonyResponse::HTTP_UNAUTHORIZED) {
+                    $message = 'Unauthenticated. Please login again.';
+                    $errorCode = 'UNAUTHENTICATED';
+                }
             }
 
-            $payload = array_merge([
+            $payload = [
                 'success' => false,
                 'message' => $message,
                 'error' => [
                     'code' => $errorCode,
                     'status' => $status,
                 ],
-                'request_id' => $requestId,
-            ], $extra);
+            ];
+
+            if ($requestId) {
+                $payload['request_id'] = $requestId;
+            }
+
+            if (! empty($extra)) {
+                $payload = array_merge($payload, $extra);
+            }
 
             return response()->json($payload, $status);
         });
-    })->create();
+    })
+    ->create();

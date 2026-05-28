@@ -88,6 +88,16 @@ const routes = [
     component: UnifiedDashboardView,
     meta: { requiresAuth: true, title: 'Unified Dashboard' },
   },
+
+  {
+    path: '/admin/management',
+    name: 'SystemManagement',
+    component: () => import('@/views/admin/SystemManagementView.vue'),
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+    },
+  },
   {
     path: '/offline/sync-center',
     name: 'OfflineSyncCenter',

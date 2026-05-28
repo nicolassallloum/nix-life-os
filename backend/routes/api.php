@@ -43,7 +43,6 @@ use App\Http\Controllers\Api\V1\Finance\FinanceAIInsightController;
 use App\Http\Controllers\Api\V1\Finance\BudgetAlertRuleController;
 use App\Http\Controllers\Api\V1\Health\HydrationReminderController;
 use App\Http\Controllers\Api\V1\Productivity\TaskReminderController;
-
 use App\Http\Controllers\Api\V1\Health\HealthDashboardController;
 use App\Http\Controllers\Api\V1\Health\HealthAIInsightController;
 use App\Http\Controllers\Api\V1\Health\HealthLabTestController;
@@ -53,7 +52,6 @@ use App\Http\Controllers\Api\V1\Health\MedicationDoseController;
 use App\Http\Controllers\Api\V1\Health\SleepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
-
 use App\Http\Controllers\Api\V1\HealthWeightLogController;
 use App\Http\Controllers\Api\V1\HealthHydrationLogController;
 
@@ -97,6 +95,17 @@ Route::get('/v1/health', function () {
 */
 
 Route::prefix('v1')->group(function () {
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Management Routes
+    |--------------------------------------------------------------------------
+    |
+    | Final prefix: /api/v1/admin
+    | Routes are loaded from: routes/api/admin.php
+    |
+    */
+
+    require __DIR__.'/api/admin.php';
 
     /*
     |--------------------------------------------------------------------------
@@ -140,13 +149,13 @@ Route::prefix('v1')->group(function () {
         | Tasks Module
         |--------------------------------------------------------------------------
         */
+
         Route::get('/productivity/ai-insights', [ProductivityAIInsightController::class, 'index']);
 
         Route::prefix('tasks')->group(function () {
             Route::get('/', [TaskController::class, 'index']);
             Route::post('/', [TaskController::class, 'store']);
 
-            // STEP 75 V3: malformed bigint IDs must return 404 before implicit model binding.
             Route::match(['GET', 'PUT', 'PATCH', 'DELETE'], '/{task}', function () {
                 return response()->json([
                     'success' => false,
@@ -157,6 +166,7 @@ Route::prefix('v1')->group(function () {
                     ],
                 ], 404);
             })->where('task', '[^0-9]+');
+
             Route::match(['PATCH'], '/{task}/complete', function () {
                 return response()->json([
                     'success' => false,
@@ -167,6 +177,7 @@ Route::prefix('v1')->group(function () {
                     ],
                 ], 404);
             })->where('task', '[^0-9]+');
+
             Route::match(['PATCH'], '/{task}/reopen', function () {
                 return response()->json([
                     'success' => false,
@@ -186,16 +197,12 @@ Route::prefix('v1')->group(function () {
             Route::patch('/{task}/complete', [TaskController::class, 'complete'])->whereNumber('task');
             Route::patch('/{task}/reopen', [TaskController::class, 'reopen'])->whereNumber('task');
         });
+
         /*
         |--------------------------------------------------------------------------
-        | Authenticated User
+        | Projects Module
         |--------------------------------------------------------------------------
         */
-/*
-|--------------------------------------------------------------------------
-| Projects Module
-|--------------------------------------------------------------------------
-*/
 
         Route::prefix('projects')->group(function () {
             Route::get('/dashboard', [ProjectDashboardController::class, 'summary']);
@@ -212,12 +219,6 @@ Route::prefix('v1')->group(function () {
             Route::get('/{project}/tasks', [ProjectTaskController::class, 'index']);
             Route::post('/{project}/tasks', [ProjectTaskController::class, 'store']);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Task Progress Update
-            |--------------------------------------------------------------------------
-            | Keep this route before /tasks/{task} update routes.
-            */
             Route::patch('/{project}/tasks/{task}/progress', [ProjectProgressController::class, 'updateTaskProgress']);
             Route::put('/{project}/tasks/{task}/progress', [ProjectProgressController::class, 'updateTaskProgress']);
 
@@ -235,6 +236,13 @@ Route::prefix('v1')->group(function () {
             Route::get('/{project}/status-updates', [ProjectStatusUpdateController::class, 'index']);
             Route::post('/{project}/status-updates', [ProjectStatusUpdateController::class, 'store']);
         });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Authenticated User
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('/user', function (Request $request) {
             return response()->json([
                 'success' => true,
@@ -253,9 +261,10 @@ Route::prefix('v1')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | Productivity Module
+        | AI Module
         |--------------------------------------------------------------------------
         */
+
         Route::prefix('ai')->group(function () {
             Route::get('/recommendations', [AIRecommendationController::class, 'index']);
             Route::post('/recommendations/generate', [AIRecommendationController::class, 'generate']);
@@ -267,29 +276,29 @@ Route::prefix('v1')->group(function () {
 
             Route::post('/recommendations/{recommendation}/feedback', [AIRecommendationController::class, 'feedback']);
 
-            Route::get('/scores/daily', [AIRecommendationController::class, 'dailyScores']); 
+            Route::get('/scores/daily', [AIRecommendationController::class, 'dailyScores']);
         });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Productivity Module
+        |--------------------------------------------------------------------------
+        */
+
         Route::prefix('productivity')->group(function () {
             Route::get('/calendar/events', [ProductivityCalendarEventController::class, 'index']);
             Route::post('/calendar/events', [ProductivityCalendarEventController::class, 'store']);
             Route::get('/calendar/events/{event}', [ProductivityCalendarEventController::class, 'show']);
             Route::put('/calendar/events/{event}', [ProductivityCalendarEventController::class, 'update']);
             Route::delete('/calendar/events/{event}', [ProductivityCalendarEventController::class, 'destroy']);
-      
+
             Route::get('/dashboard', [ProductivityDashboardController::class, 'summary']);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Task Reminders
-            |--------------------------------------------------------------------------
-            */
             Route::apiResource('task-reminders', TaskReminderController::class);
 
-            // STEP 74: productivity aliases used by the frontend and global auth tests.
             Route::get('/tasks', [TaskController::class, 'index']);
             Route::post('/tasks', [TaskController::class, 'store']);
 
-            // STEP 75 V3: malformed bigint IDs must return 404 before implicit model binding.
             Route::match(['GET', 'PUT', 'PATCH', 'DELETE'], '/tasks/{task}', function () {
                 return response()->json([
                     'success' => false,
@@ -300,6 +309,7 @@ Route::prefix('v1')->group(function () {
                     ],
                 ], 404);
             })->where('task', '[^0-9]+');
+
             Route::match(['PATCH'], '/tasks/{task}/complete', function () {
                 return response()->json([
                     'success' => false,
@@ -310,6 +320,7 @@ Route::prefix('v1')->group(function () {
                     ],
                 ], 404);
             })->where('task', '[^0-9]+');
+
             Route::match(['PATCH'], '/tasks/{task}/reopen', function () {
                 return response()->json([
                     'success' => false,
@@ -347,6 +358,7 @@ Route::prefix('v1')->group(function () {
 
             Route::post('/goals/{goal}/habits', [ProductivityGoalController::class, 'linkHabit']);
             Route::delete('/goals/{goal}/habits/{habitId}', [ProductivityGoalController::class, 'unlinkHabit']);
+
             Route::get('/habits', [ProductivityHabitController::class, 'index']);
             Route::post('/habits', [ProductivityHabitController::class, 'store']);
             Route::get('/habits/summary/weekly', [ProductivityHabitController::class, 'weeklySummary']);
@@ -398,11 +410,6 @@ Route::prefix('v1')->group(function () {
             Route::patch('/budgets/{id}', [FinanceBudgetController::class, 'update']);
             Route::delete('/budgets/{id}', [FinanceBudgetController::class, 'destroy']);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Budget Alert Rules
-            |--------------------------------------------------------------------------
-            */
             Route::apiResource('budget-alert-rules', BudgetAlertRuleController::class);
         });
 
@@ -436,11 +443,11 @@ Route::prefix('v1')->group(function () {
         */
 
         Route::prefix('health')->group(function () {
-
             Route::get('/reports/daily', [HealthReportController::class, 'daily']);
             Route::get('/reports/weekly', [HealthReportController::class, 'weekly']);
             Route::get('/reports/monthly', [HealthReportController::class, 'monthly']);
             Route::get('/reports/export-preview', [HealthReportController::class, 'exportPreview']);
+
             Route::get('/alerts', [HealthAlertController::class, 'index']);
             Route::get('/alerts/summary', [HealthAlertController::class, 'summary']);
             Route::post('/alerts/run', [HealthAlertController::class, 'run']);
@@ -448,29 +455,10 @@ Route::prefix('v1')->group(function () {
             Route::patch('/alerts/{id}/read', [HealthAlertController::class, 'markAsRead']);
             Route::patch('/alerts/{id}/resolve', [HealthAlertController::class, 'resolve']);
             Route::patch('/alerts/{id}/dismiss', [HealthAlertController::class, 'dismiss']);
-
             Route::delete('/alerts/{id}', [HealthAlertController::class, 'destroy']);
-            /*
-            |--------------------------------------------------------------------------
-            | Health Dashboard
-            |--------------------------------------------------------------------------
-            */
 
             Route::get('/dashboard', [HealthDashboardController::class, 'summary']);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Health AI Insights
-            |--------------------------------------------------------------------------
-            */
-
             Route::get('/ai-insights', [HealthAIInsightController::class, 'index']);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Medication Tracking
-            |--------------------------------------------------------------------------
-            */
 
             Route::get('/medications', [MedicationController::class, 'index']);
             Route::post('/medications', [MedicationController::class, 'store']);
@@ -479,12 +467,6 @@ Route::prefix('v1')->group(function () {
             Route::patch('/medications/{id}', [MedicationController::class, 'update']);
             Route::delete('/medications/{id}', [MedicationController::class, 'destroy']);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Medication Reminders
-            |--------------------------------------------------------------------------
-            */
-
             Route::get('/medication-reminders', [MedicationReminderController::class, 'index']);
             Route::get('/medication-reminders/today', [MedicationReminderController::class, 'today']);
             Route::post('/medication-reminders', [MedicationReminderController::class, 'store']);
@@ -492,33 +474,11 @@ Route::prefix('v1')->group(function () {
             Route::patch('/medication-reminders/{id}', [MedicationReminderController::class, 'update']);
             Route::delete('/medication-reminders/{id}', [MedicationReminderController::class, 'destroy']);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Hydration Reminders
-            |--------------------------------------------------------------------------
-            */
             Route::apiResource('hydration-reminders', HydrationReminderController::class);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Medication Dose Logs
-            |--------------------------------------------------------------------------
-            */
 
             Route::get('/medication-doses/history', [MedicationDoseController::class, 'history']);
             Route::post('/medication-doses/{id}/taken', [MedicationDoseController::class, 'markTaken']);
             Route::post('/medication-doses/{id}/skipped', [MedicationDoseController::class, 'markSkipped']);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Lab Test Results Tracking
-            |--------------------------------------------------------------------------
-            |
-            | Important:
-            | categories and trends must stay above /lab-tests/{id}
-            | to prevent Laravel from treating "categories" or "trends" as an ID.
-            |
-            */
 
             Route::get('/lab-tests/categories', [HealthLabTestController::class, 'categories']);
             Route::get('/lab-tests/trends', [HealthLabTestController::class, 'trends']);
@@ -529,24 +489,12 @@ Route::prefix('v1')->group(function () {
             Route::patch('/lab-tests/{id}', [HealthLabTestController::class, 'update']);
             Route::delete('/lab-tests/{id}', [HealthLabTestController::class, 'destroy']);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Mood Tracking
-            |--------------------------------------------------------------------------
-            */
-
             Route::get('/mood', [HealthMoodLogController::class, 'index']);
             Route::post('/mood', [HealthMoodLogController::class, 'store']);
             Route::get('/mood/{id}', [HealthMoodLogController::class, 'show']);
             Route::put('/mood/{id}', [HealthMoodLogController::class, 'update']);
             Route::patch('/mood/{id}', [HealthMoodLogController::class, 'update']);
             Route::delete('/mood/{id}', [HealthMoodLogController::class, 'destroy']);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Sleep Tracking
-            |--------------------------------------------------------------------------
-            */
 
             Route::get('/sleep', [SleepLogController::class, 'index']);
             Route::post('/sleep', [SleepLogController::class, 'store']);
@@ -562,12 +510,6 @@ Route::prefix('v1')->group(function () {
                 ]);
             });
 
-            /*
-            |--------------------------------------------------------------------------
-            | Steps Tracking
-            |--------------------------------------------------------------------------
-            */
-
             Route::get('/steps', [HealthStepLogController::class, 'index']);
             Route::post('/steps', [HealthStepLogController::class, 'store']);
             Route::get('/steps/summary', [HealthStepLogController::class, 'summary']);
@@ -575,12 +517,6 @@ Route::prefix('v1')->group(function () {
             Route::put('/steps/{id}', [HealthStepLogController::class, 'update']);
             Route::patch('/steps/{id}', [HealthStepLogController::class, 'update']);
             Route::delete('/steps/{id}', [HealthStepLogController::class, 'destroy']);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Weight Tracking
-            |--------------------------------------------------------------------------
-            */
 
             Route::get('/weight', [HealthWeightLogController::class, 'index']);
             Route::post('/weight', [HealthWeightLogController::class, 'store']);
@@ -590,12 +526,6 @@ Route::prefix('v1')->group(function () {
             Route::patch('/weight/{id}', [HealthWeightLogController::class, 'update']);
             Route::delete('/weight/{id}', [HealthWeightLogController::class, 'destroy']);
 
-            /*
-            |--------------------------------------------------------------------------
-            | Nutrition Tracking
-            |--------------------------------------------------------------------------
-            */
-
             Route::get('/nutrition/summary', [HealthNutritionLogController::class, 'summary']);
             Route::get('/nutrition', [HealthNutritionLogController::class, 'index']);
             Route::post('/nutrition', [HealthNutritionLogController::class, 'store']);
@@ -603,12 +533,6 @@ Route::prefix('v1')->group(function () {
             Route::put('/nutrition/{id}', [HealthNutritionLogController::class, 'update']);
             Route::patch('/nutrition/{id}', [HealthNutritionLogController::class, 'update']);
             Route::delete('/nutrition/{id}', [HealthNutritionLogController::class, 'destroy']);
-
-            /*
-            |--------------------------------------------------------------------------
-            | Hydration Tracking
-            |--------------------------------------------------------------------------
-            */
 
             Route::get('/hydration', [HealthHydrationLogController::class, 'index']);
             Route::post('/hydration', [HealthHydrationLogController::class, 'store']);
@@ -623,57 +547,8 @@ Route::prefix('v1')->group(function () {
 
         /*
         |--------------------------------------------------------------------------
-        | Projects Module
-        |--------------------------------------------------------------------------
-        |
-        | Temporarily disabled because project controllers are missing.
-        |
-        */
-
-        /*
-        Route::prefix('projects')->group(function () {
-            Route::get('/dashboard', [ProjectDashboardController::class, 'summary']);
-            Route::get('/tasks', [ProjectTaskController::class, 'index']);
-            Route::post('/tasks', [ProjectTaskController::class, 'store']);
-            Route::get('/tasks/{id}', [ProjectTaskController::class, 'show']);
-            Route::put('/tasks/{id}', [ProjectTaskController::class, 'update']);
-            Route::patch('/tasks/{id}', [ProjectTaskController::class, 'update']);
-            Route::delete('/tasks/{id}', [ProjectTaskController::class, 'destroy']);
-        });
-        */
-
-        /*
-        |--------------------------------------------------------------------------
         | Notifications Module
         |--------------------------------------------------------------------------
-        |
-        | Temporarily disabled because NotificationController does not exist.
-        |
-        */
-
-        /*
-        Route::prefix('notifications')->group(function () {
-            Route::get('/', [NotificationController::class, 'index']);
-            Route::post('/', [NotificationController::class, 'store']);
-            Route::patch('/read-all', [NotificationController::class, 'markAllAsRead']);
-            Route::get('/{id}', [NotificationController::class, 'show']);
-            Route::patch('/{id}/read', [NotificationController::class, 'markAsRead']);
-            Route::delete('/{id}', [NotificationController::class, 'destroy']);
-        });
-
-        Route::prefix('notification-settings')->group(function () {
-            Route::get('/', [NotificationSettingController::class, 'index']);
-            Route::put('/', [NotificationSettingController::class, 'update']);
-            Route::patch('/', [NotificationSettingController::class, 'update']);
-        });
-        */
-
-        /*
-        |--------------------------------------------------------------------------
-        | Notifications Module
-        |--------------------------------------------------------------------------
-        | STEP 104 PWA push notification routes.
-        | Keep static routes before /{notification} to avoid route conflicts.
         */
 
         Route::prefix('notifications')->middleware('role:user|admin')->group(function () {
@@ -716,7 +591,10 @@ Route::prefix('v1')->group(function () {
                     ->where('user_id', $request->user()->id)
                     ->first();
 
-                return response()->json(['success' => true, 'data' => $preferences]);
+                return response()->json([
+                    'success' => true,
+                    'data' => $preferences,
+                ]);
             });
         });
 
@@ -755,7 +633,10 @@ Route::prefix('v1')->group(function () {
                     ->limit(50)
                     ->get();
 
-                return response()->json(['success' => true, 'data' => $rules]);
+                return response()->json([
+                    'success' => true,
+                    'data' => $rules,
+                ]);
             });
 
             Route::get('/logs', function (Request $request) {
@@ -773,14 +654,22 @@ Route::prefix('v1')->group(function () {
                     ->limit(50)
                     ->get();
 
-                return response()->json(['success' => true, 'data' => $logs]);
+                return response()->json([
+                    'success' => true,
+                    'data' => $logs,
+                ]);
             });
         });
 
         /*
         |--------------------------------------------------------------------------
-        | Admin, Security, and User Management Authorization Regression Routes
+        | Admin Area Root Check
         |--------------------------------------------------------------------------
+        |
+        | Important:
+        | /api/v1/admin/users, /api/v1/admin/dashboard/summary, and other admin
+        | management routes are handled in routes/api/admin.php.
+        |
         */
 
         Route::prefix('admin')->middleware('role:admin')->group(function () {
@@ -795,42 +684,13 @@ Route::prefix('v1')->group(function () {
                     ],
                 ]);
             });
-
-            Route::get('/users', function () {
-                return response()->json([
-                    'success' => true,
-                    'data' => NixUser::query()
-                        ->select(['id', 'name', 'email', 'created_at'])
-                        ->latest()
-                        ->limit(100)
-                        ->get()
-                        ->map(fn (NixUser $user) => [
-                            'id' => $user->id,
-                            'name' => $user->name,
-                            'email' => $user->email,
-                            'roles' => method_exists($user, 'getRoleNames') ? $user->getRoleNames()->values() : [],
-                            'permissions' => method_exists($user, 'getAllPermissions')
-                                ? $user->getAllPermissions()->pluck('name')->values()
-                                : [],
-                            'created_at' => $user->created_at,
-                        ]),
-                ]);
-            });
-
-            Route::get('/roles', function () {
-                return response()->json([
-                    'success' => true,
-                    'data' => Role::with('permissions:id,name')->orderBy('name')->get(),
-                ]);
-            });
-
-            Route::get('/permissions', function () {
-                return response()->json([
-                    'success' => true,
-                    'data' => Permission::orderBy('name')->get(['id', 'name', 'guard_name']),
-                ]);
-            });
         });
+
+        /*
+        |--------------------------------------------------------------------------
+        | Security Module
+        |--------------------------------------------------------------------------
+        */
 
         Route::prefix('security')->middleware('role:admin')->group(function () {
             Route::get('/', function () {
@@ -856,7 +716,10 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/audit-logs', function () {
                 if (! Schema::hasTable('audit_logs')) {
-                    return response()->json(['success' => true, 'data' => []]);
+                    return response()->json([
+                        'success' => true,
+                        'data' => [],
+                    ]);
                 }
 
                 return response()->json([
@@ -873,6 +736,12 @@ Route::prefix('v1')->group(function () {
                 ]);
             });
         });
+
+        /*
+        |--------------------------------------------------------------------------
+        | User Management Legacy Aliases
+        |--------------------------------------------------------------------------
+        */
 
         Route::prefix('user-management')->middleware('role:admin')->group(function () {
             Route::get('/users', function () {
