@@ -66,32 +66,6 @@
       </div>
     </div>
 
-    <!-- Management -->
-    <div class="mt-6">
-      <p class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
-        Management
-      </p>
-
-      <div class="space-y-1">
-        <RouterLink
-          v-for="item in managementMenu"
-          :key="item.path"
-          :to="item.path"
-          class="group flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white"
-          active-class="border border-cyan-500/30 bg-cyan-500/10 text-cyan-300"
-          @click="$emit('navigate')"
-        >
-          <span class="shrink-0 text-lg leading-none">
-            {{ item.icon }}
-          </span>
-
-          <span class="min-w-0 flex-1 truncate">
-            {{ item.label }}
-          </span>
-        </RouterLink>
-      </div>
-    </div>
-
     <!-- System -->
     <div class="mt-6">
       <p class="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
@@ -139,43 +113,50 @@ const mainMenu = [
   {
     label: 'Dashboard',
     path: '/dashboard',
-    icon: '🏠',
+    icon: '🏠'
   },
   {
     label: 'Life Balance',
     path: '/life-balance',
-    icon: '⚖️',
-  },
+    icon: '⚖️'
+  }
 ]
 
 const lifeMenu = [
   {
     label: 'Finance',
     path: '/finance',
-    icon: '💰',
+    icon: '💰'
   },
   {
     label: 'Health',
     path: '/health',
-    icon: '❤️',
+    icon: '❤️'
   },
   {
     label: 'Projects',
     path: '/projects',
-    icon: '📁',
+    icon: '📁'
   },
   {
     label: 'Productivity',
     path: '/productivity',
-    icon: '✅',
+    icon: '✅'
   },
+  // {
+  //   label: 'Users Management',
+  //   to: '/admin/users-management',
+  //   icon: '👥',
+  //   match: ['/admin/users-management'],
+  //   show: true,
+  // },
 ]
-
-const managementMenu = [
+const managementLinks = [
   {
     label: 'Users Management',
-    path: '/admin/users-management',
+    to: '/admin/users-management',
     icon: '👥',
+    match: ['/admin/users-management'],
   },
 ]
 
@@ -183,12 +164,12 @@ const systemMenu = [
   {
     label: 'Settings',
     path: '/settings',
-    icon: '⚙️',
+    icon: '⚙️'
   },
   {
     label: 'Profile',
     path: '/profile',
-    icon: '👤',
-  },
+    icon: '👤'
+  }
 ]
 </script>

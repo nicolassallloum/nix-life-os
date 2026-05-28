@@ -95,6 +95,12 @@ const menuGroups = computed(() => [
     show: canViewAdmin.value || canViewSecurity.value || canManageUsers.value || canManageRoles.value,
     items: [
       { label: 'Admin Dashboard', to: '/admin', exact: true, match: ['/admin'], show: canViewAdmin.value },
+      {
+        label: 'Users Management',
+        to: '/admin/users-management',
+        match: ['/admin/users-management'],
+        show: canViewAdmin.value,
+      },
       { label: 'User Management', to: '/admin/users', match: ['/admin/users', '/user-management/users'], show: canManageUsers.value },
       { label: 'Roles & Permissions', to: '/admin/roles', match: ['/admin/roles', '/admin/permissions', '/security/roles', '/security/permissions', '/user-management/roles'], show: canManageRoles.value },
       { label: 'Security Overview', to: '/security', exact: true, match: ['/security'], show: canViewSecurity.value },

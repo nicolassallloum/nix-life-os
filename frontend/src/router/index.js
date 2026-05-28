@@ -101,21 +101,21 @@ const routes = [
   },
   {
     path: '/admin/users-management',
-    name: 'admin.users-management',
+    name: 'AdminUsersManagement',
     component: AdminUsersManagementView,
     meta: {
       requiresAuth: true,
-      requiresAdmin: true,
+      requiresRole: 'admin',
       title: 'Users Management',
     },
   },
   {
     path: '/admin/accounts-management',
-    name: 'admin.accounts-management',
+    name: 'AdminAccountsManagement',
     component: AdminAccountsManagementView,
     meta: {
       requiresAuth: true,
-      requiresAdmin: true,
+      requiresRole: 'admin',
       title: 'Accounts Management',
     },
   },
