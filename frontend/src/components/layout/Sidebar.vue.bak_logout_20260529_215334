@@ -1,6 +1,6 @@
 <template>
   <nav class="flex min-h-full flex-col px-3 py-4">
-    <!-- Brand -->
+    <!-- Brand for Desktop -->
     <div class="mb-6 hidden px-3 lg:block">
       <div class="flex items-center gap-3">
         <div
@@ -115,22 +115,6 @@
             {{ item.label }}
           </span>
         </RouterLink>
-
-        <!-- Logout Button -->
-        <button
-          type="button"
-          :disabled="isLoggingOut"
-          class="group flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-red-300 transition hover:bg-red-500/10 hover:text-red-200 disabled:cursor-not-allowed disabled:opacity-60"
-          @click="logout"
-        >
-          <span class="shrink-0 text-lg leading-none">
-            🚪
-          </span>
-
-          <span class="min-w-0 flex-1 truncate">
-            {{ isLoggingOut ? 'Logging out...' : 'Logout' }}
-          </span>
-        </button>
       </div>
     </div>
 
@@ -149,11 +133,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
 defineEmits(['navigate'])
-
-const isLoggingOut = ref(false)
 
 const mainMenu = [
   {
@@ -211,66 +191,4 @@ const systemMenu = [
     icon: '👤',
   },
 ]
-
-const authStorageKeys = [
-  'token',
-  'auth_token',
-  'access_token',
-  'nixlifeos_token',
-  'user',
-  'auth_user',
-  'nixlifeos_user',
-  'roles',
-  'permissions',
-]
-
-const getStoredToken = () => {
-  return (
-    localStorage.getItem('token') ||
-    localStorage.getItem('auth_token') ||
-    localStorage.getItem('access_token') ||
-    localStorage.getItem('nixlifeos_token') ||
-    sessionStorage.getItem('token') ||
-    sessionStorage.getItem('auth_token') ||
-    sessionStorage.getItem('access_token') ||
-    sessionStorage.getItem('nixlifeos_token')
-  )
-}
-
-const clearAuthStorage = () => {
-  authStorageKeys.forEach((key) => {
-    localStorage.removeItem(key)
-    sessionStorage.removeItem(key)
-  })
-}
-
-const logout = async () => {
-  if (isLoggingOut.value) {
-    return
-  }
-
-  isLoggingOut.value = true
-
-  const token = getStoredToken()
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.nixlifeos.com/api/v1'
-
-  try {
-    if (token) {
-      await fetch(`${apiBaseUrl}/auth/logout`, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      })
-    }
-  } catch (error) {
-    console.warn('[Logout] API logout failed, clearing local session anyway.', error)
-  } finally {
-    clearAuthStorage()
-    isLoggingOut.value = false
-
-    window.location.href = '/login'
-  }
-}
 </script>

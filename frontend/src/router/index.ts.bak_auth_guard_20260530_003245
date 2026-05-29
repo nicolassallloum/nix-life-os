@@ -57,31 +57,9 @@ const MonitoringDashboardView = () => import('@/views/monitoring/MonitoringDashb
 
 const AdminOverviewView = () => import('@/views/admin/AdminOverviewView.vue')
 const AdminUsersView = () => import('@/views/admin/AdminUsersView.vue')
-const AdminUsersManagementView = () => import('@/views/admin/AdminUsersManagementView.vue')
 const AdminRolesView = () => import('@/views/admin/AdminRolesView.vue')
 const SecurityOverviewView = () => import('@/views/security/SecurityOverviewView.vue')
 const SecurityAuditLogsView = () => import('@/views/security/SecurityAuditLogsView.vue')
-
-const authStorageKeys = [
-  'token',
-  'auth_token',
-  'access_token',
-  'nixlifeos_token',
-]
-
-const getStoredToken = () => {
-  return (
-    getAuthToken?.() ||
-    localStorage.getItem('token') ||
-    localStorage.getItem('auth_token') ||
-    localStorage.getItem('access_token') ||
-    localStorage.getItem('nixlifeos_token') ||
-    sessionStorage.getItem('token') ||
-    sessionStorage.getItem('auth_token') ||
-    sessionStorage.getItem('access_token') ||
-    sessionStorage.getItem('nixlifeos_token')
-  )
-}
 
 const routes = [
   { path: '/', redirect: '/dashboard' },
@@ -275,7 +253,10 @@ const routes = [
     path: '/offline/sync-center',
     name: 'OfflineSyncCenter',
     component: () => import('@/views/offline/SyncCenterView.vue'),
-    meta: { requiresAuth: true, title: 'Offline Sync Center' },
+    meta: {
+      requiresAuth: true,
+      title: 'Offline Sync Center',
+    },
   },
   {
     path: '/health/medications',
@@ -386,48 +367,22 @@ const routes = [
     meta: { requiresAuth: true, requiresRole: 'admin', title: 'Admin Dashboard' },
   },
   {
-    path: '/admin/users-management',
-    name: 'AdminUsersManagement',
-    component: AdminUsersManagementView,
-    meta: {
-      requiresAuth: true,
-      requiresRole: 'admin',
-      permissions: ['users.view'],
-      title: 'Users Management',
-    },
-  },
-  {
     path: '/admin/users',
     name: 'AdminUsers',
     component: AdminUsersView,
-    meta: {
-      requiresAuth: true,
-      requiresRole: 'admin',
-      permissions: ['users.view'],
-      title: 'Admin Users',
-    },
+    meta: { requiresAuth: true, requiresRole: 'admin', permissions: ['users.view'], title: 'Admin Users' },
   },
   {
     path: '/admin/roles',
     name: 'AdminRoles',
     component: AdminRolesView,
-    meta: {
-      requiresAuth: true,
-      requiresRole: 'admin',
-      permissions: ['roles.manage'],
-      title: 'Admin Roles',
-    },
+    meta: { requiresAuth: true, requiresRole: 'admin', permissions: ['roles.manage'], title: 'Admin Roles' },
   },
   {
     path: '/admin/permissions',
     name: 'AdminPermissions',
     component: AdminRolesView,
-    meta: {
-      requiresAuth: true,
-      requiresRole: 'admin',
-      permissions: ['roles.manage'],
-      title: 'Admin Permissions',
-    },
+    meta: { requiresAuth: true, requiresRole: 'admin', permissions: ['roles.manage'], title: 'Admin Permissions' },
   },
   {
     path: '/security',
@@ -444,7 +399,7 @@ const routes = [
   { path: '/security/roles', redirect: '/admin/roles' },
   { path: '/security/permissions', redirect: '/admin/permissions' },
   { path: '/security/login-history', redirect: '/security/audit-logs' },
-  { path: '/user-management/users', redirect: '/admin/users-management' },
+  { path: '/user-management/users', redirect: '/admin/users' },
   { path: '/user-management/roles', redirect: '/admin/roles' },
   { path: '/admin/security', redirect: '/security' },
 
@@ -465,67 +420,41 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/login', '/register', '/forgot-password', '/reset-password']
-  const token = getStoredToken()
-  const user = getAuthUser?.()
+  const publicPages = ['/login', '/register']
+
+  const token =
+    localStorage.getItem('token') ||
+    localStorage.getItem('auth_token') ||
+    localStorage.getItem('access_token') ||
+    localStorage.getItem('nixlifeos_token') ||
+    sessionStorage.getItem('token') ||
+    sessionStorage.getItem('auth_token') ||
+    sessionStorage.getItem('access_token') ||
+    sessionStorage.getItem('nixlifeos_token')
+
   const isPublicPage = publicPages.includes(to.path)
 
   if (!token && !isPublicPage) {
-    next({
+    return next({
       path: '/login',
       query: {
         redirect: to.fullPath,
       },
     })
-    return
   }
 
-  if (token && to.meta?.guestOnly) {
-    next('/dashboard')
-    return
+  if (token && to.path === '/login') {
+    return next('/dashboard')
   }
 
-  if (token && to.meta?.requiresRole) {
-    const roles = Array.isArray(user?.roles) ? user.roles : []
-
-    if (!roles.includes(to.meta.requiresRole)) {
-      next('/unauthorized')
-      return
-    }
-  }
-
-  if (token && Array.isArray(to.meta?.permissions) && to.meta.permissions.length > 0) {
-    const permissions = Array.isArray(user?.permissions) ? user.permissions : []
-    const hasPermission = to.meta.permissions.some((permission) => permissions.includes(permission))
-
-    if (!hasPermission) {
-      next('/unauthorized')
-      return
-    }
-  }
-
-  if (token && typeof canAccessRoute === 'function' && !canAccessRoute(to)) {
-    next('/unauthorized')
-    return
-  }
-
-  next()
-})
-
-router.afterEach((to) => {
-  const title = to.meta?.title ? `${to.meta.title} | Nix Life OS` : 'Nix Life OS'
-  document.title = title
+  return next()
 })
 
 router.onError((error) => {
   console.error('Router error:', error)
 
   const message = String(error?.message || '')
-
-  if (
-    message.includes('Failed to fetch dynamically imported module') ||
-    message.includes('Importing a module script failed')
-  ) {
+  if (message.includes('Failed to fetch dynamically imported module') || message.includes('Importing a module script failed')) {
     window.location.reload()
   }
 })

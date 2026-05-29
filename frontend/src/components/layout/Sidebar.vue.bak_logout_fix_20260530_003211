@@ -150,9 +150,11 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 defineEmits(['navigate'])
 
+const router = useRouter()
 const isLoggingOut = ref(false)
 
 const mainMenu = [
@@ -212,18 +214,6 @@ const systemMenu = [
   },
 ]
 
-const authStorageKeys = [
-  'token',
-  'auth_token',
-  'access_token',
-  'nixlifeos_token',
-  'user',
-  'auth_user',
-  'nixlifeos_user',
-  'roles',
-  'permissions',
-]
-
 const getStoredToken = () => {
   return (
     localStorage.getItem('token') ||
@@ -238,7 +228,19 @@ const getStoredToken = () => {
 }
 
 const clearAuthStorage = () => {
-  authStorageKeys.forEach((key) => {
+  const keysToRemove = [
+    'token',
+    'auth_token',
+    'access_token',
+    'nixlifeos_token',
+    'user',
+    'auth_user',
+    'nixlifeos_user',
+    'roles',
+    'permissions',
+  ]
+
+  keysToRemove.forEach((key) => {
     localStorage.removeItem(key)
     sessionStorage.removeItem(key)
   })
@@ -268,9 +270,13 @@ const logout = async () => {
     console.warn('[Logout] API logout failed, clearing local session anyway.', error)
   } finally {
     clearAuthStorage()
+
+    localStorage.clear()
+    sessionStorage.clear()
+
     isLoggingOut.value = false
 
-    window.location.href = '/login'
+    window.location.replace('/login')
   }
 }
 </script>
