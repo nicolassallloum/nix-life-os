@@ -28,8 +28,7 @@
 
         <select
           v-model="form.transaction_type"
-          class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-          required
+          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          required
         >
           <option value="expense">Expense</option>
           <option value="income">Income</option>
@@ -44,8 +43,7 @@
 
         <select
           v-model="form.account_id"
-          class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-          required
+          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          required
         >
           <option disabled value="">Select account</option>
 
@@ -72,8 +70,7 @@
 
         <select
           v-model="form.category"
-          class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-        >
+          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"        >
           <option value="">Select category</option>
           <option value="Groceries">Groceries</option>
           <option value="Salary">Salary</option>
@@ -97,8 +94,7 @@
           min="0.01"
           step="0.01"
           placeholder="0.00"
-          class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-          required
+          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          required
         />
       </div>
 
@@ -111,8 +107,7 @@
         <input
           v-model="form.transaction_date"
           type="date"
-          class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-          required
+          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          required
         />
       </div>
 
@@ -126,8 +121,7 @@
           v-model="form.description"
           rows="3"
           placeholder="Optional notes..."
-          class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-        ></textarea>
+          class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"        ></textarea>
       </div>
 
       <button

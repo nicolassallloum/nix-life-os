@@ -88,8 +88,7 @@
           <input
             v-model="form.log_date"
             type="date"
-            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-            required
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"            required
           />
         </div>
 
@@ -100,8 +99,7 @@
             type="number"
             min="1"
             step="1"
-            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-            required
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"            required
           />
         </div>
 
@@ -109,8 +107,7 @@
           <label class="mb-1 block text-sm font-medium text-slate-700">Drink Type</label>
           <select
             v-model="form.drink_type"
-            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-          >
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          >
             <option value="water">Water</option>
             <option value="tea">Tea</option>
             <option value="coffee">Coffee</option>
@@ -124,8 +121,7 @@
           <input
             v-model="form.notes"
             type="text"
-            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-            placeholder="Optional notes"
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"            placeholder="Optional notes"
           />
         </div>
 

@@ -117,8 +117,7 @@
             v-model="form.sleep_date"
             type="date"
             required
-            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-          />
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          />
         </div>
 
         <div>
@@ -129,8 +128,7 @@
             v-model="form.bed_time"
             type="time"
             required
-            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-          />
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          />
         </div>
 
         <div>
@@ -141,8 +139,7 @@
             v-model="form.wake_date"
             type="date"
             required
-            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-          />
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          />
         </div>
 
         <div>
@@ -153,8 +150,7 @@
             v-model="form.wake_time"
             type="time"
             required
-            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-          />
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          />
         </div>
 
         <div>
@@ -167,8 +163,7 @@
             min="0"
             max="100"
             step="1"
-            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-            placeholder="0 - 100"
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"            placeholder="0 - 100"
           />
         </div>
 
@@ -179,8 +174,7 @@
           <input
             v-model="form.notes"
             type="text"
-            class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm outline-none focus:border-indigo-500"
-            placeholder="Optional notes"
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"            placeholder="Optional notes"
           />
         </div>
 

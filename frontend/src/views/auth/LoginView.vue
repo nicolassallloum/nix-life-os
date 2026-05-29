@@ -1,48 +1,63 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-slate-100 px-4">
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-      <h1 class="text-3xl font-bold text-slate-900 mb-2">NIX LIFE OS</h1>
-      <p class="text-slate-500 mb-6">Login to your personal operating system</p>
+  <div class="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10">
+    <div class="w-full max-w-xl rounded-3xl bg-white p-10 shadow-xl">
+      <h1 class="text-4xl font-black tracking-widest text-slate-950">
+        NIX LIFE OS
+      </h1>
 
-      <form @submit.prevent="login" class="space-y-4">
+      <p class="mt-4 text-lg text-slate-600">
+        Login to your personal operating system
+      </p>
+
+      <form class="mt-8 space-y-5" @submit.prevent="login">
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <label class="mb-2 block text-sm font-semibold text-slate-800">
+            Email
+          </label>
+
           <input
             v-model.trim="form.email"
             type="email"
-            class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10"            placeholder="nix@example.com"
             autocomplete="email"
+            class="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-slate-950 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+            placeholder="admin@nixlifeos.com"
             required
           />
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+          <label class="mb-2 block text-sm font-semibold text-slate-800">
+            Password
+          </label>
+
           <input
             v-model="form.password"
             type="password"
-            class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10"
-            placeholder="********"
             autocomplete="current-password"
+            class="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-slate-950 placeholder:text-slate-400 focus:border-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+            placeholder="********"
             required
           />
         </div>
 
-        <p v-if="error" class="text-red-600 text-sm">{{ error }}</p>
-        <p v-if="success" class="text-green-600 text-sm">{{ success }}</p>
+        <p v-if="errorMessage" class="text-sm font-medium text-red-600">
+          {{ errorMessage }}
+        </p>
 
         <button
           type="submit"
-          :disabled="loading"
-          class="w-full bg-slate-900 text-white rounded-xl py-3 font-semibold hover:bg-slate-800 disabled:opacity-60"
+          :disabled="isLoading"
+          class="w-full rounded-xl bg-slate-950 px-4 py-4 text-center text-base font-bold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {{ loading ? 'Logging in...' : 'Login' }}
+          {{ isLoading ? 'Logging in...' : 'Login' }}
         </button>
       </form>
 
-      <p class="text-sm text-slate-600 mt-6 text-center">
+      <p class="mt-8 text-center text-sm text-slate-600">
         Don't have an account?
-        <RouterLink to="/register" class="text-slate-900 font-semibold">Register</RouterLink>
+        <RouterLink to="/register" class="font-bold text-slate-950 hover:underline">
+          Register
+        </RouterLink>
       </p>
     </div>
   </div>
@@ -50,57 +65,122 @@
 
 <script setup>
 import { reactive, ref } from 'vue'
-import { useRoute, useRouter, RouterLink } from 'vue-router'
-import api, { saveAuthSession } from '@/services/api'
+import { useRoute, useRouter } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
+
+const isLoading = ref(false)
+const errorMessage = ref('')
 
 const form = reactive({
   email: '',
   password: '',
 })
 
-const loading = ref(false)
-const error = ref('')
-const success = ref('')
+const clearOldAuth = () => {
+  const keys = [
+    'token',
+    'auth_token',
+    'access_token',
+    'nixlifeos_token',
+    'user',
+    'auth_user',
+    'nixlifeos_user',
+    'roles',
+    'permissions',
+  ]
 
-function extractErrors(responseData) {
-  if (responseData?.errors) {
-    return Object.values(responseData.errors).flat().join(' ')
-  }
-
-  return responseData?.message || 'Login failed. Please check your credentials.'
+  keys.forEach((key) => {
+    localStorage.removeItem(key)
+    sessionStorage.removeItem(key)
+  })
 }
 
-async function login() {
-  loading.value = true
-  error.value = ''
-  success.value = ''
+const saveAuth = (payload) => {
+  const data = payload?.data || payload
 
-  try {
-    const response = await api.post('/auth/login', {
-      email: form.email,
-      password: form.password,
-    })
+  const token =
+    data?.token ||
+    data?.access_token ||
+    payload?.token ||
+    payload?.access_token
 
-    const data = response.data
-    const token = data?.data?.token || data?.token || data?.access_token
-    const user = data?.data?.user || data?.user || null
+  const user =
+    data?.user ||
+    payload?.user ||
+    null
 
-    if (!token) {
-      throw new Error('Login succeeded but token was not found in the response.')
+  if (!token) {
+    throw new Error('Login response did not include a token.')
+  }
+
+  localStorage.setItem('token', token)
+  localStorage.setItem('auth_token', token)
+  localStorage.setItem('access_token', token)
+  localStorage.setItem('nixlifeos_token', token)
+
+  if (user) {
+    localStorage.setItem('user', JSON.stringify(user))
+    localStorage.setItem('auth_user', JSON.stringify(user))
+    localStorage.setItem('nixlifeos_user', JSON.stringify(user))
+
+    if (Array.isArray(user.roles)) {
+      localStorage.setItem('roles', JSON.stringify(user.roles))
     }
 
-    saveAuthSession(token, user)
-    success.value = 'Login successful. Redirecting...'
+    if (Array.isArray(user.permissions)) {
+      localStorage.setItem('permissions', JSON.stringify(user.permissions))
+    }
+  }
+}
 
-    const redirectPath = typeof route.query.redirect === 'string' ? route.query.redirect : '/dashboard'
-    await router.push(redirectPath || '/dashboard')
-  } catch (err) {
-    error.value = extractErrors(err.response?.data) || err.message
+const login = async () => {
+  if (isLoading.value) {
+    return
+  }
+
+  errorMessage.value = ''
+  isLoading.value = true
+
+  const apiBaseUrl =
+    import.meta.env.VITE_API_BASE_URL ||
+    'https://api.nixlifeos.com/api/v1'
+
+  try {
+    clearOldAuth()
+
+    const response = await fetch(`${apiBaseUrl}/auth/login`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: form.email.trim(),
+        password: form.password,
+      }),
+    })
+
+    const payload = await response.json().catch(() => null)
+
+    if (!response.ok || payload?.success === false) {
+      throw new Error(payload?.message || 'Login failed. Please check your credentials.')
+    }
+
+    saveAuth(payload)
+
+    const redirectTo =
+      typeof route.query.redirect === 'string' && route.query.redirect !== '/login'
+        ? route.query.redirect
+        : '/dashboard'
+
+    await router.replace(redirectTo)
+  } catch (error) {
+    console.error('[Login] Failed:', error)
+    errorMessage.value = error?.message || 'Login failed. Please check your credentials.'
   } finally {
-    loading.value = false
+    isLoading.value = false
   }
 }
 </script>

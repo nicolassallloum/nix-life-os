@@ -1035,3 +1035,138 @@ textarea:not([class]):focus {
     font-size: 0.75rem;
   }
 }
+/* ============================================================
+   Nix Life OS - Global Form Controls Fix
+   Fixes dropdown/select colors across the full application
+   ============================================================ */
+
+select {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  appearance: auto !important;
+}
+
+select:focus {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  border-color: #2563eb !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15) !important;
+}
+
+select option {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+select option:checked,
+select option:hover {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+input,
+textarea {
+  color: #0f172a;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* Dark modal/forms compatibility */
+.bg-slate-900 select,
+.bg-slate-950 select,
+.dark select {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+.bg-slate-900 select option,
+.bg-slate-950 select option,
+.dark select option {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+/* ============================================================
+   Nix Life OS - Global Dropdown / Select Fix
+   Applies to all native select fields across the app
+   ============================================================ */
+
+select {
+  width: 100% !important;
+  min-height: 48px !important;
+  color: #0f172a !important;
+  background-color: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 14px !important;
+  padding: 10px 42px 10px 16px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  cursor: pointer !important;
+  appearance: auto !important;
+}
+
+select:focus {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  border-color: #2563eb !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
+}
+
+select option {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  padding: 10px 14px !important;
+}
+
+select option:checked {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+select option:hover {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+/* Placeholder option */
+select option[value=''],
+select option:disabled {
+  color: #64748b !important;
+}
+
+/* Fix select inside light cards and modals */
+.bg-white select,
+.bg-slate-50 select,
+.bg-slate-100 select {
+  color: #0f172a !important;
+  background-color: #f8fafc !important;
+}
+
+/* Fix select inside dark pages/modals */
+.bg-slate-800 select,
+.bg-slate-900 select,
+.bg-slate-950 select,
+.dark select {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+/* Input and textarea readability */
+input,
+textarea {
+  color: #0f172a !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8 !important;
+}
