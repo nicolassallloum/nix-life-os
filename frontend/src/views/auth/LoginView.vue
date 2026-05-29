@@ -10,8 +10,7 @@
           <input
             v-model.trim="form.email"
             type="email"
-            class="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-slate-900"
-            placeholder="nix@example.com"
+            class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10"            placeholder="nix@example.com"
             autocomplete="email"
             required
           />
@@ -22,7 +21,7 @@
           <input
             v-model="form.password"
             type="password"
-            class="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-slate-900"
+            class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10"
             placeholder="********"
             autocomplete="current-password"
             required
