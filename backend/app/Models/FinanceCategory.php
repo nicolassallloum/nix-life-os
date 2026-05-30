@@ -9,6 +9,14 @@ class FinanceCategory extends Model
 {
     use HasFactory;
 
+    protected $table = 'nix_life_os.finance_category';
+
+    protected $primaryKey = 'id';
+
+    public $incrementing = true;
+
+    protected $keyType = 'int';
+
     protected $fillable = [
         'user_id',
         'name',
@@ -16,5 +24,10 @@ class FinanceCategory extends Model
         'icon',
         'color',
         'status',
+    ];
+
+    protected $casts = [
+        'id' => 'integer',
+        'user_id' => 'integer',
     ];
 }

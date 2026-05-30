@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class ProjectTask extends Model
 {
     use HasFactory;
+    protected $table = 'nix_life_os.project_tasks';
 
     protected $fillable = [
         'user_id',
@@ -20,6 +21,12 @@ class ProjectTask extends Model
         'due_date',
         'assigned_to',
         'notes',
+    ];
+    protected $casts = [
+        'user_id' => 'string',
+        'project_id' => 'string',
+        'start_date' => 'date',
+        'due_date' => 'date',
     ];
 
     public function project()

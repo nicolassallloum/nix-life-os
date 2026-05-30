@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class HealthMoodLog extends Model
 {
     use HasFactory;
+    protected $table = 'nix_life_os.health_mood_logs';
 
     protected $fillable = [
         'user_id',
@@ -15,5 +16,9 @@ class HealthMoodLog extends Model
         'mood',
         'mood_score',
         'notes',
+    ];
+
+    protected $casts = [
+        'user_id' => 'string',
     ];
 }

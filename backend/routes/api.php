@@ -43,7 +43,9 @@ use App\Http\Controllers\Api\V1\Finance\FinanceAIInsightController;
 use App\Http\Controllers\Api\V1\Finance\BudgetAlertRuleController;
 use App\Http\Controllers\Api\V1\Health\HydrationReminderController;
 use App\Http\Controllers\Api\V1\Productivity\TaskReminderController;
-use App\Http\Controllers\Api\V1\Health\HealthDashboardController;
+use App\Http\Controllers\Api\V1\HealthDashboardController;
+// use App\Http\Controllers\Api\V1\FinanceCategoryController;
+// use App\Http\Controllers\Api\V1\Health\HealthDashboardController;
 use App\Http\Controllers\Api\V1\Health\HealthAIInsightController;
 use App\Http\Controllers\Api\V1\Health\HealthLabTestController;
 use App\Http\Controllers\Api\V1\Health\MedicationController;
@@ -79,13 +81,14 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::apiResource('finance/categories', FinanceCategoryController::class);
-
+    // Route::apiResource('finance/categories', FinanceCategoryController::class);
     /*
     |--------------------------------------------------------------------------
     | Health Tracking
     |--------------------------------------------------------------------------
     */
     Route::apiResource('health/steps', HealthStepController::class);
+    Route::get('health/dashboard-summary', [HealthDashboardController::class, 'summary']);
     Route::apiResource('health/weight', HealthWeightController::class);
     Route::apiResource('health/water', HealthWaterController::class);
     Route::apiResource('health/sleep', HealthSleepController::class);

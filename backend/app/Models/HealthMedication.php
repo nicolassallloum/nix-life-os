@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class HealthMedication extends Model
 {
     use HasFactory;
+    protected $table = 'nix_life_os.health_medications';
 
     protected $fillable = [
         'user_id',
@@ -20,5 +21,8 @@ class HealthMedication extends Model
         'stop_date',
         'status',
         'notes',
+    ];
+    protected $casts = [
+        'user_id' => 'string',
     ];
 }

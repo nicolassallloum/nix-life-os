@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class HealthSleepLog extends Model
 {
     use HasFactory;
+    protected $table = 'nix_life_os.health_sleep_logs';
 
     protected $fillable = [
         'user_id',
@@ -17,5 +18,9 @@ class HealthSleepLog extends Model
         'duration_hours',
         'quality',
         'notes',
+    ];
+
+    protected $casts = [
+        'user_id' => 'string',
     ];
 }
