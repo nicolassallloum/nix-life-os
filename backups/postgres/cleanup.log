@@ -53,3 +53,14 @@ Started        : Fri May 29 03:00:01 EEST 2026
 Cleanup completed.
 Finished: Fri May 29 03:00:01 EEST 2026
 ==================================================
+==================================================
+Nix Life OS PostgreSQL Backup Cleanup
+==================================================
+Backup Dir     : /u01/nix-life-os/backups/postgres
+Retention Days : 14
+Started        : Sat May 30 03:00:01 EEST 2026
+==================================================
+==================================================
+Cleanup completed.
+Finished: Sat May 30 03:00:01 EEST 2026
+==================================================

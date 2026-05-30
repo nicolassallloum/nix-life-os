@@ -24,7 +24,6 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  overflow: hidden;
 }
 
 .system-image {

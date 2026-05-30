@@ -1,7 +1,8 @@
 // @ts-nocheck
 import { createRouter, createWebHistory } from 'vue-router'
 import { canAccessRoute, getAuthToken, getAuthUser } from '@/utils/auth'
-
+import UnderConstructionView from '@/views/system/UnderConstructionView.vue'
+import ApplicationDownView from '@/views/system/ApplicationDownView.vue'
 const LoginView = () => import('@/views/auth/LoginView.vue')
 const RegisterView = () => import('@/views/auth/RegisterView.vue')
 const UnauthorizedView = () => import('@/views/auth/UnauthorizedView.vue')
@@ -98,7 +99,42 @@ const routes = [
     component: RegisterView,
     meta: { guestOnly: true, publicLayout: true, title: 'Register' },
   },
-
+  {
+    path: '/application-down',
+    name: 'ApplicationDown',
+    component: ApplicationDownView,
+    meta: {
+      title: 'Application Temporarily Down',
+      requiresAuth: false
+    }
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: NotFoundView,
+    meta: {
+      title: 'Settings',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: NotFoundView,
+    meta: {
+      title: 'Profile',
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'PageNotFound',
+    component: NotFoundView,
+    meta: {
+      title: 'Under Construction',
+      requiresAuth: false
+    }
+  },
   {
     path: '/dashboard',
     name: 'Dashboard',
@@ -450,10 +486,13 @@ const routes = [
 
   {
     path: '/:pathMatch(.*)*',
-    name: 'NotFound',
+    name: 'PageNotFound',
     component: NotFoundView,
-    meta: { title: 'Page Not Found' },
-  },
+    meta: {
+      title: 'Under Construction',
+      requiresAuth: false
+    }
+  }
 ]
 
 const router = createRouter({

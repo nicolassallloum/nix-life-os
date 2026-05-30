@@ -121,7 +121,7 @@ async function register() {
     saveAuthSession(token, user)
     success.value = 'Registration successful. Redirecting...'
 
-    await router.push('/dashboard')
+    await router.push('/application-down')
   } catch (err) {
     error.value = extractErrors(err.response?.data) || err.message
   } finally {
