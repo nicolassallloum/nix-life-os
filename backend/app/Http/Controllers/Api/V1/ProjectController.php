@@ -27,39 +27,31 @@ class ProjectController extends Controller
 
     public function index(Request $request)
     {
-        $validated = $request->validate([
-            'search' => ['nullable', 'string', 'max:255'],
-            'status' => ['nullable', Rule::in($this->statuses)],
-            'priority' => ['nullable', Rule::in($this->priorities)],
-            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
-            'page' => ['nullable', 'integer', 'min:1'],
-        ]);
+        try {
+            $userId = (string) $request->user()->id;
 
-        $projects = Project::query()
-            ->where('user_id', $request->user()->id)
-            ->withCount('tasks')
-            ->when($validated['search'] ?? null, function ($query, $search) {
-                $query->where(function ($subQuery) use ($search) {
-                    $subQuery
-                        ->where('project_name', 'ILIKE', "%{$search}%")
-                        ->orWhere('project_code', 'ILIKE', "%{$search}%")
-                        ->orWhere('description', 'ILIKE', "%{$search}%");
-                });
-            })
-            ->when($validated['status'] ?? null, function ($query, $status) {
-                $query->where('status', $status);
-            })
-            ->when($validated['priority'] ?? null, function ($query, $priority) {
-                $query->where('priority', $priority);
-            })
-            ->orderByDesc('created_at')
-            ->paginate($validated['per_page'] ?? 15);
+            $projects = \DB::table('projects')
+                ->where('user_id', $userId)
+                ->orderByDesc('created_at')
+                ->paginate((int) $request->get('per_page', 10));
 
-        return ProjectResource::collection($projects)
-            ->additional([
+            return response()->json([
                 'success' => true,
-                'message' => 'Projects loaded successfully.',
+                'data' => $projects,
             ]);
+        } catch (\Throwable $e) {
+            \Log::error('Projects index failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Projects index failed.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function store(Request $request)
