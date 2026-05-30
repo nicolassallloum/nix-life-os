@@ -5,14 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class HealthWeightLog extends Model
+class HealthStep extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
         'entry_date',
-        'weight_kg',
+        'steps',
+        'distance_km',
         'notes',
     ];
 }

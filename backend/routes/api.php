@@ -61,6 +61,14 @@ use App\Http\Controllers\Api\V1\HealthWaterController;
 use App\Http\Controllers\Api\V1\HealthSleepController;
 use App\Http\Controllers\Api\V1\HealthMoodController;
 use App\Http\Controllers\Api\V1\HealthMedicationController;
+// use App\Http\Controllers\Api\V1\FinanceCategoryController;
+// use App\Http\Controllers\Api\V1\HealthStepController;
+// use App\Http\Controllers\Api\V1\HealthWeightController;
+// use App\Http\Controllers\Api\V1\HealthWaterController;
+// use App\Http\Controllers\Api\V1\HealthSleepController;
+// use App\Http\Controllers\Api\V1\HealthMoodController;
+// use App\Http\Controllers\Api\V1\HealthMedicationController;
+// use App\Http\Controllers\Api\V1\ProjectTaskController;
 // use App\Http\Controllers\Api\V1\ProjectTaskController;
 
 Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
