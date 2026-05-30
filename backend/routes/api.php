@@ -54,7 +54,44 @@ use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
 use App\Http\Controllers\Api\V1\HealthWeightLogController;
 use App\Http\Controllers\Api\V1\HealthHydrationLogController;
+use App\Http\Controllers\Api\V1\FinanceCategoryController;
+use App\Http\Controllers\Api\V1\HealthStepController;
+use App\Http\Controllers\Api\V1\HealthWeightController;
+use App\Http\Controllers\Api\V1\HealthWaterController;
+use App\Http\Controllers\Api\V1\HealthSleepController;
+use App\Http\Controllers\Api\V1\HealthMoodController;
+use App\Http\Controllers\Api\V1\HealthMedicationController;
+// use App\Http\Controllers\Api\V1\ProjectTaskController;
 
+Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Finance Categories
+    |--------------------------------------------------------------------------
+    */
+    Route::apiResource('finance/categories', FinanceCategoryController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Health Tracking
+    |--------------------------------------------------------------------------
+    */
+    Route::apiResource('health/steps', HealthStepController::class);
+    Route::apiResource('health/weight', HealthWeightController::class);
+    Route::apiResource('health/water', HealthWaterController::class);
+    Route::apiResource('health/sleep', HealthSleepController::class);
+    Route::apiResource('health/mood', HealthMoodController::class);
+    Route::apiResource('health/medications', HealthMedicationController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Project Tasks
+    |--------------------------------------------------------------------------
+    */
+    Route::apiResource('projects/tasks', ProjectTaskController::class);
+    Route::get('projects/{project}/tasks', [ProjectTaskController::class, 'byProject']);
+});
 /*
 |--------------------------------------------------------------------------
 | API Routes
