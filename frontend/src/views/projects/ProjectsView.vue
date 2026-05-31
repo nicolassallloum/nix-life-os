@@ -89,7 +89,7 @@ const submitButtonText = computed(() => {
 function cleanText(value) {
   if (!value) return "-";
 
-  return value
+  return String(value)
     .replaceAll("_", " ")
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
@@ -199,6 +199,68 @@ function getFieldError(field) {
   return validationErrors.value?.[field]?.[0] || "";
 }
 
+function normalizeProjectsResponse(response) {
+  const payload = response?.data || response || {};
+
+  /**
+   * Supported backend response shapes:
+   *
+   * 1. Laravel paginated wrapped response:
+   * {
+   *   success: true,
+   *   data: {
+   *     current_page: 1,
+   *     data: [...]
+   *   }
+   * }
+   *
+   * 2. Resource collection:
+   * {
+   *   data: [...]
+   *   meta: {...}
+   * }
+   *
+   * 3. Direct array:
+   * [...]
+   */
+  const paginator =
+    payload?.data?.data && Array.isArray(payload.data.data)
+      ? payload.data
+      : payload?.data && Array.isArray(payload.data)
+        ? {
+            data: payload.data,
+            current_page: payload?.meta?.current_page || 1,
+            last_page: payload?.meta?.last_page || 1,
+            per_page: payload?.meta?.per_page || perPage.value,
+            total: payload?.meta?.total || payload.data.length,
+          }
+        : Array.isArray(payload)
+          ? {
+              data: payload,
+              current_page: 1,
+              last_page: 1,
+              per_page: perPage.value,
+              total: payload.length,
+            }
+          : {
+              data: [],
+              current_page: 1,
+              last_page: 1,
+              per_page: perPage.value,
+              total: 0,
+            };
+
+  return {
+    projects: Array.isArray(paginator.data) ? paginator.data : [],
+    pagination: {
+      current_page: paginator.current_page || 1,
+      last_page: paginator.last_page || 1,
+      per_page: Number(paginator.per_page || perPage.value),
+      total: Number(paginator.total || 0),
+    },
+  };
+}
+
 async function loadProjects(page = 1) {
   loading.value = true;
   errorMessage.value = "";
@@ -212,18 +274,15 @@ async function loadProjects(page = 1) {
       per_page: perPage.value,
     });
 
-    projects.value = Array.isArray(response?.data) ? response.data : [];
+    const normalized = normalizeProjectsResponse(response);
 
-    pagination.value = {
-      current_page: response?.meta?.current_page || 1,
-      last_page: response?.meta?.last_page || 1,
-      per_page: response?.meta?.per_page || perPage.value,
-      total: response?.meta?.total || 0,
-    };
-
-    currentPage.value = pagination.value.current_page;
+    projects.value = normalized.projects;
+    pagination.value = normalized.pagination;
+    currentPage.value = normalized.pagination.current_page;
   } catch (error) {
-    console.error(error);
+    console.error("Failed to load projects:", error);
+
+    projects.value = [];
 
     errorMessage.value =
       error.response?.data?.message ||
@@ -251,9 +310,19 @@ async function submitProjectForm() {
     }
 
     closeForm();
-    await loadProjects(currentPage.value);
+
+    /**
+     * Important:
+     * after create/update, reload first page so the newly created project appears.
+     */
+    currentPage.value = 1;
+    await loadProjects(1);
+
+    setTimeout(() => {
+      successMessage.value = "";
+    }, 4000);
   } catch (error) {
-    console.error(error);
+    console.error("Failed to save project:", error);
 
     if (error.response?.status === 422) {
       validationErrors.value = error.response?.data?.errors || {};
@@ -308,7 +377,7 @@ watch(
 );
 
 onMounted(() => {
-  loadProjects();
+  loadProjects(1);
 });
 </script>
 
@@ -374,7 +443,7 @@ onMounted(() => {
 
           <select
             v-model="status"
-            class="rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500"
+            class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500"
           >
             <option
               v-for="option in statusOptions"
@@ -387,7 +456,7 @@ onMounted(() => {
 
           <select
             v-model="priority"
-            class="rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500"
+            class="rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500"
           >
             <option
               v-for="option in priorityOptions"
@@ -519,7 +588,10 @@ onMounted(() => {
                 </td>
 
                 <td class="min-w-48 px-5 py-4">
-                  <ProjectProgressBar :value="Number(project.progress_percentage || 0)" size="sm" />
+                  <ProjectProgressBar
+                    :value="Number(project.progress_percentage || 0)"
+                    size="sm"
+                  />
                 </td>
 
                 <td class="px-5 py-4 text-sm font-bold text-gray-700">
@@ -554,7 +626,7 @@ onMounted(() => {
           <div class="flex items-center gap-2">
             <select
               v-model="perPage"
-              class="rounded-xl border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+              class="rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-blue-500"
             >
               <option :value="5">5 / page</option>
               <option :value="10">10 / page</option>
@@ -624,7 +696,10 @@ onMounted(() => {
                   placeholder="Example: Nix Life OS Project Module"
                 />
 
-                <p v-if="getFieldError('project_name')" class="mt-1 text-xs font-medium text-red-600">
+                <p
+                  v-if="getFieldError('project_name')"
+                  class="mt-1 text-xs font-medium text-red-600"
+                >
                   {{ getFieldError("project_name") }}
                 </p>
               </div>
@@ -642,7 +717,10 @@ onMounted(() => {
                   placeholder="Example: PRJ-STEP-57"
                 />
 
-                <p v-if="getFieldError('project_code')" class="mt-1 text-xs font-medium text-red-600">
+                <p
+                  v-if="getFieldError('project_code')"
+                  class="mt-1 text-xs font-medium text-red-600"
+                >
                   {{ getFieldError("project_code") }}
                 </p>
               </div>
@@ -654,7 +732,7 @@ onMounted(() => {
 
                 <select
                   v-model="form.status"
-                  class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500"
+                  class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500"
                 >
                   <option
                     v-for="option in formStatusOptions"
@@ -665,7 +743,10 @@ onMounted(() => {
                   </option>
                 </select>
 
-                <p v-if="getFieldError('status')" class="mt-1 text-xs font-medium text-red-600">
+                <p
+                  v-if="getFieldError('status')"
+                  class="mt-1 text-xs font-medium text-red-600"
+                >
                   {{ getFieldError("status") }}
                 </p>
               </div>
@@ -677,7 +758,7 @@ onMounted(() => {
 
                 <select
                   v-model="form.priority"
-                  class="w-full rounded-xl border border-gray-300 px-4 py-2 text-sm outline-none focus:border-blue-500"
+                  class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm text-gray-900 outline-none focus:border-blue-500"
                 >
                   <option
                     v-for="option in formPriorityOptions"
@@ -688,7 +769,10 @@ onMounted(() => {
                   </option>
                 </select>
 
-                <p v-if="getFieldError('priority')" class="mt-1 text-xs font-medium text-red-600">
+                <p
+                  v-if="getFieldError('priority')"
+                  class="mt-1 text-xs font-medium text-red-600"
+                >
                   {{ getFieldError("priority") }}
                 </p>
               </div>
@@ -705,7 +789,10 @@ onMounted(() => {
                   :class="getFieldError('start_date') ? 'border-red-400' : 'border-gray-300'"
                 />
 
-                <p v-if="getFieldError('start_date')" class="mt-1 text-xs font-medium text-red-600">
+                <p
+                  v-if="getFieldError('start_date')"
+                  class="mt-1 text-xs font-medium text-red-600"
+                >
                   {{ getFieldError("start_date") }}
                 </p>
               </div>
@@ -722,7 +809,10 @@ onMounted(() => {
                   :class="getFieldError('target_end_date') ? 'border-red-400' : 'border-gray-300'"
                 />
 
-                <p v-if="getFieldError('target_end_date')" class="mt-1 text-xs font-medium text-red-600">
+                <p
+                  v-if="getFieldError('target_end_date')"
+                  class="mt-1 text-xs font-medium text-red-600"
+                >
                   {{ getFieldError("target_end_date") }}
                 </p>
               </div>
@@ -739,7 +829,10 @@ onMounted(() => {
                   :class="getFieldError('actual_end_date') ? 'border-red-400' : 'border-gray-300'"
                 />
 
-                <p v-if="getFieldError('actual_end_date')" class="mt-1 text-xs font-medium text-red-600">
+                <p
+                  v-if="getFieldError('actual_end_date')"
+                  class="mt-1 text-xs font-medium text-red-600"
+                >
                   {{ getFieldError("actual_end_date") }}
                 </p>
               </div>
@@ -759,7 +852,10 @@ onMounted(() => {
                   :class="getFieldError('progress_percentage') ? 'border-red-400' : 'border-gray-300'"
                 />
 
-                <p v-if="getFieldError('progress_percentage')" class="mt-1 text-xs font-medium text-red-600">
+                <p
+                  v-if="getFieldError('progress_percentage')"
+                  class="mt-1 text-xs font-medium text-red-600"
+                >
                   {{ getFieldError("progress_percentage") }}
                 </p>
               </div>
@@ -778,7 +874,10 @@ onMounted(() => {
                 placeholder="Write project description..."
               ></textarea>
 
-              <p v-if="getFieldError('description')" class="mt-1 text-xs font-medium text-red-600">
+              <p
+                v-if="getFieldError('description')"
+                class="mt-1 text-xs font-medium text-red-600"
+              >
                 {{ getFieldError("description") }}
               </p>
             </div>

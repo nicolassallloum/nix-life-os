@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
 class ProjectController extends Controller
@@ -28,19 +30,49 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         try {
+            $validated = $request->validate([
+                'search' => ['nullable', 'string', 'max:255'],
+                'status' => ['nullable', Rule::in($this->statuses)],
+                'priority' => ['nullable', Rule::in($this->priorities)],
+                'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+                'page' => ['nullable', 'integer', 'min:1'],
+            ]);
+
             $userId = (string) $request->user()->id;
 
-            $projects = \DB::table('projects')
-                ->where('user_id', $userId)
+            $query = DB::table('projects')
+                ->where('user_id', $userId);
+
+            if (!empty($validated['search'])) {
+                $search = $validated['search'];
+
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery
+                        ->where('project_name', 'ILIKE', "%{$search}%")
+                        ->orWhere('project_code', 'ILIKE', "%{$search}%")
+                        ->orWhere('description', 'ILIKE', "%{$search}%");
+                });
+            }
+
+            if (!empty($validated['status'])) {
+                $query->where('status', $validated['status']);
+            }
+
+            if (!empty($validated['priority'])) {
+                $query->where('priority', $validated['priority']);
+            }
+
+            $projects = $query
                 ->orderByDesc('created_at')
-                ->paginate((int) $request->get('per_page', 10));
+                ->paginate((int) ($validated['per_page'] ?? 10));
 
             return response()->json([
                 'success' => true,
+                'message' => 'Projects loaded successfully.',
                 'data' => $projects,
             ]);
         } catch (\Throwable $e) {
-            \Log::error('Projects index failed', [
+            Log::error('Projects index failed', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
@@ -56,142 +88,189 @@ class ProjectController extends Controller
 
     public function store(Request $request)
     {
-        $this->normalizeProjectPayload($request);
+        try {
+            $this->normalizeProjectPayload($request);
 
-        $validated = $request->validate([
-            'project_name' => ['required', 'string', 'max:255'],
-            'project_code' => [
-                'nullable',
-                'string',
-                'max:100',
-                Rule::unique('projects', 'project_code')
-                    ->where(fn ($query) => $query->where('user_id', $request->user()->id)),
-            ],
-            'description' => ['nullable', 'string'],
+            $validated = $request->validate([
+                'project_name' => ['required', 'string', 'max:255'],
+                'project_code' => [
+                    'nullable',
+                    'string',
+                    'max:100',
+                    Rule::unique('projects', 'project_code')
+                        ->where(fn ($query) => $query->where('user_id', $request->user()->id)),
+                ],
+                'description' => ['nullable', 'string'],
 
-            'status' => ['nullable', Rule::in($this->statuses)],
-            'priority' => ['nullable', Rule::in($this->priorities)],
+                'status' => ['nullable', Rule::in($this->statuses)],
+                'priority' => ['nullable', Rule::in($this->priorities)],
 
-            'start_date' => ['nullable', 'date'],
-            'target_end_date' => ['nullable', 'date'],
-            'actual_end_date' => ['nullable', 'date'],
+                'start_date' => ['nullable', 'date'],
+                'target_end_date' => ['nullable', 'date'],
+                'actual_end_date' => ['nullable', 'date'],
 
-            'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+                'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
 
-            'metadata' => ['nullable', 'array'],
-        ]);
+                'metadata' => ['nullable', 'array'],
+            ]);
 
-        $dateValidationResponse = $this->validateProjectDates($validated);
+            $dateValidationResponse = $this->validateProjectDates($validated);
 
-        if ($dateValidationResponse) {
-            return $dateValidationResponse;
+            if ($dateValidationResponse) {
+                return $dateValidationResponse;
+            }
+
+            $validated['user_id'] = (string) $request->user()->id;
+            $validated['status'] = $validated['status'] ?? 'not_started';
+            $validated['priority'] = $validated['priority'] ?? 'medium';
+            $validated['progress_percentage'] = $validated['progress_percentage'] ?? 0;
+
+            if ($validated['status'] === 'completed') {
+                $validated['progress_percentage'] = 100;
+                $validated['actual_end_date'] = $validated['actual_end_date'] ?? now()->toDateString();
+            }
+
+            $project = Project::create($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Project created successfully.',
+                'data' => new ProjectResource($project),
+            ], 201);
+        } catch (\Throwable $e) {
+            Log::error('Projects store failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Project creation failed.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $validated['user_id'] = $request->user()->id;
-        $validated['status'] = $validated['status'] ?? 'not_started';
-        $validated['priority'] = $validated['priority'] ?? 'medium';
-        $validated['progress_percentage'] = $validated['progress_percentage'] ?? 0;
-
-        if ($validated['status'] === 'completed') {
-            $validated['progress_percentage'] = 100;
-            $validated['actual_end_date'] = $validated['actual_end_date'] ?? now()->toDateString();
-        }
-
-        $project = Project::create($validated)->loadCount('tasks');
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Project created successfully.',
-            'data' => new ProjectResource($project),
-        ], 201);
     }
 
     public function show(Request $request, Project $project)
     {
-        $this->authorizeProject($request, $project);
+        try {
+            $this->authorizeProject($request, $project);
 
-        $project->loadCount('tasks');
+            return response()->json([
+                'success' => true,
+                'message' => 'Project loaded successfully.',
+                'data' => new ProjectResource($project),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Projects show failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
 
-        $project->load([
-            'tasks' => function ($query) {
-                $query->orderBy('task_order')->orderBy('created_at');
-            },
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Project loaded successfully.',
-            'data' => new ProjectResource($project),
-        ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Project show failed.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function update(Request $request, Project $project)
     {
-        $this->authorizeProject($request, $project);
-        $this->normalizeProjectPayload($request);
+        try {
+            $this->authorizeProject($request, $project);
+            $this->normalizeProjectPayload($request);
 
-        $validated = $request->validate([
-            'project_name' => ['sometimes', 'required', 'string', 'max:255'],
-            'project_code' => [
-                'nullable',
-                'string',
-                'max:100',
-                Rule::unique('projects', 'project_code')
-                    ->ignore($project->id)
-                    ->where(fn ($query) => $query->where('user_id', $request->user()->id)),
-            ],
-            'description' => ['nullable', 'string'],
+            $validated = $request->validate([
+                'project_name' => ['sometimes', 'required', 'string', 'max:255'],
+                'project_code' => [
+                    'nullable',
+                    'string',
+                    'max:100',
+                    Rule::unique('projects', 'project_code')
+                        ->ignore($project->id)
+                        ->where(fn ($query) => $query->where('user_id', $request->user()->id)),
+                ],
+                'description' => ['nullable', 'string'],
 
-            'status' => ['sometimes', Rule::in($this->statuses)],
-            'priority' => ['sometimes', Rule::in($this->priorities)],
+                'status' => ['sometimes', Rule::in($this->statuses)],
+                'priority' => ['sometimes', Rule::in($this->priorities)],
 
-            'start_date' => ['nullable', 'date'],
-            'target_end_date' => ['nullable', 'date'],
-            'actual_end_date' => ['nullable', 'date'],
+                'start_date' => ['nullable', 'date'],
+                'target_end_date' => ['nullable', 'date'],
+                'actual_end_date' => ['nullable', 'date'],
 
-            'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+                'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
 
-            'metadata' => ['nullable', 'array'],
-        ]);
+                'metadata' => ['nullable', 'array'],
+            ]);
 
-        $dateValidationResponse = $this->validateProjectDates($validated, $project);
+            $dateValidationResponse = $this->validateProjectDates($validated, $project);
 
-        if ($dateValidationResponse) {
-            return $dateValidationResponse;
+            if ($dateValidationResponse) {
+                return $dateValidationResponse;
+            }
+
+            if (($validated['status'] ?? null) === 'completed') {
+                $validated['progress_percentage'] = 100;
+                $validated['actual_end_date'] = $validated['actual_end_date'] ?? now()->toDateString();
+            }
+
+            if (($validated['status'] ?? null) !== 'completed' && array_key_exists('actual_end_date', $validated)) {
+                $validated['actual_end_date'] = $validated['actual_end_date'] ?: null;
+            }
+
+            $project->update($validated);
+
+            $project = $project->fresh();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Project updated successfully.',
+                'data' => new ProjectResource($project),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Projects update failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Project update failed.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        if (($validated['status'] ?? null) === 'completed') {
-            $validated['progress_percentage'] = 100;
-            $validated['actual_end_date'] = $validated['actual_end_date'] ?? now()->toDateString();
-        }
-
-        if (($validated['status'] ?? null) !== 'completed' && array_key_exists('actual_end_date', $validated)) {
-            $validated['actual_end_date'] = $validated['actual_end_date'] ?: null;
-        }
-
-        $project->update($validated);
-
-        $project = $project->fresh()->loadCount('tasks');
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Project updated successfully.',
-            'data' => new ProjectResource($project),
-        ]);
     }
 
     public function destroy(Request $request, Project $project)
     {
-        $this->authorizeProject($request, $project);
+        try {
+            $this->authorizeProject($request, $project);
 
-        $project->delete();
+            $project->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Project deleted successfully.',
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Project deleted successfully.',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Projects delete failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Project delete failed.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
-
 
     private function normalizeProjectPayload(Request $request): void
     {
@@ -219,7 +298,7 @@ class ProjectController extends Controller
     private function authorizeProject(Request $request, Project $project): void
     {
         abort_if(
-            $project->user_id !== $request->user()->id,
+            (string) $project->user_id !== (string) $request->user()->id,
             403,
             'Unauthorized project access.'
         );

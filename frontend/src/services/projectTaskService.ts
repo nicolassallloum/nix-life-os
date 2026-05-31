@@ -12,6 +12,23 @@ export interface ProjectTaskPayload {
   notes?: string | null
 }
 
+export const projectService = {
+  list(params = {}) {
+    return apiClient.get('/projects', { params })
+  },
+
+  create(payload: any) {
+    return apiClient.post('/projects', payload)
+  },
+
+  update(id: string, payload: any) {
+    return apiClient.put(`/projects/${id}`, payload)
+  },
+
+  delete(id: string) {
+    return apiClient.delete(`/projects/${id}`)
+  },
+}
 export const projectTaskService = {
   list(params = {}) {
     return apiClient.get('/projects/tasks', { params })

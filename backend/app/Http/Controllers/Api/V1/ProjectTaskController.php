@@ -46,10 +46,16 @@ class ProjectTaskController extends Controller
             $columns = $this->columns();
 
             $titleColumn = $this->firstExistingColumn($columns, [
-                'title',
                 'task_title',
+                'title',
                 'task_name',
                 'name',
+            ]);
+
+            $descriptionColumn = $this->firstExistingColumn($columns, [
+                'task_description',
+                'description',
+                'details',
             ]);
 
             $dueDateColumn = $this->firstExistingColumn($columns, [
@@ -74,12 +80,26 @@ class ProjectTaskController extends Controller
                 $query->where('priority', $request->priority);
             }
 
+            if ($request->filled('search')) {
+                $search = $request->search;
+
+                $query->where(function ($subQuery) use ($search, $titleColumn, $descriptionColumn) {
+                    if ($titleColumn) {
+                        $subQuery->orWhere($titleColumn, 'ILIKE', "%{$search}%");
+                    }
+
+                    if ($descriptionColumn) {
+                        $subQuery->orWhere($descriptionColumn, 'ILIKE', "%{$search}%");
+                    }
+                });
+            }
+
             if ($dueDateColumn) {
                 $query->orderByRaw("CASE WHEN {$dueDateColumn} IS NULL THEN 1 ELSE 0 END");
                 $query->orderBy($dueDateColumn);
             } elseif ($titleColumn) {
                 $query->orderBy($titleColumn);
-            } else {
+            } elseif (in_array('created_at', $columns, true)) {
                 $query->orderByDesc('created_at');
             }
 
@@ -153,6 +173,16 @@ class ProjectTaskController extends Controller
     public function store(Request $request)
     {
         try {
+            $routeProjectId = $request->route('project');
+
+            if ($routeProjectId && !$request->filled('project_id')) {
+                $request->merge([
+                    'project_id' => is_object($routeProjectId) && isset($routeProjectId->id)
+                        ? $routeProjectId->id
+                        : $routeProjectId,
+                ]);
+            }
+
             $validated = $request->validate([
                 'project_id' => ['required', 'exists:projects,id'],
                 'title' => ['required', 'string', 'max:200'],
@@ -177,10 +207,16 @@ class ProjectTaskController extends Controller
             $columns = $this->columns();
 
             $titleColumn = $this->firstExistingColumn($columns, [
-                'title',
                 'task_title',
+                'title',
                 'task_name',
                 'name',
+            ]);
+
+            $descriptionColumn = $this->firstExistingColumn($columns, [
+                'task_description',
+                'description',
+                'details',
             ]);
 
             if (!$titleColumn) {
@@ -197,18 +233,18 @@ class ProjectTaskController extends Controller
                 $insert['id'] = (string) Str::uuid();
             }
 
-            if (in_array('user_id', $columns, true)) {
-                $insert['user_id'] = $userId;
-            }
-
             if (in_array('project_id', $columns, true)) {
                 $insert['project_id'] = $validated['project_id'];
             }
 
+            if (in_array('user_id', $columns, true)) {
+                $insert['user_id'] = $userId;
+            }
+
             $insert[$titleColumn] = $validated['title'];
 
-            if (in_array('description', $columns, true)) {
-                $insert['description'] = $validated['description'] ?? null;
+            if ($descriptionColumn) {
+                $insert[$descriptionColumn] = $validated['description'] ?? null;
             }
 
             if (in_array('priority', $columns, true)) {
@@ -217,6 +253,10 @@ class ProjectTaskController extends Controller
 
             if (in_array('status', $columns, true)) {
                 $insert['status'] = $validated['status'] ?? 'todo';
+            }
+
+            if (in_array('task_order', $columns, true)) {
+                $insert['task_order'] = 0;
             }
 
             if (in_array('start_date', $columns, true)) {
@@ -235,12 +275,16 @@ class ProjectTaskController extends Controller
                 $insert['notes'] = $validated['notes'] ?? null;
             }
 
-            if (in_array('task_order', $columns, true)) {
-                $insert['task_order'] = 0;
-            }
-
             if (in_array('progress_percentage', $columns, true)) {
                 $insert['progress_percentage'] = 0;
+            }
+
+            if (in_array('weight', $columns, true)) {
+                $insert['weight'] = 1;
+            }
+
+            if (in_array('metadata', $columns, true)) {
+                $insert['metadata'] = null;
             }
 
             if (in_array('created_at', $columns, true)) {
@@ -253,9 +297,7 @@ class ProjectTaskController extends Controller
 
             DB::table($this->tableName())->insert($insert);
 
-            $idColumn = in_array('id', $columns, true) ? 'id' : null;
-
-            $task = $idColumn
+            $task = in_array('id', $columns, true)
                 ? DB::table($this->tableName())->where('id', $insert['id'])->first()
                 : DB::table($this->tableName())
                     ->where('project_id', $validated['project_id'])
@@ -285,19 +327,33 @@ class ProjectTaskController extends Controller
 
     public function show(Request $request, $task)
     {
-        $userId = (string) $request->user()->id;
+        try {
+            $userId = (string) $request->user()->id;
 
-        $row = DB::table($this->tableName())
-            ->where('id', $task)
-            ->where('user_id', $userId)
-            ->first();
+            $row = DB::table($this->tableName())
+                ->where('id', $task)
+                ->where('user_id', $userId)
+                ->first();
 
-        abort_if(!$row, 404);
+            abort_if(!$row, 404, 'Task not found.');
 
-        return response()->json([
-            'success' => true,
-            'data' => $row,
-        ]);
+            return response()->json([
+                'success' => true,
+                'data' => $row,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Project tasks show failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Project task show failed.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 
     public function update(Request $request, $task)
@@ -307,10 +363,16 @@ class ProjectTaskController extends Controller
             $columns = $this->columns();
 
             $titleColumn = $this->firstExistingColumn($columns, [
-                'title',
                 'task_title',
+                'title',
                 'task_name',
                 'name',
+            ]);
+
+            $descriptionColumn = $this->firstExistingColumn($columns, [
+                'task_description',
+                'description',
+                'details',
             ]);
 
             $update = [];
@@ -319,8 +381,11 @@ class ProjectTaskController extends Controller
                 $update[$titleColumn] = $request->title;
             }
 
+            if ($descriptionColumn && $request->has('description')) {
+                $update[$descriptionColumn] = $request->description;
+            }
+
             foreach ([
-                'description',
                 'priority',
                 'status',
                 'start_date',
@@ -329,6 +394,9 @@ class ProjectTaskController extends Controller
                 'notes',
                 'progress_percentage',
                 'task_order',
+                'completed_date',
+                'completed_at',
+                'weight',
             ] as $column) {
                 if (in_array($column, $columns, true) && $request->has($column)) {
                     $update[$column] = $request->{$column};
@@ -369,16 +437,30 @@ class ProjectTaskController extends Controller
 
     public function destroy(Request $request, $task)
     {
-        $userId = (string) $request->user()->id;
+        try {
+            $userId = (string) $request->user()->id;
 
-        DB::table($this->tableName())
-            ->where('id', $task)
-            ->where('user_id', $userId)
-            ->delete();
+            DB::table($this->tableName())
+                ->where('id', $task)
+                ->where('user_id', $userId)
+                ->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Project task deleted successfully.',
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Project task deleted successfully.',
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Project tasks delete failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Project task delete failed.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
 }
