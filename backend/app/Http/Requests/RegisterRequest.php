@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class RegisterRequest extends FormRequest
@@ -19,16 +20,27 @@ class RegisterRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:150'],
-            'email' => ['required', 'string', 'max:190', 'regex:/^[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}$/i', 'unique:users,email'],
+            'email' => [
+                'required',
+                'string',
+                'email:rfc,dns',
+                'max:190',
+                Rule::unique('users', 'email'),
+            ],
+            'phone' => ['nullable', 'string', 'max:50'],
             'password' => [
                 'required',
                 'confirmed',
-                Password::min(10)
-                    ->letters()
-                    ->mixedCase()
-                    ->numbers()
-                    ->symbols(),
+                Password::min(8)->letters()->mixedCase()->numbers(),
             ],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'password.confirmed' => 'Password confirmation does not match.',
+            'email.unique' => 'This email is already registered.',
         ];
     }
 }

@@ -35,12 +35,13 @@
             v-model="form.password"
             type="password"
             class="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-slate-900"
-            placeholder="Password123!"
+            placeholder="Password123"
             autocomplete="new-password"
             required
+            minlength="8"
           />
           <p class="text-xs text-slate-500 mt-1">
-            Use at least 8 characters with uppercase, lowercase, number, and symbol.
+            Use at least 8 characters with uppercase, lowercase, and number.
           </p>
         </div>
 
@@ -50,14 +51,20 @@
             v-model="form.password_confirmation"
             type="password"
             class="w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-slate-900"
-            placeholder="Password123!"
+            placeholder="Password123"
             autocomplete="new-password"
             required
+            minlength="8"
           />
         </div>
 
-        <p v-if="error" class="text-red-600 text-sm">{{ error }}</p>
-        <p v-if="success" class="text-green-600 text-sm">{{ success }}</p>
+        <div v-if="error" class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {{ error }}
+        </div>
+
+        <div v-if="success" class="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+          {{ success }}
+        </div>
 
         <button
           type="submit"
@@ -94,21 +101,62 @@ const loading = ref(false)
 const error = ref('')
 const success = ref('')
 
-function extractErrors(responseData) {
-  if (responseData?.errors) {
-    return Object.values(responseData.errors).flat().join(' ')
+function firstError(errors) {
+  if (!errors || typeof errors !== 'object') return ''
+
+  const value = Object.values(errors)[0]
+
+  if (Array.isArray(value)) return value[0] || ''
+  if (typeof value === 'string') return value
+
+  return ''
+}
+
+function getErrorMessage(err) {
+  return (
+    firstError(err?.errors) ||
+    firstError(err?.response?.data?.errors) ||
+    err?.data?.message ||
+    err?.response?.data?.message ||
+    err?.message ||
+    'Registration failed. Please check the API connection.'
+  )
+}
+
+function validateForm() {
+  if (form.password !== form.password_confirmation) {
+    return 'Password confirmation does not match.'
   }
 
-  return responseData?.message || 'Registration failed.'
+  if (form.password.length < 8) {
+    return 'Password must be at least 8 characters.'
+  }
+
+  return ''
 }
 
 async function register() {
-  loading.value = true
   error.value = ''
   success.value = ''
 
+  const validationError = validateForm()
+
+  if (validationError) {
+    error.value = validationError
+    return
+  }
+
+  loading.value = true
+
   try {
-    const response = await api.post('/auth/register', { ...form })
+    const payload = {
+      name: form.name,
+      email: form.email,
+      password: form.password,
+      password_confirmation: form.password_confirmation,
+    }
+
+    const response = await api.post('/auth/register', payload)
     const data = response.data
 
     const token = data?.data?.token || data?.token || data?.access_token
@@ -123,7 +171,7 @@ async function register() {
 
     await router.push('/dashboard')
   } catch (err) {
-    error.value = extractErrors(err.response?.data) || err.message
+    error.value = getErrorMessage(err)
   } finally {
     loading.value = false
   }

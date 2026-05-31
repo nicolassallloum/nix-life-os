@@ -41,7 +41,7 @@ export function normalizeApiError(error, fallbackMessage = 'Something went wrong
   } else if (!response && error?.request) {
     message = 'Unable to connect to the server. Please check your connection and try again.'
   } else if (status === 401) {
-    message = 'Your session expired. Please login again.'
+    message = message || 'Your session expired. Please login again.'
   } else if (status === 403) {
     message = 'You do not have permission to access this page.'
   } else if (status === 404) {
@@ -72,13 +72,17 @@ export function getApiErrorMessage(error, fallbackMessage = 'Something went wron
   return normalizeApiError(error, fallbackMessage).message
 }
 
+function isPublicAuthPage() {
+  return ['/login', '/register'].includes(window.location.pathname)
+}
+
 function handleAuthRedirect(status) {
   const currentPath = window.location.pathname + window.location.search
 
   if (status === 401) {
     clearAuthSession()
 
-    if (window.location.pathname !== '/login') {
+    if (!isPublicAuthPage()) {
       window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`
     }
   }

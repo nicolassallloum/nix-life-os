@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,7 +11,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -30,8 +30,9 @@ class AuthController extends Controller
         }
 
         $validated = $validator->validated();
+        $email = strtolower(trim($validated['email']));
 
-        $user = User::where('email', $validated['email'])->first();
+        $user = User::whereRaw('LOWER(email) = ?', [$email])->first();
 
         if (! $user || ! Hash::check($validated['password'], $user->password)) {
             if ($user && Schema::hasColumn('users', 'failed_login_attempts')) {
@@ -44,7 +45,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-        if (Schema::hasColumn('users', 'is_active') && ! $user->is_active) {
+        if (Schema::hasColumn('users', 'is_active') && ! (bool) $user->is_active) {
             return response()->json([
                 'success' => false,
                 'message' => 'Your account is inactive.',
@@ -61,6 +62,7 @@ class AuthController extends Controller
             ], 403);
         }
 
+        // Keep one active API token per user for a clean PWA session.
         $user->tokens()->delete();
 
         $token = $user->createToken('nixlifeos')->plainTextToken;
@@ -97,52 +99,42 @@ class AuthController extends Controller
         ]);
     }
 
-    public function register(Request $request): JsonResponse
+    public function register(RegisterRequest $request): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'max:50'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        $validated = $request->validated();
+        $email = strtolower(trim($validated['email']));
+
+        $user = new User();
+
+        // Only set a UUID manually when the users.id column is actually UUID/string based.
+        // Do NOT set id for normal bigint auto-increment IDs.
+        if ($this->userIdNeedsUuid()) {
+            $user->id = (string) Str::uuid();
+        }
+
+        $user->forceFill([
+            'name' => trim($validated['name']),
+            'email' => $email,
+            'password' => Hash::make($validated['password']),
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation failed.',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $validated = $validator->validated();
-
-        $data = [
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-        ];
-
-        if (Schema::hasColumn('users', 'id')) {
-            $data['id'] = (string) Str::uuid();
-        }
-
         if (Schema::hasColumn('users', 'phone')) {
-            $data['phone'] = $validated['phone'] ?? null;
+            $user->phone = $validated['phone'] ?? null;
         }
 
         if (Schema::hasColumn('users', 'status')) {
-            $data['status'] = 'ACTIVE';
+            $user->status = 'ACTIVE';
         }
 
         if (Schema::hasColumn('users', 'is_active')) {
-            $data['is_active'] = true;
+            $user->is_active = true;
         }
 
         if (Schema::hasColumn('users', 'role')) {
-            $data['role'] = 'user';
+            $user->role = 'user';
         }
 
-        $user = User::create($data);
+        $user->save();
 
         if (method_exists($user, 'assignRole')) {
             try {
@@ -158,7 +150,7 @@ class AuthController extends Controller
             'success' => true,
             'message' => 'Registration successful.',
             'data' => [
-                'user' => $this->formatUser($user),
+                'user' => $this->formatUser($user->fresh()),
                 'token' => $token,
                 'token_type' => 'Bearer',
                 'expires_in_minutes' => 1440,
@@ -191,8 +183,27 @@ class AuthController extends Controller
         ]);
     }
 
-    private function formatUser(User $user): array
+    private function userIdNeedsUuid(): bool
     {
+        if (! Schema::hasColumn('users', 'id')) {
+            return false;
+        }
+
+        try {
+            $type = Schema::getColumnType('users', 'id');
+        } catch (\Throwable $e) {
+            return false;
+        }
+
+        return in_array($type, ['uuid', 'string', 'char'], true);
+    }
+
+    private function formatUser(?User $user): array
+    {
+        if (! $user) {
+            return [];
+        }
+
         $roles = [];
         $permissions = [];
 
