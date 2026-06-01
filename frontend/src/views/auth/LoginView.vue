@@ -55,12 +55,7 @@
 
   <p class="mt-8 text-center text-sm text-slate-600">
     Don't have an account?
-    <RouterLink
-      to="/register"
-      class="font-semibold text-slate-950 hover:underline"
-    >
-      Register
-    </RouterLink>
+    
   </p>
 
   <p class="mt-3 text-center text-sm text-slate-500">
