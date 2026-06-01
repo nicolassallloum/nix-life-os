@@ -53,12 +53,27 @@
         </button>
       </form>
 
-      <p class="mt-8 text-center text-sm text-slate-600">
-        Don't have an account?
-        <RouterLink to="/register" class="font-bold text-slate-950 hover:underline">
-          Register
-        </RouterLink>
-      </p>
+  <p class="mt-8 text-center text-sm text-slate-600">
+    Don't have an account?
+    <RouterLink
+      to="/register"
+      class="font-semibold text-slate-950 hover:underline"
+    >
+      Register
+    </RouterLink>
+  </p>
+
+  <p class="mt-3 text-center text-sm text-slate-500">
+    Contact
+    <a
+      href="https://www.instagram.com/nixo.tech/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="font-semibold text-slate-950 hover:underline"
+    >
+      NixoTech
+    </a>
+  </p>
     </div>
   </div>
 </template>
