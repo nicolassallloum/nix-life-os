@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { canAccessRoute, getAuthToken, getAuthUser } from '@/utils/auth'
 import UnderConstructionView from '@/views/system/UnderConstructionView.vue'
 import ApplicationDownView from '@/views/system/ApplicationDownView.vue'
+import ComingSoonView from '@/views/ComingSoonView.vue'
 const LoginView = () => import('@/views/auth/LoginView.vue')
 const RegisterView = () => import('@/views/auth/RegisterView.vue')
 const UnauthorizedView = () => import('@/views/auth/UnauthorizedView.vue')
@@ -111,7 +112,7 @@ const routes = [
   {
     path: '/settings',
     name: 'Settings',
-    component: NotFoundView,
+    component: ComingSoonView,
     meta: {
       title: 'Settings',
       requiresAuth: true
@@ -120,7 +121,7 @@ const routes = [
   {
     path: '/profile',
     name: 'Profile',
-    component: NotFoundView,
+    component: ComingSoonView,
     meta: {
       title: 'Profile',
       requiresAuth: true
@@ -129,7 +130,7 @@ const routes = [
   {
     path: '/:pathMatch(.*)*',
     name: 'PageNotFound',
-    component: NotFoundView,
+    component: ComingSoonView,
     meta: {
       title: 'Under Construction',
       requiresAuth: false
@@ -166,38 +167,38 @@ const routes = [
   {
     path: '/productivity/dashboard',
     name: 'ProductivityDashboard',
-    component: ProductivityDashboardView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Productivity Dashboard' },
   },
   {
     path: '/productivity/ai-insights',
     name: 'ProductivityAIInsights',
-    component: ProductivityAIInsightsView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Productivity AI Insights' },
   },
   {
     path: '/productivity/tasks',
     name: 'ProductivityTasks',
-    component: TasksView,
+    component: ComingSoonView,
     alias: ['/tasks'],
     meta: { requiresAuth: true, title: 'Tasks' },
   },
   {
     path: '/productivity/habits',
     name: 'ProductivityHabits',
-    component: HabitsView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Habits' },
   },
   {
     path: '/productivity/goals',
     name: 'ProductivityGoals',
-    component: GoalsView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Goals' },
   },
   {
     path: '/productivity/calendar',
     name: 'ProductivityCalendar',
-    component: CalendarView,
+    component: ComingSoonView,
     alias: ['/calendar', '/schedule', '/productivity/schedule'],
     meta: { requiresAuth: true, title: 'Calendar / Schedule' },
   },
@@ -243,67 +244,67 @@ const routes = [
   {
     path: '/health',
     name: 'HealthDashboard',
-    component: HealthView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Health Dashboard' },
   },
   {
     path: '/health/ai-insights',
     name: 'HealthAIInsights',
-    component: HealthAIInsightsView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Health AI Insights' },
   },
   {
     path: '/health/steps',
     name: 'HealthSteps',
-    component: StepsTrackingView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Steps Tracking' },
   },
   {
     path: '/health/weight',
     name: 'HealthWeight',
-    component: WeightTrackingView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Weight Tracking' },
   },
   {
     path: '/health/nutrition',
     name: 'HealthNutrition',
-    component: NutritionTrackingView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Nutrition Tracking' },
   },
   {
     path: '/health/nutrition/dashboard',
     name: 'HealthNutritionDashboard',
-    component: NutritionDashboardView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Nutrition Dashboard' },
   },
   {
     path: '/health/nutrition/food-items',
     name: 'HealthFoodItems',
-    component: FoodItemsView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Food Items' },
   },
   {
     path: '/health/nutrition/meal-logger',
     name: 'HealthMealLogger',
-    component: MealLoggerView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Meal Logger' },
   },
   {
     path: '/health/custom-foods',
     name: 'HealthCustomFoods',
-    component: CustomFoodsView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Custom Foods' },
   },
   {
     path: '/health/hydration',
     name: 'HealthHydration',
-    component: HydrationTrackingView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Hydration Tracking' },
   },
   {
     path: '/health/sleep',
     name: 'HealthSleep',
-    component: SleepTrackingView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Sleep Tracking' },
   },
 
@@ -316,37 +317,37 @@ const routes = [
   {
     path: '/health/medications',
     name: 'HealthMedications',
-    component: MedicationTrackingView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Medication Tracking' },
   },
   {
     path: '/health/medicaments',
     name: 'HealthMedicaments',
-    component: MedicamentsTrackingView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Medicaments' },
   },
   {
     path: '/health/lab-tests',
     name: 'HealthLabTests',
-    component: LabTestsTrackingView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Lab Tests' },
   },
   {
     path: '/health/mood',
     name: 'HealthMood',
-    component: MoodTrackingView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Mood Tracking' },
   },
   {
     path: '/health/alerts',
     name: 'HealthAlerts',
-    component: HealthAlertsView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Health Alerts' },
   },
   {
     path: '/health/reports',
     name: 'HealthReports',
-    component: HealthReportsView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Health Reports' },
   },
 
@@ -354,57 +355,57 @@ const routes = [
   {
     path: '/projects/dashboard',
     name: 'ProjectsDashboard',
-    component: ProjectsDashboardView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Projects Dashboard' },
   },
   {
     path: '/projects/list',
     name: 'ProjectsList',
-    component: ProjectsView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Project List' },
   },
   {
     path: '/projects/tasks',
     name: 'ProjectTasks',
-    component: ProjectTasksView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Project Tasks' },
   },
   {
     path: '/projects/milestones',
     name: 'ProjectMilestones',
-    component: ProjectMilestonesView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Project Milestones' },
   },
   {
     path: '/projects/progress',
     name: 'ProjectProgress',
-    component: ProjectProgressView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Project Progress' },
   },
   {
     path: '/projects/status-updates',
     name: 'ProjectStatusUpdates',
-    component: ProjectStatusUpdatesView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Status Updates' },
   },
 
   {
     path: '/notifications',
     name: 'Notifications',
-    component: NotificationsView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Notifications' },
   },
   {
     path: '/notifications/settings',
     name: 'NotificationSettings',
-    component: NotificationSettingsView,
+    component: ComingSoonView,
     meta: { requiresAuth: true, title: 'Notification Settings' },
   },
 
   {
     path: '/system/monitoring',
     name: 'MonitoringDashboard',
-    component: MonitoringDashboardView,
+    component: ComingSoonView,
     alias: ['/monitoring'],
     meta: { requiresAuth: true, title: 'Logging & Monitoring' },
   },
@@ -487,7 +488,7 @@ const routes = [
   {
     path: '/:pathMatch(.*)*',
     name: 'PageNotFound',
-    component: NotFoundView,
+    component: ComingSoonView,
     meta: {
       title: 'Under Construction',
       requiresAuth: false
