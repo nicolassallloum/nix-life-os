@@ -18,8 +18,8 @@
   background: #020617;
   display: flex;
   justify-content: center;
-  align-items: center;
-  overflow: hidden;
+  align-items: flex-start;
+  overflow-x: hidden;
 }
 
 .coming-soon-image {
@@ -31,11 +31,13 @@
 }
 
 @media (min-width: 768px) {
+  .coming-soon-page {
+    align-items: center;
+  }
+
   .coming-soon-image {
     max-width: 430px;
-    border-left: 1px solid rgba(56, 189, 248, 0.25);
-    border-right: 1px solid rgba(168, 85, 247, 0.25);
-    box-shadow: 0 0 60px rgba(59, 130, 246, 0.25);
+    box-shadow: 0 0 60px rgba(59, 130, 246, 0.35);
   }
 }
 </style>
