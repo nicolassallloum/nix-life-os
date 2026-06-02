@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { createRouter, createWebHistory } from 'vue-router'
 import { canAccessRoute, getAuthToken, getAuthUser } from '@/utils/auth'
+import api from '@/services/api'
 
 import ApplicationDownView from '@/views/system/ApplicationDownView.vue'
 import ComingSoonView from '@/views/system/ComingSoonView.vue'
@@ -727,6 +728,15 @@ router.beforeEach((to, from, next) => {
     return
   }
 
+  if (token && to.meta?.requiresAdmin) {
+    const email = String(user?.email || '').toLowerCase()
+
+    if (email !== 'admin@nixlifeos.com') {
+      next('/unauthorized')
+      return
+    }
+  }
+
   if (token && to.meta?.requiresRole) {
     const roles = Array.isArray(user?.roles) ? user.roles : []
 
@@ -757,6 +767,14 @@ router.beforeEach((to, from, next) => {
 router.afterEach((to) => {
   const title = to.meta?.title ? `${to.meta.title} | Nix Life OS` : 'Nix Life OS'
   document.title = title
+
+  if (getStoredToken() && !to.meta?.publicLayout) {
+    api.post('/track-visit', {
+      page_url: window.location.href,
+      page_name: String(to.name || to.path),
+      referrer: document.referrer || null,
+    }).catch(() => {})
+  }
 })
 
 router.onError((error) => {

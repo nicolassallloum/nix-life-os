@@ -77,6 +77,37 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Application Visit Tracking / Online Users
+    |--------------------------------------------------------------------------
+    */
+    Route::post('/track-visit', function (Request $request) {
+        if (Schema::hasTable('users') && Schema::hasColumn('users', 'last_seen_at')) {
+            DB::table('users')
+                ->where('id', $request->user()->id)
+                ->update(['last_seen_at' => now()]);
+        }
+
+        if (Schema::hasTable('application_visits')) {
+            DB::table('application_visits')->insert([
+                'user_id' => $request->user()->id,
+                'ip_address' => $request->ip(),
+                'user_agent' => (string) $request->userAgent(),
+                'page_url' => $request->input('page_url'),
+                'page_name' => $request->input('page_name'),
+                'referrer' => $request->input('referrer'),
+                'visited_at' => now(),
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Visit tracked successfully.',
+        ]);
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Finance Categories
     |--------------------------------------------------------------------------
     */

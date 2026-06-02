@@ -9,14 +9,37 @@
         </p>
       </div>
 
-      <button
-        type="button"
-        class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
-        :disabled="loading"
-        @click="loadFinanceDashboard"
-      >
-        {{ loading ? "Refreshing..." : "Refresh" }}
-      </button>
+      <div class="flex flex-wrap gap-2">
+        <RouterLink
+          to="/finance/transactions"
+          class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+        >
+          Transfer Money
+        </RouterLink>
+
+        <RouterLink
+          to="/finance/budgets/create"
+          class="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+        >
+          Create Budget
+        </RouterLink>
+
+        <RouterLink
+          to="/finance/categories/create"
+          class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+        >
+          Create Category
+        </RouterLink>
+
+        <button
+          type="button"
+          class="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-60"
+          :disabled="loading"
+          @click="loadFinanceDashboard"
+        >
+          {{ loading ? "Refreshing..." : "Refresh" }}
+        </button>
+      </div>
     </div>
 
     <!-- Error -->
@@ -199,7 +222,9 @@
                     class="py-3 pr-4 text-right font-semibold"
                     :class="transaction.transaction_type === 'income'
                       ? 'text-emerald-700'
-                      : 'text-red-700'"
+                      : transaction.transaction_type === 'expense'
+                        ? 'text-red-700'
+                        : 'text-blue-700'"
                   >
                     {{ transaction.transaction_type === "expense" ? "-" : "" }}
                     {{ formatMoney(transaction.amount, transaction.currency_code || "USD") }}
@@ -384,9 +409,22 @@ const loadTransactions = async () => {
       throw new Error(result.message || "Failed to load transactions.");
     }
 
-    recentTransactions.value = Array.isArray(result.data?.data)
-      ? result.data.data
-      : [];
+    if (Array.isArray(result.data)) {
+      recentTransactions.value = result.data;
+      return;
+    }
+
+    if (Array.isArray(result.data?.data)) {
+      recentTransactions.value = result.data.data;
+      return;
+    }
+
+    if (Array.isArray(result.data?.data?.data)) {
+      recentTransactions.value = result.data.data.data;
+      return;
+    }
+
+    recentTransactions.value = [];
   } catch (err) {
     console.error("Load transactions error:", err);
     transactionError.value = err.message || "Failed to load transactions.";

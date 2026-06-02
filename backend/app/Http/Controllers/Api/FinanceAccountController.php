@@ -17,7 +17,7 @@ class FinanceAccountController extends Controller
     public function index(Request $request): JsonResponse
     {
         $accounts = DB::table('finance_accounts')
-            ->where('user_id', $request->user()->id)
+            ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $request->user()->id))
             ->orderByDesc('created_at')
             ->get()
             ->map(fn ($account) => $this->serializeAccount($account))
@@ -105,8 +105,8 @@ class FinanceAccountController extends Controller
         $payload = array_filter($payload, fn ($value) => $value !== null);
 
         DB::table('finance_accounts')
-            ->where('user_id', $request->user()->id)
             ->where('id', $id)
+            ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $request->user()->id))
             ->update($payload);
 
         return response()->json([
@@ -125,8 +125,8 @@ class FinanceAccountController extends Controller
         }
 
         DB::table('finance_accounts')
-            ->where('user_id', $request->user()->id)
             ->where('id', $id)
+            ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $request->user()->id))
             ->delete();
 
         return response()->json([
@@ -178,8 +178,8 @@ class FinanceAccountController extends Controller
         }
 
         return DB::table('finance_accounts')
-            ->where('user_id', $request->user()->id)
             ->where('id', $id)
+            ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $request->user()->id))
             ->first();
     }
 
@@ -214,6 +214,11 @@ class FinanceAccountController extends Controller
         return collect($payload)
             ->filter(fn ($value, $column) => Schema::hasColumn($table, $column))
             ->all();
+    }
+
+    private function isAdmin(Request $request): bool
+    {
+        return strtolower((string) optional($request->user())->email) === 'admin@nixlifeos.com';
     }
 
     private function notFound(): JsonResponse

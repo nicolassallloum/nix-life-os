@@ -16,11 +16,23 @@ class FinanceTransactionController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $transactions = DB::table('finance_transactions')
-            ->where('user_id', $request->user()->id)
+        $query = DB::table('finance_transactions')
             ->orderByDesc('transaction_date')
-            ->orderByDesc('created_at')
-            ->limit((int) $request->input('limit', 100))
+            ->orderByDesc('created_at');
+
+        if (! $this->isAdmin($request)) {
+            $query->where('user_id', $request->user()->id);
+        }
+
+        if ($request->filled('type')) {
+            $query->where('transaction_type', strtolower((string) $request->query('type')));
+        }
+
+        $limit = (int) ($request->input('limit') ?: $request->input('per_page') ?: 250);
+        $limit = max(1, min($limit, 1000));
+
+        $transactions = $query
+            ->limit($limit)
             ->get()
             ->map(fn ($transaction) => $this->serializeTransaction($transaction))
             ->values();
@@ -43,9 +55,29 @@ class FinanceTransactionController extends Controller
             return $this->validationError('account_id', 'The selected account id is invalid.');
         }
 
+        $type = $validated['transaction_type'];
+        $transferAccount = null;
+
+        if ($type === 'transfer') {
+            if (empty($validated['transfer_account_id'])) {
+                return $this->validationError('transfer_account_id', 'Destination account is required for transfer transactions.');
+            }
+
+            if ($validated['transfer_account_id'] === $account->id) {
+                return $this->validationError('transfer_account_id', 'Destination account must be different from source account.');
+            }
+
+            $transferAccount = $this->findUserAccount($request, $validated['transfer_account_id']);
+
+            if (! $transferAccount) {
+                return $this->validationError('transfer_account_id', 'The selected destination account id is invalid.');
+            }
+        } else {
+            $validated['transfer_account_id'] = null;
+        }
+
         $id = (string) Str::uuid();
         $now = now();
-        $type = $validated['transaction_type'];
 
         DB::transaction(function () use ($request, $validated, $account, $id, $now, $type) {
             $payload = $this->filterExistingColumns('finance_transactions', [
@@ -70,7 +102,13 @@ class FinanceTransactionController extends Controller
             ]);
 
             DB::table('finance_transactions')->insert($payload);
-            $this->applyBalanceDelta($account->id, $type, (float) $validated['amount']);
+
+            $this->applyBalanceDelta(
+                $account->id,
+                $validated['transfer_account_id'] ?? null,
+                $type,
+                (float) $validated['amount']
+            );
         });
 
         $transaction = $this->findUserTransaction($request, $id);
@@ -124,19 +162,39 @@ class FinanceTransactionController extends Controller
             return $this->validationError('account_id', 'The selected account id is invalid.');
         }
 
-        DB::transaction(function () use ($request, $transaction, $validated, $account, $id) {
+        $newType = $validated['transaction_type'] ?? ($transaction->transaction_type ?? $transaction->type ?? 'expense');
+        $newTransferAccountId = $validated['transfer_account_id'] ?? ($transaction->transfer_account_id ?? null);
+
+        if ($newType === 'transfer') {
+            if (empty($newTransferAccountId)) {
+                return $this->validationError('transfer_account_id', 'Destination account is required for transfer transactions.');
+            }
+
+            if ($newTransferAccountId === $account->id) {
+                return $this->validationError('transfer_account_id', 'Destination account must be different from source account.');
+            }
+
+            if (! $this->findUserAccount($request, $newTransferAccountId)) {
+                return $this->validationError('transfer_account_id', 'The selected destination account id is invalid.');
+            }
+        } else {
+            $newTransferAccountId = null;
+        }
+
+        DB::transaction(function () use ($request, $transaction, $validated, $account, $id, $newType, $newTransferAccountId) {
             $oldType = $transaction->transaction_type ?? $transaction->type ?? 'expense';
             $oldAmount = (float) $transaction->amount;
-            $this->reverseBalanceDelta($transaction->account_id, $oldType, $oldAmount);
+            $oldTransferAccountId = $transaction->transfer_account_id ?? null;
 
-            $newType = $validated['transaction_type'] ?? $oldType;
+            $this->reverseBalanceDelta($transaction->account_id, $oldTransferAccountId, $oldType, $oldAmount);
+
             $newAmount = $validated['amount'] ?? $transaction->amount;
 
             $payload = $this->filterExistingColumns('finance_transactions', [
                 'account_id' => $account->id,
                 'transaction_type' => $newType,
                 'type' => $newType,
-                'category' => $validated['category'] ?? null,
+                'category' => $validated['category'] ?? ($transaction->category ?? null),
                 'amount' => $newAmount,
                 'currency_code' => isset($validated['currency_code']) ? strtoupper($validated['currency_code']) : ($transaction->currency_code ?? null),
                 'currency' => isset($validated['currency_code']) ? strtoupper($validated['currency_code']) : ($transaction->currency ?? null),
@@ -144,18 +202,18 @@ class FinanceTransactionController extends Controller
                 'description' => array_key_exists('description', $validated) ? $validated['description'] : ($transaction->description ?? null),
                 'notes' => array_key_exists('notes', $validated) ? $validated['notes'] : ($transaction->notes ?? null),
                 'metadata_json' => $validated['metadata_json'] ?? ($transaction->metadata_json ?? null),
-                'transfer_account_id' => $validated['transfer_account_id'] ?? ($transaction->transfer_account_id ?? null),
+                'transfer_account_id' => $newTransferAccountId,
                 'category_id' => $validated['category_id'] ?? ($transaction->category_id ?? null),
                 'reference_no' => $validated['reference_no'] ?? ($transaction->reference_no ?? null),
                 'updated_at' => now(),
             ]);
 
             DB::table('finance_transactions')
-                ->where('user_id', $request->user()->id)
                 ->where('id', $id)
+                ->when(! $this->isAdmin($request), fn ($q) => $q->where('user_id', $request->user()->id))
                 ->update($payload);
 
-            $this->applyBalanceDelta($account->id, $newType, (float) $newAmount);
+            $this->applyBalanceDelta($account->id, $newTransferAccountId, $newType, (float) $newAmount);
         });
 
         return response()->json([
@@ -179,11 +237,17 @@ class FinanceTransactionController extends Controller
 
         DB::transaction(function () use ($request, $transaction, $id) {
             $type = $transaction->transaction_type ?? $transaction->type ?? 'expense';
-            $this->reverseBalanceDelta($transaction->account_id, $type, (float) $transaction->amount);
+
+            $this->reverseBalanceDelta(
+                $transaction->account_id,
+                $transaction->transfer_account_id ?? null,
+                $type,
+                (float) $transaction->amount
+            );
 
             DB::table('finance_transactions')
-                ->where('user_id', $request->user()->id)
                 ->where('id', $id)
+                ->when(! $this->isAdmin($request), fn ($q) => $q->where('user_id', $request->user()->id))
                 ->delete();
         });
 
@@ -243,8 +307,8 @@ class FinanceTransactionController extends Controller
         }
 
         return DB::table('finance_accounts')
-            ->where('user_id', $request->user()->id)
             ->where('id', $id)
+            ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $request->user()->id))
             ->first();
     }
 
@@ -255,28 +319,59 @@ class FinanceTransactionController extends Controller
         }
 
         return DB::table('finance_transactions')
-            ->where('user_id', $request->user()->id)
             ->where('id', $id)
+            ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $request->user()->id))
             ->first();
     }
 
-    private function applyBalanceDelta(string $accountId, string $type, float $amount): void
+    private function applyBalanceDelta(string $accountId, ?string $transferAccountId, string $type, float $amount): void
     {
-        $delta = $type === 'income' ? $amount : -$amount;
+        if ($type === 'income') {
+            $this->incrementAccountBalance($accountId, $amount);
+            return;
+        }
 
-        DB::table('finance_accounts')
-            ->where('id', $accountId)
-            ->increment('current_balance', $delta, ['updated_at' => now()]);
+        if ($type === 'expense') {
+            $this->incrementAccountBalance($accountId, -$amount);
+            return;
+        }
+
+        if ($type === 'transfer') {
+            $this->incrementAccountBalance($accountId, -$amount);
+
+            if ($transferAccountId && Str::isUuid($transferAccountId)) {
+                $this->incrementAccountBalance($transferAccountId, $amount);
+            }
+        }
     }
 
-    private function reverseBalanceDelta(?string $accountId, string $type, float $amount): void
+    private function reverseBalanceDelta(?string $accountId, ?string $transferAccountId, string $type, float $amount): void
     {
         if (! $accountId || ! Str::isUuid($accountId)) {
             return;
         }
 
-        $delta = $type === 'income' ? -$amount : $amount;
+        if ($type === 'income') {
+            $this->incrementAccountBalance($accountId, -$amount);
+            return;
+        }
 
+        if ($type === 'expense') {
+            $this->incrementAccountBalance($accountId, $amount);
+            return;
+        }
+
+        if ($type === 'transfer') {
+            $this->incrementAccountBalance($accountId, $amount);
+
+            if ($transferAccountId && Str::isUuid($transferAccountId)) {
+                $this->incrementAccountBalance($transferAccountId, -$amount);
+            }
+        }
+    }
+
+    private function incrementAccountBalance(string $accountId, float $delta): void
+    {
         DB::table('finance_accounts')
             ->where('id', $accountId)
             ->increment('current_balance', $delta, ['updated_at' => now()]);
@@ -296,15 +391,18 @@ class FinanceTransactionController extends Controller
             'transaction_id' => $transaction->id,
             'user_id' => $transaction->user_id,
             'account_id' => $transaction->account_id,
+            'transfer_account_id' => $transaction->transfer_account_id ?? null,
             'type' => $type,
             'transaction_type' => $type,
             'category' => $transaction->category ?? null,
+            'category_id' => $transaction->category_id ?? null,
             'amount' => $transaction->amount,
             'currency' => $currency,
             'currency_code' => $currency,
             'transaction_date' => $transaction->transaction_date ?? null,
             'description' => $transaction->description ?? null,
             'notes' => $transaction->notes ?? null,
+            'reference_no' => $transaction->reference_no ?? null,
             'created_at' => $transaction->created_at ?? null,
             'updated_at' => $transaction->updated_at ?? null,
         ];
@@ -315,6 +413,11 @@ class FinanceTransactionController extends Controller
         return collect($payload)
             ->filter(fn ($value, $column) => Schema::hasColumn($table, $column))
             ->all();
+    }
+
+    private function isAdmin(Request $request): bool
+    {
+        return strtolower((string) optional($request->user())->email) === 'admin@nixlifeos.com';
     }
 
     private function validationError(string $field, string $message): JsonResponse

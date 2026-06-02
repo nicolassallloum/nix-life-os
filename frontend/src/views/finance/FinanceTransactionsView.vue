@@ -248,6 +248,25 @@
             </select>
           </div>
 
+          <div v-if="form.type === 'transfer'">
+            <label class="block text-sm font-medium text-slate-700 mb-1">
+              Transfer To Account
+            </label>
+            <select
+              v-model="form.transfer_account_id"
+              class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">Select destination account</option>
+              <option
+                v-for="account in destinationAccounts"
+                :key="getAccountId(account)"
+                :value="getAccountId(account)"
+              >
+                {{ getAccountDisplayName(account) }} — {{ getAccountCurrency(account) }}
+              </option>
+            </select>
+          </div>
+
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">
               Category
@@ -370,6 +389,7 @@ const filters = reactive({
 const form = reactive({
   type: "expense",
   account_id: "",
+  transfer_account_id: "",
   category: "",
   amount: "",
   transaction_date: new Date().toISOString().slice(0, 10),
@@ -452,6 +472,12 @@ const getAccountCurrency = (account) => {
     "USD"
   );
 };
+
+const destinationAccounts = computed(() => {
+  return accounts.value.filter(
+    (account) => String(getAccountId(account)) !== String(form.account_id)
+  );
+});
 const fetchAccounts = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/finance/accounts`, {
@@ -499,6 +525,17 @@ const getTransactionAccountId = (transaction) => {
     transaction.account?.id ||
     transaction.finance_account?.id ||
     transaction.financeAccount?.id ||
+    ""
+  );
+};
+
+const getTransactionTransferAccountId = (transaction) => {
+  return (
+    transaction.transfer_account_id ||
+    transaction.to_account_id ||
+    transaction.destination_account_id ||
+    transaction.transferAccountId ||
+    transaction.toAccountId ||
     ""
   );
 };
@@ -643,6 +680,16 @@ const validateForm = () => {
     return false;
   }
 
+  if (form.type === "transfer" && !form.transfer_account_id) {
+    formError.value = "Please select the destination account for the transfer.";
+    return false;
+  }
+
+  if (form.type === "transfer" && String(form.transfer_account_id) === String(form.account_id)) {
+    formError.value = "Source and destination accounts must be different.";
+    return false;
+  }
+
   if (!form.category) {
     formError.value = "Please select a category.";
     return false;
@@ -676,6 +723,7 @@ const saveTransaction = async () => {
 
     account_id: form.account_id,
     finance_account_id: form.account_id,
+    transfer_account_id: form.type === "transfer" ? form.transfer_account_id : null,
 
     category: form.category,
     amount: Number(form.amount),
@@ -735,6 +783,7 @@ const startEdit = (transaction) => {
 
   form.type = getTransactionType(transaction) || "expense";
   form.account_id = getTransactionAccountId(transaction) || "";
+  form.transfer_account_id = getTransactionTransferAccountId(transaction) || "";
   form.category = getTransactionCategory(transaction) === "-"
     ? ""
     : getTransactionCategory(transaction);
@@ -778,7 +827,9 @@ const resetForm = (clearMessage = true) => {
   editingId.value = null;
 
   form.type = "expense";
-  form.account_id = accounts.value.length > 0 ? getAccountId(accounts.value[0]) : "";  form.category = "";
+  form.account_id = accounts.value.length > 0 ? getAccountId(accounts.value[0]) : "";
+  form.transfer_account_id = "";
+  form.category = "";
   form.amount = "";
   form.transaction_date = new Date().toISOString().slice(0, 10);
   form.description = "";
@@ -859,6 +910,7 @@ watch(
   () => form.type,
   () => {
     form.category = "";
+    form.transfer_account_id = "";
   }
 );
 

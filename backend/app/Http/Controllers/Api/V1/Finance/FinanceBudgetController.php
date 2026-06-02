@@ -19,7 +19,7 @@ class FinanceBudgetController extends Controller
         $month = $request->query('month');
 
         $query = FinanceBudget::query()
-            ->where('user_id', $userId)
+            ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $userId))
             ->with('lines')
             ->orderByDesc('budget_month')
             ->orderByDesc('created_at');
@@ -117,7 +117,7 @@ class FinanceBudgetController extends Controller
     public function show(Request $request, string $id): JsonResponse
     {
         $budget = FinanceBudget::query()
-            ->where('user_id', $request->user()->id)
+            ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $request->user()->id))
             ->where('id', $id)
             ->with('lines')
             ->first();
@@ -143,7 +143,7 @@ class FinanceBudgetController extends Controller
 
         $budget = DB::transaction(function () use ($id, $userId, $validated) {
             $budget = FinanceBudget::query()
-                ->where('user_id', $userId)
+                ->when(! $this->isAdmin(request()), fn ($query) => $query->where('user_id', $userId))
                 ->where('id', $id)
                 ->first();
 
@@ -205,7 +205,7 @@ class FinanceBudgetController extends Controller
     public function destroy(Request $request, string $id): JsonResponse
     {
         $budget = FinanceBudget::query()
-            ->where('user_id', $request->user()->id)
+            ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $request->user()->id))
             ->where('id', $id)
             ->first();
 
@@ -232,5 +232,10 @@ class FinanceBudgetController extends Controller
                 'budget_id' => $id,
             ],
         ]);
+    }
+
+    private function isAdmin(Request $request): bool
+    {
+        return strtolower((string) optional($request->user())->email) === 'admin@nixlifeos.com';
     }
 }
