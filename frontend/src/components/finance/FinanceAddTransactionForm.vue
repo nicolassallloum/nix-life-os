@@ -122,7 +122,15 @@ const destinationAccounts = computed(() => {
 })
 
 const filteredCategories = computed(() => {
-  return categories.value.filter((category) => {
+  const unique = new Map()
+
+  categories.value.forEach((category) => {
+    const categoryName = String(
+      category.name ||
+      category.category_name ||
+      ''
+    ).trim()
+
     const categoryType = String(
       category.type ||
       category.category_type ||
@@ -135,8 +143,18 @@ const filteredCategories = computed(() => {
       category.is_active !== false &&
       String(category.status || 'active').toLowerCase() !== 'inactive'
 
-    return isActive && categoryType === form.transaction_type
+    if (!categoryName || !isActive || categoryType !== form.transaction_type) {
+      return
+    }
+
+    const key = `${categoryType}:${categoryName.toLowerCase()}`
+
+    if (!unique.has(key)) {
+      unique.set(key, category)
+    }
   })
+
+  return Array.from(unique.values())
 })
 
 async function loadAccounts() {
