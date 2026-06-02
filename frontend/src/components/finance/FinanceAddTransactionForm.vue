@@ -5,20 +5,34 @@
       <p class="text-sm text-slate-500">Add income, expense, or transfer quickly.</p>
     </div>
 
-    <div v-if="errorMessage" class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <div
+      v-if="errorMessage"
+      class="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"
+    >
       {{ errorMessage }}
     </div>
 
     <form class="space-y-3" @submit.prevent="save">
-      <select v-model="form.transaction_type" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+      <select
+        v-model="form.transaction_type"
+        class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
+        @change="handleTypeChange"
+      >
         <option value="income">Income</option>
         <option value="expense">Expense</option>
         <option value="transfer">Transfer</option>
       </select>
 
-      <select v-model="form.account_id" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm">
+      <select
+        v-model="form.account_id"
+        class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
+      >
         <option value="">From account</option>
-        <option v-for="account in accounts" :key="account.id || account.account_id" :value="account.id || account.account_id">
+        <option
+          v-for="account in accounts"
+          :key="account.id || account.account_id"
+          :value="account.id || account.account_id"
+        >
           {{ account.account_name || account.name }} — {{ account.currency_code || account.currency || 'USD' }}
         </option>
       </select>
@@ -38,11 +52,28 @@
         </option>
       </select>
 
+      <select
+        v-if="form.transaction_type !== 'transfer'"
+        v-model="form.category"
+        class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
+      >
+        <option value="">Select category</option>
+        <option
+          v-for="category in filteredCategories"
+          :key="category.id || category.category_id || category.name || category.category_name"
+          :value="category.name || category.category_name"
+        >
+          {{ category.icon ? category.icon + ' ' : '' }}{{ category.name || category.category_name }}
+        </option>
+      </select>
+
       <input
+        v-if="form.transaction_type === 'transfer'"
         v-model="form.category"
         type="text"
-        class="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
-        placeholder="Category"
+        disabled
+        class="w-full rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500"
+        placeholder="Account Transfer"
       />
 
       <input
@@ -72,6 +103,7 @@ import api from '@/services/api'
 const emit = defineEmits(['saved'])
 
 const accounts = ref([])
+const categories = ref([])
 const saving = ref(false)
 const errorMessage = ref('')
 
@@ -84,7 +116,27 @@ const form = reactive({
 })
 
 const destinationAccounts = computed(() => {
-  return accounts.value.filter((account) => String(account.id || account.account_id) !== String(form.account_id))
+  return accounts.value.filter((account) => {
+    return String(account.id || account.account_id) !== String(form.account_id)
+  })
+})
+
+const filteredCategories = computed(() => {
+  return categories.value.filter((category) => {
+    const categoryType = String(
+      category.type ||
+      category.category_type ||
+      category.categoryType ||
+      category.transaction_type ||
+      ''
+    ).toLowerCase()
+
+    const isActive =
+      category.is_active !== false &&
+      String(category.status || 'active').toLowerCase() !== 'inactive'
+
+    return isActive && categoryType === form.transaction_type
+  })
 })
 
 async function loadAccounts() {
@@ -95,9 +147,30 @@ async function loadAccounts() {
     if (!form.account_id && accounts.value.length > 0) {
       form.account_id = accounts.value[0].id || accounts.value[0].account_id
     }
-  } catch {
+  } catch (error) {
+    console.error('Load accounts error:', error)
     accounts.value = []
   }
+}
+
+async function loadCategories() {
+  try {
+    const response = await api.get('/finance/categories')
+    categories.value = Array.isArray(response.data?.data) ? response.data.data : []
+  } catch (error) {
+    console.error('Load categories error:', error)
+    categories.value = []
+  }
+}
+
+function handleTypeChange() {
+  if (form.transaction_type === 'transfer') {
+    form.category = 'Account Transfer'
+    return
+  }
+
+  form.transfer_account_id = ''
+  form.category = ''
 }
 
 async function save() {
@@ -113,6 +186,11 @@ async function save() {
     return
   }
 
+  if (form.transaction_type !== 'transfer' && !form.category) {
+    errorMessage.value = 'Please select a category.'
+    return
+  }
+
   if (!form.amount || Number(form.amount) <= 0) {
     errorMessage.value = 'Amount must be greater than zero.'
     return
@@ -125,23 +203,33 @@ async function save() {
       transaction_type: form.transaction_type,
       account_id: form.account_id,
       transfer_account_id: form.transaction_type === 'transfer' ? form.transfer_account_id : null,
-      category: form.category || (form.transaction_type === 'transfer' ? 'Account Transfer' : 'General'),
+      category: form.transaction_type === 'transfer' ? 'Account Transfer' : form.category,
       amount: Number(form.amount),
       transaction_date: new Date().toISOString().slice(0, 10),
     })
 
     form.amount = ''
-    form.category = ''
     form.transfer_account_id = ''
+    form.category = form.transaction_type === 'transfer' ? 'Account Transfer' : ''
 
     emit('saved')
-    await loadAccounts()
+
+    await Promise.all([
+      loadAccounts(),
+      loadCategories(),
+    ])
   } catch (error) {
-    errorMessage.value = error?.message || 'Failed to save transaction.'
+    console.error('Save transaction error:', error)
+    errorMessage.value = error?.response?.data?.message || error?.message || 'Failed to save transaction.'
   } finally {
     saving.value = false
   }
 }
 
-onMounted(loadAccounts)
+onMounted(async () => {
+  await Promise.all([
+    loadAccounts(),
+    loadCategories(),
+  ])
+})
 </script>

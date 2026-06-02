@@ -24,20 +24,30 @@ class FinanceCategoryController extends Controller
         }
 
         $query = DB::table($table)
-            ->when(! $this->isAdmin($request), function ($query) use ($request) {
-                if (Schema::hasColumn($this->tableName(), 'user_id')) {
+            ->when(! $this->isAdmin($request), function ($query) use ($request, $table) {
+                if (Schema::hasColumn($table, 'user_id')) {
                     $query->where(function ($q) use ($request) {
                         $q->whereNull('user_id')->orWhere('user_id', $request->user()->id);
                     });
                 }
             });
 
-        if ($request->filled('type') && Schema::hasColumn($table, 'type')) {
-            $query->where('type', strtolower((string) $request->query('type')));
+        if ($request->filled('type')) {
+            $typeColumn = Schema::hasColumn($table, 'type')
+                ? 'type'
+                : (Schema::hasColumn($table, 'category_type') ? 'category_type' : null);
+
+            if ($typeColumn) {
+                $query->where($typeColumn, strtolower((string) $request->query('type')));
+            }
         }
 
+        $orderColumn = Schema::hasColumn($table, 'category_name')
+            ? 'category_name'
+            : (Schema::hasColumn($table, 'name') ? 'name' : 'id');
+
         $categories = $query
-            ->orderBy(Schema::hasColumn($table, 'name') ? 'name' : 'id')
+            ->orderBy($orderColumn)
             ->get()
             ->map(fn ($category) => $this->serializeCategory($category))
             ->values();
@@ -66,15 +76,26 @@ class FinanceCategoryController extends Controller
             'icon' => ['nullable', 'string', 'max:100'],
             'color' => ['nullable', 'string', 'max:50'],
             'status' => ['nullable', Rule::in(['active', 'inactive', 'ACTIVE', 'INACTIVE'])],
+            'is_active' => ['nullable', 'boolean'],
         ])->validate();
+
+        $isActive = array_key_exists('is_active', $validated)
+            ? (bool) $validated['is_active']
+            : strtolower($validated['status'] ?? 'active') === 'active';
 
         $payload = $this->filterExistingColumns($table, [
             'user_id' => $request->user()->id,
+
+            // Support both possible schemas
             'name' => $validated['name'],
+            'category_name' => $validated['name'],
+
             'type' => strtolower($validated['type']),
+            'category_type' => strtolower($validated['type']),
             'icon' => $validated['icon'] ?? null,
             'color' => $validated['color'] ?? null,
-            'status' => strtolower($validated['status'] ?? 'active'),
+            'status' => $isActive ? 'active' : 'inactive',
+            'is_active' => $isActive,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -120,14 +141,26 @@ class FinanceCategoryController extends Controller
             'icon' => ['nullable', 'string', 'max:100'],
             'color' => ['nullable', 'string', 'max:50'],
             'status' => ['nullable', Rule::in(['active', 'inactive', 'ACTIVE', 'INACTIVE'])],
+            'is_active' => ['nullable', 'boolean'],
         ])->validate();
+
+        $isActive = null;
+
+        if (array_key_exists('is_active', $validated)) {
+            $isActive = (bool) $validated['is_active'];
+        } elseif (array_key_exists('status', $validated)) {
+            $isActive = strtolower($validated['status']) === 'active';
+        }
 
         $payload = $this->filterExistingColumns($table, [
             'name' => $validated['name'] ?? null,
+            'category_name' => $validated['name'] ?? null,
             'type' => isset($validated['type']) ? strtolower($validated['type']) : null,
+            'category_type' => isset($validated['type']) ? strtolower($validated['type']) : null,
             'icon' => array_key_exists('icon', $validated) ? $validated['icon'] : null,
             'color' => array_key_exists('color', $validated) ? $validated['color'] : null,
-            'status' => isset($validated['status']) ? strtolower($validated['status']) : null,
+            'status' => $isActive === null ? null : ($isActive ? 'active' : 'inactive'),
+            'is_active' => $isActive,
             'updated_at' => now(),
         ]);
 
@@ -183,15 +216,26 @@ class FinanceCategoryController extends Controller
             return [];
         }
 
+        $name = $category->category_name ?? $category->name ?? null;
+        $isActive = $category->is_active ?? null;
+        $status = $category->status ?? null;
+
+        if ($status === null && $isActive !== null) {
+            $status = $isActive ? 'active' : 'inactive';
+        }
+
         return [
             'id' => $category->id ?? null,
             'category_id' => $category->id ?? null,
             'user_id' => $category->user_id ?? null,
-            'name' => $category->name ?? null,
-            'type' => $category->type ?? null,
+            'name' => $name,
+            'category_name' => $name,
+            'type' => $category->type ?? $category->category_type ?? null,
+            'category_type' => $category->category_type ?? $category->type ?? null,
             'icon' => $category->icon ?? null,
             'color' => $category->color ?? null,
-            'status' => $category->status ?? 'active',
+            'status' => $status ?? 'active',
+            'is_active' => $isActive ?? (($status ?? 'active') === 'active'),
             'created_at' => $category->created_at ?? null,
             'updated_at' => $category->updated_at ?? null,
         ];

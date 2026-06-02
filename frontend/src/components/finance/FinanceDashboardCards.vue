@@ -359,6 +359,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
 
 const accounts = ref([]);
 const recentTransactions = ref([]);
+const allTransactions = ref([]);
 const budgets = ref([]);
 
 const loading = ref(false);
@@ -388,13 +389,29 @@ const loadAccounts = async () => {
   accounts.value = Array.isArray(result.data) ? result.data : [];
 };
 
+const normalizeTransactions = (result) => {
+  if (Array.isArray(result.data?.data)) {
+    return result.data.data;
+  }
+
+  if (Array.isArray(result.data)) {
+    return result.data;
+  }
+
+  if (Array.isArray(result.transactions)) {
+    return result.transactions;
+  }
+
+  return [];
+};
+
 const loadTransactions = async () => {
   try {
     loadingTransactions.value = true;
     transactionError.value = "";
 
     const response = await fetch(
-      `${API_BASE_URL}/finance/transactions?per_page=5`,
+      `${API_BASE_URL}/finance/transactions?per_page=1000`,
       {
         headers: {
           Accept: "application/json",
@@ -409,25 +426,15 @@ const loadTransactions = async () => {
       throw new Error(result.message || "Failed to load transactions.");
     }
 
-    if (Array.isArray(result.data)) {
-      recentTransactions.value = result.data;
-      return;
-    }
+    const transactions = normalizeTransactions(result);
 
-    if (Array.isArray(result.data?.data)) {
-      recentTransactions.value = result.data.data;
-      return;
-    }
-
-    if (Array.isArray(result.data?.data?.data)) {
-      recentTransactions.value = result.data.data.data;
-      return;
-    }
-
-    recentTransactions.value = [];
+    allTransactions.value = transactions;
+    recentTransactions.value = transactions.slice(0, 5);
   } catch (err) {
     console.error("Load transactions error:", err);
     transactionError.value = err.message || "Failed to load transactions.";
+    allTransactions.value = [];
+    recentTransactions.value = [];
   } finally {
     loadingTransactions.value = false;
   }
@@ -496,7 +503,7 @@ const currentMonthKey = computed(() => {
 });
 
 const monthlyTransactions = computed(() => {
-  return recentTransactions.value.filter((transaction) => {
+  return allTransactions.value.filter((transaction) => {
     if (!transaction.transaction_date) return false;
     return formatDate(transaction.transaction_date).startsWith(currentMonthKey.value);
   });
@@ -548,65 +555,121 @@ const cards = computed(() => [
   },
 ]);
 
+const normalizeText = (value) => {
+  return String(value || "").toLowerCase().trim();
+};
+
+const getTransactionCategory = (transaction) => {
+  return normalizeText(
+    transaction.category ||
+    transaction.category_name ||
+    transaction.finance_category_name ||
+    transaction.categoryName ||
+    ""
+  );
+};
+
+const getTransactionType = (transaction) => {
+  return normalizeText(
+    transaction.transaction_type ||
+    transaction.type ||
+    ""
+  );
+};
+
+const getBudgetCategory = (budget) => {
+  return normalizeText(
+    budget.category ||
+    budget.category_name ||
+    budget.finance_category_name ||
+    budget.budget_category ||
+    budget.budget_name ||
+    budget.name ||
+    budget.title ||
+    ""
+  );
+};
+
+const getBudgetPlannedAmount = (budget) => {
+  return Number(
+    budget.planned_amount ||
+    budget.budget_amount ||
+    budget.amount ||
+    budget.monthly_limit ||
+    budget.limit_amount ||
+    budget.total_amount ||
+    0
+  );
+};
+
+const calculateActualForCategory = (categoryName) => {
+  return allTransactions.value
+    .filter((transaction) => {
+      return (
+        getTransactionType(transaction) === "expense" &&
+        getTransactionCategory(transaction) === categoryName
+      );
+    })
+    .reduce((sum, transaction) => {
+      return sum + Math.abs(Number(transaction.amount || 0));
+    }, 0);
+};
+
 const budgetProgress = computed(() => {
-  if (budgets.value.length > 0) {
-    return budgets.value.map((budget) => {
-      const planned = Number(
-        budget.budget_amount ||
-        budget.planned_amount ||
-        budget.amount ||
-        0
-      );
-
-      const actual = Number(
-        budget.spent_amount ||
-        budget.actual_amount ||
-        0
-      );
-
-      const percentage = planned > 0
-        ? Math.round((actual / planned) * 100)
-        : 0;
-
-      return {
-        category: budget.category || budget.budget_name || "Budget",
-        planned,
-        actual,
-        percentage,
-      };
-    });
+  if (!Array.isArray(budgets.value) || budgets.value.length === 0) {
+    return [];
   }
 
-  const categories = {};
+  const rows = [];
 
-  recentTransactions.value
-    .filter((transaction) => transaction.transaction_type === "expense")
-    .forEach((transaction) => {
-      const category = transaction.category || "Other";
+  budgets.value.forEach((budget) => {
+    const lines = budget.lines || budget.budget_lines || [];
 
-      if (!categories[category]) {
-        categories[category] = {
-          category,
-          actual: 0,
-          planned: 500,
-        };
-      }
+    if (Array.isArray(lines) && lines.length > 0) {
+      lines.forEach((line) => {
+        const categoryName = getBudgetCategory(line) || getBudgetCategory(budget);
+        const planned = getBudgetPlannedAmount(line) || getBudgetPlannedAmount(budget);
+        const actual = calculateActualForCategory(categoryName);
 
-      categories[category].actual += Number(transaction.amount || 0);
+        rows.push({
+          category:
+            line.category ||
+            line.category_name ||
+            budget.category ||
+            budget.budget_name ||
+            "Budget",
+          planned,
+          actual,
+          percentage: planned > 0 ? Math.min(Math.round((actual / planned) * 100), 100) : 0,
+        });
+      });
+
+      return;
+    }
+
+    const categoryName = getBudgetCategory(budget);
+    const planned = getBudgetPlannedAmount(budget);
+    const actual = calculateActualForCategory(categoryName);
+
+    rows.push({
+      category:
+        budget.category ||
+        budget.category_name ||
+        budget.budget_name ||
+        "Budget",
+      planned,
+      actual,
+      percentage: planned > 0 ? Math.min(Math.round((actual / planned) * 100), 100) : 0,
     });
+  });
 
-  return Object.values(categories).map((item) => ({
-    ...item,
-    percentage: item.planned > 0
-      ? Math.round((item.actual / item.planned) * 100)
-      : 0,
-  }));
+  return rows;
 });
 
 const chartMonths = computed(() => {
   const grouped = {};
 
-  recentTransactions.value.forEach((transaction) => {
+  allTransactions.value.forEach((transaction) => {
     if (!transaction.transaction_date) return;
 
     const date = new Date(transaction.transaction_date);
