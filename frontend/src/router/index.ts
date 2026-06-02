@@ -69,6 +69,25 @@ const routes = [
     },
   },
   {
+    path: '/finance/budgets/create',
+    name: 'CreateBudget',
+    component: () => import('@/views/finance/CreateBudgetView.vue'),
+    meta: { requiresAuth: true }
+  },
+
+  {
+    path: '/finance/categories/create',
+    name: 'CreateFinanceCategory',
+    component: () => import('@/views/finance/CreateCategoryView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/admin/dashboard',
+    name: 'AdminDashboard',
+    component: () => import('@/views/admin/AdminDashboardView.vue'),
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
     path: '/test-coming-soon',
     name: 'TestComingSoon',
     component: ComingSoonView,
