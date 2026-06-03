@@ -9,12 +9,28 @@ import ComingSoonView from '@/views/system/ComingSoonView.vue'
 const LoginView = () => import('@/views/auth/LoginView.vue')
 const RegisterView = () => import('@/views/auth/RegisterView.vue')
 const UnauthorizedView = () => import('@/views/auth/UnauthorizedView.vue')
-
+const HealthView = () => import('@/views/health/HealthView.vue')
+const HealthAIInsightsView = () => import('@/views/health/HealthAIInsightsView.vue')
+const StepsTrackingView = () => import('@/views/health/StepsTrackingView.vue')
+const WeightTrackingView = () => import('@/views/health/WeightTrackingView.vue')
+const NutritionTrackingView = () => import('@/views/health/NutritionTrackingView.vue')
+const CustomFoodsView = () => import('@/views/health/CustomFoodsView.vue')
+const HydrationTrackingView = () => import('@/views/health/HydrationTrackingView.vue')
+const SleepTrackingView = () => import('@/views/health/SleepTrackingView.vue')
+const MedicationTrackingView = () => import('@/views/health/MedicationTrackingView.vue')
+const MedicamentsTrackingView = () => import('@/views/health/MedicamentsTrackingView.vue')
+const LabTestsTrackingView = () => import('@/views/health/LabTestsTrackingView.vue')
+const MoodTrackingView = () => import('@/views/health/MoodTrackingView.vue')
+const HealthAlertsView = () => import('@/views/health/HealthAlertsView.vue')
+const HealthReportsView = () => import('@/views/health/HealthReportsView.vue')
+const NutritionDashboardView = () => import('@/views/health/nutrition/NutritionDashboardView.vue')
+const FoodItemsView = () => import('@/views/health/nutrition/FoodItemsView.vue')
+const MealLoggerView = () => import('@/views/health/nutrition/MealLoggerView.vue')
 const DashboardView = () => import('@/views/dashboard/DashboardView.vue')
 const UnifiedDashboardView = () => import('@/views/dashboard/UnifiedDashboardView.vue')
 const LifeBalanceView = () => import('@/views/life-balance/LifeBalanceView.vue')
 const AIRecommendationsView = () => import('@/views/ai/AIRecommendationsView.vue')
-
+// const HealthView = () => import('@/views/health/HealthView.vue')
 const FinanceDashboardView = () => import('@/views/finance/FinanceDashboardView.vue')
 const FinanceAccountsView = () => import('@/views/finance/FinanceAccountsView.vue')
 const FinanceTransactionsView = () => import('@/views/finance/FinanceTransactionsView.vue')
@@ -222,156 +238,156 @@ const routes = [
 
   {
     path: '/health',
-    name: 'HealthDashboard',
-    component: ComingSoonView,
+    name: 'health',
+    component: HealthView,
     meta: {
       requiresAuth: true,
-      title: 'Health - Coming Soon',
-    },
+      title: 'Health Dashboard'
+    }
   },
   {
     path: '/health/ai-insights',
-    name: 'HealthAIInsights',
-    component: ComingSoonView,
+    name: 'health-ai-insights',
+    component: HealthAIInsightsView,
     meta: {
       requiresAuth: true,
-      title: 'Health AI Insights - Coming Soon',
-    },
+      title: 'Health AI Insights'
+    }
   },
   {
     path: '/health/steps',
-    name: 'HealthSteps',
-    component: ComingSoonView,
+    name: 'health-steps',
+    component: StepsTrackingView,
     meta: {
       requiresAuth: true,
-      title: 'Steps Tracking - Coming Soon',
-    },
+      title: 'Steps Tracking'
+    }
   },
   {
     path: '/health/weight',
-    name: 'HealthWeight',
-    component: ComingSoonView,
+    name: 'health-weight',
+    component: WeightTrackingView,
     meta: {
       requiresAuth: true,
-      title: 'Weight Tracking - Coming Soon',
-    },
+      title: 'Weight Tracking'
+    }
   },
   {
     path: '/health/nutrition',
-    name: 'HealthNutrition',
-    component: ComingSoonView,
+    name: 'health-nutrition',
+    component: NutritionTrackingView,
     meta: {
       requiresAuth: true,
-      title: 'Nutrition Tracking - Coming Soon',
-    },
+      title: 'Nutrition Tracking'
+    }
   },
   {
     path: '/health/nutrition/dashboard',
-    name: 'HealthNutritionDashboard',
-    component: ComingSoonView,
+    name: 'health-nutrition-dashboard',
+    component: NutritionDashboardView,
     meta: {
       requiresAuth: true,
-      title: 'Nutrition Dashboard - Coming Soon',
-    },
+      title: 'Nutrition Dashboard'
+    }
   },
   {
     path: '/health/nutrition/food-items',
-    name: 'HealthFoodItems',
-    component: ComingSoonView,
+    name: 'health-nutrition-food-items',
+    component: FoodItemsView,
     meta: {
       requiresAuth: true,
-      title: 'Food Items - Coming Soon',
-    },
+      title: 'Food Items'
+    }
   },
   {
     path: '/health/nutrition/meal-logger',
-    name: 'HealthMealLogger',
-    component: ComingSoonView,
+    name: 'health-nutrition-meal-logger',
+    component: MealLoggerView,
     meta: {
       requiresAuth: true,
-      title: 'Meal Logger - Coming Soon',
-    },
+      title: 'Meal Logger'
+    }
   },
   {
     path: '/health/custom-foods',
-    name: 'HealthCustomFoods',
-    component: ComingSoonView,
+    name: 'health-custom-foods',
+    component: CustomFoodsView,
     meta: {
       requiresAuth: true,
-      title: 'Custom Foods - Coming Soon',
-    },
+      title: 'Custom Foods'
+    }
   },
   {
     path: '/health/hydration',
-    name: 'HealthHydration',
-    component: ComingSoonView,
+    name: 'health-hydration',
+    component: HydrationTrackingView,
     meta: {
       requiresAuth: true,
-      title: 'Hydration Tracking - Coming Soon',
-    },
+      title: 'Hydration Tracking'
+    }
   },
   {
     path: '/health/sleep',
-    name: 'HealthSleep',
-    component: ComingSoonView,
+    name: 'health-sleep',
+    component: SleepTrackingView,
     meta: {
       requiresAuth: true,
-      title: 'Sleep Tracking - Coming Soon',
-    },
+      title: 'Sleep Tracking'
+    }
   },
   {
     path: '/health/medications',
-    name: 'HealthMedications',
-    component: ComingSoonView,
+    name: 'health-medications',
+    component: MedicationTrackingView,
     meta: {
       requiresAuth: true,
-      title: 'Medication Tracking - Coming Soon',
-    },
+      title: 'Medication Tracking'
+    }
   },
   {
     path: '/health/medicaments',
-    name: 'HealthMedicaments',
-    component: ComingSoonView,
+    name: 'health-medicaments',
+    component: MedicamentsTrackingView,
     meta: {
       requiresAuth: true,
-      title: 'Medicaments - Coming Soon',
-    },
+      title: 'Medicaments Tracking'
+    }
   },
   {
     path: '/health/lab-tests',
-    name: 'HealthLabTests',
-    component: ComingSoonView,
+    name: 'health-lab-tests',
+    component: LabTestsTrackingView,
     meta: {
       requiresAuth: true,
-      title: 'Lab Tests - Coming Soon',
-    },
+      title: 'Lab Tests'
+    }
   },
   {
     path: '/health/mood',
-    name: 'HealthMood',
-    component: ComingSoonView,
+    name: 'health-mood',
+    component: MoodTrackingView,
     meta: {
       requiresAuth: true,
-      title: 'Mood Tracking - Coming Soon',
-    },
+      title: 'Mood Tracking'
+    }
   },
   {
     path: '/health/alerts',
-    name: 'HealthAlerts',
-    component: ComingSoonView,
+    name: 'health-alerts',
+    component: HealthAlertsView,
     meta: {
       requiresAuth: true,
-      title: 'Health Alerts - Coming Soon',
-    },
+      title: 'Health Alerts'
+    }
   },
   {
     path: '/health/reports',
-    name: 'HealthReports',
-    component: ComingSoonView,
+    name: 'health-reports',
+    component: HealthReportsView,
     meta: {
       requiresAuth: true,
-      title: 'Health Reports - Coming Soon',
-    },
+      title: 'Health Reports'
+    }
   },
 
   {
