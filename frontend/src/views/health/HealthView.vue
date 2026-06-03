@@ -21,6 +21,70 @@
       </button>
     </div>
 
+    <!-- Health Quick Actions -->
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div class="mb-4 flex flex-col gap-1">
+        <h2 class="text-lg font-bold text-gray-900">
+          Health Tools
+        </h2>
+        <p class="text-sm text-gray-500">
+          Open detailed tracking pages for each health area.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <RouterLink
+          to="/health/weight"
+          class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">⚖️</span>
+            <span>Weight</span>
+          </div>
+        </RouterLink>
+
+        <RouterLink
+          to="/health/sleep"
+          class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">😴</span>
+            <span>Sleep</span>
+          </div>
+        </RouterLink>
+
+        <RouterLink
+          to="/health/mood"
+          class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">😊</span>
+            <span>Mood</span>
+          </div>
+        </RouterLink>
+
+        <RouterLink
+          to="/health/medications"
+          class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">💊</span>
+            <span>Medications</span>
+          </div>
+        </RouterLink>
+
+        <RouterLink
+          to="/health/ai-insights"
+          class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">🧠</span>
+            <span>AI Insights</span>
+          </div>
+        </RouterLink>
+      </div>
+    </div>
+
     <!-- Loading State -->
     <div
       v-if="loading"
@@ -178,6 +242,7 @@
 
 <script setup>
 import { computed, defineComponent, h, onMounted, ref } from "vue";
+import { RouterLink } from "vue-router";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "/api/v1";
@@ -202,7 +267,8 @@ function getToken() {
   return (
     localStorage.getItem("nix_token") ||
     localStorage.getItem("token") ||
-    localStorage.getItem("auth_token")
+    localStorage.getItem("auth_token") ||
+    localStorage.getItem("access_token")
   );
 }
 
@@ -401,6 +467,8 @@ async function loadHealthDashboard() {
     if (failed.length >= 5) {
       throw new Error("Most health dashboard APIs failed. Please check backend services.");
     }
+
+    error.value = "";
   } catch (err) {
     error.value = err?.message || "Unexpected error while loading health dashboard.";
   } finally {

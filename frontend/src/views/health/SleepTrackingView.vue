@@ -110,71 +110,65 @@
 
       <form class="grid grid-cols-1 gap-4 md:grid-cols-5" @submit.prevent="saveSleepLog">
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">
-            Sleep Date
-          </label>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Sleep Date</label>
           <input
             v-model="form.sleep_date"
             type="date"
             required
-            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          />
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+          />
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">
-            Bed Time
-          </label>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Bed Time</label>
           <input
             v-model="form.bed_time"
             type="time"
             required
-            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          />
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+          />
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">
-            Wake Date
-          </label>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Wake Date</label>
           <input
             v-model="form.wake_date"
             type="date"
             required
-            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          />
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+          />
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">
-            Wake Time
-          </label>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Wake Time</label>
           <input
             v-model="form.wake_time"
             type="time"
             required
-            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          />
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+          />
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">
-            Quality %
-          </label>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Quality %</label>
           <input
             v-model.number="form.quality_score"
             type="number"
             min="0"
             max="100"
             step="1"
-            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"            placeholder="0 - 100"
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+            placeholder="0 - 100"
           />
         </div>
 
         <div class="md:col-span-5">
-          <label class="mb-1 block text-sm font-medium text-slate-700">
-            Notes
-          </label>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Notes</label>
           <input
             v-model="form.notes"
             type="text"
-            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"            placeholder="Optional notes"
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+            placeholder="Optional notes"
           />
         </div>
 
@@ -342,8 +336,7 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "/api/v1";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
 
 const loading = ref(false);
 const error = ref("");
@@ -451,23 +444,61 @@ const shortDate = (dateValue) => {
   return String(dateValue).slice(5);
 };
 
+const buildDateTime = (dateValue, timeValue) => {
+  if (!dateValue || !timeValue) return null;
+
+  const time = to24Hour(timeValue);
+  if (!time) return null;
+
+  return `${dateValue} ${time}:00`;
+};
+
 const formatDateTime = (dateTime) => {
   if (!dateTime) return "-";
   return String(dateTime).replace("T", " ").slice(0, 16);
-};
-
-const buildDateTime = (dateValue, timeValue) => {
-  return `${dateValue} ${timeValue}:00`;
 };
 
 const splitDateTime = (dateTime) => {
   const value = String(dateTime || "");
   const clean = value.replace("T", " ");
 
+  if (/^\d{2}:\d{2}/.test(clean)) {
+    return {
+      date: "",
+      time: clean.slice(0, 5),
+    };
+  }
+
   return {
     date: clean.slice(0, 10),
     time: clean.slice(11, 16),
   };
+};
+
+const to24Hour = (value) => {
+  if (!value) return null;
+
+  const raw = String(value).trim();
+
+  if (/^\d{2}:\d{2}$/.test(raw)) {
+    return raw;
+  }
+
+  if (/^\d{2}:\d{2}:\d{2}$/.test(raw)) {
+    return raw.slice(0, 5);
+  }
+
+  const match = raw.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return raw.slice(0, 5);
+
+  let hour = Number(match[1]);
+  const minute = match[2];
+  const period = match[3].toUpperCase();
+
+  if (period === "PM" && hour !== 12) hour += 12;
+  if (period === "AM" && hour === 12) hour = 0;
+
+  return `${String(hour).padStart(2, "0")}:${minute}`;
 };
 
 const getBarHeight = (log) => {
@@ -477,25 +508,50 @@ const getBarHeight = (log) => {
   return Math.max((minutes / max) * 220, 8);
 };
 
+const apiRequest = async (url, options = {}) => {
+  const authToken = token();
+
+  if (!authToken) {
+    throw new Error("You are not logged in. Please login again.");
+  }
+
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      Accept: "application/json",
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      Authorization: `Bearer ${authToken}`,
+      ...(options.headers || {}),
+    },
+  });
+
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok || result.success === false) {
+    const validationErrors = result.errors
+      ? Object.values(result.errors).flat().join(" ")
+      : "";
+
+    throw new Error(
+      validationErrors ||
+        result.message ||
+        `Request failed with status ${response.status}.`
+    );
+  }
+
+  return result;
+};
+
 const loadSleepLogs = async () => {
   try {
     loading.value = true;
     error.value = "";
+    successMessage.value = "";
 
-    const response = await fetch(`${API_BASE_URL}/health/sleep`, {
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token()}`,
-      },
-    });
-
-    const result = await response.json();
-
-    if (!response.ok || result.success === false) {
-      throw new Error(result.message || "Failed to load sleep logs.");
-    }
+    const result = await apiRequest(`${API_BASE_URL}/health/sleep`);
 
     sleepLogs.value = normalizeList(result);
+    error.value = "";
   } catch (err) {
     console.error("Sleep load error:", err);
     error.value = err.message || "Failed to load sleep logs.";
@@ -504,22 +560,27 @@ const loadSleepLogs = async () => {
   }
 };
 
+const buildPayload = () => {
+  return {
+    sleep_date: form.value.sleep_date,
+    bed_time: buildDateTime(form.value.sleep_date, form.value.bed_time),
+    wake_date: form.value.wake_date,
+    wake_time: buildDateTime(form.value.wake_date, form.value.wake_time),
+    quality_score:
+      form.value.quality_score === "" || form.value.quality_score === null
+        ? null
+        : Number(form.value.quality_score),
+    notes: form.value.notes || null,
+  };
+};
+
 const saveSleepLog = async () => {
   try {
     loading.value = true;
     error.value = "";
     successMessage.value = "";
 
-    const payload = {
-      sleep_date: form.value.sleep_date,
-      bed_time: buildDateTime(form.value.sleep_date, form.value.bed_time),
-      wake_time: buildDateTime(form.value.wake_date, form.value.wake_time),
-      quality_score:
-        form.value.quality_score === "" || form.value.quality_score === null
-          ? null
-          : Number(form.value.quality_score),
-      notes: form.value.notes || null,
-    };
+    const payload = buildPayload();
 
     const url = editingId.value
       ? `${API_BASE_URL}/health/sleep/${editingId.value}`
@@ -527,32 +588,22 @@ const saveSleepLog = async () => {
 
     const method = editingId.value ? "PUT" : "POST";
 
-    const response = await fetch(url, {
+    await apiRequest(url, {
       method,
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token()}`,
-      },
       body: JSON.stringify(payload),
     });
 
-    const result = await response.json();
-
-    if (!response.ok || result.success === false) {
-      const validationErrors = result.errors
-        ? Object.values(result.errors).flat().join(" ")
-        : "";
-
-      throw new Error(validationErrors || result.message || "Failed to save sleep log.");
-    }
-
+    error.value = "";
     successMessage.value = editingId.value
       ? "Sleep log updated successfully."
       : "Sleep log saved successfully.";
 
     resetForm();
     await loadSleepLogs();
+
+    successMessage.value = editingId.value
+      ? "Sleep log updated successfully."
+      : "Sleep log saved successfully.";
   } catch (err) {
     console.error("Sleep save error:", err);
     error.value = err.message || "Failed to save sleep log.";
@@ -566,11 +617,13 @@ const startEdit = (log) => {
   const wake = splitDateTime(log.wake_time);
 
   editingId.value = log.id;
+  error.value = "";
+  successMessage.value = "";
 
   form.value = {
     sleep_date: log.sleep_date || bed.date || today,
     bed_time: bed.time || "23:00",
-    wake_date: wake.date || tomorrowDate(),
+    wake_date: log.wake_date || wake.date || tomorrowDate(),
     wake_time: wake.time || "07:00",
     quality_score: log.quality_score ?? "",
     notes: log.notes || "",
@@ -592,27 +645,18 @@ const deleteSleepLog = async (id) => {
     error.value = "";
     successMessage.value = "";
 
-    const response = await fetch(`${API_BASE_URL}/health/sleep/${id}`, {
+    await apiRequest(`${API_BASE_URL}/health/sleep/${id}`, {
       method: "DELETE",
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token()}`,
-      },
     });
-
-    const result = await response.json().catch(() => ({}));
-
-    if (!response.ok || result.success === false) {
-      throw new Error(result.message || "Failed to delete sleep log.");
-    }
-
-    successMessage.value = "Sleep log deleted successfully.";
 
     if (editingId.value === id) {
       resetForm();
     }
 
     await loadSleepLogs();
+
+    error.value = "";
+    successMessage.value = "Sleep log deleted successfully.";
   } catch (err) {
     console.error("Sleep delete error:", err);
     error.value = err.message || "Failed to delete sleep log.";
