@@ -32,7 +32,17 @@
         </p>
       </div>
 
-      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+        <RouterLink
+          to="/health/steps"
+          class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">👟</span>
+            <span>Steps</span>
+          </div>
+        </RouterLink>
+
         <RouterLink
           to="/health/weight"
           class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
@@ -40,6 +50,36 @@
           <div class="flex items-center gap-3">
             <span class="text-xl">⚖️</span>
             <span>Weight</span>
+          </div>
+        </RouterLink>
+
+        <RouterLink
+          to="/health/nutrition"
+          class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">🍽️</span>
+            <span>Nutrition</span>
+          </div>
+        </RouterLink>
+
+        <RouterLink
+          to="/health/custom-foods"
+          class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">🥗</span>
+            <span>Custom Foods</span>
+          </div>
+        </RouterLink>
+
+        <RouterLink
+          to="/health/hydration"
+          class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">💧</span>
+            <span>Hydration</span>
           </div>
         </RouterLink>
 
@@ -70,6 +110,36 @@
           <div class="flex items-center gap-3">
             <span class="text-xl">💊</span>
             <span>Medications</span>
+          </div>
+        </RouterLink>
+
+        <RouterLink
+          to="/health/lab-tests"
+          class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">🧪</span>
+            <span>Lab Tests</span>
+          </div>
+        </RouterLink>
+
+        <RouterLink
+          to="/health/alerts"
+          class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">🚨</span>
+            <span>Alerts</span>
+          </div>
+        </RouterLink>
+
+        <RouterLink
+          to="/health/reports"
+          class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">📊</span>
+            <span>Reports</span>
           </div>
         </RouterLink>
 
