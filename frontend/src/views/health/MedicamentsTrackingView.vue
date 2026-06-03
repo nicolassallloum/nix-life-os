@@ -1,47 +1,28 @@
 <template>
-  <div class="page">
-    <h1>Medicaments</h1>
-    <p>Track medicaments, times, and daily dose.</p>
+  <section class="space-y-4">
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <h1 class="text-2xl font-bold text-slate-900">Medicaments</h1>
+      <p class="mt-2 text-sm text-slate-500">
+        Redirecting to the main Medication Tracking page...
+      </p>
 
-    <div class="card">
-      <h2>Medicaments Page Loaded Successfully</h2>
-      <p>This page will include medication times and daily dose tracking.</p>
+      <RouterLink
+        to="/health/medications"
+        class="mt-4 inline-flex rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+      >
+        Open Medication Tracking
+      </RouterLink>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
+import { onMounted } from "vue";
+import { RouterLink, useRouter } from "vue-router";
+
+const router = useRouter();
+
+onMounted(() => {
+  router.replace("/health/medications");
+});
 </script>
-
-<style scoped>
-.page {
-  padding: 24px;
-}
-
-h1 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 8px;
-}
-
-p {
-  color: #64748b;
-}
-
-.card {
-  margin-top: 24px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-}
-
-.card h2 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #0f172a;
-  margin-bottom: 8px;
-}
-</style>
