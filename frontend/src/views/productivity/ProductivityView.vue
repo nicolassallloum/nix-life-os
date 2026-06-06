@@ -2,45 +2,65 @@
   <div class="page">
     <div class="page-header">
       <div>
-        <h1>Projects</h1>
-        <p>Manage your personal, business, and technical projects from one place.</p>
+        <h1>Productivity</h1>
+        <p>Organize tasks, habits, focus sessions, goals, and daily planning.</p>
       </div>
-      <button class="primary-btn">Create Project</button>
+      <button class="primary-btn">Add Task</button>
     </div>
 
     <div class="cards-grid">
       <div class="summary-card">
-        <h3>Total Projects</h3>
+        <h3>Today Tasks</h3>
         <strong>0</strong>
-        <span>Projects created</span>
-      </div>
-
-      <div class="summary-card">
-        <h3>Active Projects</h3>
-        <strong>0</strong>
-        <span>Currently in progress</span>
+        <span>Tasks planned today</span>
       </div>
 
       <div class="summary-card">
         <h3>Completed</h3>
         <strong>0</strong>
-        <span>Finished projects</span>
+        <span>Finished today</span>
       </div>
 
       <div class="summary-card">
-        <h3>Ideas</h3>
+        <h3>Focus Time</h3>
+        <strong>0h</strong>
+        <span>Tracked today</span>
+      </div>
+
+      <div class="summary-card">
+        <h3>Habits</h3>
         <strong>0</strong>
-        <span>Saved project ideas</span>
+        <span>Active habits</span>
       </div>
     </div>
 
     <div class="content-card">
-      <h2>Project Workspace</h2>
-      <p>This screen is now open and ready for project tracking features.</p>
+      <h2>Productivity Workspace</h2>
 
-      <div class="empty-state">
-        <h3>No projects yet</h3>
-        <p>Later you can add project lists, statuses, priorities, deadlines, notes, and progress tracking.</p>
+      <div class="task-list">
+        <div class="task-row">
+          <input type="checkbox" />
+          <div>
+            <strong>Create first productivity task</strong>
+            <p>This screen is ready for task management integration.</p>
+          </div>
+        </div>
+
+        <div class="task-row">
+          <input type="checkbox" />
+          <div>
+            <strong>Add goals and habits</strong>
+            <p>Later this can connect to goals, routines, and focus sessions.</p>
+          </div>
+        </div>
+
+        <div class="task-row">
+          <input type="checkbox" />
+          <div>
+            <strong>Build daily planning system</strong>
+            <p>Can include small tasks, subtasks, priorities, and progress.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -117,16 +137,25 @@
   font-size: 13px;
 }
 
-.content-card h2 {
-  margin-top: 0;
+.task-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
 }
 
-.empty-state {
-  margin-top: 20px;
-  padding: 24px;
-  border: 1px dashed #cbd5e1;
-  border-radius: 16px;
+.task-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 16px;
   background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+}
+
+.task-row p {
+  margin: 5px 0 0;
+  color: #6b7280;
 }
 
 @media (max-width: 900px) {
