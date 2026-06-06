@@ -38,12 +38,6 @@ const FinanceBudgetsView = () => import('@/views/finance/FinanceBudgetsView.vue'
 const FinanceAIInsightsView = () => import('@/views/finance/FinanceAIInsightsView.vue')
 const ExpensesView = () => import('@/views/finance/ExpensesView.vue')
 
-const ProjectsView = () => import('@/views/projects/ProjectsView.vue')
-const ProductivityView = () => import('@/views/productivity/ProductivityView.vue')
-const SettingsView = () => import('@/views/settings/SettingsView.vue')
-const ProfileView = () => import('@/views/profile/ProfileView.vue')
-
-
 const AdminOverviewView = () => import('@/views/admin/AdminOverviewView.vue')
 const AdminUsersView = () => import('@/views/admin/AdminUsersView.vue')
 const AdminUsersManagementView = () => import('@/views/admin/AdminUsersManagementView.vue')
@@ -399,10 +393,10 @@ const routes = [
   {
     path: '/projects',
     name: 'Projects',
-    component: ProjectsView,
+    component: ComingSoonView,
     meta: {
       requiresAuth: true,
-      title: 'Projects',
+      title: 'Projects - Coming Soon',
     },
   },
   {
@@ -463,10 +457,10 @@ const routes = [
   {
     path: '/productivity',
     name: 'Productivity',
-    component: ProductivityView,
+    component: ComingSoonView,
     meta: {
       requiresAuth: true,
-      title: 'Productivity',
+      title: 'Productivity - Coming Soon',
     },
   },
   {
@@ -529,19 +523,19 @@ const routes = [
   {
     path: '/settings',
     name: 'Settings',
-    component: SettingsView,
+    component: ComingSoonView,
     meta: {
       requiresAuth: true,
-      title: 'Settings',
+      title: 'Settings - Coming Soon',
     },
   },
   {
     path: '/profile',
     name: 'Profile',
-    component: ProfileView,
+    component: ComingSoonView,
     meta: {
       requiresAuth: true,
-      title: 'Profile',
+      title: 'Profile - Coming Soon',
     },
   },
 
