@@ -213,6 +213,53 @@ class HealthDashboardController extends Controller
 
             /*
             |--------------------------------------------------------------------------
+            | Nutrition Today
+            |--------------------------------------------------------------------------
+            */
+            $nutritionColumns = $this->columns('public', 'health_nutrition_logs');
+
+            $nutritionDateColumn = $this->firstExistingColumn($nutritionColumns, [
+                'meal_date',
+                'log_date',
+                'entry_date',
+                'date',
+                'created_at',
+            ]);
+
+            $todayCalories = 0;
+            $todayProtein = 0;
+            $todaySodium = 0;
+            $todayPotassium = 0;
+            $todayPhosphorus = 0;
+
+            if ($nutritionDateColumn) {
+                $nutritionQuery = DB::table('public.health_nutrition_logs')
+                    ->where('user_id', $userId)
+                    ->whereDate($nutritionDateColumn, $today);
+
+                $todayCalories = in_array('calories', $nutritionColumns, true)
+                    ? (clone $nutritionQuery)->sum('calories')
+                    : 0;
+
+                $todayProtein = in_array('protein_g', $nutritionColumns, true)
+                    ? (clone $nutritionQuery)->sum('protein_g')
+                    : ((in_array('protein', $nutritionColumns, true)) ? (clone $nutritionQuery)->sum('protein') : 0);
+
+                $todaySodium = in_array('sodium_mg', $nutritionColumns, true)
+                    ? (clone $nutritionQuery)->sum('sodium_mg')
+                    : ((in_array('sodium', $nutritionColumns, true)) ? (clone $nutritionQuery)->sum('sodium') : 0);
+
+                $todayPotassium = in_array('potassium_mg', $nutritionColumns, true)
+                    ? (clone $nutritionQuery)->sum('potassium_mg')
+                    : ((in_array('potassium', $nutritionColumns, true)) ? (clone $nutritionQuery)->sum('potassium') : 0);
+
+                $todayPhosphorus = in_array('phosphorus_mg', $nutritionColumns, true)
+                    ? (clone $nutritionQuery)->sum('phosphorus_mg')
+                    : ((in_array('phosphorus', $nutritionColumns, true)) ? (clone $nutritionQuery)->sum('phosphorus') : 0);
+            }
+
+            /*
+            |--------------------------------------------------------------------------
             | Medications
             |--------------------------------------------------------------------------
             */
@@ -221,15 +268,74 @@ class HealthDashboardController extends Controller
                 ->where('status', 'active')
                 ->count();
 
+            /*
+            |--------------------------------------------------------------------------
+            | User Goals
+            |--------------------------------------------------------------------------
+            */
+            $goals = DB::table('public.health_user_goals')
+                ->where('user_id', $userId)
+                ->first();
+
+            if (!$goals) {
+                DB::table('public.health_user_goals')->insert([
+                    'user_id' => $userId,
+                    'daily_steps_goal' => 8000,
+                    'daily_calories_goal' => 1800,
+                    'daily_water_goal_ml' => 2000,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                $goals = DB::table('public.health_user_goals')
+                    ->where('user_id', $userId)
+                    ->first();
+            }
+
+            $percent = function ($value, $goal): int {
+                if (!$goal || (float) $goal <= 0) {
+                    return 0;
+                }
+
+                return min(100, (int) round(((float) $value / (float) $goal) * 100));
+            };
+
             return response()->json([
                 'success' => true,
                 'data' => [
                     'today_steps' => (int) $todaySteps,
                     'today_water_ml' => (int) $todayWater,
+                    'today_calories' => (int) $todayCalories,
+                    'today_protein_g' => round((float) $todayProtein, 2),
+                    'today_sodium_mg' => round((float) $todaySodium, 2),
+                    'today_potassium_mg' => round((float) $todayPotassium, 2),
+                    'today_phosphorus_mg' => round((float) $todayPhosphorus, 2),
+
                     'current_weight_kg' => $currentWeight ? (float) $currentWeight : 0,
                     'last_sleep_hours' => $lastSleepHours,
                     'today_mood' => $todayMood,
                     'active_medications' => $activeMedications,
+
+                    'goals' => [
+                        'daily_steps_goal' => (int) ($goals->daily_steps_goal ?? 8000),
+                        'target_weight_kg' => $goals->target_weight_kg !== null ? (float) $goals->target_weight_kg : null,
+                        'daily_calories_goal' => (int) ($goals->daily_calories_goal ?? 1800),
+                        'daily_water_goal_ml' => (int) ($goals->daily_water_goal_ml ?? 2000),
+                        'protein_limit_g' => $goals->protein_limit_g !== null ? (float) $goals->protein_limit_g : null,
+                        'sodium_limit_mg' => $goals->sodium_limit_mg !== null ? (float) $goals->sodium_limit_mg : null,
+                        'potassium_limit_mg' => $goals->potassium_limit_mg !== null ? (float) $goals->potassium_limit_mg : null,
+                        'phosphorus_limit_mg' => $goals->phosphorus_limit_mg !== null ? (float) $goals->phosphorus_limit_mg : null,
+                    ],
+
+                    'progress' => [
+                        'steps_percent' => $percent($todaySteps, $goals->daily_steps_goal ?? 8000),
+                        'water_percent' => $percent($todayWater, $goals->daily_water_goal_ml ?? 2000),
+                        'calories_percent' => $percent($todayCalories, $goals->daily_calories_goal ?? 1800),
+                        'protein_percent' => $percent($todayProtein, $goals->protein_limit_g ?? null),
+                        'sodium_percent' => $percent($todaySodium, $goals->sodium_limit_mg ?? null),
+                        'potassium_percent' => $percent($todayPotassium, $goals->potassium_limit_mg ?? null),
+                        'phosphorus_percent' => $percent($todayPhosphorus, $goals->phosphorus_limit_mg ?? null),
+                    ],
                 ],
                 // 'meta' => [
                 //     'steps_column_used' => $stepValueColumn,
