@@ -46,3 +46,12 @@ Thumbs.db
 *Zone.Identifier
 *:Zone.Identifier
 *.Zone.Identifier
+
+# Local backup folders/files
+backend_backup_before_full_updates_*/
+frontend_backup_before_full_updates_*/
+*_backup_before_full_updates_*/
+backups/postgres/*.dump
+backups/**/*.log
+*.dump
+*.log
