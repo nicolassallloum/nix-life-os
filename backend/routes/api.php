@@ -44,6 +44,7 @@ use App\Http\Controllers\Api\V1\Finance\BudgetAlertRuleController;
 use App\Http\Controllers\Api\V1\Health\HydrationReminderController;
 use App\Http\Controllers\Api\V1\Productivity\TaskReminderController;
 use App\Http\Controllers\Api\V1\HealthDashboardController;
+use App\Http\Controllers\Api\V1\HealthGoalController;
 // use App\Http\Controllers\Api\V1\FinanceCategoryController;
 // use App\Http\Controllers\Api\V1\Health\HealthDashboardController;
 use App\Http\Controllers\Api\V1\Health\HealthAIInsightController;
@@ -551,6 +552,10 @@ Route::prefix('v1')->group(function () {
             Route::delete('/alerts/{id}', [HealthAlertController::class, 'destroy']);
 
             Route::get('/dashboard', [HealthDashboardController::class, 'summary']);
+            Route::get('/goals', [HealthGoalController::class, 'show']);
+            Route::put('/goals', [HealthGoalController::class, 'update']);
+            Route::patch('/goals', [HealthGoalController::class, 'update']);
+
             Route::get('/ai-insights', [HealthAIInsightController::class, 'index']);
 
             Route::get('/medications', [MedicationController::class, 'index']);
