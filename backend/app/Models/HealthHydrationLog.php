@@ -2,37 +2,36 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class HealthHydrationLog extends Model
 {
-    use HasUuids;
+    use HasFactory;
 
     protected $table = 'health_hydration_logs';
 
     protected $fillable = [
         'user_id',
+        'hydration_type',
+        'quantity_ml',
         'log_date',
         'log_time',
-        'drink_type',
-        'amount_ml',
-        'is_ckd_safe',
-        'source',
         'notes',
     ];
 
     protected $casts = [
         'log_date' => 'date',
-        'amount_ml' => 'decimal:2',
-        'log_time' => 'datetime:H:i:s',
-
-        'is_ckd_safe' => 'boolean',
+        'quantity_ml' => 'integer',
     ];
 
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
+    public const TYPES = [
+        'Water',
+        'Coffee',
+        'Tea',
+        'Juice',
+        'Soft Drink',
+        'Soup',
+        'Other',
+    ];
 }

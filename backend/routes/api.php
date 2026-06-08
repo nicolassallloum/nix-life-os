@@ -877,3 +877,14 @@ Route::prefix('v1')->group(function () {
         */
     });
 });
+
+// Phase 6 - Health Hydration
+Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
+    Route::get('/health/hydration', [\App\Http\Controllers\Api\V1\HealthHydrationController::class, 'index']);
+    Route::post('/health/hydration', [\App\Http\Controllers\Api\V1\HealthHydrationController::class, 'store']);
+    Route::put('/health/hydration/{id}', [\App\Http\Controllers\Api\V1\HealthHydrationController::class, 'update']);
+    Route::delete('/health/hydration/{id}', [\App\Http\Controllers\Api\V1\HealthHydrationController::class, 'destroy']);
+    Route::get('/health/hydration/summary', [\App\Http\Controllers\Api\V1\HealthHydrationController::class, 'summary']);
+    Route::get('/health/hydration/charts', [\App\Http\Controllers\Api\V1\HealthHydrationController::class, 'charts']);
+});
+
