@@ -10,6 +10,8 @@ class HealthStepLog extends Model
 {
     use HasFactory;
 
+    protected $table = 'health_step_logs';
+
     protected $fillable = [
         'user_id',
         'log_date',
