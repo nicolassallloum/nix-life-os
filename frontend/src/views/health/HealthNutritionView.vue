@@ -6,7 +6,7 @@ const API_BASE_URL = "/api/v1";
 
 const token = localStorage.getItem("token") || "10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108";
 
-const selectedDate = ref("2026-04-26");
+const selectedDate = ref(new Date().toISOString().slice(0, 10));
 const loading = ref(false);
 const errorMessage = ref("");
 
@@ -121,10 +121,7 @@ async function fetchDailyNutrition() {
 
   try {
     const response = await axios.post(
-      `${API_BASE_URL}/health/analytics/daily`,
-      {
-        target_date: selectedDate.value,
-      },
+      `${API_BASE_URL}/health/nutrition/summary?date=${selectedDate.value}`,
       axiosConfig.value
     );
 
@@ -160,7 +157,7 @@ async function fetchDailyNutrition() {
 async function fetchMeals() {
   try {
     const response = await axios.get(
-      `${API_BASE_URL}/health/nutrition/logs?target_date=${selectedDate.value}`,
+      `${API_BASE_URL}/health/nutrition?date=${selectedDate.value}`,
       axiosConfig.value
     );
 
@@ -176,20 +173,20 @@ async function addMeal() {
 
   try {
     await axios.post(
-      `${API_BASE_URL}/health/nutrition/logs`,
+      `${API_BASE_URL}/health/nutrition`,
       {
-        log_date: selectedDate.value,
+        meal_date: selectedDate.value,
         meal_type: mealForm.value.meal_type,
         food_name: mealForm.value.food_name,
         quantity: Number(mealForm.value.quantity),
-        quantity_unit: mealForm.value.quantity_unit,
+        unit: mealForm.value.quantity_unit,
         calories: Number(mealForm.value.calories),
-        protein: Number(mealForm.value.protein),
-        carbs: Number(mealForm.value.carbs),
-        fat: Number(mealForm.value.fat),
-        sodium: Number(mealForm.value.sodium),
-        potassium: Number(mealForm.value.potassium),
-        phosphorus: Number(mealForm.value.phosphorus),
+        protein_g: Number(mealForm.value.protein),
+        carbs_g: Number(mealForm.value.carbs),
+        fat_g: Number(mealForm.value.fat),
+        sodium_mg: Number(mealForm.value.sodium),
+        potassium_mg: Number(mealForm.value.potassium),
+        phosphorus_mg: Number(mealForm.value.phosphorus),
         sugar: Number(mealForm.value.sugar),
         fiber: Number(mealForm.value.fiber),
         fluids: Number(mealForm.value.fluids),
@@ -234,7 +231,7 @@ async function deleteMeal(id) {
 
   try {
     await axios.delete(
-      `${API_BASE_URL}/health/nutrition/logs/${id}`,
+      `${API_BASE_URL}/health/nutrition/${id}`,
       axiosConfig.value
     );
 

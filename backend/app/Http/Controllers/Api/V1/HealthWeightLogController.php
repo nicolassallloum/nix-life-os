@@ -42,6 +42,7 @@ class HealthWeightLogController extends Controller
             'log_date' => ['required', 'date'],
             'weight_kg' => ['required', 'numeric', 'min:20', 'max:400'],
             'body_fat_percentage' => ['nullable', 'numeric', 'min:1', 'max:80'],
+            'body_fat_percent' => ['nullable', 'numeric', 'min:1', 'max:80'],
             'muscle_mass_kg' => ['nullable', 'numeric', 'min:1', 'max:200'],
             'bmi' => ['nullable', 'numeric', 'min:5', 'max:100'],
             'notes' => ['nullable', 'string', 'max:2000'],
@@ -64,7 +65,8 @@ class HealthWeightLogController extends Controller
             ],
             [
                 'weight_kg' => $request->weight_kg,
-                'body_fat_percentage' => $request->body_fat_percentage,
+                'body_fat_percentage' => $request->body_fat_percentage ?? $request->body_fat_percent,
+                'body_fat_percent' => $request->body_fat_percent ?? $request->body_fat_percentage,
                 'muscle_mass_kg' => $request->muscle_mass_kg,
                 'bmi' => $request->bmi,
                 'notes' => $request->notes,
@@ -115,6 +117,7 @@ class HealthWeightLogController extends Controller
             'log_date' => ['sometimes', 'date'],
             'weight_kg' => ['sometimes', 'numeric', 'min:20', 'max:400'],
             'body_fat_percentage' => ['nullable', 'numeric', 'min:1', 'max:80'],
+            'body_fat_percent' => ['nullable', 'numeric', 'min:1', 'max:80'],
             'muscle_mass_kg' => ['nullable', 'numeric', 'min:1', 'max:200'],
             'bmi' => ['nullable', 'numeric', 'min:5', 'max:100'],
             'notes' => ['nullable', 'string', 'max:2000'],
@@ -214,6 +217,7 @@ class HealthWeightLogController extends Controller
                 'weight_kg' => (float) $log->weight_kg,
                 'bmi' => $log->bmi !== null ? (float) $log->bmi : null,
                 'body_fat_percentage' => $log->body_fat_percentage !== null ? (float) $log->body_fat_percentage : null,
+                'body_fat_percent' => $log->body_fat_percent !== null ? (float) $log->body_fat_percent : ($log->body_fat_percentage !== null ? (float) $log->body_fat_percentage : null),
                 'muscle_mass_kg' => $log->muscle_mass_kg !== null ? (float) $log->muscle_mass_kg : null,
             ];
         });
