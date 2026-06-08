@@ -4,12 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class HealthHydrationLog extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
     protected $table = 'health_hydration_logs';
+
+    public $incrementing = false;
+
+    protected $keyType = 'string';
 
     protected $fillable = [
         'user_id',
