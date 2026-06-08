@@ -129,7 +129,6 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::get('health/dashboard-summary', [HealthDashboardController::class, 'summary']);
-    Route::apiResource('health/weight', HealthWeightController::class);
     Route::apiResource('health/water', HealthWaterController::class);
     Route::apiResource('health/sleep', HealthSleepController::class);
     Route::apiResource('health/mood', HealthMoodController::class);
@@ -627,10 +626,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/weight', [HealthWeightLogController::class, 'index']);
             Route::post('/weight', [HealthWeightLogController::class, 'store']);
             Route::get('/weight/summary', [HealthWeightLogController::class, 'summary']);
-            Route::get('/weight/{id}', [HealthWeightLogController::class, 'show']);
-            Route::put('/weight/{id}', [HealthWeightLogController::class, 'update']);
-            Route::patch('/weight/{id}', [HealthWeightLogController::class, 'update']);
-            Route::delete('/weight/{id}', [HealthWeightLogController::class, 'destroy']);
+            Route::get('/weight/{id}', [HealthWeightLogController::class, 'show'])->whereNumber('id');
+            Route::put('/weight/{id}', [HealthWeightLogController::class, 'update'])->whereNumber('id');
+            Route::patch('/weight/{id}', [HealthWeightLogController::class, 'update'])->whereNumber('id');
+            Route::delete('/weight/{id}', [HealthWeightLogController::class, 'destroy'])->whereNumber('id');
 
             Route::get('/nutrition/summary', [HealthNutritionLogController::class, 'summary']);
             Route::get('/nutrition', [HealthNutritionLogController::class, 'index']);
