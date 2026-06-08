@@ -642,6 +642,9 @@ Route::prefix('v1')->group(function () {
 // Phase 6 disabled old duplicate nested hydration route: 
 // Phase 6 disabled old duplicate nested hydration route: Route::get('/hydration', [HealthHydrationLogController::class, 'index']);
 // Phase 6 disabled old duplicate nested hydration route: // Phase 6 disabled old duplicate nested hydration route: Route::post('/hydration', [HealthHydrationLogController::class, 'store']);
+            // Phase 6 explicit hydration analytics routes - must stay before any /hydration/{id} route
+            Route::get('/hydration/summary', [\App\Http\Controllers\Api\V1\HealthHydrationController::class, 'summary']);
+            Route::get('/hydration/charts', [\App\Http\Controllers\Api\V1\HealthHydrationController::class, 'charts']);
             Route::get('/hydration/summary/daily', [HealthHydrationLogController::class, 'dailySummary']);
             Route::get('/hydration/summary/weekly', [HealthHydrationLogController::class, 'weeklySummary']);
             Route::post('/hydration/quick-add', [HealthHydrationLogController::class, 'quickAdd']);

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Models\HealthHydrationLog;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class HealthHydrationController extends Controller
@@ -32,18 +33,21 @@ class HealthHydrationController extends Controller
         'Other' => 'other',
     ];
 
+    private string $table = 'health_hydration_logs';
+
     public function index(Request $request): JsonResponse
     {
-        $userId = $request->user()->id;
-
-        $query = HealthHydrationLog::query()
-            ->where('user_id', $userId)
-            ->orderByDesc($this->dateColumn())
-            ->orderByDesc('created_at');
+        $rows = DB::table($this->table)
+            ->where('user_id', $request->user()->id)
+            ->orderByDesc('log_date')
+            ->orderByDesc('created_at')
+            ->limit(200)
+            ->get();
 
         return response()->json([
             'success' => true,
-            'data' => $query->limit(200)->get(),
+            'message' => 'Hydration logs retrieved successfully.',
+            'data' => $rows,
         ]);
     }
 
@@ -53,136 +57,135 @@ class HealthHydrationController extends Controller
             'hydration_type' => ['required', 'string', Rule::in(self::TYPES)],
             'quantity_ml' => ['required', 'integer', 'min:1', 'max:10000'],
             'log_date' => ['required', 'date'],
-            'log_time' => ['nullable'],
+            'log_time' => ['nullable', 'date_format:H:i'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $drinkType = self::TYPE_MAP[$validated['hydration_type']] ?? 'other';
+        $now = now();
+        $date = Carbon::parse($validated['log_date'])->toDateString();
+        $time = $validated['log_time'] ?? $now->format('H:i');
+        $typeLabel = $validated['hydration_type'];
+        $typeValue = self::TYPE_MAP[$typeLabel] ?? 'other';
+        $quantity = (int) $validated['quantity_ml'];
 
-        $payload = [
-            'user_id' => $request->user()->id,
-            'notes' => $validated['notes'] ?? null,
-        ];
+        $payload = [];
 
-        if (Schema::hasColumn('health_hydration_logs', 'hydration_type')) {
-            $payload['hydration_type'] = $validated['hydration_type'];
+        $this->putIfColumn($payload, 'id', (string) Str::uuid());
+        $this->putIfColumn($payload, 'user_id', $request->user()->id);
+        $this->putIfColumn($payload, 'log_date', $date);
+        $this->putIfColumn($payload, 'log_time', $this->formatLogTime($date, $time));
+        $this->putIfColumn($payload, 'hydration_type', $typeLabel);
+        $this->putIfColumn($payload, 'drink_type', $typeValue);
+        $this->putIfColumn($payload, 'quantity_ml', $quantity);
+        $this->putIfColumn($payload, 'amount_ml', $quantity);
+
+        if ($typeValue === 'water') {
+            $this->putIfColumn($payload, 'water_ml', $quantity);
+        } else {
+            $this->putIfColumn($payload, 'water_ml', 0);
         }
 
-        if (Schema::hasColumn('health_hydration_logs', 'drink_type')) {
-            $payload['drink_type'] = $drinkType;
-        }
+        $this->putIfColumn($payload, 'is_ckd_safe', true);
+        $this->putIfColumn($payload, 'source', 'manual');
+        $this->putIfColumn($payload, 'notes', $validated['notes'] ?? null);
+        $this->putIfColumn($payload, 'created_at', $now);
+        $this->putIfColumn($payload, 'updated_at', $now);
 
-        if (Schema::hasColumn('health_hydration_logs', 'quantity_ml')) {
-            $payload['quantity_ml'] = $validated['quantity_ml'];
-        }
+        DB::table($this->table)->insert($payload);
 
-        if (Schema::hasColumn('health_hydration_logs', 'amount_ml')) {
-            $payload['amount_ml'] = $validated['quantity_ml'];
-        }
-
-        if (Schema::hasColumn('health_hydration_logs', 'water_ml')) {
-            $payload['water_ml'] = $validated['quantity_ml'];
-        }
-
-        if (Schema::hasColumn('health_hydration_logs', 'log_date')) {
-            $payload['log_date'] = $validated['log_date'];
-        }
-
-        if (Schema::hasColumn('health_hydration_logs', 'date')) {
-            $payload['date'] = $validated['log_date'];
-        }
-
-        if (Schema::hasColumn('health_hydration_logs', 'log_time')) {
-            $time = $validated['log_time'] ?? now()->format('H:i:s');
-            $payload['log_time'] = strlen($time) <= 8
-                ? Carbon::parse($validated['log_date'] . ' ' . $time)
-                : $time;
-        }
-
-        if (Schema::hasColumn('health_hydration_logs', 'source')) {
-            $payload['source'] = 'manual';
-        }
-
-        if (Schema::hasColumn('health_hydration_logs', 'is_ckd_safe')) {
-            $payload['is_ckd_safe'] = true;
-        }
-
-        $log = HealthHydrationLog::create($payload);
+        $row = DB::table($this->table)
+            ->where('user_id', $request->user()->id)
+            ->orderByDesc('created_at')
+            ->first();
 
         return response()->json([
             'success' => true,
             'message' => 'Hydration log created successfully.',
-            'data' => $log,
+            'data' => $row,
         ], 201);
     }
 
     public function update(Request $request, string $id): JsonResponse
     {
-        $log = HealthHydrationLog::where('user_id', $request->user()->id)->findOrFail($id);
-
         $validated = $request->validate([
-            'hydration_type' => ['sometimes', 'string', Rule::in(self::TYPES)],
-            'quantity_ml' => ['sometimes', 'integer', 'min:1', 'max:10000'],
-            'log_date' => ['sometimes', 'date'],
-            'log_time' => ['nullable'],
+            'hydration_type' => ['sometimes', 'required', 'string', Rule::in(self::TYPES)],
+            'quantity_ml' => ['sometimes', 'required', 'integer', 'min:1', 'max:10000'],
+            'log_date' => ['sometimes', 'required', 'date'],
+            'log_time' => ['nullable', 'date_format:H:i'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
+        $existing = DB::table($this->table)
+            ->where('user_id', $request->user()->id)
+            ->where('id', $id)
+            ->first();
+
+        if (!$existing) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hydration log not found.',
+            ], 404);
+        }
+
         $payload = [];
+        $date = $validated['log_date'] ?? ($existing->log_date ?? now()->toDateString());
+        $time = $validated['log_time'] ?? now()->format('H:i');
+
+        if (array_key_exists('log_date', $validated)) {
+            $this->putIfColumn($payload, 'log_date', Carbon::parse($validated['log_date'])->toDateString());
+        }
+
+        if (array_key_exists('log_time', $validated)) {
+            $this->putIfColumn($payload, 'log_time', $this->formatLogTime($date, $time));
+        }
 
         if (array_key_exists('hydration_type', $validated)) {
-            $drinkType = self::TYPE_MAP[$validated['hydration_type']] ?? 'other';
-
-            if (Schema::hasColumn('health_hydration_logs', 'hydration_type')) {
-                $payload['hydration_type'] = $validated['hydration_type'];
-            }
-
-            if (Schema::hasColumn('health_hydration_logs', 'drink_type')) {
-                $payload['drink_type'] = $drinkType;
-            }
+            $typeLabel = $validated['hydration_type'];
+            $typeValue = self::TYPE_MAP[$typeLabel] ?? 'other';
+            $this->putIfColumn($payload, 'hydration_type', $typeLabel);
+            $this->putIfColumn($payload, 'drink_type', $typeValue);
         }
 
         if (array_key_exists('quantity_ml', $validated)) {
-            foreach (['quantity_ml', 'amount_ml', 'water_ml'] as $column) {
-                if (Schema::hasColumn('health_hydration_logs', $column)) {
-                    $payload[$column] = $validated['quantity_ml'];
-                }
-            }
-        }
-
-        if (array_key_exists('log_date', $validated)) {
-            if (Schema::hasColumn('health_hydration_logs', 'log_date')) {
-                $payload['log_date'] = $validated['log_date'];
-            }
-
-            if (Schema::hasColumn('health_hydration_logs', 'date')) {
-                $payload['date'] = $validated['log_date'];
-            }
-        }
-
-        if (array_key_exists('log_time', $validated) && Schema::hasColumn('health_hydration_logs', 'log_time')) {
-            $date = $validated['log_date'] ?? $log->log_date ?? $log->date ?? now()->toDateString();
-            $time = $validated['log_time'] ?: now()->format('H:i:s');
-            $payload['log_time'] = Carbon::parse($date . ' ' . $time);
+            $quantity = (int) $validated['quantity_ml'];
+            $this->putIfColumn($payload, 'quantity_ml', $quantity);
+            $this->putIfColumn($payload, 'amount_ml', $quantity);
+            $this->putIfColumn($payload, 'water_ml', $quantity);
         }
 
         if (array_key_exists('notes', $validated)) {
-            $payload['notes'] = $validated['notes'];
+            $this->putIfColumn($payload, 'notes', $validated['notes']);
         }
 
-        $log->update($payload);
+        $this->putIfColumn($payload, 'updated_at', now());
+
+        DB::table($this->table)
+            ->where('user_id', $request->user()->id)
+            ->where('id', $id)
+            ->update($payload);
+
+        $row = DB::table($this->table)->where('id', $id)->first();
 
         return response()->json([
             'success' => true,
             'message' => 'Hydration log updated successfully.',
-            'data' => $log->fresh(),
+            'data' => $row,
         ]);
     }
 
     public function destroy(Request $request, string $id): JsonResponse
     {
-        $log = HealthHydrationLog::where('user_id', $request->user()->id)->findOrFail($id);
-        $log->delete();
+        $deleted = DB::table($this->table)
+            ->where('user_id', $request->user()->id)
+            ->where('id', $id)
+            ->delete();
+
+        if (!$deleted) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Hydration log not found.',
+            ], 404);
+        }
 
         return response()->json([
             'success' => true,
@@ -193,27 +196,19 @@ class HealthHydrationController extends Controller
     public function summary(Request $request): JsonResponse
     {
         $userId = $request->user()->id;
-
-        $today = Carbon::today();
-        $weekStart = Carbon::now()->startOfWeek();
-        $monthStart = Carbon::now()->startOfMonth();
-
-        $dailyTotal = $this->sumFromDate($userId, $today);
-        $weeklyTotal = $this->sumFromDate($userId, $weekStart);
-        $monthlyTotal = $this->sumFromDate($userId, $monthStart);
-        $allTimeTotal = $this->baseQuery($userId)->sum($this->amountColumn());
+        $today = now()->toDateString();
+        $weekStart = now()->startOfWeek()->toDateString();
+        $monthStart = now()->startOfMonth()->toDateString();
 
         return response()->json([
             'success' => true,
+            'message' => 'Hydration summary retrieved successfully.',
             'data' => [
-                'daily_total_ml' => (int) $dailyTotal,
-                'weekly_total_ml' => (int) $weeklyTotal,
-                'monthly_total_ml' => (int) $monthlyTotal,
-                'all_time_total_ml' => (int) $allTimeTotal,
-                'daily_total_liters' => round($dailyTotal / 1000, 2),
-                'weekly_total_liters' => round($weeklyTotal / 1000, 2),
-                'monthly_total_liters' => round($monthlyTotal / 1000, 2),
-                'all_time_total_liters' => round($allTimeTotal / 1000, 2),
+                'today_ml' => $this->sumFromDate($userId, $today),
+                'week_ml' => $this->sumFromDate($userId, $weekStart),
+                'month_ml' => $this->sumFromDate($userId, $monthStart),
+                'all_time_ml' => $this->sumFromDate($userId, null),
+                'target_ml' => 2000,
             ],
         ]);
     }
@@ -224,94 +219,94 @@ class HealthHydrationController extends Controller
 
         return response()->json([
             'success' => true,
+            'message' => 'Hydration charts retrieved successfully.',
             'data' => [
-                'daily' => $this->groupByType($userId, Carbon::today()),
-                'weekly' => $this->groupByType($userId, Carbon::now()->startOfWeek()),
-                'monthly' => $this->groupByType($userId, Carbon::now()->startOfMonth()),
-                'all_time' => $this->groupByType($userId),
+                'daily_by_type' => $this->groupByType($userId, now()->toDateString()),
+                'weekly_by_type' => $this->groupByType($userId, now()->startOfWeek()->toDateString()),
+                'monthly_by_type' => $this->groupByType($userId, now()->startOfMonth()->toDateString()),
+                'all_time_by_type' => $this->groupByType($userId, null),
             ],
         ]);
     }
 
-    private function sumFromDate(string $userId, Carbon $fromDate): int
+    private function sumFromDate(string $userId, ?string $fromDate): int
     {
-        return (int) $this->baseQuery($userId)
-            ->whereDate($this->dateColumn(), '>=', $fromDate->toDateString())
-            ->sum($this->amountColumn());
-    }
-
-    private function groupByType(string $userId, ?Carbon $fromDate = null): array
-    {
-        $typeColumn = $this->typeColumn();
-        $amountColumn = $this->amountColumn();
-
-        $query = $this->baseQuery($userId)
-            ->selectRaw("$typeColumn as hydration_type, SUM($amountColumn) as total_ml")
-            ->groupBy($typeColumn)
-            ->orderBy($typeColumn);
+        $query = DB::table($this->table)->where('user_id', $userId);
 
         if ($fromDate) {
-            $query->whereDate($this->dateColumn(), '>=', $fromDate->toDateString());
+            $query->where('log_date', '>=', $fromDate);
         }
 
-        $rows = $query->get();
+        return (int) $query->selectRaw($this->amountExpression() . ' as total')->value('total');
+    }
 
-        $totals = [];
-        foreach ($rows as $row) {
-            $label = $this->normalizeTypeLabel((string) $row->hydration_type);
-            $totals[$label] = ($totals[$label] ?? 0) + (int) $row->total_ml;
+    private function groupByType(string $userId, ?string $fromDate): array
+    {
+        $query = DB::table($this->table)->where('user_id', $userId);
+
+        if ($fromDate) {
+            $query->where('log_date', '>=', $fromDate);
         }
 
-        return collect(self::TYPES)
-            ->map(fn (string $type) => [
-                'hydration_type' => $type,
-                'total_ml' => (int) ($totals[$type] ?? 0),
+        return $query
+            ->selectRaw($this->typeExpression() . ' as type')
+            ->selectRaw($this->amountExpression() . ' as total_ml')
+            ->groupByRaw($this->typeExpression())
+            ->orderByRaw($this->typeExpression())
+            ->get()
+            ->map(fn ($row) => [
+                'type' => $this->displayType((string) $row->type),
+                'total_ml' => (int) $row->total_ml,
             ])
             ->values()
-            ->all();
+            ->toArray();
     }
 
-    private function baseQuery(string $userId)
+    private function amountExpression(): string
     {
-        return HealthHydrationLog::query()->where('user_id', $userId);
-    }
+        $parts = [];
 
-    private function amountColumn(): string
-    {
-        if (Schema::hasColumn('health_hydration_logs', 'quantity_ml')) {
-            return 'quantity_ml';
+        if ($this->hasColumn('quantity_ml')) {
+            $parts[] = 'quantity_ml';
         }
 
-        if (Schema::hasColumn('health_hydration_logs', 'amount_ml')) {
-            return 'amount_ml';
+        if ($this->hasColumn('amount_ml')) {
+            $parts[] = 'amount_ml';
         }
 
-        return 'water_ml';
-    }
-
-    private function typeColumn(): string
-    {
-        if (Schema::hasColumn('health_hydration_logs', 'hydration_type')) {
-            return 'hydration_type';
+        if ($this->hasColumn('water_ml')) {
+            $parts[] = 'water_ml';
         }
 
-        return 'drink_type';
-    }
-
-    private function dateColumn(): string
-    {
-        if (Schema::hasColumn('health_hydration_logs', 'log_date')) {
-            return 'log_date';
+        if (!$parts) {
+            return '0';
         }
 
-        return 'date';
+        return 'COALESCE(SUM(COALESCE(' . implode(', ', $parts) . ', 0)), 0)';
     }
 
-    private function normalizeTypeLabel(string $value): string
+    private function typeExpression(): string
     {
-        $value = strtolower(trim($value));
+        $parts = [];
 
-        return match ($value) {
+        if ($this->hasColumn('hydration_type')) {
+            $parts[] = 'hydration_type';
+        }
+
+        if ($this->hasColumn('drink_type')) {
+            $parts[] = 'drink_type';
+        }
+
+        if (!$parts) {
+            return "'Other'";
+        }
+
+        return 'COALESCE(' . implode(', ', $parts) . ", 'Other')";
+    }
+
+    private function displayType(string $type): string
+    {
+        return match (strtolower($type)) {
             'water' => 'Water',
             'coffee' => 'Coffee',
             'tea' => 'Tea',
@@ -320,5 +315,37 @@ class HealthHydrationController extends Controller
             'soup' => 'Soup',
             default => 'Other',
         };
+    }
+
+    private function formatLogTime(string $date, string $time): string
+    {
+        $type = $this->columnType('log_time');
+
+        if (in_array($type, ['datetime', 'timestamp', 'timestamptz', 'datetimetz'], true)) {
+            return Carbon::parse($date . ' ' . $time)->toDateTimeString();
+        }
+
+        return Carbon::parse($time)->format('H:i:s');
+    }
+
+    private function putIfColumn(array &$payload, string $column, mixed $value): void
+    {
+        if ($this->hasColumn($column)) {
+            $payload[$column] = $value;
+        }
+    }
+
+    private function hasColumn(string $column): bool
+    {
+        return Schema::hasColumn($this->table, $column);
+    }
+
+    private function columnType(string $column): string
+    {
+        try {
+            return Schema::getColumnType($this->table, $column);
+        } catch (\Throwable) {
+            return '';
+        }
     }
 }
