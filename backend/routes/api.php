@@ -58,15 +58,13 @@ use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
 use App\Http\Controllers\Api\V1\HealthWeightLogController;
 use App\Http\Controllers\Api\V1\HealthHydrationLogController;
 use App\Http\Controllers\Api\V1\FinanceCategoryController;
-use App\Http\Controllers\Api\V1\HealthStepController;
 use App\Http\Controllers\Api\V1\HealthWeightController;
 use App\Http\Controllers\Api\V1\HealthWaterController;
 use App\Http\Controllers\Api\V1\HealthSleepController;
 use App\Http\Controllers\Api\V1\HealthMoodController;
 use App\Http\Controllers\Api\V1\HealthMedicationController;
 // use App\Http\Controllers\Api\V1\FinanceCategoryController;
-// use App\Http\Controllers\Api\V1\HealthStepController;
-// use App\Http\Controllers\Api\V1\HealthWeightController;
+// // use App\Http\Controllers\Api\V1\HealthWeightController;
 // use App\Http\Controllers\Api\V1\HealthWaterController;
 // use App\Http\Controllers\Api\V1\HealthSleepController;
 // use App\Http\Controllers\Api\V1\HealthMoodController;
@@ -119,7 +117,6 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     | Health Tracking
     |--------------------------------------------------------------------------
     */
-    Route::apiResource('health/steps', HealthStepController::class);
     Route::get('health/dashboard-summary', [HealthDashboardController::class, 'summary']);
     Route::apiResource('health/weight', HealthWeightController::class);
     Route::apiResource('health/water', HealthWaterController::class);
