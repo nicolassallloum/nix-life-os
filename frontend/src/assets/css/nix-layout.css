@@ -1,0 +1,115 @@
+/* =========================================================
+   Nix Life OS - Layout Utilities
+   ========================================================= */
+
+.nix-app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--nix-bg);
+}
+
+.nix-main-shell {
+  flex: 1;
+  min-width: 0;
+  margin-left: var(--nix-sidebar-width);
+}
+
+.nix-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: var(--nix-navbar-height);
+  background: rgba(255, 255, 255, 0.88);
+  border-bottom: 1px solid var(--nix-border);
+  backdrop-filter: blur(14px);
+}
+
+.nix-content {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+.nix-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+}
+
+.nix-page-title {
+  margin: 0;
+  color: var(--nix-text);
+  font-size: clamp(1.6rem, 2vw, 2.25rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.nix-page-subtitle {
+  max-width: 760px;
+  margin: 8px 0 0;
+  color: var(--nix-text-muted);
+  font-size: 0.98rem;
+  line-height: 1.6;
+}
+
+.nix-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.nix-grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.nix-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.nix-grid-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.nix-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+  .nix-main-shell {
+    margin-left: 0;
+  }
+
+  .nix-content {
+    padding: 22px;
+  }
+
+  .nix-grid-3,
+  .nix-grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .nix-content {
+    padding: 18px 14px 92px;
+  }
+
+  .nix-page-header {
+    display: grid;
+  }
+
+  .nix-grid-2,
+  .nix-grid-3,
+  .nix-grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .nix-actions {
+    width: 100%;
+  }
+}
