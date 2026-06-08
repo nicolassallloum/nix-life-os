@@ -1,6 +1,10 @@
 import apiClient from './apiClient'
 
 export const healthService = {
+  dashboard() {
+    return apiClient.get('/health/dashboard')
+  },
+
   addSteps(payload: any) {
     return apiClient.post('/health/steps', payload)
   },
