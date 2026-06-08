@@ -66,7 +66,6 @@ class HealthWeightLogController extends Controller
             [
                 'weight_kg' => $request->weight_kg,
                 'body_fat_percentage' => $request->body_fat_percentage ?? $request->body_fat_percent,
-                'body_fat_percent' => $request->body_fat_percent ?? $request->body_fat_percentage,
                 'muscle_mass_kg' => $request->muscle_mass_kg,
                 'bmi' => $request->bmi,
                 'notes' => $request->notes,
@@ -131,7 +130,15 @@ class HealthWeightLogController extends Controller
             ], 422);
         }
 
-        $log->update($validator->validated());
+        $payload = $validator->validated();
+
+        if (array_key_exists('body_fat_percent', $payload) && !array_key_exists('body_fat_percentage', $payload)) {
+            $payload['body_fat_percentage'] = $payload['body_fat_percent'];
+        }
+
+        unset($payload['body_fat_percent']);
+
+        $log->update($payload);
 
         return response()->json([
             'success' => true,
@@ -217,7 +224,7 @@ class HealthWeightLogController extends Controller
                 'weight_kg' => (float) $log->weight_kg,
                 'bmi' => $log->bmi !== null ? (float) $log->bmi : null,
                 'body_fat_percentage' => $log->body_fat_percentage !== null ? (float) $log->body_fat_percentage : null,
-                'body_fat_percent' => $log->body_fat_percent !== null ? (float) $log->body_fat_percent : ($log->body_fat_percentage !== null ? (float) $log->body_fat_percentage : null),
+                'body_fat_percent' => $log->body_fat_percentage !== null ? (float) $log->body_fat_percentage : null,
                 'muscle_mass_kg' => $log->muscle_mass_kg !== null ? (float) $log->muscle_mass_kg : null,
             ];
         });
