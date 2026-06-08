@@ -639,16 +639,16 @@ Route::prefix('v1')->group(function () {
             Route::put('/nutrition/{id}', [HealthNutritionLogController::class, 'update']);
             Route::patch('/nutrition/{id}', [HealthNutritionLogController::class, 'update']);
             Route::delete('/nutrition/{id}', [HealthNutritionLogController::class, 'destroy']);
-
+// Phase 6 disabled old duplicate nested hydration route: 
             Route::get('/hydration', [HealthHydrationLogController::class, 'index']);
-            Route::post('/hydration', [HealthHydrationLogController::class, 'store']);
+// Phase 6 disabled old duplicate nested hydration route:             Route::post('/hydration', [HealthHydrationLogController::class, 'store']);
             Route::get('/hydration/summary/daily', [HealthHydrationLogController::class, 'dailySummary']);
             Route::get('/hydration/summary/weekly', [HealthHydrationLogController::class, 'weeklySummary']);
             Route::post('/hydration/quick-add', [HealthHydrationLogController::class, 'quickAdd']);
-            Route::get('/hydration/{id}', [HealthHydrationLogController::class, 'show']);
-            Route::put('/hydration/{id}', [HealthHydrationLogController::class, 'update']);
-            Route::patch('/hydration/{id}', [HealthHydrationLogController::class, 'update']);
-            Route::delete('/hydration/{id}', [HealthHydrationLogController::class, 'destroy']);
+// Phase 6 disabled old duplicate nested hydration route:             Route::get('/hydration/{id}', [HealthHydrationLogController::class, 'show']);
+// Phase 6 disabled old duplicate nested hydration route:             Route::put('/hydration/{id}', [HealthHydrationLogController::class, 'update']);
+// Phase 6 disabled old duplicate nested hydration route:             Route::patch('/hydration/{id}', [HealthHydrationLogController::class, 'update']);
+// Phase 6 disabled old duplicate nested hydration route:             Route::delete('/hydration/{id}', [HealthHydrationLogController::class, 'destroy']);
         });
 
         /*
