@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class HealthStepLog extends Model
 {
-    protected $table = 'health_step_logs';
+    use HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -22,8 +23,8 @@ class HealthStepLog extends Model
     protected $casts = [
         'log_date' => 'date',
         'steps' => 'integer',
-        'kilometers' => 'decimal:3',
-        'calories_burned' => 'decimal:2',
+        'kilometers' => 'decimal:2',
+        'calories_burned' => 'integer',
     ];
 
     public function user(): BelongsTo
