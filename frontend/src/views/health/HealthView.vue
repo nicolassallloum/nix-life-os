@@ -232,7 +232,10 @@
             <SummaryRow label="Steps Today" :value="`${daily.steps} steps`" />
             <SummaryRow label="Water Today" :value="`${daily.waterMl} ml`" />
             <SummaryRow label="Calories Today" :value="`${daily.calories} kcal`" />
-            <SummaryRow label="Protein Today" :value="`${daily.protein} g`" />
+            <SummaryRow label="Protein Today" :value="`${daily.protein} g / ${goalValue('protein_limit_g', '-')} g`" />
+            <SummaryRow label="Sodium Today" :value="`${daily.sodium} mg / ${goalValue('sodium_limit_mg', '-')} mg`" />
+            <SummaryRow label="Potassium Today" :value="`${daily.potassium} mg / ${goalValue('potassium_limit_mg', '-')} mg`" />
+            <SummaryRow label="Phosphorus Today" :value="`${daily.phosphorus} mg / ${goalValue('phosphorus_limit_mg', '-')} mg`" />
             <SummaryRow label="Sleep Today" :value="`${daily.sleepHours} hours`" />
             <SummaryRow label="Medications" :value="`${daily.medications} active`" />
           </div>
@@ -474,7 +477,7 @@ async function loadHealthDashboard() {
       moodResponse,
       medicationsResponse,
     ] = await Promise.allSettled([
-      apiGet("/dashboard/summary"),
+      apiGet("/health/dashboard"),
       apiGet("/health/steps"),
       apiGet("/health/weight"),
       apiGet("/health/nutrition"),
@@ -547,16 +550,28 @@ async function loadHealthDashboard() {
 }
 
 const todayStepsFromApi = computed(() => {
-  return toNumber(dashboardSummary.value?.health?.today_steps);
+  return toNumber(dashboardSummary.value?.today_steps);
 });
 
 const todayWaterFromApi = computed(() => {
-  return toNumber(dashboardSummary.value?.health?.today_water_ml);
+  return toNumber(dashboardSummary.value?.today_water_ml);
 });
 
 const latestWeightFromApi = computed(() => {
-  return dashboardSummary.value?.health?.latest_weight ?? null;
+  return dashboardSummary.value?.current_weight_kg ?? null;
 });
+
+const dashboardGoals = computed(() => dashboardSummary.value?.goals ?? {});
+const dashboardProgress = computed(() => dashboardSummary.value?.progress ?? {});
+
+function percentValue(key) {
+  return Math.min(100, Math.max(0, toNumber(dashboardProgress.value?.[key])));
+}
+
+function goalValue(key, fallback = null) {
+  const value = dashboardGoals.value?.[key];
+  return value === null || value === undefined ? fallback : value;
+}
 
 const todayStepsFromLogs = computed(() => {
   const todayLogs = steps.value.filter((item) => isToday(getDateValue(item)));
@@ -576,22 +591,27 @@ const daily = computed(() => {
     steps: todayStepsFromApi.value || todayStepsFromLogs.value,
     waterMl: todayWaterFromApi.value || todayWaterFromLogs.value,
     calories:
+      dashboardSummary.value?.today_calories ??
       nutritionSummary.value?.total_calories ??
       sumBy(todayNutritionLogs, ["calories", "total_calories"]),
     protein:
+      dashboardSummary.value?.today_protein_g ??
       nutritionSummary.value?.total_protein ??
       sumBy(todayNutritionLogs, ["protein_g", "protein"]),
     sodium:
+      dashboardSummary.value?.today_sodium_mg ??
       nutritionSummary.value?.total_sodium ??
       sumBy(todayNutritionLogs, ["sodium_mg", "sodium"]),
     potassium:
+      dashboardSummary.value?.today_potassium_mg ??
       nutritionSummary.value?.total_potassium ??
       sumBy(todayNutritionLogs, ["potassium_mg", "potassium"]),
     phosphorus:
+      dashboardSummary.value?.today_phosphorus_mg ??
       nutritionSummary.value?.total_phosphorus ??
       sumBy(todayNutritionLogs, ["phosphorus_mg", "phosphorus"]),
-    sleepHours: sumBy(todaySleepLogs, ["duration_hours", "sleep_hours", "hours"]),
-    medications: medications.value.length,
+    sleepHours: dashboardSummary.value?.last_sleep_hours ?? sumBy(todaySleepLogs, ["duration_hours", "sleep_hours", "hours"]),
+    medications: dashboardSummary.value?.active_medications ?? medications.value.length,
   };
 });
 
@@ -620,6 +640,10 @@ const currentWeight = computed(() => {
 });
 
 const latestMood = computed(() => {
+  if (dashboardSummary.value?.today_mood && dashboardSummary.value.today_mood !== "-") {
+    return dashboardSummary.value.today_mood;
+  }
+
   const value = latestValue(mood.value, ["mood_label", "mood", "status"], null);
   const score = latestValue(mood.value, ["mood_score", "score", "rating"], null);
 
@@ -635,6 +659,21 @@ const latestMood = computed(() => {
 });
 
 const nutritionStatus = computed(() => {
+  const trackedPercents = [
+    percentValue("protein_percent"),
+    percentValue("sodium_percent"),
+    percentValue("potassium_percent"),
+    percentValue("phosphorus_percent"),
+  ];
+
+  if (trackedPercents.some((value) => value > 100)) {
+    return "Review Limits";
+  }
+
+  if (trackedPercents.some((value) => value > 0)) {
+    return "Within Limits";
+  }
+
   const status = nutritionSummary.value?.status;
 
   if (!status) {
@@ -650,25 +689,25 @@ const kpiCards = computed(() => [
   {
     title: "Steps Today",
     value: `${daily.value.steps}`,
-    note: "Daily step count",
+    note: `Goal: ${goalValue("daily_steps_goal", 8000)} | ${percentValue("steps_percent")}%`,
     icon: "👟",
   },
   {
     title: "Current Weight",
     value: currentWeight.value ? `${currentWeight.value} kg` : "No Data",
-    note: "Latest weight log",
+    note: goalValue("target_weight_kg") ? `Target: ${goalValue("target_weight_kg")} kg` : "Latest weight log",
     icon: "⚖️",
   },
   {
     title: "Calories Today",
     value: `${daily.value.calories}`,
-    note: "Nutrition calories",
+    note: `Goal: ${goalValue("daily_calories_goal", 1800)} | ${percentValue("calories_percent")}%`,
     icon: "🍽️",
   },
   {
     title: "Water Today",
     value: `${daily.value.waterMl} ml`,
-    note: "Hydration intake",
+    note: `Goal: ${goalValue("daily_water_goal_ml", 2000)} ml | ${percentValue("water_percent")}%`,
     icon: "💧",
   },
   {
