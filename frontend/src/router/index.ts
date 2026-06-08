@@ -15,7 +15,6 @@ const StepsTrackingView = () => import('@/views/health/StepsTrackingView.vue')
 const WeightTrackingView = () => import('@/views/health/WeightTrackingView.vue')
 const NutritionTrackingView = () => import('@/views/health/NutritionTrackingView.vue')
 const CustomFoodsView = () => import('@/views/health/CustomFoodsView.vue')
-const HydrationTrackingView = () => import('@/views/health/HydrationTrackingView.vue')
 const SleepTrackingView = () => import('@/views/health/SleepTrackingView.vue')
 const MedicationTrackingView = () => import('@/views/health/MedicationTrackingView.vue')
 const MedicamentsTrackingView = () => import('@/views/health/MedicamentsTrackingView.vue')
@@ -327,7 +326,7 @@ const routes = [
   {
     path: '/health/hydration',
     name: 'health-hydration',
-    component: HydrationTrackingView,
+    component: () => import('@/views/health/HydrationView.vue'),
     meta: {
       requiresAuth: true,
       title: 'Hydration Tracking'
