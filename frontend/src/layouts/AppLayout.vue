@@ -6,10 +6,13 @@ import { getAuthUser, hasPermission, hasRole } from '@/utils/auth'
 
 const route = useRoute()
 const router = useRouter()
+
 const sidebarOpen = ref(false)
 const sidebarCollapsed = ref(false)
+const userMenuOpen = ref(false)
 
 const user = computed(() => getAuthUser())
+
 const canViewAdmin = computed(() => hasRole('admin'))
 const canViewSecurity = computed(() => hasPermission('security.view'))
 const canManageUsers = computed(() => hasRole('admin') && hasPermission('users.view'))
@@ -19,98 +22,97 @@ const menuGroups = computed(() => [
   {
     label: 'Main',
     items: [
-      { label: 'Dashboard', to: '/dashboard', match: ['/dashboard'] },
-      { label: 'Unified Dashboard', to: '/unified-dashboard', match: ['/unified-dashboard'] },
-      { label: 'AI Recommendations', to: '/ai/recommendations', match: ['/ai'] },
-      { label: 'Life Balance', to: '/life-balance', match: ['/life-balance'] },
+      { label: 'Dashboard', icon: '🏠', to: '/dashboard', match: ['/dashboard'] },
+      { label: 'Unified Dashboard', icon: '📊', to: '/unified-dashboard', match: ['/unified-dashboard'] },
+      { label: 'AI Recommendations', icon: '🤖', to: '/ai/recommendations', match: ['/ai'] },
+      { label: 'Life Balance', icon: '⚖️', to: '/life-balance', match: ['/life-balance'] },
     ],
   },
   {
     label: 'Productivity',
     items: [
-      { label: 'Productivity Dashboard', to: '/productivity/dashboard', match: ['/productivity/dashboard'] },
-      { label: 'Productivity AI Insights', to: '/productivity/ai-insights', match: ['/productivity/ai-insights'] },
-      { label: 'Tasks', to: '/productivity/tasks', match: ['/productivity/tasks', '/tasks'] },
-      { label: 'Habits', to: '/productivity/habits', match: ['/productivity/habits'] },
-      { label: 'Goals', to: '/productivity/goals', match: ['/productivity/goals'] },
-      { label: 'Calendar / Schedule', to: '/productivity/calendar', match: ['/productivity/calendar', '/calendar', '/schedule', '/productivity/schedule'] },
+      { label: 'Productivity Dashboard', icon: '✅', to: '/productivity/dashboard', match: ['/productivity/dashboard'] },
+      { label: 'Productivity AI Insights', icon: '🧠', to: '/productivity/ai-insights', match: ['/productivity/ai-insights'] },
+      { label: 'Tasks', icon: '📝', to: '/productivity/tasks', match: ['/productivity/tasks', '/tasks'] },
+      { label: 'Habits', icon: '🔁', to: '/productivity/habits', match: ['/productivity/habits'] },
+      { label: 'Goals', icon: '🎯', to: '/productivity/goals', match: ['/productivity/goals'] },
+      { label: 'Calendar / Schedule', icon: '📅', to: '/productivity/calendar', match: ['/productivity/calendar', '/calendar', '/schedule', '/productivity/schedule'] },
     ],
   },
   {
     label: 'Finance',
     items: [
-      { label: 'Finance Dashboard', to: '/finance/dashboard', match: ['/finance/dashboard'] },
-      { label: 'Finance AI Insights', to: '/finance/ai-insights', match: ['/finance/ai-insights'] },
-      { label: 'Finance Accounts', to: '/finance/accounts', match: ['/finance/accounts'] },
-      { label: 'Finance Transactions', to: '/finance/transactions', match: ['/finance/transactions'] },
-      { label: 'Finance Budgets', to: '/finance/budgets', match: ['/finance/budgets'] },
-      { label: 'Finance Expenses', to: '/finance/expenses', match: ['/finance/expenses'] },
+      { label: 'Finance Dashboard', icon: '💰', to: '/finance/dashboard', match: ['/finance/dashboard'] },
+      { label: 'Finance AI Insights', icon: '📈', to: '/finance/ai-insights', match: ['/finance/ai-insights'] },
+      { label: 'Finance Accounts', icon: '🏦', to: '/finance/accounts', match: ['/finance/accounts'] },
+      { label: 'Finance Transactions', icon: '💳', to: '/finance/transactions', match: ['/finance/transactions'] },
+      { label: 'Finance Budgets', icon: '📌', to: '/finance/budgets', match: ['/finance/budgets'] },
+      { label: 'Finance Expenses', icon: '🧾', to: '/finance/expenses', match: ['/finance/expenses'] },
     ],
   },
   {
     label: 'Health',
     items: [
-      { label: 'Health Dashboard', to: '/health', exact: true, match: ['/health'] },
-      { label: 'Health AI Insights', to: '/health/ai-insights', match: ['/health/ai-insights'] },
-      { label: 'Steps Tracking', to: '/health/steps', match: ['/health/steps'] },
-      { label: 'Weight Tracking', to: '/health/weight', match: ['/health/weight'] },
-      { label: 'Nutrition Tracking', to: '/health/nutrition', match: ['/health/nutrition'] },
-      { label: 'Custom Foods', to: '/health/custom-foods', match: ['/health/custom-foods'] },
-      { label: 'Hydration Tracking', to: '/health/hydration', match: ['/health/hydration'] },
-      { label: 'Sleep Tracking', to: '/health/sleep', match: ['/health/sleep'] },
-      { label: 'Medication Tracking', to: '/health/medications', match: ['/health/medications'] },
-      { label: 'Medicaments', to: '/health/medicaments', match: ['/health/medicaments'] },
-      { label: 'Lab Tests', to: '/health/lab-tests', match: ['/health/lab-tests'] },
-      { label: 'Mood Tracking', to: '/health/mood', match: ['/health/mood'] },
-      { label: 'Health Alerts', to: '/health/alerts', match: ['/health/alerts'] },
-      { label: 'Health Reports', to: '/health/reports', match: ['/health/reports'] },
+      { label: 'Health Dashboard', icon: '❤️', to: '/health', exact: true, match: ['/health'] },
+      { label: 'Health AI Insights', icon: '🧬', to: '/health/ai-insights', match: ['/health/ai-insights'] },
+      { label: 'Steps Tracking', icon: '🚶', to: '/health/steps', match: ['/health/steps'] },
+      { label: 'Weight Tracking', icon: '⚖️', to: '/health/weight', match: ['/health/weight'] },
+      { label: 'Nutrition Tracking', icon: '🥗', to: '/health/nutrition', match: ['/health/nutrition'] },
+      { label: 'Custom Foods', icon: '🍽️', to: '/health/custom-foods', match: ['/health/custom-foods'] },
+      { label: 'Hydration Tracking', icon: '💧', to: '/health/hydration', match: ['/health/hydration'] },
+      { label: 'Sleep Tracking', icon: '🌙', to: '/health/sleep', match: ['/health/sleep'] },
+      { label: 'Medication Tracking', icon: '💊', to: '/health/medications', match: ['/health/medications'] },
+      { label: 'Medicaments', icon: '🧪', to: '/health/medicaments', match: ['/health/medicaments'] },
+      { label: 'Lab Tests', icon: '🧫', to: '/health/lab-tests', match: ['/health/lab-tests'] },
+      { label: 'Mood Tracking', icon: '🙂', to: '/health/mood', match: ['/health/mood'] },
+      { label: 'Health Alerts', icon: '🚨', to: '/health/alerts', match: ['/health/alerts'] },
+      { label: 'Health Reports', icon: '📄', to: '/health/reports', match: ['/health/reports'] },
     ],
   },
   {
     label: 'Projects',
     items: [
-      { label: 'Projects Dashboard', to: '/projects/dashboard', match: ['/projects/dashboard'] },
-      { label: 'Project List', to: '/projects/list', match: ['/projects/list'] },
-      { label: 'Project Tasks', to: '/projects/tasks', match: ['/projects/tasks'] },
-      { label: 'Project Milestones', to: '/projects/milestones', match: ['/projects/milestones'] },
-      { label: 'Project Progress', to: '/projects/progress', match: ['/projects/progress'] },
-      { label: 'Status Updates', to: '/projects/status-updates', match: ['/projects/status-updates'] },
+      { label: 'Projects Dashboard', icon: '📁', to: '/projects/dashboard', match: ['/projects/dashboard'] },
+      { label: 'Project List', icon: '📚', to: '/projects/list', match: ['/projects/list'] },
+      { label: 'Project Tasks', icon: '🧩', to: '/projects/tasks', match: ['/projects/tasks'] },
+      { label: 'Project Milestones', icon: '🏁', to: '/projects/milestones', match: ['/projects/milestones'] },
+      { label: 'Project Progress', icon: '📊', to: '/projects/progress', match: ['/projects/progress'] },
+      { label: 'Status Updates', icon: '🗣️', to: '/projects/status-updates', match: ['/projects/status-updates'] },
     ],
   },
   {
     label: 'Notifications',
     items: [
-      { label: 'Notifications', to: '/notifications', exact: true, match: ['/notifications'] },
-      { label: 'Notification Settings', to: '/notifications/settings', match: ['/notifications/settings'] },
+      { label: 'Notifications', icon: '🔔', to: '/notifications', exact: true, match: ['/notifications'] },
+      { label: 'Notification Settings', icon: '⚙️', to: '/notifications/settings', match: ['/notifications/settings'] },
     ],
   },
   {
     label: 'System',
     items: [
-      { label: 'Logging & Monitoring', to: '/system/monitoring', match: ['/system/monitoring', '/monitoring'] },
+      { label: 'Logging & Monitoring', icon: '🖥️', to: '/system/monitoring', match: ['/system/monitoring', '/monitoring'] },
+      { label: 'Settings', icon: '⚙️', to: '/settings', match: ['/settings'] },
+      { label: 'Profile', icon: '👤', to: '/profile', match: ['/profile'] },
     ],
   },
   {
     label: 'Admin & Security',
     show: canViewAdmin.value || canViewSecurity.value || canManageUsers.value || canManageRoles.value,
     items: [
-      { label: 'Admin Dashboard', to: '/admin', exact: true, match: ['/admin'], show: canViewAdmin.value },
-      {
-        label: 'Users Management',
-        to: '/admin/users-management',
-        match: ['/admin/users-management'],
-        show: canViewAdmin.value,
-      },
-      { label: 'User Management', to: '/admin/users', match: ['/admin/users', '/user-management/users'], show: canManageUsers.value },
-      { label: 'Roles & Permissions', to: '/admin/roles', match: ['/admin/roles', '/admin/permissions', '/security/roles', '/security/permissions', '/user-management/roles'], show: canManageRoles.value },
-      { label: 'Security Overview', to: '/security', exact: true, match: ['/security'], show: canViewSecurity.value },
-      { label: 'Audit Logs', to: '/security/audit-logs', match: ['/security/audit-logs', '/security/login-history'], show: canViewSecurity.value },
+      { label: 'Admin Dashboard', icon: '🛡️', to: '/admin', exact: true, match: ['/admin'], show: canViewAdmin.value },
+      { label: 'Users Management', icon: '👥', to: '/admin/users-management', match: ['/admin/users-management'], show: canViewAdmin.value },
+      { label: 'User Management', icon: '👤', to: '/admin/users', match: ['/admin/users', '/user-management/users'], show: canManageUsers.value },
+      { label: 'Roles & Permissions', icon: '🔐', to: '/admin/roles', match: ['/admin/roles', '/admin/permissions', '/security/roles', '/security/permissions', '/user-management/roles'], show: canManageRoles.value },
+      { label: 'Security Overview', icon: '🧱', to: '/security', exact: true, match: ['/security'], show: canViewSecurity.value },
+      { label: 'Audit Logs', icon: '📜', to: '/security/audit-logs', match: ['/security/audit-logs', '/security/login-history'], show: canViewSecurity.value },
     ],
   },
 ])
 
 const routeTitle = computed(() => route.meta?.title || 'Nix Life OS')
 const routeSubtitle = computed(() => route.meta?.subtitle || 'Personal Operating System')
+const userEmail = computed(() => user.value?.email || 'User')
+const userInitial = computed(() => userEmail.value.charAt(0).toUpperCase())
 
 function isActive(item) {
   return item.match.some((path) => {
@@ -138,6 +140,7 @@ watch(
   () => route.fullPath,
   () => {
     sidebarOpen.value = false
+    userMenuOpen.value = false
   },
 )
 
@@ -175,7 +178,7 @@ async function logout() {
           <div class="nix-sidebar-logo">N</div>
 
           <div v-if="!sidebarCollapsed" class="nix-sidebar-brand-text">
-            <h1>NIX LIFE OS</h1>
+            <h1>Nix Life OS</h1>
             <p>Personal Operating System</p>
           </div>
         </div>
@@ -191,11 +194,20 @@ async function logout() {
       </div>
 
       <div v-if="user?.email && !sidebarCollapsed" class="nix-sidebar-user">
-        <p>{{ user.email }}</p>
+        <div class="nix-sidebar-user-avatar">{{ userInitial }}</div>
+        <div>
+          <strong>Signed in</strong>
+          <p>{{ user.email }}</p>
+        </div>
       </div>
 
-      <nav class="nix-sidebar-nav">
-        <section v-for="group in menuGroups" :key="group.label" v-show="isVisibleGroup(group)" class="nix-sidebar-group">
+      <nav class="nix-sidebar-nav" aria-label="Main navigation">
+        <section
+          v-for="group in menuGroups"
+          :key="group.label"
+          v-show="isVisibleGroup(group)"
+          class="nix-sidebar-group"
+        >
           <p v-if="!sidebarCollapsed" class="nix-sidebar-group-label">
             {{ group.label }}
           </p>
@@ -208,22 +220,22 @@ async function logout() {
               :class="linkClass(item)"
               :title="sidebarCollapsed ? item.label : undefined"
             >
-              <span v-if="sidebarCollapsed" class="nix-sidebar-dot" />
-              <span v-else class="nix-sidebar-link-text">{{ item.label }}</span>
-            </RouterLink>
-            <RouterLink
-              to="/admin/users-management"
-              class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition hover:bg-indigo-600/20 hover:text-white"
-              active-class="bg-indigo-600 text-white"
-            >
-              <span>👥</span>
-              <span>Users Management</span>
+              <span class="nix-sidebar-link-icon">{{ item.icon }}</span>
+              <span v-if="!sidebarCollapsed" class="nix-sidebar-link-text">{{ item.label }}</span>
             </RouterLink>
           </div>
         </section>
       </nav>
 
       <div class="nix-sidebar-footer">
+        <button
+          type="button"
+          class="nix-sidebar-collapse-button"
+          @click="sidebarCollapsed = !sidebarCollapsed"
+        >
+          {{ sidebarCollapsed ? '→' : 'Collapse Sidebar' }}
+        </button>
+
         <button
           type="button"
           class="nix-button-secondary nix-logout-button"
@@ -267,6 +279,27 @@ async function logout() {
 
           <div class="nix-header-actions">
             <span class="nix-ui-status-badge">UI Stable</span>
+
+            <div class="nix-user-menu">
+              <button
+                type="button"
+                class="nix-user-menu-button"
+                aria-label="Open user menu"
+                @click="userMenuOpen = !userMenuOpen"
+              >
+                <span class="nix-user-menu-avatar">{{ userInitial }}</span>
+                <span class="nix-user-menu-email">{{ userEmail }}</span>
+                <span>⌄</span>
+              </button>
+
+              <div v-if="userMenuOpen" class="nix-user-dropdown">
+                <RouterLink to="/profile" class="nix-user-dropdown-link">Profile</RouterLink>
+                <RouterLink to="/settings" class="nix-user-dropdown-link">Settings</RouterLink>
+                <button type="button" class="nix-user-dropdown-link nix-user-dropdown-button" @click="logout">
+                  Logout
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -279,3 +312,448 @@ async function logout() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.nix-app-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 34rem),
+    var(--nix-bg);
+}
+
+.nix-mobile-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: rgba(15, 23, 42, 0.5);
+  border: 0;
+}
+
+.nix-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 50;
+  display: flex;
+  width: var(--nix-sidebar-width);
+  flex-direction: column;
+  background: #0f172a;
+  border-right: 1px solid rgba(148, 163, 184, 0.16);
+  color: #e2e8f0;
+  transform: translateX(0);
+  transition:
+    width var(--nix-transition),
+    transform var(--nix-transition);
+}
+
+.nix-sidebar--collapsed {
+  width: 88px;
+}
+
+.nix-sidebar-brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: var(--nix-navbar-height);
+  padding: 14px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.nix-sidebar-brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.nix-sidebar-logo,
+.nix-sidebar-user-avatar,
+.nix-user-menu-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 16px;
+  font-weight: 950;
+}
+
+.nix-sidebar-logo {
+  width: 44px;
+  height: 44px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2563eb, #06b6d4);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.28);
+}
+
+.nix-sidebar-brand-text {
+  min-width: 0;
+}
+
+.nix-sidebar-brand-text h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 950;
+  letter-spacing: -0.03em;
+}
+
+.nix-sidebar-brand-text p,
+.nix-sidebar-user p {
+  margin: 3px 0 0;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.nix-sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px;
+  padding: 12px;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 18px;
+}
+
+.nix-sidebar-user-avatar {
+  width: 36px;
+  height: 36px;
+  color: #bfdbfe;
+  background: rgba(37, 99, 235, 0.22);
+}
+
+.nix-sidebar-user strong {
+  display: block;
+  color: #ffffff;
+  font-size: 0.78rem;
+}
+
+.nix-sidebar-nav {
+  flex: 1;
+  min-height: 0;
+  padding: 8px 12px 16px;
+  overflow-y: auto;
+}
+
+.nix-sidebar-group {
+  margin-top: 16px;
+}
+
+.nix-sidebar-group:first-child {
+  margin-top: 4px;
+}
+
+.nix-sidebar-group-label {
+  margin: 0 0 8px 10px;
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nix-sidebar-group-links {
+  display: grid;
+  gap: 4px;
+}
+
+.nix-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 10px 12px;
+  color: #cbd5e1;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  font-size: 0.88rem;
+  font-weight: 750;
+  transition:
+    background var(--nix-transition),
+    border-color var(--nix-transition),
+    color var(--nix-transition),
+    transform var(--nix-transition);
+}
+
+.nix-sidebar-link:hover {
+  color: #ffffff;
+  background: rgba(37, 99, 235, 0.12);
+  border-color: rgba(96, 165, 250, 0.22);
+}
+
+.nix-sidebar-link-active {
+  color: #ffffff;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.95), rgba(8, 145, 178, 0.95));
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.2);
+}
+
+.nix-sidebar-link-icon {
+  width: 22px;
+  flex: 0 0 22px;
+  text-align: center;
+}
+
+.nix-sidebar--collapsed .nix-sidebar-link {
+  justify-content: center;
+  padding-inline: 8px;
+}
+
+.nix-sidebar--collapsed .nix-sidebar-link-icon {
+  width: auto;
+  flex-basis: auto;
+}
+
+.nix-sidebar-footer {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-top: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.nix-sidebar-collapse-button,
+.nix-button-secondary {
+  min-height: 40px;
+  padding: 9px 12px;
+  color: #e2e8f0;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 14px;
+  font-weight: 800;
+}
+
+.nix-logout-button {
+  color: #fecaca;
+  background: rgba(220, 38, 38, 0.12);
+  border-color: rgba(248, 113, 113, 0.24);
+}
+
+.nix-main-shell {
+  min-width: 0;
+  margin-left: var(--nix-sidebar-width);
+  transition: margin-left var(--nix-transition);
+}
+
+.nix-main-shell--collapsed {
+  margin-left: 88px;
+}
+
+.nix-app-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  min-height: var(--nix-navbar-height);
+  background: rgba(246, 248, 251, 0.88);
+  border-bottom: 1px solid var(--nix-border);
+  backdrop-filter: blur(16px);
+}
+
+.nix-app-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: var(--nix-navbar-height);
+  padding: 0 28px;
+}
+
+.nix-header-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.nix-route-title-block {
+  min-width: 0;
+}
+
+.nix-route-title-block h1 {
+  margin: 0;
+  color: var(--nix-text);
+  font-size: 1.05rem;
+  font-weight: 950;
+  letter-spacing: -0.03em;
+}
+
+.nix-route-title-block p {
+  margin: 3px 0 0;
+  color: var(--nix-text-muted);
+  font-size: 0.82rem;
+}
+
+.nix-icon-button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: var(--nix-text);
+  background: var(--nix-surface);
+  border: 1px solid var(--nix-border);
+  border-radius: 14px;
+  box-shadow: var(--nix-shadow-sm);
+}
+
+.nix-mobile-close-button {
+  display: none;
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.55);
+  border-color: rgba(148, 163, 184, 0.18);
+}
+
+.nix-mobile-menu-button {
+  display: none;
+}
+
+.nix-header-actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nix-ui-status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 8px 12px;
+  color: #166534;
+  background: var(--nix-success-soft);
+  border: 1px solid rgba(22, 163, 74, 0.18);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.nix-user-menu {
+  position: relative;
+}
+
+.nix-user-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  padding: 6px 10px 6px 6px;
+  color: var(--nix-text);
+  background: var(--nix-surface);
+  border: 1px solid var(--nix-border);
+  border-radius: 999px;
+  box-shadow: var(--nix-shadow-sm);
+}
+
+.nix-user-menu-avatar {
+  width: 30px;
+  height: 30px;
+  color: #ffffff;
+  background: var(--nix-primary);
+  border-radius: 999px;
+}
+
+.nix-user-menu-email {
+  max-width: 190px;
+  overflow: hidden;
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nix-user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  display: grid;
+  width: 220px;
+  padding: 8px;
+  background: var(--nix-surface);
+  border: 1px solid var(--nix-border);
+  border-radius: 18px;
+  box-shadow: var(--nix-shadow-lg);
+}
+
+.nix-user-dropdown-link {
+  padding: 10px 12px;
+  color: var(--nix-text);
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-align: left;
+}
+
+.nix-user-dropdown-link:hover {
+  background: var(--nix-bg-soft);
+}
+
+.nix-user-dropdown-button {
+  width: 100%;
+  color: var(--nix-danger);
+  background: transparent;
+  border: 0;
+}
+
+.nix-page-shell {
+  min-height: calc(100vh - var(--nix-navbar-height));
+}
+
+.nix-page-container {
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 28px;
+}
+
+@media (max-width: 1024px) {
+  .nix-sidebar {
+    transform: translateX(-100%);
+  }
+
+  .nix-sidebar--open {
+    transform: translateX(0);
+  }
+
+  .nix-sidebar--collapsed {
+    width: var(--nix-sidebar-width);
+  }
+
+  .nix-main-shell,
+  .nix-main-shell--collapsed {
+    margin-left: 0;
+  }
+
+  .nix-mobile-close-button,
+  .nix-mobile-menu-button {
+    display: grid;
+  }
+
+  .nix-desktop-collapse-button {
+    display: none;
+  }
+
+  .nix-sidebar-collapse-button {
+    display: none;
+  }
+
+  .nix-app-header-inner {
+    padding: 0 18px;
+  }
+
+  .nix-page-container {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 720px) {
+  .nix-app-header-inner {
+    padding: 0 14px;
+  }
+
+  .nix-route-title-block p,
+  .nix-ui-status-badge,
+  .nix-user-menu-email {
+    display: none;
+  }
+
+  .nix-page-container {
+    padding: 18px 14px 92px;
+  }
+}
+</style>

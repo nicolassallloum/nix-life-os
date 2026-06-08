@@ -1,0 +1,164 @@
+/* =========================================================
+   Nix Life OS - Shared Component Styles
+   ========================================================= */
+
+.nix-card {
+  background: var(--nix-surface);
+  border: 1px solid var(--nix-border);
+  border-radius: var(--nix-radius-lg);
+  box-shadow: var(--nix-shadow-sm);
+}
+
+.nix-card-padding {
+  padding: 20px;
+}
+
+.nix-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--nix-radius-md);
+  font-weight: 700;
+  line-height: 1;
+  transition:
+    background var(--nix-transition),
+    border-color var(--nix-transition),
+    color var(--nix-transition),
+    transform var(--nix-transition),
+    box-shadow var(--nix-transition);
+}
+
+.nix-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.nix-btn-primary {
+  color: #ffffff;
+  background: var(--nix-primary);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+}
+
+.nix-btn-primary:hover:not(:disabled) {
+  background: var(--nix-primary-dark);
+}
+
+.nix-btn-secondary {
+  color: var(--nix-text);
+  background: var(--nix-surface);
+  border-color: var(--nix-border);
+}
+
+.nix-btn-secondary:hover:not(:disabled) {
+  background: var(--nix-bg-soft);
+  border-color: var(--nix-border-strong);
+}
+
+.nix-btn-danger {
+  color: #ffffff;
+  background: var(--nix-danger);
+}
+
+.nix-form-group {
+  display: grid;
+  gap: 8px;
+}
+
+.nix-label {
+  color: var(--nix-text);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.nix-input,
+.nix-select,
+.nix-textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  color: var(--nix-text);
+  background: var(--nix-surface);
+  border: 1px solid var(--nix-border);
+  border-radius: var(--nix-radius-md);
+  outline: none;
+  transition:
+    border-color var(--nix-transition),
+    box-shadow var(--nix-transition);
+}
+
+.nix-input:focus,
+.nix-select:focus,
+.nix-textarea:focus {
+  border-color: var(--nix-primary);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+}
+
+.nix-helper-text {
+  color: var(--nix-text-muted);
+  font-size: 0.82rem;
+}
+
+.nix-error-text {
+  color: var(--nix-danger);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.nix-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.nix-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.nix-badge-success {
+  color: #166534;
+  background: var(--nix-success-soft);
+}
+
+.nix-badge-warning {
+  color: #92400e;
+  background: var(--nix-warning-soft);
+}
+
+.nix-badge-danger {
+  color: #991b1b;
+  background: var(--nix-danger-soft);
+}
+
+.nix-badge-info {
+  color: #155e75;
+  background: var(--nix-info-soft);
+}
+
+@media (max-width: 1100px) {
+  .nix-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .nix-card-padding {
+    padding: 16px;
+  }
+
+  .nix-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nix-btn {
+    width: 100%;
+  }
+}
