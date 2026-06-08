@@ -35,7 +35,7 @@ class HealthHydrationLogController extends Controller
 
         return response()->json([
             'success' => false,
-            'message' => 'Hydration log detail endpoint is handled by Phase 6 routes.',
+            'message' => 'Hydration log detail endpoint disabled in Phase 6.',
         ], 404);
     }
 
