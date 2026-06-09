@@ -72,7 +72,6 @@ use App\Http\Controllers\Api\V1\HealthMedicationController;
 // use App\Http\Controllers\Api\V1\ProjectTaskController;
 // use App\Http\Controllers\Api\V1\ProjectTaskController;
 
-
 // Phase 6 - Health Hydration explicit routes
 Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::get('/health/hydration/summary', [\App\Http\Controllers\Api\V1\HealthHydrationController::class, 'summary']);
@@ -115,7 +114,6 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
         ]);
     });
 
-
     /*
     |--------------------------------------------------------------------------
     | Finance Categories
@@ -132,7 +130,6 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::apiResource('health/water', HealthWaterController::class);
     Route::apiResource('health/sleep', HealthSleepController::class);
     Route::apiResource('health/mood', HealthMoodController::class);
-    Route::apiResource('health/medications', HealthMedicationController::class);
 
     /*
     |--------------------------------------------------------------------------
@@ -223,7 +220,6 @@ Route::prefix('v1')->group(function () {
             Route::post('/logout', [AuthController::class, 'logout']);
         });
     });
-
 
     /*
     |--------------------------------------------------------------------------
@@ -567,6 +563,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/medications', [MedicationController::class, 'index']);
             Route::post('/medications', [MedicationController::class, 'store']);
+            Route::get('/medications/today', [MedicationController::class, 'today']);
             Route::get('/medications/{id}', [MedicationController::class, 'show']);
             Route::put('/medications/{id}', [MedicationController::class, 'update']);
             Route::patch('/medications/{id}', [MedicationController::class, 'update']);
@@ -890,5 +887,4 @@ Route::prefix('v1')->group(function () {
         */
     });
 });
-
 
