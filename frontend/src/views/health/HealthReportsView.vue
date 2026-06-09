@@ -6,9 +6,15 @@
         <p>Daily, weekly, and monthly health summaries with nutrition, hydration, weight, steps, labs, and medication adherence.</p>
       </div>
 
-      <button class="export-button" @click="loadExportPreview">
-        Export Preview
-      </button>
+      <div class="header-actions">
+        <button class="export-button secondary" @click="loadExportPreview">
+          Export Preview
+        </button>
+
+        <button class="export-button" :disabled="exportingPdf" @click="downloadPdfReport">
+          {{ exportingPdf ? 'Generating PDF...' : 'Export PDF' }}
+        </button>
+      </div>
     </div>
 
     <div class="filters-card">
@@ -244,6 +250,7 @@ const report = ref(null)
 const loading = ref(false)
 const error = ref(null)
 const exportPreview = ref(null)
+const exportingPdf = ref(false)
 
 const hasCkdWarnings = computed(() => {
   const warnings = report.value?.nutrition?.ckd_warnings
@@ -292,10 +299,39 @@ async function loadExportPreview() {
     )
 
     exportPreview.value = response.data.data
-    alert('Export preview loaded successfully. PDF generation can be added in the next step.')
+    alert('Export preview loaded successfully.')
   } catch (err) {
     console.error(err)
     alert('Failed to load export preview.')
+  }
+}
+
+async function downloadPdfReport() {
+  exportingPdf.value = true
+
+  try {
+    const response = await healthReportsService.downloadPdfReport(
+      reportType.value,
+      selectedDate.value,
+      selectedMonth.value
+    )
+
+    const blob = new Blob([response.data], { type: 'application/pdf' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
+
+    link.href = url
+    link.download = `nix-life-os-health-report-${reportType.value}-${timestamp}.pdf`
+    document.body.appendChild(link)
+    link.click()
+    link.remove()
+    window.URL.revokeObjectURL(url)
+  } catch (err) {
+    console.error(err)
+    alert('Failed to export PDF report.')
+  } finally {
+    exportingPdf.value = false
   }
 }
 
@@ -324,6 +360,12 @@ function getStartOfWeek() {
   margin-bottom: 24px;
 }
 
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .page-header h1 {
   font-size: 28px;
   font-weight: 800;
@@ -344,6 +386,16 @@ function getStartOfWeek() {
   padding: 10px 16px;
   cursor: pointer;
   font-weight: 700;
+}
+
+.export-button.secondary {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.export-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .filters-card,

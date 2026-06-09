@@ -4,6 +4,7 @@ namespace App\Services\Health;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class HealthReportService
 {
@@ -118,17 +119,37 @@ class HealthReportService
 
     private function nutritionTotals(string $userId, string $startDate, string $endDate): array
     {
+        if (!Schema::hasTable('health_nutrition_logs')) {
+            return [
+                'totals' => [
+                    'calories' => 0.0,
+                    'protein_g' => 0.0,
+                    'carbs_g' => 0.0,
+                    'fat_g' => 0.0,
+                    'sodium_mg' => 0.0,
+                    'potassium_mg' => 0.0,
+                    'phosphorus_mg' => 0.0,
+                ],
+                'ckd_warnings' => [
+                    'high_sodium' => false,
+                    'high_potassium' => false,
+                    'high_phosphorus' => false,
+                    'high_protein' => false,
+                ],
+            ];
+        }
+
         $row = DB::table('health_nutrition_logs')
             ->where('user_id', $userId)
             ->whereBetween('meal_date', [$startDate, $endDate])
             ->selectRaw('
                 COALESCE(SUM(calories), 0) as calories,
-                COALESCE(SUM(protein), 0) as protein_g,
-                0 as carbs_g,
-                0 as fat_g,
-                COALESCE(SUM(sodium), 0) as sodium_mg,
-                COALESCE(SUM(potassium), 0) as potassium_mg,
-                COALESCE(SUM(phosphorus), 0) as phosphorus_mg
+                COALESCE(SUM(COALESCE(protein_g, protein, 0)), 0) as protein_g,
+                COALESCE(SUM(COALESCE(carbs_g, 0)), 0) as carbs_g,
+                COALESCE(SUM(COALESCE(fat_g, 0)), 0) as fat_g,
+                COALESCE(SUM(COALESCE(sodium_mg, sodium, 0)), 0) as sodium_mg,
+                COALESCE(SUM(COALESCE(potassium_mg, potassium, 0)), 0) as potassium_mg,
+                COALESCE(SUM(COALESCE(phosphorus_mg, phosphorus, 0)), 0) as phosphorus_mg
             ')
             ->first();
 
@@ -187,19 +208,37 @@ class HealthReportService
 
     private function stepsTrend(string $userId, string $startDate, string $endDate): array
     {
-        $items = DB::table('health_step_log')
-            ->where('user_id', $userId)
-            ->whereBetween('log_date', [$startDate, $endDate])
-            ->orderBy('log_date')
-            ->get([
-                'log_date',
-                'steps_count as steps',
-            ]);
+        if (Schema::hasTable('health_step_logs')) {
+            $items = DB::table('health_step_logs')
+                ->where('user_id', $userId)
+                ->whereBetween('log_date', [$startDate, $endDate])
+                ->orderBy('log_date')
+                ->get([
+                    'log_date',
+                    'steps',
+                    'kilometers',
+                    'calories_burned',
+                ]);
+        } elseif (Schema::hasTable('health_step_log')) {
+            $items = DB::table('health_step_log')
+                ->where('user_id', $userId)
+                ->whereBetween('log_date', [$startDate, $endDate])
+                ->orderBy('log_date')
+                ->get([
+                    'log_date',
+                    'steps_count as steps',
+                    'distance_km as kilometers',
+                ]);
+        } else {
+            $items = collect();
+        }
 
         return [
             'items' => $items,
             'total_steps' => (int) $items->sum('steps'),
             'average_steps' => $items->count() > 0 ? round($items->avg('steps')) : 0,
+            'total_kilometers' => round((float) $items->sum('kilometers'), 2),
+            'total_calories_burned' => (float) $items->sum('calories_burned'),
         ];
     }
 

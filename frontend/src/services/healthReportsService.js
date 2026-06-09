@@ -30,6 +30,17 @@ export const healthReportsService = {
         month
       }
     })
+  },
+
+  downloadPdfReport(period, date, month) {
+    return api.get('/health/reports/pdf', {
+      params: {
+        period,
+        date,
+        month
+      },
+      responseType: 'blob'
+    })
   }
 }
 
