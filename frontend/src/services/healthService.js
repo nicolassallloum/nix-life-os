@@ -121,6 +121,9 @@ const healthService = {
     list(params = {}) {
       return api.get("/health/medications", { params });
     },
+    today(params = {}) {
+      return api.get("/health/medications/today", { params });
+    },
     create(payload) {
       return api.post("/health/medications", payload);
     },

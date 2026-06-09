@@ -173,13 +173,32 @@
           </div>
 
           <div class="form-group">
-            <label>Dose Times</label>
+            <label>Daily Times *</label>
+            <select v-model.number="form.daily_times" required @change="syncMedicationTimes">
+              <option :value="1">1 time per day</option>
+              <option :value="2">2 times per day</option>
+              <option :value="3">3 times per day</option>
+            </select>
+            <small>Select how many dosage times this medication has per day.</small>
+          </div>
+
+          <div
+            v-for="(time, index) in form.times"
+            :key="`medication-time-${index}`"
+            class="form-group"
+          >
+            <label>Dosage Time {{ index + 1 }} *</label>
             <input
-              v-model.trim="form.dose_times_text"
-              type="text"
-              placeholder="Example: 08:00, 20:00"
+              v-model="time.dosage_time"
+              type="time"
+              required
             />
-            <small>Use 24-hour format and separate multiple times by comma.</small>
+            <input
+              v-model.trim="time.dosage_note"
+              type="text"
+              class="mt-2"
+              placeholder="Optional note, example: After breakfast"
+            />
           </div>
 
           <div class="form-group">
@@ -308,8 +327,8 @@
                 </p>
                 <small>
                   {{ medication.frequency }}
-                  <span v-if="medication.dose_times?.length">
-                    • Times: {{ medication.dose_times.join(", ") }}
+                  <span v-if="getMedicationTimes(medication).length">
+                    • Times: {{ getMedicationTimes(medication).join(", ") }}
                   </span>
                 </small>
               </div>
@@ -392,7 +411,13 @@ const form = reactive({
   medication_name: "",
   dosage: "",
   daily_dose: "",
-  dose_times_text: "",
+  daily_times: 1,
+  times: [
+    {
+      dosage_time: "",
+      dosage_note: "",
+    },
+  ],
   frequency: "",
   start_date: getTodayDate(),
   end_date: "",
@@ -441,23 +466,56 @@ function getErrorMessage(err, fallback = "Something went wrong.") {
   );
 }
 
-function parseDoseTimes() {
-  if (!form.dose_times_text) return [];
+function normalizeDailyTimes(value) {
+  const parsed = Number(value);
+  if (![1, 2, 3].includes(parsed)) return 1;
+  return parsed;
+}
 
-  const times = form.dose_times_text
-    .split(",")
-    .map((time) => time.trim())
-    .filter(Boolean);
+function syncMedicationTimes() {
+  const count = normalizeDailyTimes(form.daily_times);
+  form.daily_times = count;
 
-  const invalid = times.find((time) => !/^\d{2}:\d{2}$/.test(time));
+  while (form.times.length < count) {
+    form.times.push({
+      dosage_time: "",
+      dosage_note: "",
+    });
+  }
+
+  while (form.times.length > count) {
+    form.times.pop();
+  }
+}
+
+function buildMedicationTimes() {
+  syncMedicationTimes();
+
+  const times = form.times.map((item) => ({
+    dosage_time: (item.dosage_time || "").trim(),
+    dosage_note: (item.dosage_note || "").trim() || null,
+  }));
+
+  const invalid = times.find((item) => !/^\d{2}:\d{2}$/.test(item.dosage_time));
 
   if (invalid) {
-    throw new Error(`Invalid dose time: ${invalid}. Use format HH:mm, example 08:00.`);
+    throw new Error("Please fill all dosage times using HH:mm format, example 08:00.");
   }
 
   return times;
 }
 
+function getMedicationTimes(medication) {
+  if (Array.isArray(medication?.times) && medication.times.length) {
+    return medication.times.map((item) => item.dosage_time).filter(Boolean);
+  }
+
+  if (Array.isArray(medication?.dose_times)) {
+    return medication.dose_times.filter(Boolean);
+  }
+
+  return [];
+}
 async function loadMedications() {
   loadingMedications.value = true;
 
@@ -480,11 +538,12 @@ async function loadTodaySchedule() {
   loadingToday.value = true;
 
   try {
-    const response = await healthService.medicationReminders.today();
+    const response = await healthService.medications.today();
+    const data = response?.data?.data ?? {};
 
-    todayDoses.value = response?.data?.data ?? [];
-    todaySummary.value = response?.data?.summary ?? {
-      pending: 0,
+    todayDoses.value = data.schedule ?? [];
+    todaySummary.value = {
+      pending: data.schedule_count ?? 0,
       taken: 0,
       late: 0,
       missed: 0,
@@ -502,17 +561,20 @@ async function submitMedication() {
   saving.value = true;
 
   try {
-    const doseTimes = parseDoseTimes();
+    const times = buildMedicationTimes();
+    const doseTimes = times.map((item) => item.dosage_time);
 
     const payload = {
       medication_name: form.medication_name,
       dosage: form.dosage,
       daily_dose: form.daily_dose || null,
-      dose_times: doseTimes,
+      daily_times: normalizeDailyTimes(form.daily_times),
+      times,
       frequency: form.frequency,
       start_date: form.start_date,
       end_date: form.end_date || null,
       status: form.status,
+      doctor_name: form.prescribed_by || null,
       prescribed_by: form.prescribed_by || null,
       notes: form.notes || null,
     };
@@ -585,9 +647,21 @@ function editMedication(medication) {
   form.medication_name = medication.medication_name || "";
   form.dosage = medication.dosage || "";
   form.daily_dose = medication.daily_dose || "";
-  form.dose_times_text = Array.isArray(medication.dose_times)
-    ? medication.dose_times.join(", ")
-    : "";
+  form.daily_times = normalizeDailyTimes(medication.daily_times || getMedicationTimes(medication).length || 1);
+  syncMedicationTimes();
+
+  const medicationTimes = Array.isArray(medication.times) && medication.times.length
+    ? medication.times
+    : getMedicationTimes(medication).map((dosageTime) => ({
+        dosage_time: dosageTime,
+        dosage_note: "",
+      }));
+
+  form.times.forEach((item, index) => {
+    item.dosage_time = medicationTimes[index]?.dosage_time || "";
+    item.dosage_note = medicationTimes[index]?.dosage_note || "";
+  });
+
   form.frequency = medication.frequency || "";
   form.start_date = medication.start_date || getTodayDate();
   form.end_date = medication.end_date || "";
@@ -667,7 +741,13 @@ function resetForm() {
   form.medication_name = "";
   form.dosage = "";
   form.daily_dose = "";
-  form.dose_times_text = "";
+  form.daily_times = 1;
+  form.times = [
+    {
+      dosage_time: "",
+      dosage_note: "",
+    },
+  ];
   form.frequency = "";
   form.start_date = getTodayDate();
   form.end_date = "";
