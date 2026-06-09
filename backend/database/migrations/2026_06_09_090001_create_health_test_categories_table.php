@@ -32,7 +32,7 @@ return new class extends Migration
                     'name' => $category['name'],
                     'is_active' => true,
                     'updated_at' => now(),
-                    'created_at' => DB::raw('COALESCE(created_at, NOW())'),
+                    'created_at' => now(),
                 ]
             );
         }

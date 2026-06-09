@@ -382,52 +382,6 @@ const routes = [
     }
   },
   {
-    path: '/health/lab-tests',
-    name: 'health-lab-tests',
-    component: LabTestsTrackingView,
-    meta: {
-      requiresAuth: true,
-      title: 'Lab Tests'
-    }
-  },
-  {
-    path: '/health/mood',
-    name: 'health-mood',
-    component: MoodTrackingView,
-    meta: {
-      requiresAuth: true,
-      title: 'Mood Tracking'
-    }
-  },
-  {
-    path: '/health/alerts',
-    name: 'health-alerts',
-    component: HealthAlertsView,
-    meta: {
-      requiresAuth: true,
-      title: 'Health Alerts'
-    }
-  },
-  {
-    path: '/health/reports',
-    name: 'health-reports',
-    component: HealthReportsView,
-    meta: {
-      requiresAuth: true,
-      title: 'Health Reports'
-    }
-  },
-
-  {
-    path: '/projects',
-    name: 'Projects',
-    component: ProjectsView,
-    meta: {
-      requiresAuth: true,
-      title: 'Projects',
-    },
-  },
-  {
     path: '/projects/dashboard',
     name: 'ProjectsDashboard',
     component: ComingSoonView,

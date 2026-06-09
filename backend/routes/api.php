@@ -63,7 +63,7 @@ use App\Http\Controllers\Api\V1\HealthWaterController;
 use App\Http\Controllers\Api\V1\HealthSleepController;
 use App\Http\Controllers\Api\V1\HealthMoodController;
 use App\Http\Controllers\Api\V1\HealthMedicationController;
-use App\Http\Controllers\Api\V1\HealthLabTestController;
+use App\Http\Controllers\Api\V1\HealthLabTestController as Phase9HealthLabTestController;
 // use App\Http\Controllers\Api\V1\FinanceCategoryController;
 // // use App\Http\Controllers\Api\V1\HealthWeightController;
 // use App\Http\Controllers\Api\V1\HealthWaterController;
