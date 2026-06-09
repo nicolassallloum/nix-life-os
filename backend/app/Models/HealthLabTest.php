@@ -2,61 +2,40 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class HealthLabTest extends Model
 {
-    protected $table = 'health_lab_tests';
+    use HasFactory;
 
     protected $fillable = [
         'user_id',
+        'category_id',
         'test_date',
-        'test_name',
-        'category',
-        'result_value',
-        'unit',
-        'reference_range',
         'lab_name',
-
-        'creatinine',
-        'urea',
-        'egfr',
-        'hemoglobin',
-        'sodium',
-        'potassium',
-        'phosphorus',
-
-        'source_type',
-        'attachment_path',
+        'doctor_name',
+        'file_path',
+        'file_type',
+        'ai_status',
         'notes',
-        'doctor_notes',
-
-        'is_abnormal',
-        'abnormal_reason',
-        'comparison_status',
-        'previous_result_id',
+        'extracted_payload',
+        'approved_at',
     ];
 
     protected $casts = [
-        'test_date' => 'date:Y-m-d',
-        'creatinine' => 'decimal:2',
-        'urea' => 'decimal:2',
-        'egfr' => 'decimal:2',
-        'hemoglobin' => 'decimal:2',
-        'sodium' => 'decimal:2',
-        'potassium' => 'decimal:2',
-        'phosphorus' => 'decimal:2',
-        'is_abnormal' => 'boolean',
+        'test_date' => 'date',
+        'approved_at' => 'datetime',
+        'extracted_payload' => 'array',
     ];
 
-    public function user(): BelongsTo
+    public function category()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(HealthTestCategory::class, 'category_id');
     }
 
-    public function previousResult(): BelongsTo
+    public function results()
     {
-        return $this->belongsTo(self::class, 'previous_result_id');
+        return $this->hasMany(HealthLabTestResult::class, 'lab_test_id');
     }
 }

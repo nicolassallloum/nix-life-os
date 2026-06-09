@@ -6,6 +6,11 @@ import api from '@/services/api'
 import ApplicationDownView from '@/views/system/ApplicationDownView.vue'
 import ComingSoonView from '@/views/system/ComingSoonView.vue'
 
+
+const LabTestsView = () => import('@/views/health/LabTestsView.vue')
+const LabTestUploadView = () => import('@/views/health/LabTestUploadView.vue')
+const LabTestPreviewView = () => import('@/views/health/LabTestPreviewView.vue')
+
 const LoginView = () => import('@/views/auth/LoginView.vue')
 const RegisterView = () => import('@/views/auth/RegisterView.vue')
 const UnauthorizedView = () => import('@/views/auth/UnauthorizedView.vue')
@@ -66,6 +71,23 @@ const getStoredToken = () => {
 }
 
 const routes = [
+
+  {
+    path: '/health/lab-tests',
+    name: 'health-lab-tests',
+    component: LabTestsView,
+  },
+  {
+    path: '/health/lab-tests/upload',
+    name: 'health-lab-tests-upload',
+    component: LabTestUploadView,
+  },
+  {
+    path: '/health/lab-tests/:id/preview',
+    name: 'health-lab-tests-preview',
+    component: LabTestPreviewView,
+  },
+
   {
     path: '/',
     redirect: '/dashboard',
