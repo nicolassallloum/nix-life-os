@@ -545,6 +545,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/reports/weekly', [HealthReportController::class, 'weekly']);
             Route::get('/reports/monthly', [HealthReportController::class, 'monthly']);
             Route::get('/reports/export-preview', [HealthReportController::class, 'exportPreview']);
+            Route::get('/reports/pdf', [HealthReportController::class, 'pdf']);
 
             Route::get('/alerts', [HealthAlertController::class, 'index']);
             Route::get('/alerts/summary', [HealthAlertController::class, 'summary']);
