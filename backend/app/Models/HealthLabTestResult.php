@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class HealthLabTestResult extends Model
 {
-    protected $table = 'health_lab_test_results';
+    use HasFactory;
 
     protected $fillable = [
         'lab_test_id',
@@ -25,12 +25,14 @@ class HealthLabTestResult extends Model
     ];
 
     protected $casts = [
+        'result_value' => 'decimal:4',
+        'reference_min' => 'decimal:4',
+        'reference_max' => 'decimal:4',
         'result_date' => 'date',
-        'ai_confidence' => 'decimal:2',
         'user_approved' => 'boolean',
     ];
 
-    public function labTest(): BelongsTo
+    public function labTest()
     {
         return $this->belongsTo(HealthLabTest::class, 'lab_test_id');
     }
