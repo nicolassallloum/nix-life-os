@@ -90,6 +90,16 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Profile Level & Points
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/profile', [\App\Http\Controllers\Api\V1\ProfileController::class, 'show']);
+    Route::put('/profile', [\App\Http\Controllers\Api\V1\ProfileController::class, 'update']);
+    Route::get('/profile/points', [\App\Http\Controllers\Api\V1\ProfileController::class, 'points']);
+    Route::get('/profile/point-logs', [\App\Http\Controllers\Api\V1\ProfileController::class, 'pointLogs']);
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Visit Tracking / Online Users
     |--------------------------------------------------------------------------
     */
