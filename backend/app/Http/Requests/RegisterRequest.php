@@ -23,7 +23,7 @@ class RegisterRequest extends FormRequest
             'email' => [
                 'required',
                 'string',
-                'email:rfc,dns',
+                'email:rfc',
                 'max:190',
                 Rule::unique('users', 'email'),
             ],

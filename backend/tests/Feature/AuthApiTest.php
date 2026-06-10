@@ -104,7 +104,7 @@ class AuthApiTest extends TestCase
             'password' => 'WrongPassword#2026',
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(401);
     }
 
     public function test_authenticated_user_can_fetch_profile(): void
