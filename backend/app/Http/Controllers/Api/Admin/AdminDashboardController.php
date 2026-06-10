@@ -12,13 +12,6 @@ class AdminDashboardController extends Controller
 {
     public function summary(Request $request): JsonResponse
     {
-        if (! $this->isAllowedAdmin($request)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'This admin dashboard is available only for admin@nixlifeos.com.',
-            ], 403);
-        }
-
         $today = now()->startOfDay();
         $onlineCutoff = now()->subMinutes(5);
 
@@ -167,10 +160,5 @@ class AdminDashboardController extends Controller
         }
 
         return $query->count();
-    }
-
-    private function isAllowedAdmin(Request $request): bool
-    {
-        return strtolower((string) optional($request->user())->email) === 'admin@nixlifeos.com';
     }
 }

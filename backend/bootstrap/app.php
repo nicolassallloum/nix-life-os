@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\ApiAuditLogger;
+use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\ApiPerformanceLogger;
 use App\Http\Middleware\EnsureUserHasPermission;
 use App\Http\Middleware\EnsureUserHasRole;
@@ -62,6 +63,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'api.audit' => ApiAuditLogger::class,
+            'admin' => AdminMiddleware::class,
             'api.performance' => ApiPerformanceLogger::class,
             'security.headers' => SecurityHeaders::class,
 
