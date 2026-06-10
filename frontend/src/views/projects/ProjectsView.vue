@@ -5,144 +5,190 @@
         <h1>Projects</h1>
         <p>Manage your personal, business, and technical projects from one place.</p>
       </div>
-      <button class="primary-btn">Create Project</button>
+      <button class="primary-btn" @click="createDemoProject" :disabled="saving">
+        {{ saving ? 'Creating...' : 'Create Project' }}
+      </button>
     </div>
+
+    <div v-if="errorMessage" class="alert error">{{ errorMessage }}</div>
 
     <div class="cards-grid">
       <div class="summary-card">
         <h3>Total Projects</h3>
-        <strong>0</strong>
+        <strong>{{ summary.total }}</strong>
         <span>Projects created</span>
       </div>
 
       <div class="summary-card">
         <h3>Active Projects</h3>
-        <strong>0</strong>
+        <strong>{{ summary.active }}</strong>
         <span>Currently in progress</span>
       </div>
 
       <div class="summary-card">
         <h3>Completed</h3>
-        <strong>0</strong>
+        <strong>{{ summary.completed }}</strong>
         <span>Finished projects</span>
       </div>
 
       <div class="summary-card">
-        <h3>Ideas</h3>
-        <strong>0</strong>
-        <span>Saved project ideas</span>
+        <h3>Average Progress</h3>
+        <strong>{{ summary.averageProgress }}%</strong>
+        <span>Across all projects</span>
       </div>
     </div>
 
     <div class="content-card">
-      <h2>Project Workspace</h2>
-      <p>This screen is now open and ready for project tracking features.</p>
+      <div class="section-header">
+        <div>
+          <h2>Project Workspace</h2>
+          <p>Track statuses, priorities, due dates, tasks, goals, and progress.</p>
+        </div>
+        <button class="secondary-btn" @click="loadProjects" :disabled="loading">
+          {{ loading ? 'Loading...' : 'Refresh' }}
+        </button>
+      </div>
 
-      <div class="empty-state">
+      <div v-if="loading" class="empty-state">
+        <h3>Loading projects...</h3>
+      </div>
+
+      <div v-else-if="projects.length === 0" class="empty-state">
         <h3>No projects yet</h3>
-        <p>Later you can add project lists, statuses, priorities, deadlines, notes, and progress tracking.</p>
+        <p>Create your first project to start tracking goals, tasks, and steps.</p>
+      </div>
+
+      <div v-else class="project-list">
+        <article v-for="project in projects" :key="project.id" class="project-card">
+          <div>
+            <h3>{{ project.project_name || project.title || 'Untitled Project' }}</h3>
+            <p>{{ project.description || 'No description provided.' }}</p>
+          </div>
+
+          <div class="meta-row">
+            <span class="badge">{{ formatStatus(project.status) }}</span>
+            <span class="badge priority">{{ formatStatus(project.priority) }}</span>
+            <span class="muted">Due: {{ project.target_end_date || project.due_date || '—' }}</span>
+          </div>
+
+          <div class="progress-wrap">
+            <div class="progress-label">
+              <span>Progress</span>
+              <strong>{{ Number(project.progress_percentage || project.progress_percent || 0).toFixed(0) }}%</strong>
+            </div>
+            <div class="progress-bar">
+              <div :style="{ width: `${Math.min(100, Number(project.progress_percentage || 0))}%` }"></div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <RouterLink class="small-btn" :to="`/projects/${project.id}`">Details</RouterLink>
+            <RouterLink class="small-btn" :to="`/projects/${project.id}/tasks`">Tasks</RouterLink>
+            <RouterLink class="small-btn" :to="`/projects/${project.id}/goals`">Goals</RouterLink>
+          </div>
+        </article>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { RouterLink } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { createProject, getProjects, normalizeList } from '@/services/projectService'
+
+const projects = ref<any[]>([])
+const loading = ref(false)
+const saving = ref(false)
+const errorMessage = ref('')
+
+const summary = computed(() => {
+  const total = projects.value.length
+  const active = projects.value.filter((p) => ['not_started', 'in_progress', 'on_hold'].includes(p.status)).length
+  const completed = projects.value.filter((p) => p.status === 'completed').length
+  const averageProgress = total
+    ? Math.round(projects.value.reduce((sum, p) => sum + Number(p.progress_percentage || 0), 0) / total)
+    : 0
+
+  return { total, active, completed, averageProgress }
+})
+
+function makeTimestamp() {
+  return new Date()
+    .toISOString()
+    .slice(0, 19)
+    .replaceAll('-', '')
+    .replaceAll(':', '')
+    .replaceAll('T', '')
+}
+
+function formatStatus(value: string) {
+  return String(value || 'unknown').replaceAll('_', ' ')
+}
+
+async function loadProjects() {
+  loading.value = true
+  errorMessage.value = ''
+
+  try {
+    const response = await getProjects({ per_page: 100 })
+    projects.value = normalizeList(response)
+  } catch (error: any) {
+    errorMessage.value = error?.response?.data?.message || 'Failed to load projects.'
+  } finally {
+    loading.value = false
+  }
+}
+
+async function createDemoProject() {
+  saving.value = true
+  errorMessage.value = ''
+
+  try {
+    const stamp = makeTimestamp()
+    await createProject({
+      project_name: `New Project ${stamp}`,
+      project_code: `NIX-${stamp}`,
+      description: 'Created from the Projects screen.',
+      status: 'not_started',
+      priority: 'medium',
+      start_date: new Date().toISOString().slice(0, 10),
+    })
+    await loadProjects()
+  } catch (error: any) {
+    errorMessage.value = error?.response?.data?.message || 'Failed to create project.'
+  } finally {
+    saving.value = false
+  }
+}
+
+onMounted(loadProjects)
 </script>
 
 <style scoped>
-.page {
-  padding: 24px;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.page-header h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 800;
-  color: #111827;
-}
-
-.page-header p {
-  margin: 6px 0 0;
-  color: #6b7280;
-}
-
-.primary-btn {
-  border: none;
-  background: #2563eb;
-  color: white;
-  padding: 11px 18px;
-  border-radius: 12px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.cards-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(160px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.summary-card,
-.content-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
-  padding: 20px;
-  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
-}
-
-.summary-card h3 {
-  margin: 0 0 10px;
-  color: #374151;
-  font-size: 14px;
-}
-
-.summary-card strong {
-  display: block;
-  font-size: 30px;
-  color: #111827;
-}
-
-.summary-card span {
-  color: #6b7280;
-  font-size: 13px;
-}
-
-.content-card h2 {
-  margin-top: 0;
-}
-
-.empty-state {
-  margin-top: 20px;
-  padding: 24px;
-  border: 1px dashed #cbd5e1;
-  border-radius: 16px;
-  background: #f8fafc;
-}
-
-@media (max-width: 900px) {
-  .cards-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-@media (max-width: 520px) {
-  .cards-grid {
-    grid-template-columns: 1fr;
-  }
-}
+.page { padding: 24px; }
+.page-header, .section-header { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 24px; }
+.page-header h1 { margin: 0; font-size: 28px; font-weight: 800; color: #111827; }
+.page-header p, .section-header p { margin: 6px 0 0; color: #6b7280; }
+.primary-btn, .secondary-btn, .small-btn { border: none; text-decoration: none; padding: 11px 18px; border-radius: 12px; font-weight: 700; cursor: pointer; }
+.primary-btn { background: #2563eb; color: white; }
+.secondary-btn, .small-btn { background: #f3f4f6; color: #111827; }
+.cards-grid { display: grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.summary-card, .content-card, .project-card { background: white; border: 1px solid #e5e7eb; border-radius: 18px; padding: 20px; box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06); }
+.summary-card h3, .project-card h3 { margin: 0 0 10px; color: #374151; font-size: 14px; }
+.summary-card strong { display: block; font-size: 30px; color: #111827; }
+.summary-card span, .muted { color: #6b7280; font-size: 13px; }
+.empty-state { margin-top: 20px; padding: 24px; border: 1px dashed #cbd5e1; border-radius: 16px; background: #f8fafc; }
+.project-list { display: grid; gap: 16px; }
+.project-card p { color: #6b7280; }
+.meta-row, .actions, .progress-label { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.badge { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 700; text-transform: capitalize; }
+.priority { background: #ecfeff; color: #155e75; }
+.progress-wrap { margin: 16px 0; }
+.progress-label { justify-content: space-between; margin-bottom: 8px; color: #374151; }
+.progress-bar { height: 10px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
+.progress-bar div { height: 100%; background: #2563eb; }
+.alert.error { margin-bottom: 16px; padding: 12px 14px; border-radius: 12px; background: #fef2f2; color: #991b1b; }
+@media (max-width: 900px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } .page-header, .section-header { flex-direction: column; align-items: flex-start; } }
+@media (max-width: 520px) { .cards-grid { grid-template-columns: 1fr; } }
 </style>

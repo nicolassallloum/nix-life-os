@@ -54,4 +54,9 @@ class ProjectTask extends Model
     {
         return $this->belongsTo(Project::class, 'project_id');
     }
+
+    public function steps()
+    {
+        return $this->hasMany(ProjectTaskStep::class, 'project_task_id', 'id');
+    }
 }
