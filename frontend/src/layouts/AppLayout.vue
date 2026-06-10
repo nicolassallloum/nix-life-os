@@ -23,88 +23,57 @@ const menuGroups = computed(() => [
     label: 'Main',
     items: [
       { label: 'Dashboard', icon: '🏠', to: '/dashboard', match: ['/dashboard'] },
-      { label: 'Unified Dashboard', icon: '📊', to: '/unified-dashboard', match: ['/unified-dashboard'] },
-      { label: 'AI Recommendations', icon: '🤖', to: '/ai/recommendations', match: ['/ai'] },
-      { label: 'Life Balance', icon: '⚖️', to: '/life-balance', match: ['/life-balance'] },
-    ],
-  },
-  {
-    label: 'Productivity',
-    items: [
-      { label: 'Productivity Dashboard', icon: '✅', to: '/productivity/dashboard', match: ['/productivity/dashboard'] },
-      { label: 'Productivity AI Insights', icon: '🧠', to: '/productivity/ai-insights', match: ['/productivity/ai-insights'] },
-      { label: 'Tasks', icon: '📝', to: '/productivity/tasks', match: ['/productivity/tasks', '/tasks'] },
-      { label: 'Habits', icon: '🔁', to: '/productivity/habits', match: ['/productivity/habits'] },
-      { label: 'Goals', icon: '🎯', to: '/productivity/goals', match: ['/productivity/goals'] },
-      { label: 'Calendar / Schedule', icon: '📅', to: '/productivity/calendar', match: ['/productivity/calendar', '/calendar', '/schedule', '/productivity/schedule'] },
-    ],
-  },
-  {
-    label: 'Finance',
-    items: [
-      { label: 'Finance Dashboard', icon: '💰', to: '/finance/dashboard', match: ['/finance/dashboard'] },
-      { label: 'Finance AI Insights', icon: '📈', to: '/finance/ai-insights', match: ['/finance/ai-insights'] },
-      { label: 'Finance Accounts', icon: '🏦', to: '/finance/accounts', match: ['/finance/accounts'] },
-      { label: 'Finance Transactions', icon: '💳', to: '/finance/transactions', match: ['/finance/transactions'] },
-      { label: 'Finance Budgets', icon: '📌', to: '/finance/budgets', match: ['/finance/budgets'] },
-      { label: 'Finance Expenses', icon: '🧾', to: '/finance/expenses', match: ['/finance/expenses'] },
     ],
   },
   {
     label: 'Health',
     items: [
-      { label: 'Health Dashboard', icon: '❤️', to: '/health', exact: true, match: ['/health'] },
-      { label: 'Health AI Insights', icon: '🧬', to: '/health/ai-insights', match: ['/health/ai-insights'] },
-      { label: 'Steps Tracking', icon: '🚶', to: '/health/steps', match: ['/health/steps'] },
-      { label: 'Weight Tracking', icon: '⚖️', to: '/health/weight', match: ['/health/weight'] },
-      { label: 'Nutrition Tracking', icon: '🥗', to: '/health/nutrition', match: ['/health/nutrition'] },
-      { label: 'Custom Foods', icon: '🍽️', to: '/health/custom-foods', match: ['/health/custom-foods'] },
-      { label: 'Hydration Tracking', icon: '💧', to: '/health/hydration', match: ['/health/hydration'] },
-      { label: 'Sleep Tracking', icon: '🌙', to: '/health/sleep', match: ['/health/sleep'] },
-      { label: 'Medication Tracking', icon: '💊', to: '/health/medications', match: ['/health/medications'] },
-      { label: 'Medicaments', icon: '🧪', to: '/health/medicaments', match: ['/health/medicaments'] },
-      { label: 'Lab Tests', icon: '🧫', to: '/health/lab-tests', match: ['/health/lab-tests'] },
-      { label: 'Mood Tracking', icon: '🙂', to: '/health/mood', match: ['/health/mood'] },
-      { label: 'Health Alerts', icon: '🚨', to: '/health/alerts', match: ['/health/alerts'] },
+      { label: 'Health Dashboard', icon: '❤️', to: '/health/dashboard', match: ['/health', '/health/dashboard'] },
+      { label: 'Steps & KM', icon: '🚶', to: '/health/steps', match: ['/health/steps'] },
+      { label: 'Hydration', icon: '💧', to: '/health/hydration', match: ['/health/hydration'] },
+      { label: 'Calories', icon: '🔥', to: '/health/calories', match: ['/health/calories', '/health/nutrition'] },
+      { label: 'Weight', icon: '⚖️', to: '/health/weight', match: ['/health/weight'] },
+      { label: 'Goals & Limits', icon: '🎯', to: '/health/goals', match: ['/health/goals'] },
+      { label: 'Medications', icon: '💊', to: '/health/medications', match: ['/health/medications'] },
+      { label: 'Lab Tests', icon: '🧪', to: '/health/lab-tests', match: ['/health/lab-tests'] },
       { label: 'Health Reports', icon: '📄', to: '/health/reports', match: ['/health/reports'] },
+    ],
+  },
+  {
+    label: 'Finance',
+    items: [
+      { label: 'Finance', icon: '💰', to: '/finance/dashboard', match: ['/finance'] },
     ],
   },
   {
     label: 'Projects',
     items: [
-      { label: 'Projects Dashboard', icon: '📁', to: '/projects/dashboard', match: ['/projects/dashboard'] },
-      { label: 'Project List', icon: '📚', to: '/projects/list', match: ['/projects/list'] },
-      { label: 'Project Tasks', icon: '🧩', to: '/projects/tasks', match: ['/projects/tasks'] },
-      { label: 'Project Milestones', icon: '🏁', to: '/projects/milestones', match: ['/projects/milestones'] },
-      { label: 'Project Progress', icon: '📊', to: '/projects/progress', match: ['/projects/progress'] },
-      { label: 'Status Updates', icon: '🗣️', to: '/projects/status-updates', match: ['/projects/status-updates'] },
+      { label: 'Projects', icon: '📁', to: '/projects', exact: true, match: ['/projects'] },
+      { label: 'Tasks', icon: '🧩', to: '/projects/tasks', match: ['/projects/tasks'] },
+      { label: 'Goals', icon: '🎯', to: '/projects/goals', match: ['/projects/goals'] },
     ],
   },
   {
-    label: 'Notifications',
+    label: 'Productivity',
     items: [
-      { label: 'Notifications', icon: '🔔', to: '/notifications', exact: true, match: ['/notifications'] },
-      { label: 'Notification Settings', icon: '⚙️', to: '/notifications/settings', match: ['/notifications/settings'] },
+      { label: 'Dashboard', icon: '✅', to: '/productivity', exact: true, match: ['/productivity'] },
+      { label: 'Goals', icon: '🎯', to: '/productivity/goals', match: ['/productivity/goals'] },
+      { label: 'Happy Wins', icon: '🏆', to: '/productivity/happy-wins', match: ['/productivity/happy-wins'] },
+    ],
+  },
+  {
+    label: 'Admin',
+    show: canViewAdmin.value,
+    items: [
+      { label: 'User Management', icon: '👥', to: '/admin/users', match: ['/admin/users', '/admin/users-management', '/user-management/users'], show: canViewAdmin.value },
+      { label: 'Admin Dashboard', icon: '🛡️', to: '/admin/dashboard', match: ['/admin/dashboard', '/admin'], show: canViewAdmin.value },
     ],
   },
   {
     label: 'System',
     items: [
-      { label: 'Logging & Monitoring', icon: '🖥️', to: '/system/monitoring', match: ['/system/monitoring', '/monitoring'] },
-      { label: 'Settings', icon: '⚙️', to: '/settings', match: ['/settings'] },
       { label: 'Profile', icon: '👤', to: '/profile', match: ['/profile'] },
-    ],
-  },
-  {
-    label: 'Admin & Security',
-    show: canViewAdmin.value || canViewSecurity.value || canManageUsers.value || canManageRoles.value,
-    items: [
-      { label: 'Admin Dashboard', icon: '🛡️', to: '/admin', exact: true, match: ['/admin'], show: canViewAdmin.value },
-      { label: 'Users Management', icon: '👥', to: '/admin/users-management', match: ['/admin/users-management'], show: canViewAdmin.value },
-      { label: 'User Management', icon: '👤', to: '/admin/users', match: ['/admin/users', '/user-management/users'], show: canManageUsers.value },
-      { label: 'Roles & Permissions', icon: '🔐', to: '/admin/roles', match: ['/admin/roles', '/admin/permissions', '/security/roles', '/security/permissions', '/user-management/roles'], show: canManageRoles.value },
-      { label: 'Security Overview', icon: '🧱', to: '/security', exact: true, match: ['/security'], show: canViewSecurity.value },
-      { label: 'Audit Logs', icon: '📜', to: '/security/audit-logs', match: ['/security/audit-logs', '/security/login-history'], show: canViewSecurity.value },
+      { label: 'Settings', icon: '⚙️', to: '/settings', match: ['/settings'] },
     ],
   },
 ])
@@ -116,7 +85,7 @@ const userInitial = computed(() => userEmail.value.charAt(0).toUpperCase())
 
 function isActive(item) {
   return item.match.some((path) => {
-    if (item.exact || path === '/health' || path === '/notifications' || path === '/admin' || path === '/security') {
+    if (item.exact || path === '/notifications' || path === '/admin' || path === '/security') {
       return route.path === path
     }
 
