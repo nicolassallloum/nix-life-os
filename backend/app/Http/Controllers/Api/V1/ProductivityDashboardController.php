@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ProductivityCalendarEvent;
 use App\Models\ProductivityGoal;
 use App\Models\ProductivityHabit;
+use App\Models\ProductivityHappyWin;
 use App\Models\ProductivityTask;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
@@ -28,10 +29,13 @@ class ProductivityDashboardController extends Controller
             $taskSummary = $this->taskSummary($user->id, $today);
         $habitSummary = $this->habitSummary($user->id, $today);
         $goalSummary = $this->goalSummary($user->id, $today);
+        $happyWinSummary = $this->happyWinSummary($user->id, $today, $weekStart, $weekEnd);
         $calendarSummary = $this->calendarSummary($user->id, $today, $weekStart, $weekEnd);
         $charts = $this->charts($user->id, $today);
 
-        $hasData = ($taskSummary['total_tasks'] + $habitSummary['total_habits'] + $goalSummary['total_goals'] + $calendarSummary['total_events']) > 0;
+        $weeklyProductivityScore = $this->weeklyProductivityScore($taskSummary, $habitSummary, $goalSummary, $happyWinSummary);
+
+        $hasData = ($taskSummary['total_tasks'] + $habitSummary['total_habits'] + $goalSummary['total_goals'] + $happyWinSummary['total_happy_wins'] + $calendarSummary['total_events']) > 0;
 
             return [
                 'period' => [
@@ -41,14 +45,20 @@ class ProductivityDashboardController extends Controller
                 ],
                 'summary' => [
                     'daily_progress_percentage' => $this->dailyProgress($taskSummary, $habitSummary, $goalSummary, $calendarSummary),
+                    'weekly_productivity_score' => $weeklyProductivityScore,
+                    'active_goals' => $goalSummary['active_goals'],
+                    'completed_goals' => $goalSummary['completed_goals'],
+                    'happy_wins_count' => $happyWinSummary['total_happy_wins'],
+                    'weekly_happy_wins_count' => $happyWinSummary['wins_this_week'],
                     'total_open_items' => $taskSummary['open_tasks'] + $goalSummary['active_goals'] + $calendarSummary['upcoming_events'],
-                    'total_completed_today' => $taskSummary['completed_today'] + $habitSummary['completed_today'] + $calendarSummary['completed_today'],
+                    'total_completed_today' => $taskSummary['completed_today'] + $habitSummary['completed_today'] + $calendarSummary['completed_today'] + $happyWinSummary['wins_today'],
                     'has_data' => $hasData,
                     'empty_state' => !$hasData,
                 ],
                 'tasks' => $taskSummary,
                 'habits' => $habitSummary,
                 'goals' => $goalSummary,
+                'happy_wins' => $happyWinSummary,
                 'calendar' => $calendarSummary,
                 'charts' => $charts,
                 'cache_ttl_seconds' => 60,
@@ -157,6 +167,83 @@ class ProductivityDashboardController extends Controller
         ];
     }
 
+
+    private function happyWinSummary(string $userId, Carbon $today, Carbon $weekStart, Carbon $weekEnd): array
+    {
+        $base = ProductivityHappyWin::query()->where('user_id', $userId);
+
+        $total = (clone $base)->count();
+        $winsToday = (clone $base)->whereDate('win_date', $today)->count();
+        $winsThisWeek = (clone $base)->whereBetween('win_date', [
+            $weekStart->toDateString(),
+            $weekEnd->toDateString(),
+        ])->count();
+        $scoreThisWeek = (int) (clone $base)->whereBetween('win_date', [
+            $weekStart->toDateString(),
+            $weekEnd->toDateString(),
+        ])->sum('score');
+
+        $latestWins = (clone $base)
+            ->orderByDesc('win_date')
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get(['id', 'title', 'description', 'win_date', 'mood', 'score']);
+
+        return [
+            'total_happy_wins' => $total,
+            'wins_today' => $winsToday,
+            'wins_this_week' => $winsThisWeek,
+            'score_this_week' => $scoreThisWeek,
+            'latest_wins' => $latestWins,
+        ];
+    }
+
+    private function happyWinsLast7Days(string $userId, Carbon $today): array
+    {
+        $period = CarbonPeriod::create($today->copy()->subDays(6), $today);
+
+        return collect($period)->map(function (Carbon $date) use ($userId) {
+            return [
+                'date' => $date->toDateString(),
+                'wins' => ProductivityHappyWin::query()
+                    ->where('user_id', $userId)
+                    ->whereDate('win_date', $date)
+                    ->count(),
+                'score' => (int) ProductivityHappyWin::query()
+                    ->where('user_id', $userId)
+                    ->whereDate('win_date', $date)
+                    ->sum('score'),
+            ];
+        })->values()->toArray();
+    }
+
+    private function weeklyProductivityScore(array $taskSummary, array $habitSummary, array $goalSummary, array $happyWinSummary): int
+    {
+        $scores = [];
+
+        if ($taskSummary['total_tasks'] > 0) {
+            $scores[] = $taskSummary['completion_rate'];
+        }
+
+        if ($habitSummary['active_habits'] > 0) {
+            $scores[] = $habitSummary['consistency_rate'];
+        }
+
+        if ($goalSummary['total_goals'] > 0) {
+            $scores[] = (float) $goalSummary['average_progress_percentage'];
+        }
+
+        if ($happyWinSummary['wins_this_week'] > 0) {
+            $scores[] = min(100, $happyWinSummary['score_this_week'] * 10);
+        }
+
+        if ($scores === []) {
+            return 0;
+        }
+
+        return (int) round(array_sum($scores) / count($scores));
+    }
+
     private function calendarSummary(string $userId, Carbon $today, Carbon $weekStart, Carbon $weekEnd): array
     {
         $base = ProductivityCalendarEvent::query()->where('user_id', $userId);
@@ -192,6 +279,7 @@ class ProductivityDashboardController extends Controller
             'tasks_by_status' => $this->countByStatus(ProductivityTask::class, $userId, ['todo', 'in_progress', 'completed', 'cancelled']),
             'goals_by_status' => $this->countByStatus(ProductivityGoal::class, $userId, ['active', 'completed', 'on_hold', 'cancelled']),
             'habit_completion_last_7_days' => $this->habitCompletionLast7Days($userId, $today),
+            'happy_wins_last_7_days' => $this->happyWinsLast7Days($userId, $today),
             'calendar_next_7_days' => $this->calendarNext7Days($userId, $today),
         ];
     }

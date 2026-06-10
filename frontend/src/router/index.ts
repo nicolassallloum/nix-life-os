@@ -49,6 +49,13 @@ const ProjectTasksView = () => import('@/views/projects/ProjectTasksView.vue')
 const ProjectDetailsView = () => import('@/views/projects/ProjectDetailsView.vue')
 const ProjectDashboardView = () => import('@/views/projects/ProjectDashboardView.vue')
 const ProductivityView = () => import('@/views/productivity/ProductivityView.vue')
+const ProductivityDashboardView = () => import('@/views/productivity/ProductivityDashboardView.vue')
+const ProductivityAIInsightsView = () => import('@/views/productivity/ProductivityAIInsightsView.vue')
+const ProductivityTasksView = () => import('@/views/productivity/TasksView.vue')
+const ProductivityHabitsView = () => import('@/views/productivity/HabitsView.vue')
+const ProductivityGoalsView = () => import('@/views/productivity/ProductivityGoalsView.vue')
+const ProductivityCalendarView = () => import('@/views/productivity/CalendarView.vue')
+const HappyWinsView = () => import('@/views/productivity/HappyWinsView.vue')
 const SettingsView = () => import('@/views/settings/SettingsView.vue')
 const ProfileView = () => import('@/views/profile/ProfileView.vue')
 
@@ -492,57 +499,67 @@ const routes = [
   {
     path: '/productivity/dashboard',
     name: 'ProductivityDashboard',
-    component: ComingSoonView,
+    component: ProductivityDashboardView,
     meta: {
       requiresAuth: true,
-      title: 'Productivity Dashboard - Coming Soon',
+      title: 'Productivity Dashboard',
     },
   },
   {
     path: '/productivity/ai-insights',
     name: 'ProductivityAIInsights',
-    component: ComingSoonView,
+    component: ProductivityAIInsightsView,
     meta: {
       requiresAuth: true,
-      title: 'Productivity AI Insights - Coming Soon',
+      title: 'Productivity AI Insights',
     },
   },
   {
     path: '/productivity/tasks',
     name: 'ProductivityTasks',
-    component: ComingSoonView,
+    component: ProductivityTasksView,
     alias: ['/tasks'],
     meta: {
       requiresAuth: true,
-      title: 'Tasks - Coming Soon',
+      title: 'Productivity Tasks',
     },
   },
   {
     path: '/productivity/habits',
     name: 'ProductivityHabits',
-    component: ComingSoonView,
+    component: ProductivityHabitsView,
     meta: {
       requiresAuth: true,
-      title: 'Habits - Coming Soon',
+      title: 'Productivity Habits',
     },
   },
   {
     path: '/productivity/goals',
     name: 'ProductivityGoals',
-    component: ComingSoonView,
+    component: ProductivityGoalsView,
     meta: {
       requiresAuth: true,
-      title: 'Goals - Coming Soon',
+      title: 'Productivity Goals',
     },
   },
   {
+    path: '/productivity/happy-wins',
+    name: 'ProductivityHappyWins',
+    component: HappyWinsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Happy Wins',
+    },
+  },
+
+  {
     path: '/productivity/calendar',
     name: 'ProductivityCalendar',
-    component: ComingSoonView,
+    component: ProductivityCalendarView,
     alias: ['/calendar', '/schedule', '/productivity/schedule'],
     meta: {
       requiresAuth: true,
-      title: 'Calendar / Schedule - Coming Soon',
+      title: 'Productivity Calendar',
     },
   },
 
