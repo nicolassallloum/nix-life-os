@@ -63,6 +63,9 @@ const ProfileView = () => import('@/views/profile/ProfileView.vue')
 const AdminOverviewView = () => import('@/views/admin/AdminOverviewView.vue')
 const AdminUsersView = () => import('@/views/admin/AdminUsersView.vue')
 const AdminUsersManagementView = () => import('@/views/admin/AdminUsersManagementView.vue')
+const UserManagementView = () => import('@/views/admin/UserManagementView.vue')
+const UserCreateView = () => import('@/views/admin/UserCreateView.vue')
+const UserDetailsView = () => import('@/views/admin/UserDetailsView.vue')
 const AdminRolesView = () => import('@/views/admin/AdminRolesView.vue')
 const SecurityOverviewView = () => import('@/views/security/SecurityOverviewView.vue')
 const SecurityAuditLogsView = () => import('@/views/security/SecurityAuditLogsView.vue')
@@ -651,7 +654,7 @@ const routes = [
   {
     path: '/admin/users-management',
     name: 'AdminUsersManagement',
-    component: AdminUsersManagementView,
+    component: UserManagementView,
     meta: {
       requiresAuth: true,
       requiresRole: 'admin',
@@ -662,7 +665,7 @@ const routes = [
   {
     path: '/admin/users',
     name: 'AdminUsers',
-    component: AdminUsersView,
+    component: UserManagementView,
     meta: {
       requiresAuth: true,
       requiresRole: 'admin',
@@ -670,6 +673,29 @@ const routes = [
       title: 'Admin Users',
     },
   },
+  {
+    path: '/admin/users/create',
+    name: 'AdminUserCreate',
+    component: UserCreateView,
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+      requiresRole: 'admin',
+      title: 'Create User',
+    },
+  },
+  {
+    path: '/admin/users/:id',
+    name: 'AdminUserDetails',
+    component: UserDetailsView,
+    meta: {
+      requiresAuth: true,
+      requiresAdmin: true,
+      requiresRole: 'admin',
+      title: 'User Details',
+    },
+  },
+
   {
     path: '/admin/roles',
     name: 'AdminRoles',
@@ -767,12 +793,19 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/login', '/register', '/forgot-password', '/reset-password']
   const token = getStoredToken()
-  const user = getAuthUser?.()
-  const isPublicPage = publicPages.includes(to.path)
+  const user = getAuthUser()
 
-  if (!token && !isPublicPage) {
+  if (to.meta?.title) {
+    document.title = `${to.meta.title} | Nix Life OS`
+  }
+
+  if (to.meta?.guestOnly && token) {
+    next('/dashboard')
+    return
+  }
+
+  if (to.meta?.requiresAuth && !token) {
     next({
       path: '/login',
       query: {
@@ -782,71 +815,12 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  if (token && to.meta?.guestOnly) {
-    next('/dashboard')
-    return
-  }
-
-  if (token && to.meta?.requiresAdmin) {
-    const email = String(user?.email || '').toLowerCase()
-
-    if (email !== 'admin@nixlifeos.com') {
-      next('/unauthorized')
-      return
-    }
-  }
-
-  if (token && to.meta?.requiresRole) {
-    const roles = Array.isArray(user?.roles) ? user.roles : []
-
-    if (!roles.includes(to.meta.requiresRole)) {
-      next('/unauthorized')
-      return
-    }
-  }
-
-  if (token && Array.isArray(to.meta?.permissions) && to.meta.permissions.length > 0) {
-    const permissions = Array.isArray(user?.permissions) ? user.permissions : []
-    const hasPermission = to.meta.permissions.some((permission) => permissions.includes(permission))
-
-    if (!hasPermission) {
-      next('/unauthorized')
-      return
-    }
-  }
-
-  if (token && typeof canAccessRoute === 'function' && !canAccessRoute(to)) {
+  if (token && typeof canAccessRoute === 'function' && !canAccessRoute(to, user)) {
     next('/unauthorized')
     return
   }
 
   next()
-})
-
-router.afterEach((to) => {
-  const title = to.meta?.title ? `${to.meta.title} | Nix Life OS` : 'Nix Life OS'
-  document.title = title
-
-  if (getStoredToken() && !to.meta?.publicLayout) {
-    api.post('/track-visit', {
-      page_url: window.location.href,
-      page_name: String(to.name || to.path),
-      referrer: document.referrer || null,
-    }).catch(() => {})
-  }
-})
-
-router.onError((error) => {
-  console.error('Router error:', error)
-
-  const message = String(error?.message || '')
-
-  if (
-    message.includes('Failed to fetch dynamically imported module') ||
-    message.includes('Importing a module script failed')
-  ) {
-    window.location.reload()
-  }
 })
 
 export default router

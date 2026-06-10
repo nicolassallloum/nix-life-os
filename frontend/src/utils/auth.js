@@ -87,13 +87,22 @@ export function getUserRoles() {
     return []
   }
 
-  if (Array.isArray(user.roles)) {
-    return user.roles
-      .map((role) => (typeof role === 'string' ? role : role?.name))
-      .filter(Boolean)
+  const roles = []
+
+  if (user.role) {
+    roles.push(String(user.role).toLowerCase())
   }
 
-  return []
+  if (Array.isArray(user.roles)) {
+    roles.push(
+      ...user.roles
+        .map((role) => (typeof role === 'string' ? role : role?.name))
+        .filter(Boolean)
+        .map((role) => String(role).toLowerCase()),
+    )
+  }
+
+  return [...new Set(roles)]
 }
 
 export function getUserPermissions() {
@@ -141,19 +150,24 @@ export function canAccessRoute(routeOrMeta, userOverride = null) {
   }
 
   const requiredRoles = Array.isArray(meta.roles)
-    ? meta.roles
+    ? meta.roles.map((role) => String(role).toLowerCase())
     : meta.requiresRole
-      ? [meta.requiresRole]
-      : []
+      ? [String(meta.requiresRole).toLowerCase()]
+      : meta.requiresAdmin
+        ? ['admin']
+        : []
   const requiredPermissions = Array.isArray(meta.permissions)
     ? meta.permissions
     : meta.permission
       ? [meta.permission]
       : []
 
-  const userRoles = Array.isArray(user?.roles)
-    ? user.roles.map((role) => (typeof role === 'string' ? role : role?.name)).filter(Boolean)
-    : []
+  const userRoles = [
+    ...(user?.role ? [String(user.role).toLowerCase()] : []),
+    ...(Array.isArray(user?.roles)
+      ? user.roles.map((role) => (typeof role === 'string' ? role : role?.name)).filter(Boolean).map((role) => String(role).toLowerCase())
+      : []),
+  ]
   const userPermissions = Array.isArray(user?.permissions)
     ? user.permissions.map((permission) => (typeof permission === 'string' ? permission : permission?.name)).filter(Boolean)
     : []

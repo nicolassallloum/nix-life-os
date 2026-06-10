@@ -132,7 +132,7 @@ async function loadDashboard() {
   errorMessage.value = ''
 
   try {
-    const response = await api.get('/admin/dashboard/summary')
+    const response = await api.get('/admin/dashboard')
     summary.value = response.data?.data || null
   } catch (error) {
     errorMessage.value = error?.message || 'Failed to load admin dashboard.'
