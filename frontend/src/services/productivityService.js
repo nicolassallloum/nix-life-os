@@ -88,6 +88,38 @@ export const productivityService = {
     return response.data;
   },
 
+
+  /*
+  |--------------------------------------------------------------------------
+  | Happy Wins
+  |--------------------------------------------------------------------------
+  */
+
+  async getHappyWins(params = {}) {
+    const response = await api.get("/productivity/happy-wins", { params });
+    return response.data;
+  },
+
+  async getHappyWin(id) {
+    const response = await api.get(`/productivity/happy-wins/${id}`);
+    return response.data;
+  },
+
+  async createHappyWin(payload) {
+    const response = await api.post("/productivity/happy-wins", payload);
+    return response.data;
+  },
+
+  async updateHappyWin(id, payload) {
+    const response = await api.put(`/productivity/happy-wins/${id}`, payload);
+    return response.data;
+  },
+
+  async deleteHappyWin(id) {
+    const response = await api.delete(`/productivity/happy-wins/${id}`);
+    return response.data;
+  },
+
   /*
   |--------------------------------------------------------------------------
   | Habits

@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\V1\ProductivityDashboardController;
 use App\Http\Controllers\Api\V1\ProductivityCalendarEventController;
 use App\Http\Controllers\Api\V1\ProductivityHabitController;
 use App\Http\Controllers\Api\V1\ProductivityGoalController;
+use App\Http\Controllers\Api\V1\ProductivityHappyWinController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\V1\AIRecommendationController;
 use App\Http\Controllers\Api\V1\NotificationController as LegacyNotificationController;
@@ -406,6 +407,13 @@ Route::prefix('v1')->group(function () {
             Route::delete('/calendar/events/{event}', [ProductivityCalendarEventController::class, 'destroy']);
 
             Route::get('/dashboard', [ProductivityDashboardController::class, 'summary']);
+
+            Route::get('/happy-wins', [ProductivityHappyWinController::class, 'index']);
+            Route::post('/happy-wins', [ProductivityHappyWinController::class, 'store']);
+            Route::get('/happy-wins/{happyWin}', [ProductivityHappyWinController::class, 'show']);
+            Route::put('/happy-wins/{happyWin}', [ProductivityHappyWinController::class, 'update']);
+            Route::patch('/happy-wins/{happyWin}', [ProductivityHappyWinController::class, 'update']);
+            Route::delete('/happy-wins/{happyWin}', [ProductivityHappyWinController::class, 'destroy']);
 
             Route::apiResource('task-reminders', TaskReminderController::class);
 
