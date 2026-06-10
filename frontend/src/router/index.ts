@@ -44,6 +44,10 @@ const FinanceAIInsightsView = () => import('@/views/finance/FinanceAIInsightsVie
 const ExpensesView = () => import('@/views/finance/ExpensesView.vue')
 
 const ProjectsView = () => import('@/views/projects/ProjectsView.vue')
+const ProjectGoalsView = () => import('@/views/projects/ProjectGoalsView.vue')
+const ProjectTasksView = () => import('@/views/projects/ProjectTasksView.vue')
+const ProjectDetailsView = () => import('@/views/projects/ProjectDetailsView.vue')
+const ProjectDashboardView = () => import('@/views/projects/ProjectDashboardView.vue')
 const ProductivityView = () => import('@/views/productivity/ProductivityView.vue')
 const SettingsView = () => import('@/views/settings/SettingsView.vue')
 const ProfileView = () => import('@/views/profile/ProfileView.vue')
@@ -382,30 +386,70 @@ const routes = [
     }
   },
   {
+    path: '/projects',
+    redirect: '/projects/list',
+  },
+  {
     path: '/projects/dashboard',
     name: 'ProjectsDashboard',
-    component: ComingSoonView,
+    component: ProjectDashboardView,
     meta: {
       requiresAuth: true,
-      title: 'Projects Dashboard - Coming Soon',
+      title: 'Projects Dashboard',
     },
   },
   {
     path: '/projects/list',
     name: 'ProjectsList',
-    component: ComingSoonView,
+    component: ProjectsView,
     meta: {
       requiresAuth: true,
-      title: 'Project List - Coming Soon',
+      title: 'Projects',
     },
   },
   {
     path: '/projects/tasks',
     name: 'ProjectTasks',
-    component: ComingSoonView,
+    component: ProjectTasksView,
     meta: {
       requiresAuth: true,
-      title: 'Project Tasks - Coming Soon',
+      title: 'Project Tasks',
+    },
+  },
+  {
+    path: '/projects/goals',
+    name: 'ProjectGoals',
+    component: ProjectGoalsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Project Goals',
+    },
+  },
+  {
+    path: '/projects/:id/tasks',
+    name: 'ProjectTasksByProject',
+    component: ProjectTasksView,
+    meta: {
+      requiresAuth: true,
+      title: 'Project Tasks',
+    },
+  },
+  {
+    path: '/projects/:id/goals',
+    name: 'ProjectGoalsByProject',
+    component: ProjectGoalsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Project Goals',
+    },
+  },
+  {
+    path: '/projects/:id',
+    name: 'ProjectDetails',
+    component: ProjectDetailsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Project Details',
     },
   },
   {

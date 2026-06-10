@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\V1\TaskController;
 use App\Http\Controllers\Api\V1\ProjectController;
 use App\Http\Controllers\Api\V1\ProjectDashboardController;
 use App\Http\Controllers\Api\V1\ProjectTaskController;
+use App\Http\Controllers\Api\V1\ProjectTaskStepController;
+use App\Http\Controllers\Api\V1\ProjectGoalController;
 use App\Http\Controllers\Api\V1\ProjectMilestoneController;
 use App\Http\Controllers\Api\V1\ProjectStatusUpdateController;
 use App\Http\Controllers\Api\V1\ProjectProgressController;
@@ -314,8 +316,21 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/{project}/progress', [ProjectProgressController::class, 'show']);
             Route::post('/{project}/progress/recalculate', [ProjectProgressController::class, 'recalculate']);
+            Route::get('/{project}/goals', [ProjectGoalController::class, 'index']);
+            Route::post('/{project}/goals', [ProjectGoalController::class, 'store']);
+            Route::put('/{project}/goals/{goal}', [ProjectGoalController::class, 'update']);
+            Route::patch('/{project}/goals/{goal}', [ProjectGoalController::class, 'update']);
+            Route::delete('/{project}/goals/{goal}', [ProjectGoalController::class, 'destroy']);
+
             Route::get('/{project}/tasks', [ProjectTaskController::class, 'index']);
             Route::post('/{project}/tasks', [ProjectTaskController::class, 'store']);
+
+            Route::get('/{project}/tasks/{task}/steps', [ProjectTaskStepController::class, 'index']);
+            Route::post('/{project}/tasks/{task}/steps', [ProjectTaskStepController::class, 'store']);
+            Route::put('/{project}/tasks/{task}/steps/{step}', [ProjectTaskStepController::class, 'update']);
+            Route::patch('/{project}/tasks/{task}/steps/{step}', [ProjectTaskStepController::class, 'update']);
+            Route::delete('/{project}/tasks/{task}/steps/{step}', [ProjectTaskStepController::class, 'destroy']);
+
 
             Route::patch('/{project}/tasks/{task}/progress', [ProjectProgressController::class, 'updateTaskProgress']);
             Route::put('/{project}/tasks/{task}/progress', [ProjectProgressController::class, 'updateTaskProgress']);
