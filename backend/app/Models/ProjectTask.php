@@ -10,7 +10,7 @@ class ProjectTask extends Model
 {
     use HasFactory;
 
-    protected $table = 'nix_life_os.project_tasks';
+    protected $table = 'project_tasks';
 
     protected $keyType = 'string';
 

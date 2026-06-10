@@ -9,7 +9,7 @@ class HealthWeightLog extends Model
 {
     use HasFactory;
 
-    protected $table = 'nix_life_os.health_weight_logs';
+    protected $table = 'health_weight_logs';
 
     protected $primaryKey = 'id';
 

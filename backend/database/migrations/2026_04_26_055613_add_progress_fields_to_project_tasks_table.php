@@ -9,6 +9,43 @@ return new class extends Migration
     public function up(): void
     {
         if (!Schema::hasTable('project_tasks')) {
+            Schema::create('project_tasks', function (Blueprint $table) {
+                $table->uuid('id')->primary();
+                $table->uuid('user_id');
+                $table->uuid('project_id');
+
+                $table->string('title');
+                $table->text('description')->nullable();
+                $table->string('priority')->default('medium');
+                $table->string('status')->default('todo');
+
+                $table->date('start_date')->nullable();
+                $table->date('due_date')->nullable();
+                $table->timestamp('completed_at')->nullable();
+
+                $table->string('assigned_to')->nullable();
+                $table->text('notes')->nullable();
+                $table->unsignedInteger('task_order')->default(0);
+                $table->decimal('progress_percentage', 5, 2)->default(0);
+                $table->unsignedInteger('weight')->default(1);
+
+                $table->timestamps();
+
+                $table->foreign('user_id')
+                    ->references('id')
+                    ->on('users')
+                    ->cascadeOnDelete();
+
+                $table->foreign('project_id')
+                    ->references('id')
+                    ->on('projects')
+                    ->cascadeOnDelete();
+
+                $table->index(['user_id', 'status']);
+                $table->index(['project_id', 'status']);
+                $table->index('due_date');
+            });
+
             return;
         }
 
