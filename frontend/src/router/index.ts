@@ -60,6 +60,7 @@ const SettingsView = () => import('@/views/settings/SettingsView.vue')
 const ProfileView = () => import('@/views/profile/ProfileView.vue')
 
 
+const AdminDashboardView = () => import('@/views/admin/AdminDashboardView.vue')
 const AdminOverviewView = () => import('@/views/admin/AdminOverviewView.vue')
 const AdminUsersView = () => import('@/views/admin/AdminUsersView.vue')
 const AdminUsersManagementView = () => import('@/views/admin/AdminUsersManagementView.vue')
@@ -139,12 +140,6 @@ const routes = [
     name: 'CreateFinanceCategory',
     component: () => import('@/views/finance/CreateCategoryView.vue'),
     meta: { requiresAuth: true }
-  },
-  {
-    path: '/admin/dashboard',
-    name: 'AdminDashboard',
-    component: () => import('@/views/admin/AdminDashboardView.vue'),
-    meta: { requiresAuth: true, requiresAdmin: true }
   },
   {
     path: '/test-coming-soon',
@@ -288,6 +283,15 @@ const routes = [
     }
   },
   {
+    path: '/health/dashboard',
+    name: 'health-dashboard',
+    component: HealthView,
+    meta: {
+      requiresAuth: true,
+      title: 'Health Dashboard'
+    }
+  },
+  {
     path: '/health/ai-insights',
     name: 'health-ai-insights',
     component: HealthAIInsightsView,
@@ -297,12 +301,30 @@ const routes = [
     }
   },
   {
+    path: '/health/goals',
+    name: 'health-goals',
+    component: StepsTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: 'Goals & Limits'
+    }
+  },
+  {
     path: '/health/steps',
     name: 'health-steps',
     component: StepsTrackingView,
     meta: {
       requiresAuth: true,
       title: 'Steps Tracking'
+    }
+  },
+  {
+    path: '/health/calories',
+    name: 'health-calories',
+    component: NutritionTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: 'Calories Tracking'
     }
   },
   {
@@ -378,12 +400,39 @@ const routes = [
     }
   },
   {
+    path: '/health/mood',
+    name: 'health-mood',
+    component: MoodTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: 'Mood Tracking'
+    }
+  },
+  {
     path: '/health/medications',
     name: 'health-medications',
     component: MedicationTrackingView,
     meta: {
       requiresAuth: true,
       title: 'Medication Tracking'
+    }
+  },
+  {
+    path: '/health/alerts',
+    name: 'health-alerts',
+    component: HealthAlertsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Health Alerts'
+    }
+  },
+  {
+    path: '/health/reports',
+    name: 'health-reports',
+    component: HealthReportsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Health Reports'
     }
   },
   {
@@ -397,7 +446,16 @@ const routes = [
   },
   {
     path: '/projects',
-    redirect: '/projects/list',
+    name: 'Projects',
+    component: ProjectsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Projects',
+    },
+  },
+  {
+    path: '/projects/list',
+    redirect: '/projects',
   },
   {
     path: '/projects/dashboard',
@@ -406,15 +464,6 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: 'Projects Dashboard',
-    },
-  },
-  {
-    path: '/projects/list',
-    name: 'ProjectsList',
-    component: ProjectsView,
-    meta: {
-      requiresAuth: true,
-      title: 'Projects',
     },
   },
   {
@@ -645,6 +694,16 @@ const routes = [
     path: '/admin',
     name: 'AdminOverview',
     component: AdminOverviewView,
+    meta: {
+      requiresAuth: true,
+      requiresRole: 'admin',
+      title: 'Admin Dashboard',
+    },
+  },
+  {
+    path: '/admin/dashboard',
+    name: 'AdminDashboard',
+    component: AdminDashboardView,
     meta: {
       requiresAuth: true,
       requiresRole: 'admin',
