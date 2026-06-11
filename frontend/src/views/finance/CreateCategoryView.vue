@@ -173,7 +173,7 @@ async function saveCategory() {
       name: form.name.trim(),
       type: form.type,
       icon: form.icon || null,
-      color: form.color || null,
+      color: form.color,
       status: form.status,
     })
 
