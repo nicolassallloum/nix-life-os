@@ -48,14 +48,30 @@
           />
         </div>
 
-        <div>
-          <label class="mb-1 block text-sm font-medium text-gray-700">Color</label>
-          <input
-            v-model="form.color"
-            type="color"
-            class="h-11 w-full rounded-xl border border-gray-300 px-2 py-1"
-          />
-        </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium text-gray-700">Color</label>
+
+            <div class="grid grid-cols-2 gap-3">
+              <button
+                v-for="color in financeCategoryColors"
+                :key="color.value"
+                type="button"
+                class="flex items-center gap-3 rounded-xl border bg-white px-3 py-2 text-left transition hover:border-blue-400 hover:bg-blue-50"
+                :class="form.color === color.value ? 'border-blue-500 ring-2 ring-blue-100' : 'border-gray-200'"
+                @click="form.color = color.value"
+              >
+                <span
+                  class="h-6 w-6 rounded-full border-2 border-white shadow ring-1 ring-gray-200"
+                  :style="{ backgroundColor: color.value }"
+                ></span>
+
+                <span class="min-w-0">
+                  <span class="block text-sm font-semibold text-gray-800">{{ color.name }}</span>
+                  <span class="block text-xs text-gray-500">{{ color.value }}</span>
+                </span>
+              </button>
+            </div>
+          </div>
 
         <div>
           <label class="mb-1 block text-sm font-medium text-gray-700">Status</label>
@@ -107,11 +123,30 @@ const emit = defineEmits(['close', 'saved'])
 const loading = ref(false)
 const error = ref('')
 
+const financeCategoryColors = [
+  { name: 'Indigo', value: '#4f46e5' },
+  { name: 'Blue', value: '#2563eb' },
+  { name: 'Sky', value: '#0ea5e9' },
+  { name: 'Cyan', value: '#06b6d4' },
+  { name: 'Teal', value: '#14b8a6' },
+  { name: 'Green', value: '#22c55e' },
+  { name: 'Lime', value: '#84cc16' },
+  { name: 'Yellow', value: '#eab308' },
+  { name: 'Orange', value: '#f97316' },
+  { name: 'Red', value: '#ef4444' },
+  { name: 'Rose', value: '#f43f5e' },
+  { name: 'Pink', value: '#ec4899' },
+  { name: 'Purple', value: '#9333ea' },
+  { name: 'Violet', value: '#7c3aed' },
+  { name: 'Gray', value: '#64748b' },
+  { name: 'Slate', value: '#334155' },
+]
+
 const form = reactive({
   name: '',
   type: 'expense',
   icon: '',
-  color: '#2563eb',
+  color: '#4f46e5',
   status: 'active',
 })
 
@@ -134,7 +169,7 @@ async function submitForm() {
     form.name = ''
     form.type = 'expense'
     form.icon = ''
-    form.color = '#2563eb'
+    form.color = '#4f46e5'
     form.status = 'active'
   } catch (err: any) {
     error.value = err?.response?.data?.message || 'Failed to save category.'
