@@ -65,6 +65,7 @@
 <style scoped>
 .page {
   padding: 24px;
+  color: #e5e7eb;
 }
 
 .page-header {
@@ -79,22 +80,23 @@
   margin: 0;
   font-size: 28px;
   font-weight: 800;
-  color: #111827;
+  color: #f8fafc;
 }
 
 .page-header p {
   margin: 6px 0 0;
-  color: #6b7280;
+  color: #94a3b8;
 }
 
 .primary-btn {
   border: none;
-  background: #2563eb;
-  color: white;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
   padding: 11px 18px;
   border-radius: 12px;
-  font-weight: 700;
+  font-weight: 800;
   cursor: pointer;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.25);
 }
 
 .settings-grid {
@@ -104,15 +106,18 @@
 }
 
 .content-card {
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: #0f172a;
+  border: 1px solid rgba(148, 163, 184, 0.28);
   border-radius: 18px;
-  padding: 20px;
-  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+  padding: 24px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
 }
 
 .content-card h2 {
-  margin-top: 0;
+  margin: 0 0 12px;
+  color: #f8fafc;
+  font-size: 20px;
+  font-weight: 900;
 }
 
 .setting-row,
@@ -120,9 +125,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 14px;
-  padding: 16px 0;
-  border-bottom: 1px solid #f1f5f9;
+  gap: 18px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
 }
 
 .setting-row:last-child,
@@ -130,18 +135,33 @@
   border-bottom: none;
 }
 
+.setting-row strong,
+.status-item span {
+  color: #e5e7eb;
+  font-weight: 800;
+}
+
 .setting-row p {
-  margin: 4px 0 0;
-  color: #6b7280;
+  margin: 5px 0 0;
+  color: #94a3b8;
   font-size: 14px;
+  line-height: 1.55;
+}
+
+.setting-row input[type='checkbox'] {
+  width: 46px;
+  height: 24px;
+  min-width: 46px;
+  cursor: pointer;
+  accent-color: #2563eb;
 }
 
 .ok {
-  color: #16a34a;
+  color: #22c55e;
 }
 
 .pending {
-  color: #d97706;
+  color: #f59e0b;
 }
 
 @media (max-width: 900px) {

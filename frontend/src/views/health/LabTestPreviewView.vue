@@ -19,19 +19,27 @@
       <div class="file-card">
         <h2>Uploaded File</h2>
 
+        <div v-if="previewError" class="preview-fallback">
+          {{ previewError }}
+        </div>
+
         <iframe
-          v-if="isPdf"
+          v-if="isPdf && previewUrl"
           class="file-frame"
           :src="previewUrl"
           title="Lab test PDF preview"
         ></iframe>
 
         <img
-          v-else
+          v-else-if="previewUrl"
           class="image-preview"
           :src="previewUrl"
           alt="Lab test image preview"
         />
+
+        <div v-else class="preview-fallback">
+          Loading uploaded file preview...
+        </div>
       </div>
 
       <div class="review-card">
@@ -108,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -124,7 +132,9 @@ const labTest = ref<any>(null)
 const results = ref<any[]>([])
 
 const labTestId = computed(() => route.params.id)
-const previewUrl = computed(() => `${API_BASE_URL}/health/lab-tests/${labTestId.value}/preview`)
+const previewApiUrl = computed(() => `${API_BASE_URL}/health/lab-tests/${labTestId.value}/preview`)
+const previewUrl = ref('')
+const previewError = ref('')
 const isPdf = computed(() => String(labTest.value?.file_type || '').includes('pdf'))
 
 function authHeaders(json = false) {
@@ -151,6 +161,79 @@ function emptyRow() {
     result_date: new Date().toISOString().slice(0, 10),
     doctor_name: labTest.value?.doctor_name || '',
     ai_confidence: 0,
+  }
+}
+
+
+function authPreviewHeaders() {
+  const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || ''
+  return {
+    Accept: 'application/pdf,image/*,*/*',
+    Authorization: `Bearer ${token}`,
+  }
+}
+
+function isBadPlaceholderRow(row: any) {
+  const name = String(row?.test_name || '').trim()
+
+  if (!name) return false
+
+  const compactName = name.replace(/\s+/g, '')
+  const hasLongNumberPrefix = /^\d{5,}/.test(compactName)
+  const containsPatientNameShape = /[A-Z][a-z]+[_\s-][A-Z][a-z]+/.test(name)
+  const hasNoUsefulResult =
+    String(row?.result_value ?? '') === '0' &&
+    !String(row?.unit || '').trim() &&
+    !String(row?.reference_text || '').trim()
+
+  return hasNoUsefulResult && (hasLongNumberPrefix || containsPatientNameShape || compactName.length > 28)
+}
+
+function normalizeResultRows(rows: any[]) {
+  const source = String(labTest.value?.extracted_payload?.source || '')
+
+  if (source === 'manual_placeholder') {
+    return [emptyRow()]
+  }
+
+  const cleanedRows = (Array.isArray(rows) ? rows : [])
+    .filter((row: any) => !isBadPlaceholderRow(row))
+    .map((row: any) => ({
+      ...emptyRow(),
+      ...row,
+      test_name: String(row?.test_name || '').trim(),
+      unit: String(row?.unit || '').trim(),
+      reference_text: String(row?.reference_text || '').trim(),
+      status: row?.status || 'pending_review',
+      result_date: row?.result_date || new Date().toISOString().slice(0, 10),
+      doctor_name: row?.doctor_name || labTest.value?.doctor_name || '',
+      ai_confidence: row?.ai_confidence || 0,
+    }))
+
+  return cleanedRows.length ? cleanedRows : [emptyRow()]
+}
+
+async function loadPreviewFile() {
+  previewError.value = ''
+
+  if (previewUrl.value) {
+    URL.revokeObjectURL(previewUrl.value)
+    previewUrl.value = ''
+  }
+
+  try {
+    const response = await fetch(previewApiUrl.value, {
+      headers: authPreviewHeaders(),
+    })
+
+    if (!response.ok) {
+      throw new Error('Unable to load uploaded file preview.')
+    }
+
+    const blob = await response.blob()
+    previewUrl.value = URL.createObjectURL(blob)
+  } catch (err: any) {
+    previewError.value = err.message || 'Unable to load uploaded file preview.'
   }
 }
 
@@ -187,7 +270,7 @@ async function loadLabTest() {
     const draftRows = labTest.value.extracted_payload?.results || []
     const approvedRows = labTest.value.results || []
 
-    results.value = draftRows.length ? draftRows : approvedRows.length ? approvedRows : [emptyRow()]
+    results.value = normalizeResultRows(draftRows.length ? draftRows : approvedRows)
   } catch (err: any) {
     error.value = err.message || 'Failed to load preview.'
   } finally {
@@ -230,7 +313,16 @@ async function approve() {
   }
 }
 
-onMounted(loadLabTest)
+onMounted(async () => {
+  await loadLabTest()
+  await loadPreviewFile()
+})
+
+onUnmounted(() => {
+  if (previewUrl.value) {
+    URL.revokeObjectURL(previewUrl.value)
+  }
+})
 </script>
 
 <style scoped>
@@ -282,6 +374,15 @@ onMounted(loadLabTest)
   width: 100%;
   border-radius: 14px;
   border: 1px solid #e5e7eb;
+}
+
+.preview-fallback {
+  border: 1px dashed #cbd5e1;
+  background: #f8fafc;
+  color: #334155;
+  border-radius: 14px;
+  padding: 18px;
+  font-weight: 800;
 }
 
 .review-header {
