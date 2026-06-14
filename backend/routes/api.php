@@ -519,6 +519,7 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('finance')->group(function () {
             Route::get('/ai-insights', [FinanceAIInsightController::class, 'index']);
+            Route::get('/summary', [FinanceTransactionController::class, 'summary']);
 
             Route::get('/accounts', [FinanceAccountController::class, 'index']);
             Route::post('/accounts', [FinanceAccountController::class, 'store']);
