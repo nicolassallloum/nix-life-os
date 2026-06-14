@@ -8,6 +8,7 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class ProjectController extends Controller
@@ -110,6 +111,7 @@ class ProjectController extends Controller
                 'actual_end_date' => ['nullable', 'date'],
 
                 'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+                'number_of_tasks' => ['nullable', 'integer', 'min:0', 'max:100'],
 
                 'metadata' => ['nullable', 'array'],
             ]);
@@ -119,6 +121,9 @@ class ProjectController extends Controller
             if ($dateValidationResponse) {
                 return $dateValidationResponse;
             }
+
+            $numberOfTasks = (int) ($validated['number_of_tasks'] ?? 0);
+            unset($validated['number_of_tasks']);
 
             $validated['user_id'] = (string) $request->user()->id;
             $validated['status'] = $validated['status'] ?? 'not_started';
@@ -131,6 +136,10 @@ class ProjectController extends Controller
             }
 
             $project = Project::create($validated);
+
+            if ($numberOfTasks > 0) {
+                $this->createInitialProjectTasks($project, (string) $request->user()->id, $numberOfTasks);
+            }
 
             return response()->json([
                 'success' => true,
@@ -203,6 +212,7 @@ class ProjectController extends Controller
                 'actual_end_date' => ['nullable', 'date'],
 
                 'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+                'number_of_tasks' => ['nullable', 'integer', 'min:0', 'max:100'],
 
                 'metadata' => ['nullable', 'array'],
             ]);
@@ -269,6 +279,76 @@ class ProjectController extends Controller
                 'message' => 'Project delete failed.',
                 'error' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+
+    private function createInitialProjectTasks(Project $project, string $userId, int $numberOfTasks): void
+    {
+        if ($numberOfTasks <= 0 || ! DB::getSchemaBuilder()->hasTable('project_tasks')) {
+            return;
+        }
+
+        $columns = DB::table('information_schema.columns')
+            ->where('table_schema', 'public')
+            ->where('table_name', 'project_tasks')
+            ->pluck('column_name')
+            ->toArray();
+
+        $now = now();
+
+        for ($i = 1; $i <= $numberOfTasks; $i++) {
+            $row = [];
+
+            if (in_array('id', $columns, true)) {
+                $row['id'] = (string) Str::uuid();
+            }
+
+            if (in_array('user_id', $columns, true)) {
+                $row['user_id'] = $userId;
+            }
+
+            if (in_array('project_id', $columns, true)) {
+                $row['project_id'] = $project->id;
+            }
+
+            if (in_array('title', $columns, true)) {
+                $row['title'] = "Task {$i}";
+            }
+
+            if (in_array('description', $columns, true)) {
+                $row['description'] = 'Auto-created from project task count.';
+            }
+
+            if (in_array('priority', $columns, true)) {
+                $row['priority'] = 'medium';
+            }
+
+            if (in_array('status', $columns, true)) {
+                $row['status'] = 'todo';
+            }
+
+            if (in_array('task_order', $columns, true)) {
+                $row['task_order'] = $i;
+            }
+
+            if (in_array('progress_percentage', $columns, true)) {
+                $row['progress_percentage'] = 0;
+            }
+
+            if (in_array('weight', $columns, true)) {
+                $row['weight'] = 1;
+            }
+
+            if (in_array('created_at', $columns, true)) {
+                $row['created_at'] = $now;
+            }
+
+            if (in_array('updated_at', $columns, true)) {
+                $row['updated_at'] = $now;
+            }
+
+            DB::table('project_tasks')->insert($row);
         }
     }
 

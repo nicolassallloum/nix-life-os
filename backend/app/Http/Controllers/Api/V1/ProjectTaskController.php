@@ -39,6 +39,28 @@ class ProjectTaskController extends Controller
         return null;
     }
 
+
+    private function normalizeTaskCompletionPayload(array $payload, array $columns): array
+    {
+        if (($payload['status'] ?? null) === 'done') {
+            if (in_array('progress_percentage', $columns, true)) {
+                $payload['progress_percentage'] = 100;
+            }
+
+            if (in_array('completed_at', $columns, true)) {
+                $payload['completed_at'] = now();
+            }
+        }
+
+        if (($payload['status'] ?? null) !== 'done' && array_key_exists('status', $payload)) {
+            if (in_array('completed_at', $columns, true)) {
+                $payload['completed_at'] = null;
+            }
+        }
+
+        return $payload;
+    }
+
     public function index(Request $request)
     {
         try {
@@ -130,8 +152,12 @@ class ProjectTaskController extends Controller
             $userId = (string) $request->user()->id;
             $columns = $this->columns();
 
+            $projectId = is_object($project) && isset($project->id)
+                ? $project->id
+                : $project;
+
             $projectExists = DB::table('projects')
-                ->where('id', $project)
+                ->where('id', $projectId)
                 ->where('user_id', $userId)
                 ->exists();
 
@@ -139,13 +165,34 @@ class ProjectTaskController extends Controller
 
             $query = DB::table($this->tableName())
                 ->where('user_id', $userId)
-                ->where('project_id', $project);
+                ->where('project_id', $projectId);
 
-            if (in_array('status', $columns, true)) {
-                $query->orderBy('status');
+            if ($request->filled('status') && in_array('status', $columns, true)) {
+                $query->where('status', $request->status);
             }
 
-            if (in_array('due_date', $columns, true)) {
+            if ($request->filled('priority') && in_array('priority', $columns, true)) {
+                $query->where('priority', $request->priority);
+            }
+
+            if ($request->filled('search')) {
+                $search = $request->search;
+
+                $query->where(function ($subQuery) use ($search, $columns) {
+                    if (in_array('title', $columns, true)) {
+                        $subQuery->orWhere('title', 'ILIKE', "%{$search}%");
+                    }
+
+                    if (in_array('description', $columns, true)) {
+                        $subQuery->orWhere('description', 'ILIKE', "%{$search}%");
+                    }
+                });
+            }
+
+            if (in_array('task_order', $columns, true)) {
+                $query->orderBy('task_order');
+            } elseif (in_array('due_date', $columns, true)) {
+                $query->orderByRaw('CASE WHEN due_date IS NULL THEN 1 ELSE 0 END');
                 $query->orderBy('due_date');
             } elseif (in_array('created_at', $columns, true)) {
                 $query->orderByDesc('created_at');
@@ -153,7 +200,7 @@ class ProjectTaskController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $query->get(),
+                'data' => $query->paginate((int) $request->get('per_page', 30)),
             ]);
         } catch (\Throwable $e) {
             Log::error('Project tasks byProject failed', [
@@ -356,50 +403,64 @@ class ProjectTaskController extends Controller
         }
     }
 
-    public function update(Request $request, $task)
+    public function update(Request $request, $project = null, $task = null)
     {
         try {
             $userId = (string) $request->user()->id;
             $columns = $this->columns();
 
-            $titleColumn = $this->firstExistingColumn($columns, [
-                'task_title',
-                'title',
-                'task_name',
-                'name',
-            ]);
+            if ($task === null) {
+                $task = $project;
+                $project = null;
+            }
 
-            $descriptionColumn = $this->firstExistingColumn($columns, [
-                'task_description',
-                'description',
-                'details',
+            $routeProjectId = $request->route('project');
+            $routeTaskId = $request->route('task');
+
+            $projectId = $project ?: $routeProjectId;
+            $taskId = $task ?: $routeTaskId;
+
+            if (is_object($projectId) && isset($projectId->id)) {
+                $projectId = $projectId->id;
+            }
+
+            if (is_object($taskId) && isset($taskId->id)) {
+                $taskId = $taskId->id;
+            }
+
+            $validated = $request->validate([
+                'title' => ['sometimes', 'required', 'string', 'max:200'],
+                'description' => ['nullable', 'string'],
+                'priority' => ['nullable', Rule::in(['low', 'medium', 'high', 'critical'])],
+                'status' => ['nullable', Rule::in(['todo', 'in_progress', 'done', 'blocked'])],
+                'start_date' => ['nullable', 'date'],
+                'due_date' => ['nullable', 'date'],
+                'assigned_to' => ['nullable', 'string', 'max:150'],
+                'notes' => ['nullable', 'string'],
+                'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             ]);
 
             $update = [];
 
-            if ($titleColumn && $request->filled('title')) {
-                $update[$titleColumn] = $request->title;
+            foreach ($validated as $key => $value) {
+                if (in_array($key, $columns, true)) {
+                    $update[$key] = $value;
+                }
             }
 
-            if ($descriptionColumn && $request->has('description')) {
-                $update[$descriptionColumn] = $request->description;
+            if (($update['status'] ?? null) === 'done') {
+                if (in_array('progress_percentage', $columns, true)) {
+                    $update['progress_percentage'] = 100;
+                }
+
+                if (in_array('completed_at', $columns, true)) {
+                    $update['completed_at'] = now();
+                }
             }
 
-            foreach ([
-                'priority',
-                'status',
-                'start_date',
-                'due_date',
-                'assigned_to',
-                'notes',
-                'progress_percentage',
-                'task_order',
-                'completed_date',
-                'completed_at',
-                'weight',
-            ] as $column) {
-                if (in_array($column, $columns, true) && $request->has($column)) {
-                    $update[$column] = $request->{$column};
+            if (($update['status'] ?? null) !== 'done' && array_key_exists('status', $update)) {
+                if (in_array('completed_at', $columns, true)) {
+                    $update['completed_at'] = null;
                 }
             }
 
@@ -407,21 +468,42 @@ class ProjectTaskController extends Controller
                 $update['updated_at'] = now();
             }
 
-            DB::table($this->tableName())
-                ->where('id', $task)
+            if (empty($update)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No valid task fields provided.',
+                ], 422);
+            }
+
+            $query = DB::table($this->tableName())
+                ->where('id', $taskId)
+                ->where('user_id', $userId);
+
+            if ($projectId && in_array('project_id', $columns, true)) {
+                $query->where('project_id', $projectId);
+            }
+
+            $updated = $query->update($update);
+
+            if ($updated < 1) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Project task not found or not updated.',
+                ], 404);
+            }
+
+            $taskRow = DB::table($this->tableName())
+                ->where('id', $taskId)
                 ->where('user_id', $userId)
-                ->update($update);
+                ->first();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Project task updated successfully.',
-                'data' => DB::table($this->tableName())
-                    ->where('id', $task)
-                    ->where('user_id', $userId)
-                    ->first(),
+                'data' => $taskRow,
             ]);
         } catch (\Throwable $e) {
-            Log::error('Project tasks update failed', [
+            Log::error('Project task update failed', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),

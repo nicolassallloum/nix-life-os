@@ -76,6 +76,14 @@
         </div>
 
         <div class="actions">
+          <button
+            v-if="task.status !== 'done'"
+            class="done-btn"
+            @click="markTaskDone(task)"
+            :disabled="savingDone === task.id"
+          >
+            {{ savingDone === task.id ? 'Saving...' : 'Done' }}
+          </button>
           <button class="small-btn" @click="loadSteps(task.id)">View Steps</button>
           <button class="small-btn" @click="createDemoStep(task.id)" :disabled="savingStep === task.id">
             {{ savingStep === task.id ? 'Adding...' : 'Add Done Step' }}
@@ -104,6 +112,7 @@ import {
   getProjectTaskSteps,
   getProjectTasks,
   getProjects,
+  updateProjectTask,
   normalizeList,
 } from '@/services/projectService'
 
@@ -118,6 +127,7 @@ const selectedTaskId = ref('')
 const loading = ref(false)
 const saving = ref(false)
 const savingStep = ref('')
+const savingDone = ref('')
 const errorMessage = ref('')
 
 const activeProjectId = computed(() => projectId || selectedProjectId.value)
@@ -186,6 +196,26 @@ async function createDemoTask() {
   }
 }
 
+
+async function markTaskDone(task: any) {
+  if (!activeProjectId.value || !task?.id) return
+
+  savingDone.value = task.id
+  errorMessage.value = ''
+
+  try {
+    await updateProjectTask(activeProjectId.value, task.id, {
+      status: 'done',
+      progress_percentage: 100,
+    })
+    await loadTasks()
+  } catch (error: any) {
+    errorMessage.value = error?.response?.data?.message || 'Failed to mark task as done.'
+  } finally {
+    savingDone.value = ''
+  }
+}
+
 async function loadSteps(taskId: string) {
   if (!activeProjectId.value) return
 
@@ -237,6 +267,8 @@ onMounted(async () => {
 .primary-btn, .secondary-btn, .small-btn { border: none; padding: 10px 16px; border-radius: 12px; font-weight: 700; cursor: pointer; }
 .primary-btn { background: #2563eb; color: white; }
 .secondary-btn, .small-btn { background: #f3f4f6; color: #111827; }
+.done-btn { border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; background: #16a34a; color: white; }
+.done-btn:disabled { opacity: 0.65; cursor: not-allowed; }
 .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
 .summary-card, .content-card, .task-card { background: white; border: 1px solid #e5e7eb; border-radius: 18px; padding: 20px; box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06); }
 .summary-card h3 { margin: 0 0 8px; color: #6b7280; font-size: 13px; }

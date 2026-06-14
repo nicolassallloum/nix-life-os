@@ -333,7 +333,7 @@ Route::prefix('v1')->group(function () {
             Route::patch('/{project}/goals/{goal}', [ProjectGoalController::class, 'update']);
             Route::delete('/{project}/goals/{goal}', [ProjectGoalController::class, 'destroy']);
 
-            Route::get('/{project}/tasks', [ProjectTaskController::class, 'index']);
+            Route::get('/{project}/tasks', [ProjectTaskController::class, 'byProject']);
             Route::post('/{project}/tasks', [ProjectTaskController::class, 'store']);
 
             Route::get('/{project}/tasks/{task}/steps', [ProjectTaskStepController::class, 'index']);
@@ -664,6 +664,15 @@ Route::prefix('v1')->group(function () {
             Route::put('/weight/{id}', [HealthWeightLogController::class, 'update'])->whereNumber('id');
             Route::patch('/weight/{id}', [HealthWeightLogController::class, 'update'])->whereNumber('id');
             Route::delete('/weight/{id}', [HealthWeightLogController::class, 'destroy'])->whereNumber('id');
+
+            Route::get('/nutrition/profile', [\App\Http\Controllers\Api\V1\Health\HealthNutritionProfileController::class, 'index']);
+            Route::post('/nutrition/profile', [\App\Http\Controllers\Api\V1\Health\HealthNutritionProfileController::class, 'store']);
+
+            Route::get('/nutrition/foods', [\App\Http\Controllers\Api\V1\Health\HealthFoodItemController::class, 'index']);
+            Route::post('/nutrition/foods', [\App\Http\Controllers\Api\V1\Health\HealthFoodItemController::class, 'store']);
+            Route::get('/food-items', [\App\Http\Controllers\Api\V1\Health\HealthFoodItemController::class, 'index']);
+            Route::post('/food-items', [\App\Http\Controllers\Api\V1\Health\HealthFoodItemController::class, 'store']);
+            Route::get('/foods', [\App\Http\Controllers\Api\V1\Health\HealthFoodItemController::class, 'index']);
 
             Route::get('/nutrition/summary', [HealthNutritionLogController::class, 'summary']);
             Route::get('/nutrition', [HealthNutritionLogController::class, 'index']);
