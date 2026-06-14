@@ -1,0 +1,43 @@
+
+/* Phase 13: readable selected text inside forms */
+input,
+textarea,
+select {
+  color: #f8fafc;
+  caret-color: #60a5fa;
+  text-overflow: clip;
+}
+
+input::selection,
+textarea::selection,
+select::selection {
+  color: #ffffff;
+  background: #2563eb;
+}
+
+input::-moz-selection,
+textarea::-moz-selection,
+select::-moz-selection {
+  color: #ffffff;
+  background: #2563eb;
+}
+
+/* Keep light form cards readable too */
+.bg-white input,
+.bg-white textarea,
+.bg-white select,
+[class*="bg-slate-100"] input,
+[class*="bg-slate-100"] textarea,
+[class*="bg-slate-100"] select {
+  color: #020617;
+}
+
+.bg-white input::selection,
+.bg-white textarea::selection,
+.bg-white select::selection,
+[class*="bg-slate-100"] input::selection,
+[class*="bg-slate-100"] textarea::selection,
+[class*="bg-slate-100"] select::selection {
+  color: #ffffff;
+  background: #2563eb;
+}
