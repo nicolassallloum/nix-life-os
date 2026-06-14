@@ -37,18 +37,36 @@ class SleepLogController extends Controller
             ], 422);
         }
 
-        $durationMinutes = $this->calculateDurationMinutes(
-            $request->bed_time,
-            $request->wake_time
-        );
+        $sleepDate = $request->sleep_date
+            ?? $request->log_date
+            ?? $request->entry_date
+            ?? now()->toDateString();
+
+        $bedTime = $request->bed_time ?? '22:00';
+        $wakeTime = $request->wake_time ?? '06:00';
+
+        $durationMinutes = $request->filled('duration_hours')
+            ? (int) round(((float) $request->duration_hours) * 60)
+            : $this->calculateDurationMinutes($bedTime, $wakeTime);
+
+        $qualityScore = $request->quality_score;
+        if ($qualityScore === null && $request->filled('quality')) {
+            $qualityScore = match (strtolower((string) $request->quality)) {
+                'excellent' => 90,
+                'good' => 75,
+                'fair' => 55,
+                'poor' => 30,
+                default => null,
+            };
+        }
 
         $log = HealthSleepLog::create([
             'user_id' => $request->user()->id,
-            'sleep_date' => $request->sleep_date,
-            'bed_time' => $request->bed_time,
-            'wake_time' => $request->wake_time,
+            'sleep_date' => $sleepDate,
+            'bed_time' => $bedTime,
+            'wake_time' => $wakeTime,
             'duration_minutes' => $durationMinutes,
-            'quality_score' => $request->quality_score,
+            'quality_score' => $qualityScore,
             'notes' => $request->notes,
         ]);
 
@@ -87,17 +105,36 @@ class SleepLogController extends Controller
             ], 422);
         }
 
-        $durationMinutes = $this->calculateDurationMinutes(
-            $request->bed_time,
-            $request->wake_time
-        );
+        $sleepDate = $request->sleep_date
+            ?? $request->log_date
+            ?? $request->entry_date
+            ?? $log->sleep_date
+            ?? now()->toDateString();
+
+        $bedTime = $request->bed_time ?? $log->bed_time ?? '22:00';
+        $wakeTime = $request->wake_time ?? $log->wake_time ?? '06:00';
+
+        $durationMinutes = $request->filled('duration_hours')
+            ? (int) round(((float) $request->duration_hours) * 60)
+            : $this->calculateDurationMinutes($bedTime, $wakeTime);
+
+        $qualityScore = $request->quality_score ?? $log->quality_score;
+        if ($request->filled('quality')) {
+            $qualityScore = match (strtolower((string) $request->quality)) {
+                'excellent' => 90,
+                'good' => 75,
+                'fair' => 55,
+                'poor' => 30,
+                default => $qualityScore,
+            };
+        }
 
         $log->update([
-            'sleep_date' => $request->sleep_date,
-            'bed_time' => $request->bed_time,
-            'wake_time' => $request->wake_time,
+            'sleep_date' => $sleepDate,
+            'bed_time' => $bedTime,
+            'wake_time' => $wakeTime,
             'duration_minutes' => $durationMinutes,
-            'quality_score' => $request->quality_score,
+            'quality_score' => $qualityScore,
             'notes' => $request->notes,
         ]);
 
@@ -125,9 +162,11 @@ class SleepLogController extends Controller
     private function validateSleepLog(Request $request)
     {
         return Validator::make($request->all(), [
-            'sleep_date' => ['required', 'date'],
-            'bed_time' => ['required', 'date'],
-            'wake_time' => ['required', 'date', 'after:bed_time'],
+            'sleep_date' => ['nullable', 'date'],
+            'log_date' => ['nullable', 'date'],
+            'entry_date' => ['nullable', 'date'],
+            'bed_time' => ['nullable', 'date_format:H:i'],
+            'wake_time' => ['nullable', 'date_format:H:i'],
             'quality_score' => ['nullable', 'integer', 'min:0', 'max:100'],
             'notes' => ['nullable', 'string', 'max:2000'],
         ]);
@@ -135,8 +174,12 @@ class SleepLogController extends Controller
 
     private function calculateDurationMinutes(string $bedTime, string $wakeTime): int
     {
-        $bed = Carbon::parse($bedTime);
-        $wake = Carbon::parse($wakeTime);
+        $bed = Carbon::createFromFormat('H:i', substr($bedTime, 0, 5));
+        $wake = Carbon::createFromFormat('H:i', substr($wakeTime, 0, 5));
+
+        if ($wake->lessThanOrEqualTo($bed)) {
+            $wake->addDay();
+        }
 
         return $bed->diffInMinutes($wake);
     }

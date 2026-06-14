@@ -20,7 +20,7 @@ class ProfileController extends Controller
     public function show(Request $request): JsonResponse
     {
         $user = $request->user();
-        $points = $this->userPointService->summary((string) $user->id);
+        $points = $this->safePointSummary((string) $user->id);
 
         return response()->json([
             'success' => true,
@@ -72,7 +72,7 @@ class ProfileController extends Controller
             'message' => 'Profile updated successfully.',
             'data' => [
                 'user' => $this->formatUser($freshUser),
-                'points' => $this->userPointService->summary((string) $user->id),
+                'points' => $this->safePointSummary((string) $user->id),
             ],
         ]);
     }
@@ -82,7 +82,7 @@ class ProfileController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Profile points loaded successfully.',
-            'data' => $this->userPointService->summary((string) $request->user()->id),
+            'data' => $this->safePointSummary((string) $request->user()->id),
         ]);
     }
 
@@ -95,6 +95,31 @@ class ProfileController extends Controller
             'message' => 'Profile point logs loaded successfully.',
             'data' => $this->userPointService->logs((string) $request->user()->id, $limit),
         ]);
+    }
+
+
+    private function safePointSummary(string $userId): array
+    {
+        try {
+            if (! Schema::hasTable('user_points')) {
+                return $this->defaultPointSummary();
+            }
+
+            return $this->userPointService->summary($userId);
+        } catch (\Throwable $e) {
+            return $this->defaultPointSummary();
+        }
+    }
+
+    private function defaultPointSummary(): array
+    {
+        return [
+            'level' => 1,
+            'total_points' => 0,
+            'current_level_points' => 0,
+            'next_level_points' => 100,
+            'progress_percentage' => 0,
+        ];
     }
 
     private function formatUser(object $user): array
