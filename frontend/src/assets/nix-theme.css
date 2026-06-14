@@ -41,3 +41,98 @@ select::-moz-selection {
   color: #ffffff;
   background: #2563eb;
 }
+
+/* Phase 13B: force readable selected text in all form fields */
+input,
+textarea {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  caret-color: #60a5fa !important;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+textarea {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  caret-color: #60a5fa !important;
+}
+
+input::selection,
+textarea::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+input::-moz-selection,
+textarea::-moz-selection {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+/* Admin dark forms */
+.bg-slate-900 input,
+.bg-slate-950 input,
+.bg-slate-900 textarea,
+.bg-slate-950 textarea,
+[class*="bg-slate-900"] input,
+[class*="bg-slate-950"] input,
+[class*="bg-slate-900"] textarea,
+[class*="bg-slate-950"] textarea {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+.bg-slate-900 input::selection,
+.bg-slate-950 input::selection,
+.bg-slate-900 textarea::selection,
+.bg-slate-950 textarea::selection,
+[class*="bg-slate-900"] input::selection,
+[class*="bg-slate-950"] input::selection,
+[class*="bg-slate-900"] textarea::selection,
+[class*="bg-slate-950"] textarea::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+/* Light forms */
+.bg-white input,
+.bg-white textarea,
+.bg-slate-50 input,
+.bg-slate-50 textarea,
+.bg-slate-100 input,
+.bg-slate-100 textarea,
+[class*="bg-white"] input,
+[class*="bg-white"] textarea,
+[class*="bg-slate-50"] input,
+[class*="bg-slate-50"] textarea,
+[class*="bg-slate-100"] input,
+[class*="bg-slate-100"] textarea {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+.bg-white input::selection,
+.bg-white textarea::selection,
+.bg-slate-50 input::selection,
+.bg-slate-50 textarea::selection,
+.bg-slate-100 input::selection,
+.bg-slate-100 textarea::selection,
+[class*="bg-white"] input::selection,
+[class*="bg-white"] textarea::selection,
+[class*="bg-slate-50"] input::selection,
+[class*="bg-slate-50"] textarea::selection,
+[class*="bg-slate-100"] input::selection,
+[class*="bg-slate-100"] textarea::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
