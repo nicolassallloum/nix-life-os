@@ -11,7 +11,7 @@ class HealthSleepLog extends Model
     use HasFactory;
     use HasUuids;
 
-    protected $table = 'nix_life_os.health_sleep_logs';
+    protected $table = 'health_sleep_logs';
 
     protected $primaryKey = 'id';
 
@@ -32,9 +32,9 @@ class HealthSleepLog extends Model
     protected $casts = [
         'id' => 'string',
         'user_id' => 'string',
-        'sleep_date' => 'date',
-        'bed_time' => 'datetime',
-        'wake_time' => 'datetime',
+        'sleep_date' => 'date:Y-m-d',
+        'bed_time' => 'string',
+        'wake_time' => 'string',
         'duration_minutes' => 'integer',
         'quality_score' => 'integer',
         'created_at' => 'datetime',

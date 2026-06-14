@@ -11,7 +11,7 @@ class HealthMoodLog extends Model
     use HasFactory;
     use HasUuids;
 
-    protected $table = 'nix_life_os.health_mood_logs';
+    protected $table = 'health_mood_logs';
 
     protected $primaryKey = 'id';
 
@@ -31,7 +31,7 @@ class HealthMoodLog extends Model
     protected $casts = [
         'id' => 'string',
         'user_id' => 'string',
-        'mood_date' => 'date',
+        'mood_date' => 'date:Y-m-d',
         'mood_score' => 'integer',
         'tags' => 'array',
         'created_at' => 'datetime',

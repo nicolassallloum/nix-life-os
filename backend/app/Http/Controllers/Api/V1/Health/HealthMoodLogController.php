@@ -26,19 +26,31 @@ class HealthMoodLogController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'mood_date' => ['required', 'date'],
-            'mood_label' => ['required', 'string', 'max:50'],
-            'mood_score' => ['required', 'integer', 'min:1', 'max:10'],
+            'mood_date' => ['nullable', 'date'],
+            'log_date' => ['nullable', 'date'],
+            'entry_date' => ['nullable', 'date'],
+            'mood' => ['nullable', 'string', 'max:50'],
+            'mood_label' => ['nullable', 'string', 'max:50'],
+            'mood_score' => ['nullable', 'integer', 'min:1', 'max:10'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'tags' => ['nullable', 'array'],
             'tags.*' => ['nullable', 'string', 'max:50'],
         ]);
 
+        $moodDate = $validated['mood_date']
+            ?? $validated['log_date']
+            ?? $validated['entry_date']
+            ?? now()->toDateString();
+
+        $moodLabel = $validated['mood_label']
+            ?? $validated['mood']
+            ?? 'normal';
+
         $log = HealthMoodLog::create([
             'user_id' => Auth::id(),
-            'mood_date' => $validated['mood_date'],
-            'mood_label' => $validated['mood_label'],
-            'mood_score' => $validated['mood_score'],
+            'mood_date' => $moodDate,
+            'mood_label' => $moodLabel,
+            'mood_score' => $validated['mood_score'] ?? null,
             'notes' => $validated['notes'] ?? null,
             'tags' => $validated['tags'] ?? [],
         ]);
@@ -70,18 +82,32 @@ class HealthMoodLogController extends Controller
             ->firstOrFail();
 
         $validated = $request->validate([
-            'mood_date' => ['required', 'date'],
-            'mood_label' => ['required', 'string', 'max:50'],
-            'mood_score' => ['required', 'integer', 'min:1', 'max:10'],
+            'mood_date' => ['nullable', 'date'],
+            'log_date' => ['nullable', 'date'],
+            'entry_date' => ['nullable', 'date'],
+            'mood' => ['nullable', 'string', 'max:50'],
+            'mood_label' => ['nullable', 'string', 'max:50'],
+            'mood_score' => ['nullable', 'integer', 'min:1', 'max:10'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'tags' => ['nullable', 'array'],
             'tags.*' => ['nullable', 'string', 'max:50'],
         ]);
 
+        $moodDate = $validated['mood_date']
+            ?? $validated['log_date']
+            ?? $validated['entry_date']
+            ?? $log->mood_date
+            ?? now()->toDateString();
+
+        $moodLabel = $validated['mood_label']
+            ?? $validated['mood']
+            ?? $log->mood_label
+            ?? 'normal';
+
         $log->update([
-            'mood_date' => $validated['mood_date'],
-            'mood_label' => $validated['mood_label'],
-            'mood_score' => $validated['mood_score'],
+            'mood_date' => $moodDate,
+            'mood_label' => $moodLabel,
+            'mood_score' => $validated['mood_score'] ?? $log->mood_score,
             'notes' => $validated['notes'] ?? null,
             'tags' => $validated['tags'] ?? [],
         ]);

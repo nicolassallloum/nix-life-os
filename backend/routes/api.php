@@ -574,6 +574,8 @@ Route::prefix('v1')->group(function () {
         */
 
         Route::prefix('health')->group(function () {
+            Route::get('/reports', [HealthReportController::class, 'daily']);
+            Route::get('/reports/preview', [HealthReportController::class, 'exportPreview']);
             Route::get('/reports/daily', [HealthReportController::class, 'daily']);
             Route::get('/reports/weekly', [HealthReportController::class, 'weekly']);
             Route::get('/reports/monthly', [HealthReportController::class, 'monthly']);
