@@ -407,6 +407,33 @@ const filters = reactive({
   status: "",
 });
 
+
+function unwrapApiData(response) {
+  return response?.data ?? response ?? {}
+}
+
+function unwrapApiArray(response) {
+  const payload = unwrapApiData(response)
+  const data = payload?.data ?? payload
+
+  if (Array.isArray(data)) return data
+  if (Array.isArray(data?.data)) return data.data
+  if (Array.isArray(data?.medications)) return data.medications
+  if (Array.isArray(data?.schedule)) return data.schedule
+
+  return []
+}
+
+function getApiMessage(response, fallback = "Server error. Please try again later.") {
+  const payload = unwrapApiData(response)
+  return payload?.message || response?.message || fallback
+}
+
+function setUserError(err, fallback = "Server error. Please try again later.") {
+  error.value = err?.response?.data?.message || err?.message || fallback
+}
+
+
 const form = reactive({
   medication_name: "",
   dosage: "",
