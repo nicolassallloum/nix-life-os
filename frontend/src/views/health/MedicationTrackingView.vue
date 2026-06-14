@@ -545,17 +545,18 @@ function getMedicationTimes(medication) {
 }
 async function loadMedications() {
   loadingMedications.value = true;
+  clearMessages();
 
   try {
-    const params = {};
+    const response = await healthService.medications.list({
+      search: filters.search || undefined,
+      status: filters.status || undefined,
+    });
 
-    if (filters.search) params.search = filters.search;
-    if (filters.status) params.status = filters.status;
-
-    const response = await healthService.medications.list(params);
-    medications.value = getResponseData(response);
+    medications.value = unwrapApiArray(response);
   } catch (err) {
-    setError(getErrorMessage(err, "Failed to load medications."));
+    setUserError(err, "Failed to load medications.");
+    medications.value = [];
   } finally {
     loadingMedications.value = false;
   }
@@ -563,21 +564,38 @@ async function loadMedications() {
 
 async function loadTodaySchedule() {
   loadingToday.value = true;
+  error.value = "";
 
   try {
-    const response = await healthService.medications.today();
-    const data = response?.data?.data ?? {};
+    const response = await healthService.medicationReminders.today();
+    const payload = unwrapApiData(response);
+    const data = payload?.data ?? payload ?? {};
 
-    todayDoses.value = data.schedule ?? [];
+    todayDoses.value = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.schedule)
+        ? data.schedule
+        : Array.isArray(data?.data)
+          ? data.data
+          : [];
+
+    todaySummary.value = payload?.summary || data?.summary || {
+      pending: todayDoses.value.filter((dose) => dose.status === "pending").length,
+      taken: todayDoses.value.filter((dose) => dose.status === "taken").length,
+      late: todayDoses.value.filter((dose) => dose.status === "late").length,
+      missed: todayDoses.value.filter((dose) => dose.status === "missed").length,
+      skipped: todayDoses.value.filter((dose) => dose.status === "skipped").length,
+    };
+  } catch (err) {
+    setUserError(err, "Failed to load today’s medication schedule.");
+    todayDoses.value = [];
     todaySummary.value = {
-      pending: data.schedule_count ?? 0,
+      pending: 0,
       taken: 0,
       late: 0,
       missed: 0,
       skipped: 0,
     };
-  } catch (err) {
-    setError(getErrorMessage(err, "Failed to load today’s medication schedule."));
   } finally {
     loadingToday.value = false;
   }
@@ -756,10 +774,15 @@ async function markDoseSkipped(id) {
   }
 }
 
-function generateDoseMessage() {
-  setSuccess(
-    "Dose generation is handled by Laravel scheduler. For manual testing, run: php artisan medications:generate-doses"
-  );
+async function generateDoseMessage() {
+  generatingDoses.value = true;
+  try {
+    error.value = "";
+    successMessage.value = "Medication doses are created from reminders. Create reminders for a medication, then refresh today’s schedule.";
+    await loadTodaySchedule();
+  } finally {
+    generatingDoses.value = false;
+  }
 }
 
 function resetForm() {
