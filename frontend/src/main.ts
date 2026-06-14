@@ -6,6 +6,7 @@ import './assets/main.css'
 import './assets/css/nix-theme.css'
 import './assets/css/nix-components.css'
 import './assets/css/nix-layout.css'
+import './assets/nix-theme.css'
 // import { registerServiceWorker } from './registerServiceWorker'
 // import { registerSW } from 'virtual:pwa-register'
 
