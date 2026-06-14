@@ -252,7 +252,7 @@ const logout = async () => {
   isLoggingOut.value = true
 
   const token = getStoredToken()
-  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://api.nixlifeos.com/api/v1'
+  const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 
   try {
     if (token) {
