@@ -101,9 +101,32 @@
         <p>{{ alert.message }}</p>
 
         <div class="alert-actions">
-          <button @click="markAsRead(alert.id)">Read</button>
-          <button @click="resolveAlert(alert.id)">Resolve</button>
-          <button @click="dismissAlert(alert.id)">Dismiss</button>
+          <button
+            v-if="!alert.read_at"
+            class="action-btn read-btn"
+            type="button"
+            @click="markAsRead(alert.id)"
+          >
+            Mark Read
+          </button>
+
+          <button
+            v-if="alert.status === 'active'"
+            class="action-btn resolve-btn"
+            type="button"
+            @click="resolveAlert(alert.id)"
+          >
+            Resolve
+          </button>
+
+          <button
+            v-if="alert.status === 'active'"
+            class="action-btn dismiss-btn"
+            type="button"
+            @click="dismissAlert(alert.id)"
+          >
+            Dismiss
+          </button>
         </div>
       </article>
     </div>
