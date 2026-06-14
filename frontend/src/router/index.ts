@@ -717,7 +717,6 @@ const routes = [
     meta: {
       requiresAuth: true,
       requiresRole: 'admin',
-      permissions: ['users.view'],
       title: 'Users Management',
     },
   },
@@ -728,7 +727,6 @@ const routes = [
     meta: {
       requiresAuth: true,
       requiresRole: 'admin',
-      permissions: ['users.view'],
       title: 'Admin Users',
     },
   },
