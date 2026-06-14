@@ -333,7 +333,7 @@ Route::prefix('v1')->group(function () {
             Route::patch('/{project}/goals/{goal}', [ProjectGoalController::class, 'update']);
             Route::delete('/{project}/goals/{goal}', [ProjectGoalController::class, 'destroy']);
 
-            Route::get('/{project}/tasks', [ProjectTaskController::class, 'index']);
+            Route::get('/{project}/tasks', [ProjectTaskController::class, 'byProject']);
             Route::post('/{project}/tasks', [ProjectTaskController::class, 'store']);
 
             Route::get('/{project}/tasks/{task}/steps', [ProjectTaskStepController::class, 'index']);
