@@ -155,7 +155,7 @@ const login = async () => {
 
   const apiBaseUrl =
     import.meta.env.VITE_API_BASE_URL ||
-    'https://api.nixlifeos.com/api/v1'
+    '/api/v1'
 
   try {
     clearOldAuth()
