@@ -376,4 +376,52 @@ onMounted(async () => {
   border-radius: 8px;
   cursor: pointer;
 }
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 92px;
+  min-height: 38px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  white-space: nowrap;
+  color: #ffffff !important;
+  background: #334155;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
+}
+
+.action-btn:hover {
+  filter: brightness(0.96);
+}
+
+.action-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.read-btn,
+.neutral-btn {
+  background: #2563eb !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+.resolve-btn {
+  background: #16a34a !important;
+  border-color: #15803d !important;
+  color: #ffffff !important;
+}
+
+.dismiss-btn {
+  background: #f59e0b !important;
+  border-color: #d97706 !important;
+  color: #111827 !important;
+}
+
 </style>
