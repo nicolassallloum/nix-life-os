@@ -8,6 +8,8 @@ use App\Models\HealthWeightLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class HealthWeightLogController extends Controller
 {
@@ -58,6 +60,8 @@ class HealthWeightLogController extends Controller
 
         $user = $request->user();
 
+        $bmi = $request->bmi ?? $this->calculateBmiForUser($user, $request->weight_kg);
+
         $log = HealthWeightLog::updateOrCreate(
             [
                 'user_id' => $user->id,
@@ -67,7 +71,7 @@ class HealthWeightLogController extends Controller
                 'weight_kg' => $request->weight_kg,
                 'body_fat_percentage' => $request->body_fat_percentage ?? $request->body_fat_percent,
                 'muscle_mass_kg' => $request->muscle_mass_kg,
-                'bmi' => $request->bmi,
+                'bmi' => $bmi,
                 'notes' => $request->notes,
             ]
         );
@@ -138,6 +142,10 @@ class HealthWeightLogController extends Controller
 
         unset($payload['body_fat_percent']);
 
+        if (!array_key_exists('bmi', $payload) && array_key_exists('weight_kg', $payload)) {
+            $payload['bmi'] = $this->calculateBmiForUser($request->user(), $payload['weight_kg']);
+        }
+
         $log->update($payload);
 
         return response()->json([
@@ -166,6 +174,76 @@ class HealthWeightLogController extends Controller
             'success' => true,
             'message' => 'Weight log deleted successfully.',
         ]);
+    }
+
+    private function calculateBmiForUser($user, $weightKg): ?float
+    {
+        if (!$weightKg || (float) $weightKg <= 0) {
+            return null;
+        }
+
+        $heightCm = null;
+
+        $candidateTables = [
+            'health_profiles',
+            'user_profiles',
+            'profiles',
+            'health_user_profiles',
+            'users',
+        ];
+
+        $candidateColumns = [
+            'height_cm',
+            'height',
+            'user_height_cm',
+            'height_in_cm',
+        ];
+
+        foreach ($candidateTables as $table) {
+            if (!Schema::hasTable($table) || !Schema::hasColumn($table, 'user_id')) {
+                if ($table !== 'users') {
+                    continue;
+                }
+            }
+
+            foreach ($candidateColumns as $column) {
+                if (!Schema::hasColumn($table, $column)) {
+                    continue;
+                }
+
+                $query = DB::table($table);
+
+                if ($table === 'users') {
+                    $query->where('id', $user->id);
+                } else {
+                    $query->where('user_id', $user->id);
+                }
+
+                $value = $query->value($column);
+
+                if ($value !== null && (float) $value > 0) {
+                    $heightCm = (float) $value;
+                    break 2;
+                }
+            }
+        }
+
+        if (!$heightCm || $heightCm <= 0) {
+            return null;
+        }
+
+        // If height was saved in meters, convert to centimeters.
+        if ($heightCm > 0 && $heightCm < 3) {
+            $heightCm = $heightCm * 100;
+        }
+
+        $heightM = $heightCm / 100;
+
+        if ($heightM <= 0) {
+            return null;
+        }
+
+        return round(((float) $weightKg) / ($heightM * $heightM), 1);
     }
 
     public function summary(Request $request): JsonResponse

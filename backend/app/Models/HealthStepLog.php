@@ -23,7 +23,7 @@ class HealthStepLog extends Model
     ];
 
     protected $casts = [
-        'log_date' => 'date',
+        'log_date' => 'date:Y-m-d',
         'steps' => 'integer',
         'kilometers' => 'decimal:2',
         'calories_burned' => 'integer',

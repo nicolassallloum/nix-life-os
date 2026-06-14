@@ -665,6 +665,15 @@ Route::prefix('v1')->group(function () {
             Route::patch('/weight/{id}', [HealthWeightLogController::class, 'update'])->whereNumber('id');
             Route::delete('/weight/{id}', [HealthWeightLogController::class, 'destroy'])->whereNumber('id');
 
+            Route::get('/nutrition/profile', [\App\Http\Controllers\Api\V1\Health\HealthNutritionProfileController::class, 'index']);
+            Route::post('/nutrition/profile', [\App\Http\Controllers\Api\V1\Health\HealthNutritionProfileController::class, 'store']);
+
+            Route::get('/nutrition/foods', [\App\Http\Controllers\Api\V1\Health\HealthFoodItemController::class, 'index']);
+            Route::post('/nutrition/foods', [\App\Http\Controllers\Api\V1\Health\HealthFoodItemController::class, 'store']);
+            Route::get('/food-items', [\App\Http\Controllers\Api\V1\Health\HealthFoodItemController::class, 'index']);
+            Route::post('/food-items', [\App\Http\Controllers\Api\V1\Health\HealthFoodItemController::class, 'store']);
+            Route::get('/foods', [\App\Http\Controllers\Api\V1\Health\HealthFoodItemController::class, 'index']);
+
             Route::get('/nutrition/summary', [HealthNutritionLogController::class, 'summary']);
             Route::get('/nutrition', [HealthNutritionLogController::class, 'index']);
             Route::post('/nutrition', [HealthNutritionLogController::class, 'store']);
