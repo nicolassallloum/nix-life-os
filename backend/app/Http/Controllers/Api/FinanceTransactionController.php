@@ -14,6 +14,52 @@ class FinanceTransactionController extends Controller
 {
     private array $types = ['income', 'expense', 'transfer'];
 
+
+    public function summary(Request $request): JsonResponse
+    {
+        $userId = $request->user()->id;
+
+        $base = DB::table('finance_transactions')
+            ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $userId));
+
+        $income = (clone $base)
+            ->where('transaction_type', 'income')
+            ->sum('amount');
+
+        $expenses = (clone $base)
+            ->where('transaction_type', 'expense')
+            ->sum('amount');
+
+        $transfers = (clone $base)
+            ->where('transaction_type', 'transfer')
+            ->sum('amount');
+
+        $transactionCount = (clone $base)->count();
+
+        $accountBalance = DB::table('finance_accounts')
+            ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $userId))
+            ->sum('current_balance');
+
+        $savingRate = (float) $income > 0
+            ? round((((float) $income - (float) $expenses) / (float) $income) * 100, 2)
+            : 0;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Finance summary loaded successfully.',
+            'data' => [
+                'total_income' => number_format((float) $income, 2, '.', ''),
+                'total_expenses' => number_format((float) $expenses, 2, '.', ''),
+                'total_expense' => number_format((float) $expenses, 2, '.', ''),
+                'total_transfers' => number_format((float) $transfers, 2, '.', ''),
+                'net_balance' => number_format((float) $income - (float) $expenses, 2, '.', ''),
+                'account_balance' => number_format((float) $accountBalance, 2, '.', ''),
+                'saving_rate' => $savingRate,
+                'transaction_count' => $transactionCount,
+            ],
+        ]);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $query = DB::table('finance_transactions')
@@ -76,6 +122,17 @@ class FinanceTransactionController extends Controller
             $validated['transfer_account_id'] = null;
         }
 
+        if (! empty($validated['category_id']) && empty($validated['category'])) {
+            $categoryName = DB::table('finance_categories')
+                ->where('id', $validated['category_id'])
+                ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $request->user()->id))
+                ->value('name');
+
+            if ($categoryName) {
+                $validated['category'] = $categoryName;
+            }
+        }
+
         $id = (string) Str::uuid();
         $now = now();
 
@@ -95,7 +152,9 @@ class FinanceTransactionController extends Controller
                 'notes' => $validated['notes'] ?? null,
                 'metadata_json' => $validated['metadata_json'] ?? null,
                 'transfer_account_id' => $validated['transfer_account_id'] ?? null,
-                'category_id' => $validated['category_id'] ?? null,
+                'category_id' => (! empty($validated['category_id']) && Str::isUuid((string) $validated['category_id']))
+                    ? $validated['category_id']
+                    : null,
                 'reference_no' => $validated['reference_no'] ?? null,
                 'created_at' => $now,
                 'updated_at' => $now,
@@ -154,6 +213,17 @@ class FinanceTransactionController extends Controller
         $data = $this->normalizePayload($request);
         $validated = validator($data, $this->rules(true))->validate();
 
+        if (! empty($validated['category_id']) && empty($validated['category'])) {
+            $categoryName = DB::table('finance_categories')
+                ->where('id', $validated['category_id'])
+                ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $request->user()->id))
+                ->value('name');
+
+            if ($categoryName) {
+                $validated['category'] = $categoryName;
+            }
+        }
+
         $account = ! empty($validated['account_id'])
             ? $this->findUserAccount($request, $validated['account_id'])
             : $this->findUserAccount($request, $transaction->account_id);
@@ -203,7 +273,9 @@ class FinanceTransactionController extends Controller
                 'notes' => array_key_exists('notes', $validated) ? $validated['notes'] : ($transaction->notes ?? null),
                 'metadata_json' => $validated['metadata_json'] ?? ($transaction->metadata_json ?? null),
                 'transfer_account_id' => $newTransferAccountId,
-                'category_id' => $validated['category_id'] ?? ($transaction->category_id ?? null),
+                'category_id' => (! empty($validated['category_id']) && Str::isUuid((string) $validated['category_id']))
+                    ? $validated['category_id']
+                    : ($transaction->category_id ?? null),
                 'reference_no' => $validated['reference_no'] ?? ($transaction->reference_no ?? null),
                 'updated_at' => now(),
             ]);
@@ -295,7 +367,7 @@ class FinanceTransactionController extends Controller
             'notes' => ['nullable', 'string'],
             'metadata_json' => ['nullable', 'array'],
             'transfer_account_id' => ['nullable', 'uuid'],
-            'category_id' => ['nullable', 'uuid'],
+            'category_id' => ['nullable'],
             'reference_no' => ['nullable', 'string', 'max:255'],
         ];
     }

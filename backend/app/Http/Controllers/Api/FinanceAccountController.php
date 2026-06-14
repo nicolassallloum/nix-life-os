@@ -201,6 +201,7 @@ class FinanceAccountController extends Controller
             'currency_code' => $account->currency_code ?? null,
             'opening_balance' => $account->opening_balance ?? 0,
             'current_balance' => $account->current_balance ?? 0,
+            'balance' => $account->current_balance ?? 0,
             'description' => $account->description ?? null,
             'notes' => $account->notes ?? null,
             'is_active' => (bool) ($account->is_active ?? true),

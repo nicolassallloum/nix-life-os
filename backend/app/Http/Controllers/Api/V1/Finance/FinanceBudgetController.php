@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1\Finance;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Finance\StoreFinanceBudgetRequest;
 use App\Models\FinanceBudget;
 use App\Models\FinanceBudgetLine;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +12,72 @@ use Illuminate\Support\Str;
 
 class FinanceBudgetController extends Controller
 {
+
+    private function normalizeBudgetPayload(Request $request): array
+    {
+        $data = $request->all();
+        $rawJson = json_decode($request->getContent() ?: '{}', true);
+
+        if (is_array($rawJson)) {
+            $data = array_merge($rawJson, $data);
+        }
+
+        $budgetName = $data['budget_name'] ?? $data['name'] ?? 'Untitled Budget';
+        $category = $data['category'] ?? 'General';
+        $amount = $data['budget_amount'] ?? $data['planned_amount'] ?? $data['amount'] ?? 0;
+        $spent = $data['spent_amount'] ?? $data['actual_amount'] ?? 0;
+
+        if (empty($data['budget_month']) && ! empty($data['start_date'])) {
+            $data['budget_month'] = substr((string) $data['start_date'], 0, 7);
+        }
+
+        if (empty($data['budget_month'])) {
+            $data['budget_month'] = now()->format('Y-m');
+        }
+
+        $data['budget_name'] = $budgetName;
+        $data['category'] = $category;
+        $data['budget_amount'] = $amount;
+        $data['spent_amount'] = $spent;
+        $data['currency_code'] = strtoupper($data['currency_code'] ?? $data['currency'] ?? 'USD');
+        $data['is_active'] = array_key_exists('is_active', $data) ? (bool) $data['is_active'] : true;
+
+        if (empty($data['lines']) || ! is_array($data['lines'])) {
+            $data['lines'] = [[
+                'account_id' => $data['account_id'] ?? null,
+                'category_id' => $data['category_id'] ?? null,
+                'category' => $category,
+                'planned_amount' => $amount,
+                'actual_amount' => $spent,
+                'spent_amount' => $spent,
+                'notes' => $data['notes'] ?? null,
+                'line_notes' => $data['line_notes'] ?? null,
+            ]];
+        }
+
+        return validator($data, [
+            'budget_name' => ['required', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:255'],
+            'budget_month' => ['required', 'string', 'max:20'],
+            'currency_code' => ['required', 'string', 'min:3', 'max:10'],
+            'is_active' => ['nullable', 'boolean'],
+            'notes' => ['nullable', 'string'],
+            'metadata_json' => ['nullable', 'array'],
+            'lines' => ['required', 'array', 'min:1'],
+            'lines.*.account_id' => ['nullable', 'uuid'],
+            'lines.*.category_id' => ['nullable'],
+            'lines.*.category' => ['nullable', 'string', 'max:255'],
+            'lines.*.planned_amount' => ['required', 'numeric', 'min:0'],
+            'lines.*.actual_amount' => ['nullable', 'numeric', 'min:0'],
+            'lines.*.spent_amount' => ['nullable', 'numeric', 'min:0'],
+            'lines.*.warning_percentage' => ['nullable', 'numeric', 'min:0'],
+            'lines.*.exceeded_percentage' => ['nullable', 'numeric', 'min:0'],
+            'lines.*.notes' => ['nullable', 'string'],
+            'lines.*.line_notes' => ['nullable', 'string'],
+            'lines.*.metadata_json' => ['nullable', 'array'],
+        ])->validate();
+    }
+
     public function index(Request $request): JsonResponse
     {
         $userId = $request->user()->id;
@@ -59,10 +124,10 @@ class FinanceBudgetController extends Controller
         ]);
     }
 
-    public function store(StoreFinanceBudgetRequest $request): JsonResponse
+    public function store(Request $request): JsonResponse
     {
         $userId = $request->user()->id;
-        $validated = $request->validated();
+        $validated = $this->normalizeBudgetPayload($request);
 
         $budget = DB::transaction(function () use ($validated, $userId) {
             $lines = $validated['lines'];
@@ -91,7 +156,9 @@ class FinanceBudgetController extends Controller
                     'budget_id' => $budget->id,
                     'user_id' => $userId,
                     'account_id' => $line['account_id'] ?? null,
-                    'category_id' => $line['category_id'] ?? null,
+                    'category_id' => (! empty($line['category_id']) && Str::isUuid((string) $line['category_id']))
+                        ? $line['category_id']
+                        : null,
                     'category' => $line['category'] ?? $mainCategory,
                     'planned_amount' => $line['planned_amount'],
                     'actual_amount' => $line['actual_amount'] ?? 0,
@@ -136,10 +203,10 @@ class FinanceBudgetController extends Controller
         ]);
     }
 
-    public function update(StoreFinanceBudgetRequest $request, string $id): JsonResponse
+    public function update(Request $request, string $id): JsonResponse
     {
         $userId = $request->user()->id;
-        $validated = $request->validated();
+        $validated = $this->normalizeBudgetPayload($request);
 
         $budget = DB::transaction(function () use ($id, $userId, $validated) {
             $budget = FinanceBudget::query()
@@ -179,7 +246,9 @@ class FinanceBudgetController extends Controller
                     'budget_id' => $budget->id,
                     'user_id' => $userId,
                     'account_id' => $line['account_id'] ?? null,
-                    'category_id' => $line['category_id'] ?? null,
+                    'category_id' => (! empty($line['category_id']) && Str::isUuid((string) $line['category_id']))
+                        ? $line['category_id']
+                        : null,
                     'category' => $line['category'] ?? $mainCategory,
                     'planned_amount' => $line['planned_amount'],
                     'actual_amount' => $line['actual_amount'] ?? 0,

@@ -117,6 +117,7 @@
                 <th class="py-3 pr-4">Date</th>
                 <th class="py-3 pr-4">Category</th>
                 <th class="py-3 pr-4">Account</th>
+                <th class="py-3 pr-4">Description</th>
                 <th class="py-3 pr-4">Type</th>
                 <th class="py-3 pr-4 text-right">Amount</th>
                 <th class="py-3 pr-4">Status</th>
@@ -140,6 +141,10 @@
 
                 <td class="py-3 pr-4 text-slate-700">
                   {{ getAccountName(transaction) }}
+                </td>
+
+                <td class="py-3 pr-4 text-slate-700">
+                  {{ transaction.description || transaction.notes || '—' }}
                 </td>
 
                 <td class="py-3 pr-4">
@@ -276,31 +281,13 @@
               class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
               <option value="">Select category</option>
-
-              <template v-if="form.type === 'income'">
-                <option value="Salary">Salary</option>
-                <option value="Freelance">Freelance</option>
-                <option value="Bonus">Bonus</option>
-                <option value="Investment">Investment</option>
-                <option value="Other Income">Other Income</option>
-              </template>
-
-              <template v-else-if="form.type === 'expense'">
-                <option value="Food">Food</option>
-                <option value="Restaurants">Restaurants</option>
-                <option value="Groceries">Groceries</option>
-                <option value="Transport">Transport</option>
-                <option value="Bills">Bills</option>
-                <option value="Health">Health</option>
-                <option value="Shopping">Shopping</option>
-                <option value="Other Expense">Other Expense</option>
-              </template>
-
-              <template v-else>
-                <option value="Savings Transfer">Savings Transfer</option>
-                <option value="Account Transfer">Account Transfer</option>
-                <option value="Other Transfer">Other Transfer</option>
-              </template>
+              <option
+                v-for="category in filteredCategories"
+                :key="category.id || category.category_id"
+                :value="category.name || category.category_name"
+              >
+                {{ category.name || category.category_name }}
+              </option>
             </select>
           </div>
 
@@ -377,6 +364,7 @@ const successMessage = ref("");
 
 const accounts = ref([]);
 const transactions = ref([]);
+const categories = ref([]);
 const editingId = ref(null);
 
 const filters = reactive({
@@ -472,6 +460,20 @@ const getAccountCurrency = (account) => {
     "USD"
   );
 };
+
+
+const filteredCategories = computed(() => {
+  if (form.type === "transfer") {
+    return [];
+  }
+
+  return categories.value.filter((category) => {
+    const status = String(category.status || "active").toLowerCase();
+    const type = String(category.type || category.category_type || "").toLowerCase();
+
+    return status === "active" && type === form.type;
+  });
+});
 
 const destinationAccounts = computed(() => {
   return accounts.value.filter(
