@@ -624,6 +624,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/lab-tests/trends', [HealthLabTestController::class, 'trends']);
             Route::get('/lab-tests', [HealthLabTestController::class, 'index']);
             Route::post('/lab-tests', [HealthLabTestController::class, 'store']);
+            Route::post('/lab-tests/upload', [HealthLabTestController::class, 'store']);
+            Route::post('/lab-tests/{id}/extract', [HealthLabTestController::class, 'extract']);
+            Route::get('/lab-tests/{id}/preview', [HealthLabTestController::class, 'preview']);
+            Route::post('/lab-tests/{id}/approve', [HealthLabTestController::class, 'approve']);
             Route::get('/lab-tests/{id}', [HealthLabTestController::class, 'show']);
             Route::put('/lab-tests/{id}', [HealthLabTestController::class, 'update']);
             Route::patch('/lab-tests/{id}', [HealthLabTestController::class, 'update']);

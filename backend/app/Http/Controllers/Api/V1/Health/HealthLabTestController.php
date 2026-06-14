@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Api\V1\Health;
 
 use App\Http\Controllers\Controller;
 use App\Models\HealthLabTest;
+use App\Models\HealthLabTestResult;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\Response;
 
 class HealthLabTestController extends Controller
 {
@@ -85,35 +89,226 @@ class HealthLabTestController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
-        $validated = $this->validateLabTest($request);
+        $validated = $request->validate([
+            'category_id' => ['nullable'],
+            'category' => ['nullable', 'string', 'max:255'],
+            'test_name' => ['nullable', 'string', 'max:255'],
+            'test_date' => ['nullable', 'date'],
+            'lab_name' => ['nullable', 'string', 'max:255'],
+            'doctor_name' => ['nullable', 'string', 'max:255'],
+            'doctor_notes' => ['nullable', 'string'],
+            'notes' => ['nullable', 'string'],
+            'result_value' => ['nullable', 'numeric'],
+            'unit' => ['nullable', 'string', 'max:50'],
+            'reference_range' => ['nullable', 'string', 'max:255'],
+            'file' => ['nullable', 'file', 'max:10240', 'mimes:pdf,jpg,jpeg,png,webp'],
+        ]);
 
-        $validated['user_id'] = $request->user()->id;
-        $validated['test_name'] = $validated['test_name'] ?? 'CKD Blood Test Panel';
-        $validated['category'] = $validated['category'] ?? 'kidney';
-        $validated['source_type'] = $validated['source_type'] ?? 'manual';
+        $file = $request->file('file');
+        $path = null;
+        $mimeType = null;
 
-        $previous = $this->findPreviousResult($request, $validated);
-
-        if ($previous) {
-            $validated['previous_result_id'] = $previous->id;
-            $validated['comparison_status'] = $this->buildComparisonStatus($validated, $previous);
+        if ($file) {
+            $path = $file->store('health/lab-tests', 'public');
+            $mimeType = $file->getClientMimeType();
         }
 
-        $abnormal = $this->detectAbnormalResultFromArray($validated);
-        $validated['is_abnormal'] = $abnormal['is_abnormal'];
-        $validated['abnormal_reason'] = $abnormal['reason'];
+        $testName = $validated['test_name']
+            ?? ($file ? pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) : null)
+            ?? 'Uploaded Lab Test';
 
-        $labTest = HealthLabTest::create($validated);
+        $category = $validated['category'] ?? 'general';
+
+        $payload = [
+            'user_id' => $request->user()->id,
+            'test_name' => $testName,
+            'test_date' => $validated['test_date'] ?? now()->toDateString(),
+            'result_value' => $validated['result_value'] ?? 0,
+            'unit' => $validated['unit'] ?? '',
+            'reference_range' => $validated['reference_range'] ?? null,
+            'lab_name' => $validated['lab_name'] ?? null,
+            'doctor_name' => $validated['doctor_name'] ?? null,
+            'doctor_notes' => $validated['doctor_notes'] ?? null,
+            'notes' => $validated['notes'] ?? null,
+            'category' => $category,
+            'category_id' => is_numeric($validated['category_id'] ?? null) ? (int) $validated['category_id'] : null,
+            'source_type' => $file ? 'upload' : 'manual',
+            'attachment_path' => $path,
+            'file_path' => $path,
+            'file_type' => $mimeType,
+            'status' => 'normal',
+            'ai_status' => $file ? 'uploaded' : 'approved',
+            'is_abnormal' => false,
+            'extracted_payload' => [
+                'source' => $file ? 'uploaded_file' : 'manual_entry',
+                'message' => $file
+                    ? 'File uploaded successfully. Please review values before approval.'
+                    : 'Manual lab test saved.',
+                'results' => [],
+            ],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+
+        $columns = \Illuminate\Support\Facades\Schema::getColumnListing('health_lab_tests');
+        $payload = collect($payload)
+            ->filter(fn ($value, $column) => in_array($column, $columns, true))
+            ->all();
+
+        if (isset($payload['extracted_payload']) && is_array($payload['extracted_payload'])) {
+            $payload['extracted_payload'] = json_encode($payload['extracted_payload']);
+        }
+
+        $id = DB::table('health_lab_tests')->insertGetId($payload);
+
+        $labTest = HealthLabTest::query()
+            ->where('user_id', $request->user()->id)
+            ->with(['category', 'results'])
+            ->find($id);
 
         return response()->json([
             'success' => true,
-            'message' => 'Lab test created successfully.',
+            'message' => $file
+                ? 'Lab test uploaded successfully. Review is still required before saving final results.'
+                : 'Lab test saved successfully.',
             'data' => $labTest,
-            'warnings' => $this->buildKidneyWarnings($labTest),
-        ], 201);
+        ], Response::HTTP_CREATED);
     }
+
+    public function upload(Request $request)
+    {
+        return $this->store($request);
+    }
+
+    public function extract(Request $request, int $id)
+    {
+        $labTest = $this->findUserLabTest($request, $id);
+
+        $draftResults = data_get($labTest->extracted_payload, 'results', []);
+
+        if (empty($draftResults)) {
+            $draftResults = [[
+                'test_name' => $labTest->test_name ?: '',
+                'result_value' => $labTest->result_value,
+                'unit' => $labTest->unit ?: '',
+                'reference_min' => null,
+                'reference_max' => null,
+                'reference_text' => $labTest->reference_range ?: '',
+                'status' => 'pending_review',
+                'result_date' => optional($labTest->test_date)->toDateString() ?? now()->toDateString(),
+                'doctor_name' => $labTest->doctor_name,
+                'ai_confidence' => 0,
+            ]];
+        }
+
+        $labTest->update([
+            'ai_status' => 'pending_review',
+            'extracted_payload' => [
+                'source' => 'manual_placeholder',
+                'message' => 'OCR/AI extraction is not enabled yet. Please manually review/edit values before approval.',
+                'results' => $draftResults,
+            ],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Extraction placeholder created. Please review and edit values before approval.',
+            'data' => $labTest->fresh()->load(['category', 'results']),
+        ]);
+    }
+
+    public function preview(Request $request, int $id)
+    {
+        $labTest = $this->findUserLabTest($request, $id);
+
+        $path = $labTest->file_path ?: $labTest->attachment_path;
+
+        if (!$path || !Storage::disk('public')->exists($path)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'File not found.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        return response()->file(Storage::disk('public')->path($path), [
+            'Content-Type' => $labTest->file_type ?: 'application/octet-stream',
+            'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
+        ]);
+    }
+
+    public function approve(Request $request, int $id)
+    {
+        $labTest = $this->findUserLabTest($request, $id);
+
+        $validated = $request->validate([
+            'results' => ['required', 'array', 'min:1'],
+            'results.*.test_name' => ['required', 'string', 'max:255'],
+            'results.*.result_value' => ['nullable', 'numeric'],
+            'results.*.unit' => ['nullable', 'string', 'max:50'],
+            'results.*.reference_min' => ['nullable', 'numeric'],
+            'results.*.reference_max' => ['nullable', 'numeric'],
+            'results.*.reference_text' => ['nullable', 'string'],
+            'results.*.status' => ['nullable', 'string', 'max:50'],
+            'results.*.result_date' => ['nullable', 'date'],
+            'results.*.doctor_name' => ['nullable', 'string', 'max:255'],
+            'results.*.ai_confidence' => ['nullable', 'integer', 'min:0', 'max:100'],
+        ]);
+
+        DB::transaction(function () use ($labTest, $validated) {
+            if (\Illuminate\Support\Facades\Schema::hasTable('health_lab_test_results')) {
+                HealthLabTestResult::where('lab_test_id', $labTest->id)->delete();
+
+                foreach ($validated['results'] as $row) {
+                    HealthLabTestResult::create([
+                        'lab_test_id' => $labTest->id,
+                        'test_name' => $row['test_name'],
+                        'result_value' => $row['result_value'] ?? null,
+                        'unit' => $row['unit'] ?? null,
+                        'reference_min' => $row['reference_min'] ?? null,
+                        'reference_max' => $row['reference_max'] ?? null,
+                        'reference_text' => $row['reference_text'] ?? null,
+                        'status' => $row['status'] ?? 'approved',
+                        'result_date' => $row['result_date'] ?? optional($labTest->test_date)->toDateString(),
+                        'doctor_name' => $row['doctor_name'] ?? $labTest->doctor_name,
+                        'ai_confidence' => $row['ai_confidence'] ?? 0,
+                        'user_approved' => true,
+                    ]);
+                }
+            }
+
+            $first = $validated['results'][0];
+
+            $labTest->update([
+                'test_name' => $first['test_name'] ?? $labTest->test_name,
+                'result_value' => $first['result_value'] ?? $labTest->result_value,
+                'unit' => $first['unit'] ?? $labTest->unit,
+                'reference_range' => $first['reference_text'] ?? $labTest->reference_range,
+                'ai_status' => 'approved',
+                'approved_at' => now(),
+                'extracted_payload' => [
+                    'source' => 'user_approved',
+                    'results' => $validated['results'],
+                ],
+            ]);
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lab test results approved and saved.',
+            'data' => $labTest->fresh()->load(['category', 'results']),
+        ]);
+    }
+
+    private function findUserLabTest(Request $request, int $id): HealthLabTest
+    {
+        return HealthLabTest::query()
+            ->where('user_id', $request->user()->id)
+            ->with(['category', 'results'])
+            ->findOrFail($id);
+    }
+
 
     public function show(Request $request, string $id): JsonResponse
     {
