@@ -17,8 +17,12 @@
         Category
         <select v-model="form.category_id">
           <option value="">Select Category</option>
-          <option v-for="category in categories" :key="category.id" :value="category.id">
-            {{ category.name }}
+          <option
+            v-for="category in categories"
+            :key="category.id || category.key || category.name"
+            :value="category.id || category.key || category.name"
+          >
+            {{ category.name || category.key }}
           </option>
         </select>
       </label>
@@ -93,12 +97,16 @@ function handleFile(event: Event) {
 }
 
 async function loadCategories() {
-  const response = await fetch(`${API_BASE_URL}/health/lab-tests`, {
-    headers: authHeaders(),
-  })
+  try {
+    const response = await fetch(`${API_BASE_URL}/health/lab-tests/categories`, {
+      headers: authHeaders(),
+    })
 
-  const payload = await response.json()
-  categories.value = payload.categories || []
+    const payload = await response.json()
+    categories.value = Array.isArray(payload.data) ? payload.data : []
+  } catch {
+    categories.value = []
+  }
 }
 
 async function submitUpload() {

@@ -19,8 +19,12 @@
         Category
         <select v-model="filters.category_id" @change="loadLabTests">
           <option value="">All Categories</option>
-          <option v-for="category in categories" :key="category.id" :value="category.id">
-            {{ category.name }}
+          <option
+            v-for="category in categories"
+            :key="category.id || category.key || category.name"
+            :value="category.id || category.key || category.name"
+          >
+            {{ category.name || category.key }}
           </option>
         </select>
       </label>
@@ -42,7 +46,7 @@
     <div v-else class="tests-grid">
       <article v-for="test in labTests" :key="test.id" class="test-card">
         <div class="card-top">
-          <span class="badge">{{ test.category?.name || 'Uncategorized' }}</span>
+          <span class="badge">{{ getLabCategoryName(test) }}</span>
           <span class="status" :class="test.ai_status">{{ formatStatus(test.ai_status) }}</span>
         </div>
 
@@ -112,6 +116,34 @@ function formatStatus(value: string) {
   return String(value || 'uploaded').replaceAll('_', ' ')
 }
 
+function getLabCategoryName(test: any) {
+  if (test?.category?.name) return test.category.name
+  if (typeof test?.category === 'string' && test.category) return test.category
+  if (test?.category_id) {
+    const matched = categories.value.find((category: any) => {
+      return String(category.id || category.key || category.name) === String(test.category_id)
+    })
+    return matched?.name || matched?.key || 'General'
+  }
+  return 'General'
+}
+
+async function loadCategories() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/health/lab-tests/categories`, {
+      headers: authHeaders(),
+    })
+
+    const payload = await response.json()
+
+    if (response.ok && payload.success !== false) {
+      categories.value = Array.isArray(payload.data) ? payload.data : []
+    }
+  } catch {
+    categories.value = categories.value || []
+  }
+}
+
 async function loadLabTests() {
   loading.value = true
   error.value = ''
@@ -133,7 +165,6 @@ async function loadLabTests() {
     }
 
     labTests.value = payload.data?.data || payload.data || []
-    categories.value = payload.categories || categories.value || []
   } catch (err: any) {
     error.value = err.message || 'Failed to load lab tests.'
   } finally {
@@ -162,7 +193,10 @@ async function extract(id: number) {
   }
 }
 
-onMounted(loadLabTests)
+onMounted(async () => {
+  await loadCategories()
+  await loadLabTests()
+})
 </script>
 
 <style scoped>

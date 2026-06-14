@@ -245,7 +245,6 @@ async function saveCategory() {
     saving.value = false
   }
 }
-</script>
-
 
 onMounted(loadCategories)
+</script>
