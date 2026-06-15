@@ -1,5 +1,5 @@
 <template>
-  <div class="medication-page">
+  <div class="medication-input-page medication-page">
     <div class="page-header">
       <div>
         <h1>Medication Tracking</h1>
@@ -1214,4 +1214,54 @@ function formatDateTime(value) {
     align-items: stretch;
   }
 }
+
+/* Phase 13F: medication component input readability */
+.medication-input-page input,
+.medication-input-page textarea,
+.medication-input-page select,
+.medication-input-page input:disabled,
+.medication-input-page textarea:disabled,
+.medication-input-page select:disabled,
+.medication-input-page input[readonly],
+.medication-input-page textarea[readonly],
+.medication-input-page select[readonly] {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  opacity: 1 !important;
+}
+
+.medication-input-page input,
+.medication-input-page textarea {
+  background-color: #ffffff !important;
+  caret-color: #2563eb !important;
+}
+
+.medication-input-page select {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+.medication-input-page input::placeholder,
+.medication-input-page textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.medication-input-page input::selection,
+.medication-input-page textarea::selection,
+.medication-input-page select::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+.medication-input-page input::-moz-selection,
+.medication-input-page textarea::-moz-selection,
+.medication-input-page select::-moz-selection {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
 </style>
