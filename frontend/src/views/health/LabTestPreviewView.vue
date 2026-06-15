@@ -42,7 +42,7 @@
         </div>
       </div>
 
-      <div class="review-card">
+      <div class="review-card lab-preview-card">
         <div class="review-header">
           <div>
             <h2>Review Values</h2>
@@ -455,4 +455,43 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+/* Phase 13E: component-level lab preview input readability */
+.lab-preview-card input,
+.lab-preview-card textarea,
+.lab-preview-card select,
+.lab-preview-card input:disabled,
+.lab-preview-card textarea:disabled,
+.lab-preview-card select:disabled,
+.lab-preview-card input[readonly],
+.lab-preview-card textarea[readonly],
+.lab-preview-card select[readonly] {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  opacity: 1 !important;
+  background-color: #ffffff !important;
+}
+
+.lab-preview-card input::placeholder,
+.lab-preview-card textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.lab-preview-card input::selection,
+.lab-preview-card textarea::selection,
+.lab-preview-card select::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+.lab-preview-card input::-moz-selection,
+.lab-preview-card textarea::-moz-selection,
+.lab-preview-card select::-moz-selection {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
 </style>
