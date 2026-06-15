@@ -42,7 +42,7 @@
         </div>
       </div>
 
-      <div class="review-card">
+      <div class="review-card lab-preview-card">
         <div class="review-header">
           <div>
             <h2>Review Values</h2>
