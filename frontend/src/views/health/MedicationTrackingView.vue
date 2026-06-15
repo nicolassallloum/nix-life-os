@@ -668,9 +668,9 @@ async function createRemindersForMedication(medication) {
   clearMessages();
 
   try {
-    const doseTimes = Array.isArray(medication.dose_times)
-      ? medication.dose_times
-      : [];
+    // Phase 14: backend returns medication times through the times relation.
+    // Support both current times relation and legacy dose_times.
+    const doseTimes = getMedicationTimes(medication);
 
     if (!doseTimes.length) {
       setError("This medication does not have dose times.");
