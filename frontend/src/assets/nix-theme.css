@@ -192,3 +192,78 @@ textarea::-moz-selection {
   color: #020617 !important;
   -webkit-text-fill-color: #020617 !important;
 }
+
+/* Phase 13D: disabled / readonly lab preview inputs must remain readable */
+input:disabled,
+textarea:disabled,
+select:disabled,
+input[readonly],
+textarea[readonly],
+select[readonly],
+input[aria-readonly="true"],
+textarea[aria-readonly="true"] {
+  opacity: 1 !important;
+}
+
+/* Readable disabled fields on light cards */
+.bg-white input:disabled,
+.bg-white textarea:disabled,
+.bg-white select:disabled,
+.bg-white input[readonly],
+.bg-white textarea[readonly],
+.bg-white select[readonly],
+[class*="bg-white"] input:disabled,
+[class*="bg-white"] textarea:disabled,
+[class*="bg-white"] select:disabled,
+[class*="bg-white"] input[readonly],
+[class*="bg-white"] textarea[readonly],
+[class*="bg-white"] select[readonly],
+.rounded-3xl.bg-white input:disabled,
+.rounded-3xl.bg-white textarea:disabled,
+.rounded-3xl.bg-white select:disabled,
+.rounded-2xl.bg-white input:disabled,
+.rounded-2xl.bg-white textarea:disabled,
+.rounded-2xl.bg-white select:disabled,
+.rounded-xl.bg-white input:disabled,
+.rounded-xl.bg-white textarea:disabled,
+.rounded-xl.bg-white select:disabled {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Keep disabled placeholders readable but lighter */
+.bg-white input:disabled::placeholder,
+.bg-white textarea:disabled::placeholder,
+[class*="bg-white"] input:disabled::placeholder,
+[class*="bg-white"] textarea:disabled::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Lab preview specific safety net */
+.lab-preview-page input,
+.lab-preview-page textarea,
+.lab-preview-page select,
+.health-lab-preview input,
+.health-lab-preview textarea,
+.health-lab-preview select {
+  opacity: 1 !important;
+}
+
+.lab-preview-page input:disabled,
+.lab-preview-page textarea:disabled,
+.lab-preview-page select:disabled,
+.lab-preview-page input[readonly],
+.lab-preview-page textarea[readonly],
+.health-lab-preview input:disabled,
+.health-lab-preview textarea:disabled,
+.health-lab-preview select:disabled,
+.health-lab-preview input[readonly],
+.health-lab-preview textarea[readonly] {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  opacity: 1 !important;
+}
