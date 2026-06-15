@@ -136,3 +136,59 @@ textarea::-moz-selection {
   -webkit-text-fill-color: #ffffff !important;
   background-color: #2563eb !important;
 }
+
+/* Phase 13C: light cards/forms must keep dark readable input text */
+.bg-white input,
+.bg-white textarea,
+.bg-white input[type="text"],
+.bg-white input[type="email"],
+.bg-white input[type="password"],
+.bg-white input[type="number"],
+.bg-white input[type="date"],
+.bg-white input[type="search"],
+.bg-white input[type="tel"],
+.bg-white input[type="url"],
+.bg-white textarea,
+[class*="bg-white"] input,
+[class*="bg-white"] textarea,
+[class*="bg-white"] input[type="text"],
+[class*="bg-white"] input[type="email"],
+[class*="bg-white"] input[type="password"],
+[class*="bg-white"] input[type="number"],
+[class*="bg-white"] input[type="date"],
+[class*="bg-white"] input[type="search"],
+[class*="bg-white"] input[type="tel"],
+[class*="bg-white"] input[type="url"],
+[class*="bg-white"] textarea {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  caret-color: #2563eb !important;
+}
+
+.bg-white input::placeholder,
+.bg-white textarea::placeholder,
+[class*="bg-white"] input::placeholder,
+[class*="bg-white"] textarea::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+}
+
+.bg-white input::selection,
+.bg-white textarea::selection,
+[class*="bg-white"] input::selection,
+[class*="bg-white"] textarea::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+/* Generic light form containers used by lab preview and admin pages */
+.rounded-3xl.bg-white input,
+.rounded-3xl.bg-white textarea,
+.rounded-2xl.bg-white input,
+.rounded-2xl.bg-white textarea,
+.rounded-xl.bg-white input,
+.rounded-xl.bg-white textarea {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
