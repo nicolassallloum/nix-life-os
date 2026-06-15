@@ -25,6 +25,7 @@ class HealthMedication extends Model
     protected $fillable = [
         'user_id',
         'medication_name',
+        'name',
         'dosage',
         'daily_dose',
         'daily_times',
