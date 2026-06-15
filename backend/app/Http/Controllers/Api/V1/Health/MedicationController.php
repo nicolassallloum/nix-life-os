@@ -100,7 +100,7 @@ class MedicationController extends Controller
 
             $validated['user_id'] = $request->user()->id;
             $validated['daily_times'] = count($times);
-            $validated['dose_times'] = collect($times)->pluck('dosage_time')->values()->all();
+            // Phase 14: dose times are stored in health_medication_times.
             $validated['prescribed_by'] = $validated['doctor_name'] ?? $validated['prescribed_by'] ?? null;
 
             $medication = HealthMedication::create($validated);
@@ -151,7 +151,7 @@ class MedicationController extends Controller
             unset($validated['times']);
 
             $validated['daily_times'] = count($times);
-            $validated['dose_times'] = collect($times)->pluck('dosage_time')->values()->all();
+            // Phase 14: dose times are stored in health_medication_times.
             $validated['prescribed_by'] = $validated['doctor_name'] ?? $validated['prescribed_by'] ?? null;
 
             $medication->update($validated);
