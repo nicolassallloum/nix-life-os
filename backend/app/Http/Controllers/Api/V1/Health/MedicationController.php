@@ -101,6 +101,8 @@ class MedicationController extends Controller
             $validated['user_id'] = $request->user()->id;
             $validated['daily_times'] = count($times);
             // Phase 14: dose times are stored in health_medication_times.
+            // Legacy production schema still requires the name column.
+            $validated['name'] = $validated['medication_name'] ?? $validated['name'] ?? 'Medication';
             $validated['prescribed_by'] = $validated['doctor_name'] ?? $validated['prescribed_by'] ?? null;
 
             $medication = HealthMedication::create($validated);
@@ -152,6 +154,10 @@ class MedicationController extends Controller
 
             $validated['daily_times'] = count($times);
             // Phase 14: dose times are stored in health_medication_times.
+            // Keep legacy name column synchronized with medication_name.
+            if (array_key_exists('medication_name', $validated)) {
+                $validated['name'] = $validated['medication_name'] ?: 'Medication';
+            }
             $validated['prescribed_by'] = $validated['doctor_name'] ?? $validated['prescribed_by'] ?? null;
 
             $medication->update($validated);
