@@ -92,8 +92,6 @@ class MedicationController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $this->normalizeMedicationPayload($request);
-
         $validated = $this->validateMedication($request);
 
         $medication = DB::transaction(function () use ($request, $validated) {
@@ -141,8 +139,6 @@ class MedicationController extends Controller
 
     public function update(Request $request, string $id): JsonResponse
     {
-        $this->normalizeMedicationPayload($request);
-
         $medication = HealthMedication::query()
             ->where('user_id', $request->user()->id)
             ->where('id', $id)
@@ -194,80 +190,6 @@ class MedicationController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Medication deleted successfully.',
-        ]);
-    }
-
-
-    private function normalizeMedicationPayload(Request $request): void
-    {
-        $medicationName = $request->input(
-            'medication_name',
-            $request->input('name', $request->input('medicine_name'))
-        );
-
-        $startDate = $request->input('start_date', now()->toDateString());
-        $endDate = $request->input('end_date', $request->input('stop_date'));
-
-        $frequency = $request->input('frequency', $request->input('frequency_type', 'daily'));
-        $frequency = is_string($frequency) && trim($frequency) !== '' ? trim($frequency) : 'daily';
-
-        $status = $request->input('status');
-        if ($status === null && $request->has('is_active')) {
-            $status = filter_var($request->input('is_active'), FILTER_VALIDATE_BOOLEAN) ? 'active' : 'inactive';
-        }
-        $status = $status ?: 'active';
-
-        $rawTimes = $request->input('times', []);
-        $medicationTime = $request->input('medication_time', $request->input('dosage_time'));
-
-        if (! is_array($rawTimes) || count($rawTimes) === 0) {
-            $rawTimes = [[
-                'dosage_time' => $medicationTime ?: '08:00',
-                'dosage_note' => $request->input('dosage_note'),
-            ]];
-        }
-
-        $times = collect($rawTimes)
-            ->map(function ($time) {
-                if (is_string($time)) {
-                    return [
-                        'dosage_time' => substr($time, 0, 5),
-                        'dosage_note' => null,
-                    ];
-                }
-
-                return [
-                    'dosage_time' => substr((string) ($time['dosage_time'] ?? $time['time'] ?? '08:00'), 0, 5),
-                    'dosage_note' => $time['dosage_note'] ?? $time['note'] ?? null,
-                ];
-            })
-            ->filter(fn ($time) => preg_match('/^\\d{2}:\\d{2}$/', $time['dosage_time']))
-            ->values()
-            ->all();
-
-        if (count($times) === 0) {
-            $times = [[
-                'dosage_time' => '08:00',
-                'dosage_note' => null,
-            ]];
-        }
-
-        $dailyTimes = (int) $request->input('daily_times', count($times));
-        $dailyTimes = max(1, min($dailyTimes, 3));
-        $times = array_slice($times, 0, $dailyTimes);
-
-        $request->merge([
-            'medication_name' => $medicationName ?: 'Medication',
-            'dosage' => $request->input('dosage', $request->input('dose', '')),
-            'daily_dose' => $request->input('daily_dose', $request->input('dosage')),
-            'daily_times' => count($times),
-            'times' => $times,
-            'frequency' => $frequency,
-            'start_date' => $startDate,
-            'end_date' => $endDate,
-            'status' => $status,
-            'doctor_name' => $request->input('doctor_name', $request->input('prescribed_by')),
-            'prescribed_by' => $request->input('prescribed_by', $request->input('doctor_name')),
         ]);
     }
 
