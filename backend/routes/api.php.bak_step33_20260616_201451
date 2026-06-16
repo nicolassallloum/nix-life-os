@@ -598,9 +598,6 @@ Route::prefix('v1')->group(function () {
             Route::patch('/goals', [HealthGoalController::class, 'update']);
 
             Route::get('/ai-insights', [HealthAIInsightController::class, 'index']);
-            Route::get('/ai-insights/summary', [HealthAIInsightController::class, 'summary']);
-            Route::get('/ai-insights/generate', [HealthAIInsightController::class, 'generate']);
-            Route::post('/ai-insights/generate', [HealthAIInsightController::class, 'generate']);
 
             Route::get('/medications', [MedicationController::class, 'index']);
             Route::post('/medications', [MedicationController::class, 'store']);
