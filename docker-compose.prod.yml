@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:18
+    image: postgres:16-alpine
     container_name: nixlifeos-postgres
     restart: unless-stopped
     env_file:
@@ -10,6 +10,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-nixlifeos_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       TZ: ${TZ:-Asia/Beirut}
+      PGDATA: /var/lib/postgresql
     expose:
       - "5432"
     volumes:
@@ -103,8 +104,10 @@ services:
     container_name: nixlifeos-nginx
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8088:80"
+      - "80:80"
+      - "443:443"
     volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
       #-  /docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
       - /var/www/certbot:/var/www/certbot:ro
