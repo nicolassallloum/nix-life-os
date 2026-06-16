@@ -151,10 +151,6 @@ class SleepLogController extends Controller
             $data['sleep_date'] = $data['entry_date'];
         }
 
-        if (empty($data['sleep_date'])) {
-            $data['sleep_date'] = now()->toDateString();
-        }
-
         if (isset($data['start_time']) && empty($data['bed_time'])) {
             $data['bed_time'] = $data['start_time'];
         }
@@ -180,7 +176,7 @@ class SleepLogController extends Controller
         }
 
         $rules = [
-            'sleep_date' => ['nullable', 'date'],
+            'sleep_date' => [$isUpdate ? 'sometimes' : 'required', 'date'],
             'wake_date' => ['nullable', 'date'],
             'bed_time' => [$isUpdate ? 'sometimes' : 'required'],
             'wake_time' => [$isUpdate ? 'sometimes' : 'required'],

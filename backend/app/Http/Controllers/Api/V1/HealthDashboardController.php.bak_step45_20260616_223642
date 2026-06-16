@@ -49,7 +49,7 @@ class HealthDashboardController extends Controller
             | Steps
             |--------------------------------------------------------------------------
             */
-            $stepColumns = $this->columns('public', 'health_step_logs');
+            $stepColumns = $this->columns('nix_life_os', 'health_step_log');
 
             $stepDateColumn = $this->firstExistingColumn($stepColumns, [
                 'log_date',
@@ -72,7 +72,7 @@ class HealthDashboardController extends Controller
             $todaySteps = 0;
 
             if ($stepDateColumn && $stepValueColumn) {
-                $todaySteps = DB::table('public.health_step_logs')
+                $todaySteps = DB::table('nix_life_os.health_step_log')
                     ->where('user_id', $userId)
                     ->whereDate($stepDateColumn, $today)
                     ->sum($stepValueColumn);
