@@ -607,7 +607,6 @@ Route::prefix('v1')->group(function () {
             Route::get('/medications', [MedicationController::class, 'index']);
             Route::post('/medications', [MedicationController::class, 'store']);
             Route::get('/medications/today', [MedicationController::class, 'today']);
-            Route::get('medications/today-schedule', [MedicationController::class, 'todaySchedule']);
             Route::get('/medications/{id}', [MedicationController::class, 'show']);
             Route::put('/medications/{id}', [MedicationController::class, 'update']);
             Route::patch('/medications/{id}', [MedicationController::class, 'update']);
