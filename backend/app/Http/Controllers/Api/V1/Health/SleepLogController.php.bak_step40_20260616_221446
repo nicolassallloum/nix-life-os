@@ -7,7 +7,6 @@ use App\Models\HealthSleepLog;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class SleepLogController extends Controller
@@ -92,14 +91,10 @@ class SleepLogController extends Controller
 
     public function summary(Request $request): JsonResponse
     {
-        $userId = (string) $request->user()->id;
-        $fromDate = now()->subDays(6)->toDateString();
-
-        $logs = DB::table('health_sleep_logs')
-            ->where('user_id', $userId)
-            ->whereDate('sleep_date', '>=', $fromDate)
+        $logs = HealthSleepLog::query()
+            ->where('user_id', $request->user()->id)
+            ->whereDate('sleep_date', '>=', now()->subDays(6)->toDateString())
             ->orderByDesc('sleep_date')
-            ->orderByDesc('created_at')
             ->get();
 
         $latest = $logs->first();
@@ -111,8 +106,8 @@ class SleepLogController extends Controller
             'message' => 'Sleep summary loaded successfully.',
             'data' => [
                 'total_records' => $logs->count(),
-                'last_sleep_minutes' => (int) ($latest->duration_minutes ?? 0),
-                'last_sleep_hours' => round(((int) ($latest->duration_minutes ?? 0)) / 60, 2),
+                'last_sleep_minutes' => (int) ($latest?->duration_minutes ?? 0),
+                'last_sleep_hours' => round(((int) ($latest?->duration_minutes ?? 0)) / 60, 2),
                 'weekly_average_minutes' => (int) $averageMinutes,
                 'weekly_average_hours' => round($averageMinutes / 60, 2),
                 'average_quality_score' => (int) $averageQuality,
@@ -122,20 +117,18 @@ class SleepLogController extends Controller
 
     public function today(Request $request): JsonResponse
     {
-        $rows = DB::table('health_sleep_logs')
-            ->where('user_id', (string) $request->user()->id)
+        $logs = HealthSleepLog::query()
+            ->where('user_id', $request->user()->id)
             ->whereDate('sleep_date', now()->toDateString())
             ->orderByDesc('created_at')
             ->get()
-            ->map(fn ($row) => $this->serializeRow($row))
+            ->map(fn (HealthSleepLog $log) => $this->serializeLog($log))
             ->values();
 
         return response()->json([
             'success' => true,
             'message' => 'Today sleep logs loaded successfully.',
-            'data' => $rows,
-            'logs' => $rows,
-            'sleep_logs' => $rows,
+            'data' => $logs,
         ]);
     }
 
@@ -264,57 +257,15 @@ class SleepLogController extends Controller
         };
     }
 
-
-    private function formatDateOnly(mixed $value): ?string
-    {
-        if ($value === null || $value === '') {
-            return null;
-        }
-
-        return Carbon::parse((string) $value)->toDateString();
-    }
-
-    private function formatDateTimeValue(mixed $value): ?string
-    {
-        if ($value === null || $value === '') {
-            return null;
-        }
-
-        return Carbon::parse((string) $value)->format('Y-m-d H:i:s');
-    }
-
-    private function serializeRow(object $row): array
-    {
-        $durationMinutes = (int) ($row->duration_minutes ?? 0);
-
-        return [
-            'id' => (string) ($row->id ?? ''),
-            'user_id' => (string) ($row->user_id ?? ''),
-            'sleep_date' => $this->formatDateOnly($row->sleep_date ?? null),
-            'wake_date' => $this->formatDateOnly($row->wake_date ?? null),
-            'bed_time' => $this->formatDateTimeValue($row->bed_time ?? null),
-            'wake_time' => $this->formatDateTimeValue($row->wake_time ?? null),
-            'duration_minutes' => $durationMinutes,
-            'duration_hours' => round($durationMinutes / 60, 2),
-            'hours' => round($durationMinutes / 60, 2),
-            'sleep_hours' => round($durationMinutes / 60, 2),
-            'quality_score' => $row->quality_score ?? null,
-            'quality' => $row->quality ?? null,
-            'notes' => $row->notes ?? null,
-            'created_at' => isset($row->created_at) ? Carbon::parse((string) $row->created_at)->toISOString() : null,
-            'updated_at' => isset($row->updated_at) ? Carbon::parse((string) $row->updated_at)->toISOString() : null,
-        ];
-    }
-
     private function serializeLog(HealthSleepLog $log): array
     {
         return [
             'id' => $log->id,
             'user_id' => $log->user_id,
-            'sleep_date' => $this->formatDateOnly($log->sleep_date),
-            'wake_date' => $this->formatDateOnly($log->wake_date),
-            'bed_time' => $this->formatDateTimeValue($log->bed_time),
-            'wake_time' => $this->formatDateTimeValue($log->wake_time),
+            'sleep_date' => optional($log->sleep_date)->toDateString(),
+            'wake_date' => optional($log->wake_date)->toDateString(),
+            'bed_time' => optional($log->bed_time)->format('Y-m-d H:i:s'),
+            'wake_time' => optional($log->wake_time)->format('Y-m-d H:i:s'),
             'duration_minutes' => (int) $log->duration_minutes,
             'duration_hours' => round(((int) $log->duration_minutes) / 60, 2),
             'hours' => round(((int) $log->duration_minutes) / 60, 2),
