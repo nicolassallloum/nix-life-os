@@ -95,85 +95,6 @@
         </div>
       </form>
 
-      <section
-        v-if="userDashboard"
-        class="mt-6 rounded-2xl border border-slate-800 bg-slate-900/80 p-6 shadow-xl"
-      >
-        <div class="mb-5">
-          <h2 class="text-2xl font-bold">User Finance & Health Dashboard</h2>
-          <p class="mt-1 text-sm text-slate-400">
-            A complete admin snapshot for this user's Finance and Health modules.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div class="dashboard-card">
-            <p>Finance Balance</p>
-            <strong>${{ money(userDashboard.finance?.summary?.total_balance) }}</strong>
-          </div>
-          <div class="dashboard-card">
-            <p>Transactions</p>
-            <strong>{{ userDashboard.finance?.summary?.transactions_count || 0 }}</strong>
-          </div>
-          <div class="dashboard-card">
-            <p>Today Steps</p>
-            <strong>{{ userDashboard.health?.summary?.today_steps || 0 }}</strong>
-          </div>
-          <div class="dashboard-card">
-            <p>Today Calories</p>
-            <strong>{{ userDashboard.health?.summary?.today_calories || 0 }}</strong>
-          </div>
-        </div>
-
-        <div class="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-2">
-          <div class="dashboard-panel">
-            <h3>Finance Summary</h3>
-            <div class="mini-grid">
-              <span>Accounts</span><strong>{{ userDashboard.finance?.summary?.accounts_count || 0 }}</strong>
-              <span>Total Income</span><strong>${{ money(userDashboard.finance?.summary?.total_income) }}</strong>
-              <span>Total Expenses</span><strong>${{ money(userDashboard.finance?.summary?.total_expenses) }}</strong>
-              <span>Net Total</span><strong>${{ money(userDashboard.finance?.summary?.net_total) }}</strong>
-            </div>
-          </div>
-
-          <div class="dashboard-panel">
-            <h3>Health Summary</h3>
-            <div class="mini-grid">
-              <span>Water</span><strong>{{ userDashboard.health?.summary?.today_water_ml || 0 }} ml</strong>
-              <span>Weight</span><strong>{{ userDashboard.health?.summary?.current_weight_kg || '—' }} kg</strong>
-              <span>BMI</span><strong>{{ userDashboard.health?.summary?.current_bmi || '—' }}</strong>
-              <span>Sleep</span><strong>{{ userDashboard.health?.summary?.last_sleep_hours || '—' }} h</strong>
-              <span>Mood</span><strong>{{ userDashboard.health?.summary?.today_mood || '—' }}</strong>
-              <span>Medications</span><strong>{{ userDashboard.health?.summary?.active_medications || 0 }}</strong>
-              <span>Lab Tests</span><strong>{{ userDashboard.health?.summary?.lab_tests_count || 0 }}</strong>
-              <span>Active Alerts</span><strong>{{ userDashboard.health?.summary?.active_alerts_count || 0 }}</strong>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-2">
-          <div class="dashboard-panel">
-            <h3>Recent Transactions</h3>
-            <div v-if="recentFinanceTransactions.length === 0" class="empty-mini">No finance transactions.</div>
-            <div v-for="transaction in recentFinanceTransactions" :key="transaction.id" class="recent-row">
-              <span>{{ transaction.transaction_date || transaction.created_at }}</span>
-              <strong>{{ transaction.transaction_type }} · ${{ money(transaction.amount) }}</strong>
-            </div>
-          </div>
-
-          <div class="dashboard-panel">
-            <h3>Recent Health Activity</h3>
-            <div class="mini-grid">
-              <span>Step Logs</span><strong>{{ userDashboard.health?.counts?.step_logs || 0 }}</strong>
-              <span>Nutrition Logs</span><strong>{{ userDashboard.health?.counts?.nutrition_logs || 0 }}</strong>
-              <span>Hydration Logs</span><strong>{{ userDashboard.health?.counts?.hydration_logs || 0 }}</strong>
-              <span>Sleep Logs</span><strong>{{ userDashboard.health?.counts?.sleep_logs || 0 }}</strong>
-              <span>Mood Logs</span><strong>{{ userDashboard.health?.counts?.mood_logs || 0 }}</strong>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <div v-else class="rounded-2xl border border-red-900 bg-red-950/40 p-6 text-red-300">
         User not found.
       </div>
@@ -182,7 +103,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import api, { getApiErrorMessage } from '@/services/api'
 
@@ -194,18 +115,6 @@ const saving = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 const user = ref<any>(null)
-const userDashboard = ref<any>(null)
-
-const recentFinanceTransactions = computed(() => {
-  return Array.isArray(userDashboard.value?.finance?.recent_transactions)
-    ? userDashboard.value.finance.recent_transactions
-    : []
-})
-
-function money(value: any) {
-  const number = Number(value || 0)
-  return Number.isFinite(number) ? number.toFixed(2) : '0.00'
-}
 
 const form = reactive({
   name: '',
@@ -229,13 +138,8 @@ async function loadUser() {
   errorMessage.value = ''
 
   try {
-    const [userResponse, dashboardResponse] = await Promise.all([
-      api.get(`/admin/users/${userId}`),
-      api.get(`/admin/users/${userId}/dashboard`),
-    ])
-
-    fillForm(userResponse.data?.data?.user)
-    userDashboard.value = dashboardResponse.data?.data || null
+    const response = await api.get(`/admin/users/${userId}`)
+    fillForm(response.data?.data?.user)
   } catch (error) {
     errorMessage.value = getApiErrorMessage(error, 'Failed to load user.')
   } finally {
@@ -308,54 +212,4 @@ onMounted(loadUser)
 .field:focus {
   border-color: rgb(99 102 241);
 }
-
-.dashboard-card {
-  border: 1px solid rgb(51 65 85);
-  border-radius: 1rem;
-  background: rgb(15 23 42);
-  padding: 1rem;
-}
-.dashboard-card p {
-  color: rgb(148 163 184);
-  font-size: 0.875rem;
-}
-.dashboard-card strong {
-  display: block;
-  margin-top: 0.5rem;
-  color: white;
-  font-size: 1.5rem;
-}
-.dashboard-panel {
-  border: 1px solid rgb(51 65 85);
-  border-radius: 1rem;
-  background: rgb(2 6 23);
-  padding: 1rem;
-}
-.dashboard-panel h3 {
-  margin-bottom: 1rem;
-  font-weight: 700;
-  color: white;
-}
-.mini-grid {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.75rem;
-  color: rgb(203 213 225);
-}
-.mini-grid span {
-  color: rgb(148 163 184);
-}
-.recent-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  border-top: 1px solid rgb(30 41 59);
-  padding: 0.75rem 0;
-  color: rgb(203 213 225);
-}
-.empty-mini {
-  color: rgb(148 163 184);
-  font-size: 0.875rem;
-}
-
 </style>
