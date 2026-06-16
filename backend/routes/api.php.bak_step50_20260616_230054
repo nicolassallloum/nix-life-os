@@ -152,9 +152,6 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     */
     Route::apiResource('projects/tasks', ProjectTaskController::class);
     Route::get('projects/{project}/tasks', [ProjectTaskController::class, 'byProject']);
-    Route::patch('projects/{project}/tasks/{task}/complete', [ProjectTaskController::class, 'complete']);
-    Route::patch('projects/{project}/tasks/{task}/reopen', [ProjectTaskController::class, 'reopen']);
-
 });
 /*
 |--------------------------------------------------------------------------
