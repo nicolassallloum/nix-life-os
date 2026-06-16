@@ -67,7 +67,6 @@ use App\Http\Controllers\Api\V1\HealthSleepController;
 use App\Http\Controllers\Api\V1\HealthMoodController;
 use App\Http\Controllers\Api\V1\HealthMedicationController;
 use App\Http\Controllers\Api\V1\HealthLabTestController as Phase9HealthLabTestController;
-use App\Http\Controllers\Api\V1\Dashboard\UnifiedDashboardController;
 // use App\Http\Controllers\Api\V1\FinanceCategoryController;
 // // use App\Http\Controllers\Api\V1\HealthWeightController;
 // use App\Http\Controllers\Api\V1\HealthWaterController;
@@ -382,9 +381,7 @@ Route::prefix('v1')->group(function () {
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/dashboard/summary', [UnifiedDashboardController::class, 'summary']);
-        Route::get('/dashboard/kpis', [UnifiedDashboardController::class, 'kpis']);
-        Route::get('/dashboard/recent-activity', [UnifiedDashboardController::class, 'recentActivity']);
+        Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
 
         /*
         |--------------------------------------------------------------------------
