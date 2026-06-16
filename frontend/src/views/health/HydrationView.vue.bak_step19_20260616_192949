@@ -232,28 +232,12 @@ async function apiRequest(path: string, options: RequestInit = {}) {
 
 async function loadLogs() {
   const payload = await apiRequest('/health/hydration')
-  logs.value = (payload.data || []).map((log: any) => ({
-    ...log,
-    hydration_type: log.hydration_type || log.drink_type || 'Water',
-    quantity_ml: Number(log.quantity_ml || log.amount_ml || log.water_ml || 0),
-    log_time: log.log_time ? String(log.log_time).slice(0, 5) : '',
-  }))
+  logs.value = payload.data || []
 }
 
 async function loadSummary() {
   const payload = await apiRequest('/health/hydration/summary')
-  const data = payload.data || {}
-
-  Object.assign(summary, {
-    daily_total_ml: data.daily_total_ml ?? data.today_ml ?? 0,
-    weekly_total_ml: data.weekly_total_ml ?? data.week_ml ?? 0,
-    monthly_total_ml: data.monthly_total_ml ?? data.month_ml ?? 0,
-    all_time_total_ml: data.all_time_total_ml ?? data.all_time_ml ?? 0,
-    daily_total_liters: data.daily_total_liters ?? Number(((data.daily_total_ml ?? data.today_ml ?? 0) / 1000).toFixed(2)),
-    weekly_total_liters: data.weekly_total_liters ?? Number(((data.weekly_total_ml ?? data.week_ml ?? 0) / 1000).toFixed(2)),
-    monthly_total_liters: data.monthly_total_liters ?? Number(((data.monthly_total_ml ?? data.month_ml ?? 0) / 1000).toFixed(2)),
-    all_time_total_liters: data.all_time_total_liters ?? Number(((data.all_time_total_ml ?? data.all_time_ml ?? 0) / 1000).toFixed(2)),
-  })
+  Object.assign(summary, payload.data || {})
 }
 
 async function loadCharts() {
@@ -280,10 +264,7 @@ async function saveLog() {
 
   const payload = {
     hydration_type: form.hydration_type,
-    drink_type: form.hydration_type,
     quantity_ml: form.quantity_ml,
-    amount_ml: form.quantity_ml,
-    water_ml: form.quantity_ml,
     log_date: form.log_date,
     log_time: form.log_time,
     notes: form.notes,
@@ -508,8 +489,6 @@ label {
 input,
 select,
 textarea {
-  color: #0f172a;
-  background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 12px;
   padding: 10px 12px;
