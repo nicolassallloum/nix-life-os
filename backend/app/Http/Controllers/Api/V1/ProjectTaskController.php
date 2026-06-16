@@ -68,8 +68,32 @@ class ProjectTaskController extends Controller
             $query = DB::table($this->tableName())
                 ->where('user_id', $userId);
 
-            if ($request->filled('project_id') && in_array('project_id', $columns, true)) {
-                $query->where('project_id', $request->project_id);
+            $projectId = null;
+
+            if ($request->route('project')) {
+                $routeProject = $request->route('project');
+                $projectId = is_object($routeProject) && isset($routeProject->id)
+                    ? $routeProject->id
+                    : $routeProject;
+            }
+
+            if (!$projectId && preg_match('#/projects/([^/]+)/tasks#', $request->path(), $matches)) {
+                $projectId = $matches[1];
+            }
+
+            if (!$projectId && $request->filled('project_id')) {
+                $projectId = $request->project_id;
+            }
+
+            if ($projectId && in_array('project_id', $columns, true)) {
+                $projectExists = DB::table('projects')
+                    ->where('id', $projectId)
+                    ->where('user_id', $userId)
+                    ->exists();
+
+                abort_if(!$projectExists, 403, 'Unauthorized project access.');
+
+                $query->where('project_id', $projectId);
             }
 
             if ($request->filled('status') && in_array('status', $columns, true)) {
@@ -94,7 +118,9 @@ class ProjectTaskController extends Controller
                 });
             }
 
-            if ($dueDateColumn) {
+            if (in_array('task_order', $columns, true)) {
+                $query->orderBy('task_order');
+            } elseif ($dueDateColumn) {
                 $query->orderByRaw("CASE WHEN {$dueDateColumn} IS NULL THEN 1 ELSE 0 END");
                 $query->orderBy($dueDateColumn);
             } elseif ($titleColumn) {
@@ -130,8 +156,12 @@ class ProjectTaskController extends Controller
             $userId = (string) $request->user()->id;
             $columns = $this->columns();
 
+            $projectId = is_object($project) && isset($project->id)
+                ? $project->id
+                : $project;
+
             $projectExists = DB::table('projects')
-                ->where('id', $project)
+                ->where('id', $projectId)
                 ->where('user_id', $userId)
                 ->exists();
 
@@ -139,13 +169,34 @@ class ProjectTaskController extends Controller
 
             $query = DB::table($this->tableName())
                 ->where('user_id', $userId)
-                ->where('project_id', $project);
+                ->where('project_id', $projectId);
 
-            if (in_array('status', $columns, true)) {
-                $query->orderBy('status');
+            if ($request->filled('status') && in_array('status', $columns, true)) {
+                $query->where('status', $request->status);
             }
 
-            if (in_array('due_date', $columns, true)) {
+            if ($request->filled('priority') && in_array('priority', $columns, true)) {
+                $query->where('priority', $request->priority);
+            }
+
+            if ($request->filled('search')) {
+                $search = $request->search;
+
+                $query->where(function ($subQuery) use ($search, $columns) {
+                    if (in_array('title', $columns, true)) {
+                        $subQuery->orWhere('title', 'ILIKE', "%{$search}%");
+                    }
+
+                    if (in_array('description', $columns, true)) {
+                        $subQuery->orWhere('description', 'ILIKE', "%{$search}%");
+                    }
+                });
+            }
+
+            if (in_array('task_order', $columns, true)) {
+                $query->orderBy('task_order');
+            } elseif (in_array('due_date', $columns, true)) {
+                $query->orderByRaw('CASE WHEN due_date IS NULL THEN 1 ELSE 0 END');
                 $query->orderBy('due_date');
             } elseif (in_array('created_at', $columns, true)) {
                 $query->orderByDesc('created_at');
@@ -153,7 +204,7 @@ class ProjectTaskController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $query->get(),
+                'data' => $query->paginate((int) $request->get('per_page', 30)),
             ]);
         } catch (\Throwable $e) {
             Log::error('Project tasks byProject failed', [
