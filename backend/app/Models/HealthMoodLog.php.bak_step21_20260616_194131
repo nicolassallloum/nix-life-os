@@ -11,7 +11,7 @@ class HealthMoodLog extends Model
     use HasFactory;
     use HasUuids;
 
-    protected $table = 'health_mood_logs';
+    protected $table = 'nix_life_os.health_mood_logs';
 
     protected $primaryKey = 'id';
 
