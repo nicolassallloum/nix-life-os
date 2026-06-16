@@ -9,43 +9,6 @@ use Illuminate\Support\Facades\Auth;
 
 class HealthMoodLogController extends Controller
 {
-    private function normalizeMoodPayload(Request $request): void
-    {
-        $rawMood = $request->input('mood_label', $request->input('mood', 'Neutral'));
-        $key = strtolower(trim((string) $rawMood));
-
-        $label = match ($key) {
-            'happy' => 'Happy',
-            'normal' => 'Neutral',
-            'stressed' => 'Stressed',
-            'sad' => 'Sad',
-            'angry' => 'Angry',
-            'tired' => 'Tired',
-            'very sad' => 'Very Sad',
-            'very happy' => 'Very Happy',
-            'good' => 'Good',
-            'calm' => 'Calm',
-            'anxious' => 'Anxious',
-            default => (string) $rawMood,
-        };
-
-        $tags = $request->input('tags', []);
-
-        if (is_string($tags)) {
-            $tags = collect(explode(',', $tags))
-                ->map(fn ($tag) => trim($tag))
-                ->filter()
-                ->values()
-                ->all();
-        }
-
-        $request->merge([
-            'mood_date' => $request->input('mood_date', $request->input('entry_date', now()->toDateString())),
-            'mood_label' => $label,
-            'tags' => is_array($tags) ? $tags : [],
-        ]);
-    }
-
     public function index()
     {
         $logs = HealthMoodLog::where('user_id', Auth::id())
@@ -62,8 +25,6 @@ class HealthMoodLogController extends Controller
 
     public function store(Request $request)
     {
-        $this->normalizeMoodPayload($request);
-
         $validated = $request->validate([
             'mood_date' => ['required', 'date'],
             'mood_label' => ['required', 'string', 'max:50'],
@@ -104,8 +65,6 @@ class HealthMoodLogController extends Controller
 
     public function update(Request $request, string $id)
     {
-        $this->normalizeMoodPayload($request);
-
         $log = HealthMoodLog::where('user_id', Auth::id())
             ->where('id', $id)
             ->firstOrFail();

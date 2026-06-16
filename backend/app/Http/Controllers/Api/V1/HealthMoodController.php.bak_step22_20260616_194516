@@ -55,29 +55,19 @@ class HealthMoodController extends Controller
             'tags.*' => ['nullable', 'string', 'max:80'],
         ])->validate();
 
-        $log = HealthMoodLog::query()
-            ->where('user_id', $request->user()->id)
-            ->whereDate('mood_date', $validated['mood_date'])
-            ->first();
-
-        if ($log) {
-            $log->update([
-                'mood_label' => $validated['mood_label'],
-                'mood_score' => $validated['mood_score'] ?? null,
-                'notes' => $validated['notes'] ?? null,
-                'tags' => $validated['tags'] ?? [],
-            ]);
-        } else {
-            $log = HealthMoodLog::create([
-                'id' => Str::uuid()->toString(),
+        $log = HealthMoodLog::updateOrCreate(
+            [
                 'user_id' => $request->user()->id,
                 'mood_date' => $validated['mood_date'],
+            ],
+            [
+                'id' => Str::uuid()->toString(),
                 'mood_label' => $validated['mood_label'],
                 'mood_score' => $validated['mood_score'] ?? null,
                 'notes' => $validated['notes'] ?? null,
                 'tags' => $validated['tags'] ?? [],
-            ]);
-        }
+            ]
+        );
 
         return response()->json([
             'success' => true,
