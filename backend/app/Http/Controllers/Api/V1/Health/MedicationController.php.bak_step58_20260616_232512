@@ -124,11 +124,6 @@ class MedicationController extends Controller
         ], 201);
     }
 
-    public function todaySchedule(Request $request): JsonResponse
-    {
-        return $this->today($request);
-    }
-
     public function show(Request $request, string $id): JsonResponse
     {
         $medication = HealthMedication::query()
