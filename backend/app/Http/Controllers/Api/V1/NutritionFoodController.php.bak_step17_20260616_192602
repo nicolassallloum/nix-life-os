@@ -90,8 +90,8 @@ class NutritionFoodController extends Controller
 
             $customFoodsQuery->where(function ($q) use ($lower) {
                 $q->whereRaw('LOWER(name) LIKE ?', ["%{$lower}%"])
-                  ->orWhereRaw("LOWER(COALESCE(brand, '')) LIKE ?", ["%{$lower}%"])
-                  ->orWhereRaw("LOWER(COALESCE(category, '')) LIKE ?", ["%{$lower}%"]);
+                  ->orWhereRaw('LOWER(COALESCE(brand, '')) LIKE ?', ["%{$lower}%"])
+                  ->orWhereRaw('LOWER(COALESCE(category, '')) LIKE ?', ["%{$lower}%"]);
             });
         }
 
