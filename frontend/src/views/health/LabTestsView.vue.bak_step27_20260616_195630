@@ -235,8 +235,6 @@ h2 {
 }
 
 select {
-  color: #0f172a;
-  background: #ffffff;
   min-width: 180px;
   border: 1px solid #cbd5e1;
   border-radius: 10px;

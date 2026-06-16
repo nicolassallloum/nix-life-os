@@ -622,13 +622,6 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/lab-tests/categories', [HealthLabTestController::class, 'categories']);
             Route::get('/lab-tests/trends', [HealthLabTestController::class, 'trends']);
-
-            // IMPORTANT: special lab-test routes must stay before /lab-tests/{id}
-            Route::post('/lab-tests/upload', [HealthLabTestController::class, 'upload']);
-            Route::post('/lab-tests/{id}/extract', [HealthLabTestController::class, 'extract']);
-            Route::get('/lab-tests/{id}/preview', [HealthLabTestController::class, 'preview']);
-            Route::post('/lab-tests/{id}/approve', [HealthLabTestController::class, 'approve']);
-
             Route::get('/lab-tests', [HealthLabTestController::class, 'index']);
             Route::post('/lab-tests', [HealthLabTestController::class, 'store']);
             Route::get('/lab-tests/{id}', [HealthLabTestController::class, 'show']);
