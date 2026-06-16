@@ -73,40 +73,20 @@ class HealthMoodLogController extends Controller
             'tags.*' => ['nullable', 'string', 'max:50'],
         ]);
 
-        $log = HealthMoodLog::query()
-            ->where('user_id', Auth::id())
-            ->whereDate('mood_date', $validated['mood_date'])
-            ->first();
-
-        if ($log) {
-            $log->update([
-                'mood_label' => $validated['mood_label'],
-                'mood_score' => $validated['mood_score'],
-                'notes' => $validated['notes'] ?? null,
-                'tags' => $validated['tags'] ?? [],
-            ]);
-
-            $message = 'Mood log updated successfully.';
-            $status = 200;
-        } else {
-            $log = HealthMoodLog::create([
-                'user_id' => Auth::id(),
-                'mood_date' => $validated['mood_date'],
-                'mood_label' => $validated['mood_label'],
-                'mood_score' => $validated['mood_score'],
-                'notes' => $validated['notes'] ?? null,
-                'tags' => $validated['tags'] ?? [],
-            ]);
-
-            $message = 'Mood log created successfully.';
-            $status = 201;
-        }
+        $log = HealthMoodLog::create([
+            'user_id' => Auth::id(),
+            'mood_date' => $validated['mood_date'],
+            'mood_label' => $validated['mood_label'],
+            'mood_score' => $validated['mood_score'],
+            'notes' => $validated['notes'] ?? null,
+            'tags' => $validated['tags'] ?? [],
+        ]);
 
         return response()->json([
             'success' => true,
-            'message' => $message,
-            'data' => $log->fresh(),
-        ], $status);
+            'message' => 'Mood log created successfully.',
+            'data' => $log,
+        ], 201);
     }
 
     public function show(string $id)
