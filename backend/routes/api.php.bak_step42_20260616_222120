@@ -650,10 +650,10 @@ Route::prefix('v1')->group(function () {
             Route::get('/sleep/today', [SleepLogController::class, 'today']);
             Route::get('/sleep', [SleepLogController::class, 'index']);
             Route::post('/sleep', [SleepLogController::class, 'store']);
-            Route::get('/sleep/{id}', [SleepLogController::class, 'show'])->whereUuid('id');
-            Route::put('/sleep/{id}', [SleepLogController::class, 'update'])->whereUuid('id');
-            Route::patch('/sleep/{id}', [SleepLogController::class, 'update'])->whereUuid('id');
-            Route::delete('/sleep/{id}', [SleepLogController::class, 'destroy'])->whereUuid('id');
+            Route::get('/sleep/{id}', [SleepLogController::class, 'show']);
+            Route::put('/sleep/{id}', [SleepLogController::class, 'update']);
+            Route::patch('/sleep/{id}', [SleepLogController::class, 'update']);
+            Route::delete('/sleep/{id}', [SleepLogController::class, 'destroy']);
 
             Route::get('/sleep-test', function () {
                 return response()->json([
