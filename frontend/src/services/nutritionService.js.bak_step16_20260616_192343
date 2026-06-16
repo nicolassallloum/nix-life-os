@@ -3,7 +3,7 @@ import api from './api'
 const nutritionService = {
   searchFoods(query) {
     return api.get('/nutrition/foods/search', {
-      params: { q: query, query }
+      params: { query }
     })
   },
 
