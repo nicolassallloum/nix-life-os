@@ -5,45 +5,12 @@
         <h1>Projects</h1>
         <p>Manage your personal, business, and technical projects from one place.</p>
       </div>
-      <button class="primary-btn" @click="showCreateForm = !showCreateForm" :disabled="saving">
-        {{ showCreateForm ? 'Close' : 'Create Project' }}
+      <button class="primary-btn" @click="createDemoProject" :disabled="saving">
+        {{ saving ? 'Creating...' : 'Create Project' }}
       </button>
     </div>
 
     <div v-if="errorMessage" class="alert error">{{ errorMessage }}</div>
-
-    <form v-if="showCreateForm" class="content-card create-form" @submit.prevent="createProjectFromForm">
-      <div class="section-header">
-        <div>
-          <h2>Create New Project</h2>
-          <p>Enter project name and how many starter tasks you want to create.</p>
-        </div>
-      </div>
-
-      <div class="form-grid">
-        <label>
-          Project Name
-          <input v-model="form.project_name" type="text" placeholder="Example: Website Redesign" required />
-        </label>
-
-        <label>
-          Number of Tasks
-          <input v-model.number="form.number_of_tasks" type="number" min="0" max="100" placeholder="Example: 5" />
-        </label>
-
-        <label class="full">
-          Description
-          <textarea v-model="form.description" rows="3" placeholder="Optional project description"></textarea>
-        </label>
-      </div>
-
-      <div class="actions form-actions">
-        <button class="primary-btn" type="submit" :disabled="saving">
-          {{ saving ? 'Creating...' : 'Save Project' }}
-        </button>
-        <button class="secondary-btn" type="button" @click="resetForm" :disabled="saving">Clear</button>
-      </div>
-    </form>
 
     <div class="cards-grid">
       <div class="summary-card">
@@ -133,14 +100,7 @@ import { createProject, getProjects, normalizeList } from '@/services/projectSer
 const projects = ref<any[]>([])
 const loading = ref(false)
 const saving = ref(false)
-const showCreateForm = ref(false)
 const errorMessage = ref('')
-
-const form = ref({
-  project_name: '',
-  number_of_tasks: 0,
-  description: '',
-})
 
 const summary = computed(() => {
   const total = projects.value.length
@@ -180,31 +140,20 @@ async function loadProjects() {
   }
 }
 
-function resetForm() {
-  form.value = {
-    project_name: '',
-    number_of_tasks: 0,
-    description: '',
-  }
-}
-
-async function createProjectFromForm() {
+async function createDemoProject() {
   saving.value = true
   errorMessage.value = ''
 
   try {
     const stamp = makeTimestamp()
     await createProject({
-      project_name: form.value.project_name,
+      project_name: `New Project ${stamp}`,
       project_code: `NIX-${stamp}`,
-      description: form.value.description || null,
-      number_of_tasks: Number(form.value.number_of_tasks || 0),
+      description: 'Created from the Projects screen.',
       status: 'not_started',
       priority: 'medium',
       start_date: new Date().toISOString().slice(0, 10),
     })
-    resetForm()
-    showCreateForm.value = false
     await loadProjects()
   } catch (error: any) {
     errorMessage.value = error?.response?.data?.message || 'Failed to create project.'
@@ -240,14 +189,6 @@ onMounted(loadProjects)
 .progress-bar { height: 10px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
 .progress-bar div { height: 100%; background: #2563eb; }
 .alert.error { margin-bottom: 16px; padding: 12px 14px; border-radius: 12px; background: #fef2f2; color: #991b1b; }
-
-.create-form { margin-bottom: 24px; }
-.form-grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 16px; }
-.form-grid label { display: grid; gap: 8px; color: #374151; font-weight: 700; }
-.form-grid input, .form-grid textarea { width: 100%; border: 1px solid #d1d5db; border-radius: 12px; padding: 11px 12px; color: #111827; background: white; }
-.form-grid .full { grid-column: 1 / -1; }
-.form-actions { justify-content: flex-start; margin-top: 16px; }
-
 @media (max-width: 900px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } .page-header, .section-header { flex-direction: column; align-items: flex-start; } }
 @media (max-width: 520px) { .cards-grid { grid-template-columns: 1fr; } }
 </style>

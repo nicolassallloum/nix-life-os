@@ -8,7 +8,6 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class ProjectController extends Controller
@@ -113,9 +112,6 @@ class ProjectController extends Controller
                 'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
 
                 'metadata' => ['nullable', 'array'],
-                'number_of_tasks' => ['nullable', 'integer', 'min:0', 'max:100'],
-                'task_count' => ['nullable', 'integer', 'min:0', 'max:100'],
-                'tasks_count' => ['nullable', 'integer', 'min:0', 'max:100'],
             ]);
 
             $dateValidationResponse = $this->validateProjectDates($validated);
@@ -134,30 +130,12 @@ class ProjectController extends Controller
                 $validated['actual_end_date'] = $validated['actual_end_date'] ?? now()->toDateString();
             }
 
-            $taskCount = (int) (
-                $validated['number_of_tasks']
-                ?? $validated['task_count']
-                ?? $validated['tasks_count']
-                ?? 0
-            );
-
-            unset($validated['number_of_tasks'], $validated['task_count'], $validated['tasks_count']);
-
             $project = Project::create($validated);
-
-            if ($taskCount > 0) {
-                $this->createInitialTasks($project, $taskCount, (string) $request->user()->id);
-            }
-
-            $project = $project->fresh();
 
             return response()->json([
                 'success' => true,
-                'message' => $taskCount > 0
-                    ? "Project created successfully with {$taskCount} task(s)."
-                    : 'Project created successfully.',
+                'message' => 'Project created successfully.',
                 'data' => new ProjectResource($project),
-                'tasks_created' => $taskCount,
             ], 201);
         } catch (\Throwable $e) {
             Log::error('Projects store failed', [
@@ -306,14 +284,6 @@ class ProjectController extends Controller
             $data['project_code'] = $data['code'];
         }
 
-        if (!array_key_exists('number_of_tasks', $data) && array_key_exists('tasks', $data) && is_numeric($data['tasks'])) {
-            $data['number_of_tasks'] = (int) $data['tasks'];
-        }
-
-        if (!array_key_exists('number_of_tasks', $data) && array_key_exists('taskCount', $data)) {
-            $data['number_of_tasks'] = (int) $data['taskCount'];
-        }
-
         if (($data['status'] ?? null) === 'active') {
             $data['status'] = 'in_progress';
         }
@@ -323,33 +293,6 @@ class ProjectController extends Controller
         }
 
         $request->merge($data);
-    }
-
-    private function createInitialTasks(Project $project, int $taskCount, string $userId): void
-    {
-        $now = now();
-
-        for ($i = 1; $i <= $taskCount; $i++) {
-            DB::table('project_tasks')->insert([
-                'id' => (string) Str::uuid(),
-                'user_id' => $userId,
-                'project_id' => (string) $project->id,
-                'title' => "Task {$i}",
-                'description' => null,
-                'priority' => 'medium',
-                'status' => 'todo',
-                'start_date' => null,
-                'due_date' => null,
-                'completed_at' => null,
-                'assigned_to' => null,
-                'notes' => null,
-                'task_order' => $i,
-                'progress_percentage' => 0,
-                'weight' => 1,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
-        }
     }
 
     private function authorizeProject(Request $request, Project $project): void

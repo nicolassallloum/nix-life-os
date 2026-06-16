@@ -63,6 +63,16 @@ export async function deleteProjectTask(projectId, taskId) {
   return response.data
 }
 
+export async function completeProjectTask(projectId, taskId) {
+  const response = await api.patch(`/projects/${projectId}/tasks/${taskId}/complete`)
+  return response.data
+}
+
+export async function reopenProjectTask(projectId, taskId) {
+  const response = await api.patch(`/projects/${projectId}/tasks/${taskId}/reopen`)
+  return response.data
+}
+
 export async function getProjectGoals(projectId) {
   const response = await api.get(`/projects/${projectId}/goals`)
   return response.data
@@ -120,6 +130,8 @@ export default {
   createProjectTask,
   updateProjectTask,
   deleteProjectTask,
+  completeProjectTask,
+  reopenProjectTask,
   getProjectGoals,
   createProjectGoal,
   updateProjectGoal,
