@@ -245,22 +245,6 @@ async function loadSteps(taskId: string) {
   steps.value = normalizeList(response)
 }
 
-async function markTaskDone(taskId: string) {
-  if (!activeProjectId.value) return
-
-  savingStep.value = taskId
-  errorMessage.value = ''
-
-  try {
-    await completeProjectTask(activeProjectId.value, taskId)
-    await loadTasks()
-  } catch (error: any) {
-    errorMessage.value = error?.response?.data?.message || 'Failed to mark task as done.'
-  } finally {
-    savingStep.value = ''
-  }
-}
-
 async function reopenTask(taskId: string) {
   if (!activeProjectId.value) return
 
