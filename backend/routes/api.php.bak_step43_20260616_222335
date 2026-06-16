@@ -143,6 +143,7 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     */
     Route::get('health/dashboard-summary', [HealthDashboardController::class, 'summary']);
     Route::apiResource('health/water', HealthWaterController::class);
+    Route::apiResource('health/sleep', HealthSleepController::class);
     Route::apiResource('health/mood', HealthMoodController::class);
 
     /*
