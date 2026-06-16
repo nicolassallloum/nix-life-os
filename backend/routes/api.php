@@ -646,6 +646,8 @@ Route::prefix('v1')->group(function () {
             Route::patch('/mood/{id}', [HealthMoodLogController::class, 'update']);
             Route::delete('/mood/{id}', [HealthMoodLogController::class, 'destroy']);
 
+            Route::get('/sleep/summary', [SleepLogController::class, 'summary']);
+            Route::get('/sleep/today', [SleepLogController::class, 'today']);
             Route::get('/sleep', [SleepLogController::class, 'index']);
             Route::post('/sleep', [SleepLogController::class, 'store']);
             Route::get('/sleep/{id}', [SleepLogController::class, 'show']);
