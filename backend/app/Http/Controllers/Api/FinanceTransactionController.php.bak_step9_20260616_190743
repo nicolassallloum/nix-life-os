@@ -404,51 +404,25 @@ class FinanceTransactionController extends Controller
         $type = $transaction->transaction_type ?? $transaction->type ?? null;
         $currency = $transaction->currency_code ?? $transaction->currency ?? null;
 
-        $accountName = $transaction->account_name ?? null;
-        $accountCurrency = $transaction->account_currency_code ?? null;
-
-        if (! $accountName && ! empty($transaction->account_id)) {
-            $account = DB::table('finance_accounts')
-                ->select('account_name', 'currency_code')
-                ->where('id', $transaction->account_id)
-                ->first();
-
-            $accountName = $account->account_name ?? null;
-            $accountCurrency = $account->currency_code ?? $accountCurrency;
-        }
-
-        $transferAccountName = $transaction->transfer_account_name ?? null;
-        $transferAccountCurrency = $transaction->transfer_account_currency_code ?? null;
-
-        if (! $transferAccountName && ! empty($transaction->transfer_account_id)) {
-            $transferAccount = DB::table('finance_accounts')
-                ->select('account_name', 'currency_code')
-                ->where('id', $transaction->transfer_account_id)
-                ->first();
-
-            $transferAccountName = $transferAccount->account_name ?? null;
-            $transferAccountCurrency = $transferAccount->currency_code ?? $transferAccountCurrency;
-        }
-
         return [
             'id' => $transaction->id,
             'transaction_id' => $transaction->id,
             'user_id' => $transaction->user_id,
             'account_id' => $transaction->account_id,
-            'account_name' => $accountName,
+            'account_name' => $transaction->account_name ?? null,
             'account' => [
                 'id' => $transaction->account_id,
-                'name' => $accountName,
-                'account_name' => $accountName,
-                'currency_code' => $accountCurrency,
+                'name' => $transaction->account_name ?? null,
+                'account_name' => $transaction->account_name ?? null,
+                'currency_code' => $transaction->account_currency_code ?? null,
             ],
             'transfer_account_id' => $transaction->transfer_account_id ?? null,
-            'transfer_account_name' => $transferAccountName,
+            'transfer_account_name' => $transaction->transfer_account_name ?? null,
             'transfer_account' => [
                 'id' => $transaction->transfer_account_id ?? null,
-                'name' => $transferAccountName,
-                'account_name' => $transferAccountName,
-                'currency_code' => $transferAccountCurrency,
+                'name' => $transaction->transfer_account_name ?? null,
+                'account_name' => $transaction->transfer_account_name ?? null,
+                'currency_code' => $transaction->transfer_account_currency_code ?? null,
             ],
             'type' => $type,
             'transaction_type' => $type,
