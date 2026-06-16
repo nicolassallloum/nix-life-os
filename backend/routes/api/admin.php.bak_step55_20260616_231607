@@ -26,7 +26,6 @@ Route::middleware(['auth:sanctum', 'admin'])
 
         Route::get('/users', [AdminUserController::class, 'index']);
         Route::post('/users', [AdminUserController::class, 'store']);
-        Route::get('/users/{id}/dashboard', [AdminUserController::class, 'dashboard']);
         Route::get('/users/{id}', [AdminUserController::class, 'show']);
         Route::put('/users/{id}', [AdminUserController::class, 'update']);
         Route::patch('/users/{id}', [AdminUserController::class, 'update']);
