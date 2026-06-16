@@ -20,14 +20,7 @@ const recentTransactions = computed(() => transactions.value.slice(0, 8).map((tr
   id: transaction.id,
   date: transaction.transaction_date ?? transaction.date ?? transaction.created_at ?? '-',
   category: transaction.category?.name ?? transaction.category_name ?? transaction.category ?? 'Uncategorized',
-  account:
-    transaction.account_name ??
-    transaction.account?.account_name ??
-    transaction.account?.name ??
-    transaction.finance_account?.account_name ??
-    transaction.finance_account?.name ??
-    '-',
-  description: transaction.description ?? transaction.notes ?? '',
+  account: transaction.account?.name ?? transaction.account_name ?? transaction.account?.account_name ?? '-',
   type: transaction.transaction_type ?? transaction.type ?? '-',
   amount: Number(transaction.amount ?? 0),
   status: transaction.status ?? 'completed',
@@ -112,7 +105,6 @@ onMounted(loadTransactions)
             <th class="py-3 pr-4">Date</th>
             <th class="py-3 pr-4">Category</th>
             <th class="py-3 pr-4">Account</th>
-            <th class="py-3 pr-4">Description</th>
             <th class="py-3 pr-4">Type</th>
             <th class="py-3 pr-4 text-right">Amount</th>
             <th class="py-3 pr-4">Status</th>
@@ -135,10 +127,6 @@ onMounted(loadTransactions)
 
             <td class="py-4 pr-4 text-slate-600">
               {{ transaction.account }}
-            </td>
-
-            <td class="py-4 pr-4 text-slate-600">
-              {{ transaction.description || '-' }}
             </td>
 
             <td class="py-4 pr-4">
