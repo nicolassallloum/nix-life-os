@@ -528,29 +528,5 @@ class HealthAIInsightService
         return round($this->number($value), 2);
     }
 
-    private function recentStepsAverage(string $userId, int $days = 7): int
-    {
-        if (! Schema::hasTable('health_step_logs')) {
-            return 0;
-        }
-
-        $fromDate = now()->subDays($days - 1)->toDateString();
-
-        $average = $this->recentStepsAverage($userId);
-
-        return (int) round((float) ($average ?: 0));
-    }
-
-    private function todayStepsTotal(string $userId): int
-    {
-        if (! Schema::hasTable('health_step_logs')) {
-            return 0;
-        }
-
-        return (int) DB::table('health_step_logs')
-            ->where('user_id', $userId)
-            ->whereDate('log_date', now()->toDateString())
-            ->sum('steps');
-    }
 
 }
