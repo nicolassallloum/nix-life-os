@@ -9,6 +9,43 @@ use Illuminate\Support\Facades\Auth;
 
 class HealthMoodLogController extends Controller
 {
+    private function normalizeMoodPayload(Request $request): void
+    {
+        $rawMood = $request->input('mood_label', $request->input('mood', 'Neutral'));
+        $key = strtolower(trim((string) $rawMood));
+
+        $label = match ($key) {
+            'happy' => 'Happy',
+            'normal' => 'Neutral',
+            'stressed' => 'Stressed',
+            'sad' => 'Sad',
+            'angry' => 'Angry',
+            'tired' => 'Tired',
+            'very sad' => 'Very Sad',
+            'very happy' => 'Very Happy',
+            'good' => 'Good',
+            'calm' => 'Calm',
+            'anxious' => 'Anxious',
+            default => (string) $rawMood,
+        };
+
+        $tags = $request->input('tags', []);
+
+        if (is_string($tags)) {
+            $tags = collect(explode(',', $tags))
+                ->map(fn ($tag) => trim($tag))
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+        $request->merge([
+            'mood_date' => $request->input('mood_date', $request->input('entry_date', now()->toDateString())),
+            'mood_label' => $label,
+            'tags' => is_array($tags) ? $tags : [],
+        ]);
+    }
+
     public function index()
     {
         $logs = HealthMoodLog::where('user_id', Auth::id())
@@ -25,41 +62,51 @@ class HealthMoodLogController extends Controller
 
     public function store(Request $request)
     {
+        $this->normalizeMoodPayload($request);
+
         $validated = $request->validate([
-            'mood_date' => ['nullable', 'date'],
-            'log_date' => ['nullable', 'date'],
-            'entry_date' => ['nullable', 'date'],
-            'mood' => ['nullable', 'string', 'max:50'],
-            'mood_label' => ['nullable', 'string', 'max:50'],
-            'mood_score' => ['nullable', 'integer', 'min:1', 'max:10'],
+            'mood_date' => ['required', 'date'],
+            'mood_label' => ['required', 'string', 'max:50'],
+            'mood_score' => ['required', 'integer', 'min:1', 'max:10'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'tags' => ['nullable', 'array'],
             'tags.*' => ['nullable', 'string', 'max:50'],
         ]);
 
-        $moodDate = $validated['mood_date']
-            ?? $validated['log_date']
-            ?? $validated['entry_date']
-            ?? now()->toDateString();
+        $log = HealthMoodLog::query()
+            ->where('user_id', Auth::id())
+            ->whereDate('mood_date', $validated['mood_date'])
+            ->first();
 
-        $moodLabel = $validated['mood_label']
-            ?? $validated['mood']
-            ?? 'normal';
+        if ($log) {
+            $log->update([
+                'mood_label' => $validated['mood_label'],
+                'mood_score' => $validated['mood_score'],
+                'notes' => $validated['notes'] ?? null,
+                'tags' => $validated['tags'] ?? [],
+            ]);
 
-        $log = HealthMoodLog::create([
-            'user_id' => Auth::id(),
-            'mood_date' => $moodDate,
-            'mood_label' => $moodLabel,
-            'mood_score' => $validated['mood_score'] ?? null,
-            'notes' => $validated['notes'] ?? null,
-            'tags' => $validated['tags'] ?? [],
-        ]);
+            $message = 'Mood log updated successfully.';
+            $status = 200;
+        } else {
+            $log = HealthMoodLog::create([
+                'user_id' => Auth::id(),
+                'mood_date' => $validated['mood_date'],
+                'mood_label' => $validated['mood_label'],
+                'mood_score' => $validated['mood_score'],
+                'notes' => $validated['notes'] ?? null,
+                'tags' => $validated['tags'] ?? [],
+            ]);
+
+            $message = 'Mood log created successfully.';
+            $status = 201;
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Mood log created successfully.',
-            'data' => $log,
-        ], 201);
+            'message' => $message,
+            'data' => $log->fresh(),
+        ], $status);
     }
 
     public function show(string $id)
@@ -77,37 +124,25 @@ class HealthMoodLogController extends Controller
 
     public function update(Request $request, string $id)
     {
+        $this->normalizeMoodPayload($request);
+
         $log = HealthMoodLog::where('user_id', Auth::id())
             ->where('id', $id)
             ->firstOrFail();
 
         $validated = $request->validate([
-            'mood_date' => ['nullable', 'date'],
-            'log_date' => ['nullable', 'date'],
-            'entry_date' => ['nullable', 'date'],
-            'mood' => ['nullable', 'string', 'max:50'],
-            'mood_label' => ['nullable', 'string', 'max:50'],
-            'mood_score' => ['nullable', 'integer', 'min:1', 'max:10'],
+            'mood_date' => ['required', 'date'],
+            'mood_label' => ['required', 'string', 'max:50'],
+            'mood_score' => ['required', 'integer', 'min:1', 'max:10'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'tags' => ['nullable', 'array'],
             'tags.*' => ['nullable', 'string', 'max:50'],
         ]);
 
-        $moodDate = $validated['mood_date']
-            ?? $validated['log_date']
-            ?? $validated['entry_date']
-            ?? $log->mood_date
-            ?? now()->toDateString();
-
-        $moodLabel = $validated['mood_label']
-            ?? $validated['mood']
-            ?? $log->mood_label
-            ?? 'normal';
-
         $log->update([
-            'mood_date' => $moodDate,
-            'mood_label' => $moodLabel,
-            'mood_score' => $validated['mood_score'] ?? $log->mood_score,
+            'mood_date' => $validated['mood_date'],
+            'mood_label' => $validated['mood_label'],
+            'mood_score' => $validated['mood_score'],
             'notes' => $validated['notes'] ?? null,
             'tags' => $validated['tags'] ?? [],
         ]);

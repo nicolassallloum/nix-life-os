@@ -67,6 +67,7 @@ use App\Http\Controllers\Api\V1\HealthSleepController;
 use App\Http\Controllers\Api\V1\HealthMoodController;
 use App\Http\Controllers\Api\V1\HealthMedicationController;
 use App\Http\Controllers\Api\V1\HealthLabTestController as Phase9HealthLabTestController;
+use App\Http\Controllers\Api\V1\Dashboard\UnifiedDashboardController;
 // use App\Http\Controllers\Api\V1\FinanceCategoryController;
 // // use App\Http\Controllers\Api\V1\HealthWeightController;
 // use App\Http\Controllers\Api\V1\HealthWaterController;
@@ -142,7 +143,6 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     */
     Route::get('health/dashboard-summary', [HealthDashboardController::class, 'summary']);
     Route::apiResource('health/water', HealthWaterController::class);
-    Route::apiResource('health/sleep', HealthSleepController::class);
     Route::apiResource('health/mood', HealthMoodController::class);
 
     /*
@@ -152,6 +152,9 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     */
     Route::apiResource('projects/tasks', ProjectTaskController::class);
     Route::get('projects/{project}/tasks', [ProjectTaskController::class, 'byProject']);
+    Route::patch('projects/{project}/tasks/{task}/complete', [ProjectTaskController::class, 'complete']);
+    Route::patch('projects/{project}/tasks/{task}/reopen', [ProjectTaskController::class, 'reopen']);
+
 });
 /*
 |--------------------------------------------------------------------------
@@ -381,7 +384,9 @@ Route::prefix('v1')->group(function () {
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
+        Route::get('/dashboard/summary', [UnifiedDashboardController::class, 'summary']);
+        Route::get('/dashboard/kpis', [UnifiedDashboardController::class, 'kpis']);
+        Route::get('/dashboard/recent-activity', [UnifiedDashboardController::class, 'recentActivity']);
 
         /*
         |--------------------------------------------------------------------------
@@ -598,10 +603,14 @@ Route::prefix('v1')->group(function () {
             Route::patch('/goals', [HealthGoalController::class, 'update']);
 
             Route::get('/ai-insights', [HealthAIInsightController::class, 'index']);
+            Route::get('/ai-insights/summary', [HealthAIInsightController::class, 'summary']);
+            Route::get('/ai-insights/generate', [HealthAIInsightController::class, 'generate']);
+            Route::post('/ai-insights/generate', [HealthAIInsightController::class, 'generate']);
 
             Route::get('/medications', [MedicationController::class, 'index']);
             Route::post('/medications', [MedicationController::class, 'store']);
             Route::get('/medications/today', [MedicationController::class, 'today']);
+            Route::get('medications/today-schedule', [MedicationController::class, 'todaySchedule']);
             Route::get('/medications/{id}', [MedicationController::class, 'show']);
             Route::put('/medications/{id}', [MedicationController::class, 'update']);
             Route::patch('/medications/{id}', [MedicationController::class, 'update']);
@@ -622,6 +631,13 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/lab-tests/categories', [HealthLabTestController::class, 'categories']);
             Route::get('/lab-tests/trends', [HealthLabTestController::class, 'trends']);
+
+            // IMPORTANT: special lab-test routes must stay before /lab-tests/{id}
+            Route::post('/lab-tests/upload', [HealthLabTestController::class, 'upload']);
+            Route::post('/lab-tests/{id}/extract', [HealthLabTestController::class, 'extract']);
+            Route::get('/lab-tests/{id}/preview', [HealthLabTestController::class, 'preview']);
+            Route::post('/lab-tests/{id}/approve', [HealthLabTestController::class, 'approve']);
+
             Route::get('/lab-tests', [HealthLabTestController::class, 'index']);
             Route::post('/lab-tests', [HealthLabTestController::class, 'store']);
             Route::post('/lab-tests/upload', [HealthLabTestController::class, 'store']);
@@ -640,12 +656,14 @@ Route::prefix('v1')->group(function () {
             Route::patch('/mood/{id}', [HealthMoodLogController::class, 'update']);
             Route::delete('/mood/{id}', [HealthMoodLogController::class, 'destroy']);
 
+            Route::get('/sleep/summary', [SleepLogController::class, 'summary']);
+            Route::get('/sleep/today', [SleepLogController::class, 'today']);
             Route::get('/sleep', [SleepLogController::class, 'index']);
             Route::post('/sleep', [SleepLogController::class, 'store']);
-            Route::get('/sleep/{id}', [SleepLogController::class, 'show']);
-            Route::put('/sleep/{id}', [SleepLogController::class, 'update']);
-            Route::patch('/sleep/{id}', [SleepLogController::class, 'update']);
-            Route::delete('/sleep/{id}', [SleepLogController::class, 'destroy']);
+            Route::get('/sleep/{id}', [SleepLogController::class, 'show'])->whereUuid('id');
+            Route::put('/sleep/{id}', [SleepLogController::class, 'update'])->whereUuid('id');
+            Route::patch('/sleep/{id}', [SleepLogController::class, 'update'])->whereUuid('id');
+            Route::delete('/sleep/{id}', [SleepLogController::class, 'destroy'])->whereUuid('id');
 
             Route::get('/sleep-test', function () {
                 return response()->json([

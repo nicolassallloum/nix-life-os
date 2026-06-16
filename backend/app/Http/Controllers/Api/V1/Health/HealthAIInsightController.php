@@ -37,4 +37,15 @@ class HealthAIInsightController extends Controller
             ], 500);
         }
     }
+
+    public function summary(Request $request): JsonResponse
+    {
+        return $this->index($request);
+    }
+
+    public function generate(Request $request): JsonResponse
+    {
+        return $this->index($request);
+    }
+
 }

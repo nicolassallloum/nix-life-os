@@ -410,6 +410,8 @@ label {
 
 input,
 select {
+  color: #0f172a;
+  background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 10px;
   padding: 10px;

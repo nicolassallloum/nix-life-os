@@ -310,7 +310,7 @@ class HealthAIInsightService
         }
 
         $recent = $logs->take(7);
-        $averageSteps = $recent->avg(fn ($log) => $this->number($log->steps_count)) ?: 0;
+        $averageSteps = $recent->avg(fn ($log) => $this->number($log->steps)) ?: 0;
         $latest = $logs->first();
         $goal = $this->number($latest->goal_steps) ?: 6000;
 
@@ -527,4 +527,6 @@ class HealthAIInsightService
     {
         return round($this->number($value), 2);
     }
+
+
 }

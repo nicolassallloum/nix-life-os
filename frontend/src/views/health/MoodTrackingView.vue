@@ -657,6 +657,7 @@ onMounted(() => {
 input,
 select,
 textarea {
+  color: #111827;
   width: 100%;
   border: 1px solid #d1d5db;
   border-radius: 12px;

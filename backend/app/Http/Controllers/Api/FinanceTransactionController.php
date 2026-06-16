@@ -62,16 +62,25 @@ class FinanceTransactionController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = DB::table('finance_transactions')
-            ->orderByDesc('transaction_date')
-            ->orderByDesc('created_at');
+        $query = DB::table('finance_transactions as t')
+            ->leftJoin('finance_accounts as a', 'a.id', '=', 't.account_id')
+            ->leftJoin('finance_accounts as ta', 'ta.id', '=', 't.transfer_account_id')
+            ->select([
+                't.*',
+                'a.account_name as account_name',
+                'a.currency_code as account_currency_code',
+                'ta.account_name as transfer_account_name',
+                'ta.currency_code as transfer_account_currency_code',
+            ])
+            ->orderByDesc('t.transaction_date')
+            ->orderByDesc('t.created_at');
 
         if (! $this->isAdmin($request)) {
-            $query->where('user_id', $request->user()->id);
+            $query->where('t.user_id', $request->user()->id);
         }
 
         if ($request->filled('type')) {
-            $query->where('transaction_type', strtolower((string) $request->query('type')));
+            $query->where('t.transaction_type', strtolower((string) $request->query('type')));
         }
 
         $limit = (int) ($request->input('limit') ?: $request->input('per_page') ?: 250);
@@ -390,9 +399,18 @@ class FinanceTransactionController extends Controller
             return null;
         }
 
-        return DB::table('finance_transactions')
-            ->where('id', $id)
-            ->when(! $this->isAdmin($request), fn ($query) => $query->where('user_id', $request->user()->id))
+        return DB::table('finance_transactions as t')
+            ->leftJoin('finance_accounts as a', 'a.id', '=', 't.account_id')
+            ->leftJoin('finance_accounts as ta', 'ta.id', '=', 't.transfer_account_id')
+            ->select([
+                't.*',
+                'a.account_name as account_name',
+                'a.currency_code as account_currency_code',
+                'ta.account_name as transfer_account_name',
+                'ta.currency_code as transfer_account_currency_code',
+            ])
+            ->where('t.id', $id)
+            ->when(! $this->isAdmin($request), fn ($query) => $query->where('t.user_id', $request->user()->id))
             ->first();
     }
 
@@ -458,12 +476,52 @@ class FinanceTransactionController extends Controller
         $type = $transaction->transaction_type ?? $transaction->type ?? null;
         $currency = $transaction->currency_code ?? $transaction->currency ?? null;
 
+        $accountName = $transaction->account_name ?? null;
+        $accountCurrency = $transaction->account_currency_code ?? null;
+
+        if (! $accountName && ! empty($transaction->account_id)) {
+            $account = DB::table('finance_accounts')
+                ->select('account_name', 'currency_code')
+                ->where('id', $transaction->account_id)
+                ->first();
+
+            $accountName = $account->account_name ?? null;
+            $accountCurrency = $account->currency_code ?? $accountCurrency;
+        }
+
+        $transferAccountName = $transaction->transfer_account_name ?? null;
+        $transferAccountCurrency = $transaction->transfer_account_currency_code ?? null;
+
+        if (! $transferAccountName && ! empty($transaction->transfer_account_id)) {
+            $transferAccount = DB::table('finance_accounts')
+                ->select('account_name', 'currency_code')
+                ->where('id', $transaction->transfer_account_id)
+                ->first();
+
+            $transferAccountName = $transferAccount->account_name ?? null;
+            $transferAccountCurrency = $transferAccount->currency_code ?? $transferAccountCurrency;
+        }
+
         return [
             'id' => $transaction->id,
             'transaction_id' => $transaction->id,
             'user_id' => $transaction->user_id,
             'account_id' => $transaction->account_id,
+            'account_name' => $accountName,
+            'account' => [
+                'id' => $transaction->account_id,
+                'name' => $accountName,
+                'account_name' => $accountName,
+                'currency_code' => $accountCurrency,
+            ],
             'transfer_account_id' => $transaction->transfer_account_id ?? null,
+            'transfer_account_name' => $transferAccountName,
+            'transfer_account' => [
+                'id' => $transaction->transfer_account_id ?? null,
+                'name' => $transferAccountName,
+                'account_name' => $transferAccountName,
+                'currency_code' => $transferAccountCurrency,
+            ],
             'type' => $type,
             'transaction_type' => $type,
             'category' => $transaction->category ?? null,

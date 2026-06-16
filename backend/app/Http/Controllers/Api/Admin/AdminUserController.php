@@ -384,4 +384,271 @@ class AdminUserController extends Controller
             'errors' => $validator->errors(),
         ], 422);
     }
+
+    public function dashboard(Request $request, string $id): JsonResponse
+    {
+        try {
+            $user = DB::table('users')->where('id', $id)->first();
+
+            if (! $user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not found.',
+                ], 404);
+            }
+
+            $today = now()->toDateString();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'User finance and health dashboard loaded successfully.',
+                'data' => [
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name ?? null,
+                        'email' => $user->email ?? null,
+                        'role' => $user->role ?? null,
+                        'status' => $user->status ?? null,
+                        'created_at' => $user->created_at ?? null,
+                        'last_login_at' => $user->last_login_at ?? null,
+                    ],
+                    'finance' => $this->userFinanceDashboard($id),
+                    'health' => $this->userHealthDashboard($id, $today),
+                    'generated_at' => now()->toDateTimeString(),
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Admin user dashboard failed', [
+                'user_id' => $id,
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'User dashboard failed.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    private function userFinanceDashboard(string $userId): array
+    {
+        $accounts = $this->countRows('finance_accounts', $userId);
+        $transactions = $this->countRows('finance_transactions', $userId);
+        $budgets = $this->countRows('finance_budgets', $userId);
+        $categories = $this->countRows('finance_categories', $userId);
+
+        $totalBalance = $this->sumRows('finance_accounts', $userId, 'current_balance');
+
+        $income = 0.0;
+        $expenses = 0.0;
+        $transfers = 0.0;
+
+        if (Schema::hasTable('finance_transactions')) {
+            $income = (float) DB::table('finance_transactions')
+                ->where('user_id', $userId)
+                ->where('transaction_type', 'income')
+                ->sum('amount');
+
+            $expenses = (float) DB::table('finance_transactions')
+                ->where('user_id', $userId)
+                ->where('transaction_type', 'expense')
+                ->sum('amount');
+
+            $transfers = (float) DB::table('finance_transactions')
+                ->where('user_id', $userId)
+                ->where('transaction_type', 'transfer')
+                ->sum('amount');
+        }
+
+        return [
+            'summary' => [
+                'accounts_count' => $accounts,
+                'transactions_count' => $transactions,
+                'budgets_count' => $budgets,
+                'categories_count' => $categories,
+                'total_balance' => round($totalBalance, 2),
+                'total_income' => round($income, 2),
+                'total_expenses' => round($expenses, 2),
+                'total_transfers' => round($transfers, 2),
+                'net_total' => round($income - $expenses, 2),
+            ],
+            'recent_accounts' => $this->recentRows('finance_accounts', $userId, 5),
+            'recent_transactions' => $this->recentRows('finance_transactions', $userId, 8),
+        ];
+    }
+
+    private function userHealthDashboard(string $userId, string $today): array
+    {
+        $todaySteps = 0;
+        if (Schema::hasTable('health_step_logs')) {
+            $todaySteps = (int) DB::table('health_step_logs')
+                ->where('user_id', $userId)
+                ->whereDate('log_date', $today)
+                ->sum('steps');
+        }
+
+        $todayWater = 0;
+        if (Schema::hasTable('health_hydration_logs')) {
+            $hydrationColumn = Schema::hasColumn('health_hydration_logs', 'quantity_ml') ? 'quantity_ml' : 'amount_ml';
+            $dateColumn = Schema::hasColumn('health_hydration_logs', 'log_date') ? 'log_date' : 'created_at';
+
+            $todayWater = (int) DB::table('health_hydration_logs')
+                ->where('user_id', $userId)
+                ->whereDate($dateColumn, $today)
+                ->sum($hydrationColumn);
+        }
+
+        $todayCalories = 0;
+        $todayProtein = 0;
+        $todaySodium = 0;
+        $todayPotassium = 0;
+        $todayPhosphorus = 0;
+
+        if (Schema::hasTable('health_nutrition_logs')) {
+            $dateColumn = Schema::hasColumn('health_nutrition_logs', 'meal_date') ? 'meal_date' : 'created_at';
+
+            $base = DB::table('health_nutrition_logs')
+                ->where('user_id', $userId)
+                ->whereDate($dateColumn, $today);
+
+            $todayCalories = (float) (clone $base)->sum('calories');
+            $todayProtein = (float) (clone $base)->sum(Schema::hasColumn('health_nutrition_logs', 'protein_g') ? 'protein_g' : 'protein');
+            $todaySodium = (float) (clone $base)->sum(Schema::hasColumn('health_nutrition_logs', 'sodium_mg') ? 'sodium_mg' : 'sodium');
+            $todayPotassium = (float) (clone $base)->sum(Schema::hasColumn('health_nutrition_logs', 'potassium_mg') ? 'potassium_mg' : 'potassium');
+            $todayPhosphorus = (float) (clone $base)->sum(Schema::hasColumn('health_nutrition_logs', 'phosphorus_mg') ? 'phosphorus_mg' : 'phosphorus');
+        }
+
+        $currentWeight = null;
+        $currentBmi = null;
+        if (Schema::hasTable('health_weight_logs')) {
+            $weight = DB::table('health_weight_logs')
+                ->where('user_id', $userId)
+                ->orderByDesc(Schema::hasColumn('health_weight_logs', 'log_date') ? 'log_date' : 'created_at')
+                ->first();
+
+            $currentWeight = $weight?->weight_kg !== null ? (float) $weight->weight_kg : null;
+            $currentBmi = $weight?->bmi !== null ? (float) $weight->bmi : null;
+        }
+
+        $lastSleepHours = null;
+        if (Schema::hasTable('health_sleep_logs')) {
+            $sleep = DB::table('health_sleep_logs')
+                ->where('user_id', $userId)
+                ->orderByDesc('sleep_date')
+                ->orderByDesc('created_at')
+                ->first();
+
+            if ($sleep) {
+                $lastSleepHours = $sleep->duration_hours !== null
+                    ? (float) $sleep->duration_hours
+                    : round(((int) ($sleep->duration_minutes ?? 0)) / 60, 2);
+            }
+        }
+
+        $todayMood = null;
+        if (Schema::hasTable('health_mood_logs')) {
+            $todayMood = DB::table('health_mood_logs')
+                ->where('user_id', $userId)
+                ->whereDate('mood_date', $today)
+                ->orderByDesc('updated_at')
+                ->value('mood_label');
+        }
+
+        $activeMedications = 0;
+        if (Schema::hasTable('health_medications')) {
+            $activeMedications = DB::table('health_medications')
+                ->where('user_id', $userId)
+                ->where('status', 'active')
+                ->count();
+        }
+
+        return [
+            'summary' => [
+                'today_steps' => $todaySteps,
+                'today_water_ml' => $todayWater,
+                'today_calories' => round($todayCalories, 2),
+                'today_protein_g' => round($todayProtein, 2),
+                'today_sodium_mg' => round($todaySodium, 2),
+                'today_potassium_mg' => round($todayPotassium, 2),
+                'today_phosphorus_mg' => round($todayPhosphorus, 2),
+                'current_weight_kg' => $currentWeight,
+                'current_bmi' => $currentBmi,
+                'last_sleep_hours' => $lastSleepHours,
+                'today_mood' => $todayMood,
+                'active_medications' => $activeMedications,
+                'lab_tests_count' => $this->countRows('health_lab_tests', $userId),
+                'active_alerts_count' => $this->countRowsWhere('health_alerts', $userId, 'status', 'active'),
+            ],
+            'counts' => [
+                'step_logs' => $this->countRows('health_step_logs', $userId),
+                'hydration_logs' => $this->countRows('health_hydration_logs', $userId),
+                'nutrition_logs' => $this->countRows('health_nutrition_logs', $userId),
+                'weight_logs' => $this->countRows('health_weight_logs', $userId),
+                'sleep_logs' => $this->countRows('health_sleep_logs', $userId),
+                'mood_logs' => $this->countRows('health_mood_logs', $userId),
+                'medications' => $this->countRows('health_medications', $userId),
+                'lab_tests' => $this->countRows('health_lab_tests', $userId),
+                'alerts' => $this->countRows('health_alerts', $userId),
+            ],
+            'recent_steps' => $this->recentRows('health_step_logs', $userId, 5),
+            'recent_nutrition' => $this->recentRows('health_nutrition_logs', $userId, 5),
+            'recent_weight' => $this->recentRows('health_weight_logs', $userId, 5),
+            'recent_sleep' => $this->recentRows('health_sleep_logs', $userId, 5),
+            'recent_mood' => $this->recentRows('health_mood_logs', $userId, 5),
+            'recent_medications' => $this->recentRows('health_medications', $userId, 5),
+            'recent_lab_tests' => $this->recentRows('health_lab_tests', $userId, 5),
+            'recent_alerts' => $this->recentRows('health_alerts', $userId, 5),
+        ];
+    }
+
+    private function countRows(string $table, string $userId): int
+    {
+        if (! Schema::hasTable($table) || ! Schema::hasColumn($table, 'user_id')) {
+            return 0;
+        }
+
+        return DB::table($table)->where('user_id', $userId)->count();
+    }
+
+    private function countRowsWhere(string $table, string $userId, string $column, mixed $value): int
+    {
+        if (! Schema::hasTable($table) || ! Schema::hasColumn($table, 'user_id') || ! Schema::hasColumn($table, $column)) {
+            return 0;
+        }
+
+        return DB::table($table)->where('user_id', $userId)->where($column, $value)->count();
+    }
+
+    private function sumRows(string $table, string $userId, string $column): float
+    {
+        if (! Schema::hasTable($table) || ! Schema::hasColumn($table, 'user_id') || ! Schema::hasColumn($table, $column)) {
+            return 0.0;
+        }
+
+        return (float) DB::table($table)->where('user_id', $userId)->sum($column);
+    }
+
+    private function recentRows(string $table, string $userId, int $limit = 5): array
+    {
+        if (! Schema::hasTable($table) || ! Schema::hasColumn($table, 'user_id')) {
+            return [];
+        }
+
+        $orderColumn = Schema::hasColumn($table, 'updated_at')
+            ? 'updated_at'
+            : (Schema::hasColumn($table, 'created_at') ? 'created_at' : 'id');
+
+        return DB::table($table)
+            ->where('user_id', $userId)
+            ->orderByDesc($orderColumn)
+            ->limit($limit)
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->toArray();
+    }
+
+
 }

@@ -34,6 +34,8 @@ class HealthHydrationController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        $this->normalizeIncomingPayload($request);
+
         $validated = $request->validate([
             'hydration_type' => ['required', 'string', Rule::in($this->types)],
             'quantity_ml' => ['required', 'integer', 'min:1', 'max:10000'],
@@ -57,7 +59,7 @@ class HealthHydrationController extends Controller
         $this->put($payload, 'amount_ml', $quantity);
         $this->put($payload, 'water_ml', $drinkType === 'water' ? $quantity : 0);
         $this->put($payload, 'log_date', $date);
-        $this->put($payload, 'log_time', $date . ' ' . $time . ':00');
+        $this->put($payload, 'log_time', $time . ':00');
         $this->put($payload, 'is_ckd_safe', true);
         $this->put($payload, 'source', 'manual');
         $this->put($payload, 'notes', $validated['notes'] ?? null);
@@ -80,6 +82,8 @@ class HealthHydrationController extends Controller
 
     public function update(Request $request, string $id): JsonResponse
     {
+        $this->normalizeIncomingPayload($request);
+
         $validated = $request->validate([
             'hydration_type' => ['sometimes', 'required', 'string', Rule::in($this->types)],
             'quantity_ml' => ['sometimes', 'required', 'integer', 'min:1', 'max:10000'],
@@ -109,8 +113,7 @@ class HealthHydrationController extends Controller
         }
 
         if (isset($validated['log_time'])) {
-            $date = $validated['log_date'] ?? date('Y-m-d');
-            $this->put($payload, 'log_time', $date . ' ' . $validated['log_time'] . ':00');
+            $this->put($payload, 'log_time', $validated['log_time'] . ':00');
         }
 
         if (array_key_exists('notes', $validated)) {
@@ -151,11 +154,24 @@ class HealthHydrationController extends Controller
             'success' => true,
             'message' => 'Hydration summary retrieved successfully.',
             'data' => [
-                'today_ml' => $this->sum($userId, date('Y-m-d')),
-                'week_ml' => $this->sum($userId, now()->startOfWeek()->toDateString()),
-                'month_ml' => $this->sum($userId, now()->startOfMonth()->toDateString()),
-                'all_time_ml' => $this->sum($userId, null),
-                'target_ml' => 2000,
+                'today_ml' => $todayMl = $this->sum($userId, date('Y-m-d')),
+                'week_ml' => $weekMl = $this->sum($userId, now()->startOfWeek()->toDateString()),
+                'month_ml' => $monthMl = $this->sum($userId, now()->startOfMonth()->toDateString()),
+                'all_time_ml' => $allTimeMl = $this->sum($userId, null),
+                'target_ml' => $targetMl = $this->targetMl($userId),
+
+                'daily_total_ml' => $todayMl,
+                'weekly_total_ml' => $weekMl,
+                'monthly_total_ml' => $monthMl,
+                'all_time_total_ml' => $allTimeMl,
+
+                'daily_total_liters' => round($todayMl / 1000, 2),
+                'weekly_total_liters' => round($weekMl / 1000, 2),
+                'monthly_total_liters' => round($monthMl / 1000, 2),
+                'all_time_total_liters' => round($allTimeMl / 1000, 2),
+
+                'daily_goal_ml' => $targetMl,
+                'goal_ml' => $targetMl,
             ],
         ]);
     }
@@ -205,7 +221,7 @@ class HealthHydrationController extends Controller
             ->orderByRaw("LOWER(REPLACE($typeColumn, ' ', '_'))")
             ->get()
             ->map(fn ($row) => [
-                'type' => match ($row->type_key) {
+                'hydration_type' => $label = match ($row->type_key) {
                     'water' => 'Water',
                     'coffee' => 'Coffee',
                     'tea' => 'Tea',
@@ -214,10 +230,58 @@ class HealthHydrationController extends Controller
                     'soup' => 'Soup',
                     default => 'Other',
                 },
+                'type' => $label,
                 'total_ml' => (int) $row->total_ml,
             ])
             ->values()
             ->toArray();
+    }
+
+
+    private function normalizeIncomingPayload(Request $request): void
+    {
+        $rawType = $request->input('hydration_type', $request->input('drink_type', 'Water'));
+        $type = $this->normalizeType((string) $rawType);
+
+        $quantity = $request->input(
+            'quantity_ml',
+            $request->input('amount_ml', $request->input('water_ml', 250))
+        );
+
+        $request->merge([
+            'hydration_type' => $type,
+            'quantity_ml' => (int) $quantity,
+            'log_date' => $request->input('log_date', now()->toDateString()),
+            'log_time' => substr((string) $request->input('log_time', now()->format('H:i')), 0, 5),
+        ]);
+    }
+
+    private function normalizeType(string $type): string
+    {
+        $key = strtolower(trim(str_replace(['-', '_'], ' ', $type)));
+
+        return match ($key) {
+            'water' => 'Water',
+            'coffee' => 'Coffee',
+            'tea' => 'Tea',
+            'juice' => 'Juice',
+            'soft drink', 'softdrink', 'soda' => 'Soft Drink',
+            'soup' => 'Soup',
+            default => 'Other',
+        };
+    }
+
+    private function targetMl(string $userId): int
+    {
+        try {
+            $target = DB::table('health_user_goals')
+                ->where('user_id', $userId)
+                ->value('daily_water_goal_ml');
+
+            return (int) ($target ?: 2000);
+        } catch (\Throwable $e) {
+            return 2000;
+        }
     }
 
     private function put(array &$payload, string $column, mixed $value): void

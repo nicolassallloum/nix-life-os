@@ -61,6 +61,40 @@
       </ul>
     </div>
 
+    <div class="limits-card">
+      <div class="limits-header">
+        <div>
+          <h3>Editable Daily Nutrition Limits</h3>
+          <p>Update the maximum values used for daily warnings.</p>
+        </div>
+        <button type="button" class="btn-small" @click="resetLimits">
+          Reset Defaults
+        </button>
+      </div>
+
+      <div class="limits-grid">
+        <div class="form-group">
+          <label>Protein Max g</label>
+          <input type="number" min="0" step="1" v-model.number="ckdLimits.protein" />
+        </div>
+
+        <div class="form-group">
+          <label>Sodium Max mg</label>
+          <input type="number" min="0" step="50" v-model.number="ckdLimits.sodium" />
+        </div>
+
+        <div class="form-group">
+          <label>Potassium Max mg</label>
+          <input type="number" min="0" step="50" v-model.number="ckdLimits.potassium" />
+        </div>
+
+        <div class="form-group">
+          <label>Phosphorus Max mg</label>
+          <input type="number" min="0" step="50" v-model.number="ckdLimits.phosphorus" />
+        </div>
+      </div>
+    </div>
+
     <div class="content-grid">
       <section class="form-card">
         <h2>{{ isEditing ? 'Edit Meal' : 'Add Meal' }}</h2>
@@ -341,6 +375,15 @@ export default {
   },
 
   methods: {
+    resetLimits() {
+      this.ckdLimits = {
+        protein: 50,
+        sodium: 2000,
+        potassium: 2000,
+        phosphorus: 800
+      }
+    },
+
     getEmptyForm() {
       return {
         meal_date: new Date().toISOString().slice(0, 10),
@@ -476,9 +519,15 @@ export default {
         unit: this.form.unit,
         calories: this.form.calories || 0,
         protein: this.form.protein || 0,
+        protein_g: this.form.protein || 0,
+        carbs_g: this.form.carbs || 0,
+        fat_g: this.form.fat || 0,
         sodium: this.form.sodium || 0,
+        sodium_mg: this.form.sodium || 0,
         potassium: this.form.potassium || 0,
+        potassium_mg: this.form.potassium || 0,
         phosphorus: this.form.phosphorus || 0,
+        phosphorus_mg: this.form.phosphorus || 0,
         notes: this.form.notes || ''
       }
 
@@ -914,6 +963,40 @@ textarea {
 .meal-actions .danger {
   background: #fee2e2;
   color: #991b1b;
+}
+
+
+.limits-card {
+  background: #ffffff;
+  border: 1px solid #dbeafe;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+}
+
+.limits-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.limits-header h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.limits-header p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.limits-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 14px;
 }
 
 @media (max-width: 1100px) {

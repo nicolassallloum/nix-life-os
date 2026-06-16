@@ -52,9 +52,9 @@ async function loadDashboard() {
         getStepsHistory(30),
       ]);
 
-    profile.value = profileResponse.data;
-    summary.value = summaryResponse.data;
-    logs.value = historyResponse.data;
+    profile.value = profileResponse.data?.data || profileResponse.data || profile.value;
+    summary.value = summaryResponse.data?.data || summaryResponse.data || summary.value;
+    logs.value = Array.isArray(historyResponse.data?.data) ? historyResponse.data.data : (Array.isArray(historyResponse.data) ? historyResponse.data : []);
   } catch (error) {
     console.error("Steps dashboard error:", error.response?.data || error);
 
@@ -255,7 +255,7 @@ onMounted(() => {
                 <input
                   v-model="stepForm.log_date"
                   type="date"
-                  class="w-full rounded-xl border border-slate-300 px-4 py-2 focus:border-slate-900 focus:outline-none"
+                  class="w-full rounded-xl border border-slate-300 px-4 py-2 text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
                 />
               </div>
 
@@ -267,7 +267,7 @@ onMounted(() => {
                   v-model="stepForm.steps_count"
                   type="number"
                   min="0"
-                  class="w-full rounded-xl border border-slate-300 px-4 py-2 focus:border-slate-900 focus:outline-none"
+                  class="w-full rounded-xl border border-slate-300 px-4 py-2 text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
                   placeholder="Example: 6500"
                 />
               </div>
@@ -279,7 +279,7 @@ onMounted(() => {
                 <textarea
                   v-model="stepForm.notes"
                   rows="3"
-                  class="w-full rounded-xl border border-slate-300 px-4 py-2 focus:border-slate-900 focus:outline-none"
+                  class="w-full rounded-xl border border-slate-300 px-4 py-2 text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
                   placeholder="Optional notes"
                 ></textarea>
               </div>
@@ -309,7 +309,7 @@ onMounted(() => {
                   v-model="profile.daily_steps_goal"
                   type="number"
                   min="500"
-                  class="w-full rounded-xl border border-slate-300 px-4 py-2 focus:border-slate-900 focus:outline-none"
+                  class="w-full rounded-xl border border-slate-300 px-4 py-2 text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
                 />
               </div>
 
@@ -322,7 +322,7 @@ onMounted(() => {
                   type="number"
                   min="30"
                   step="0.01"
-                  class="w-full rounded-xl border border-slate-300 px-4 py-2 focus:border-slate-900 focus:outline-none"
+                  class="w-full rounded-xl border border-slate-300 px-4 py-2 text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:outline-none"
                 />
                 <p class="mt-1 text-xs text-slate-400">
                   Default: 75 cm. Used to calculate distance.

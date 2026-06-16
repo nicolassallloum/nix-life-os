@@ -11,16 +11,19 @@
     </div>
 
     <div v-if="errorMessage" class="alert error">{{ errorMessage }}</div>
-    <div v-if="successMessage" class="alert success">{{ successMessage }}</div>
 
-    <section v-if="showCreateForm" class="content-card create-card">
-      <h2>Create Project</h2>
-      <p>Enter the project name and how many starter tasks you want to create.</p>
+    <form v-if="showCreateForm" class="content-card create-form" @submit.prevent="createProjectFromForm">
+      <div class="section-header">
+        <div>
+          <h2>Create New Project</h2>
+          <p>Enter project name and how many starter tasks you want to create.</p>
+        </div>
+      </div>
 
-      <form class="project-form" @submit.prevent="submitProject">
+      <div class="form-grid">
         <label>
           Project Name
-          <input v-model.trim="form.project_name" type="text" placeholder="Example: Nix Life OS Phase 4" required />
+          <input v-model="form.project_name" type="text" placeholder="Example: Website Redesign" required />
         </label>
 
         <label>
@@ -28,37 +31,19 @@
           <input v-model.number="form.number_of_tasks" type="number" min="0" max="100" placeholder="Example: 5" />
         </label>
 
-        <label>
+        <label class="full">
           Description
-          <textarea v-model.trim="form.description" rows="3" placeholder="Optional project description"></textarea>
+          <textarea v-model="form.description" rows="3" placeholder="Optional project description"></textarea>
         </label>
+      </div>
 
-        <div class="form-row">
-          <label>
-            Priority
-            <select v-model="form.priority">
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="critical">Critical</option>
-            </select>
-          </label>
-
-          <label>
-            Status
-            <select v-model="form.status">
-              <option value="not_started">Not Started</option>
-              <option value="in_progress">In Progress</option>
-              <option value="on_hold">On Hold</option>
-            </select>
-          </label>
-        </div>
-
+      <div class="actions form-actions">
         <button class="primary-btn" type="submit" :disabled="saving">
-          {{ saving ? 'Creating...' : 'Create Project' }}
+          {{ saving ? 'Creating...' : 'Save Project' }}
         </button>
-      </form>
-    </section>
+        <button class="secondary-btn" type="button" @click="resetForm" :disabled="saving">Clear</button>
+      </div>
+    </form>
 
     <div class="cards-grid">
       <div class="summary-card">
@@ -142,7 +127,7 @@
 
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { createProject, getProjects, normalizeList } from '@/services/projectService'
 
 const projects = ref<any[]>([])
@@ -150,14 +135,11 @@ const loading = ref(false)
 const saving = ref(false)
 const showCreateForm = ref(false)
 const errorMessage = ref('')
-const successMessage = ref('')
 
-const form = reactive({
+const form = ref({
   project_name: '',
   number_of_tasks: 0,
   description: '',
-  priority: 'medium',
-  status: 'not_started',
 })
 
 const summary = computed(() => {
@@ -171,16 +153,17 @@ const summary = computed(() => {
   return { total, active, completed, averageProgress }
 })
 
-function formatStatus(value: string) {
-  return String(value || 'unknown').replaceAll('_', ' ')
+function makeTimestamp() {
+  return new Date()
+    .toISOString()
+    .slice(0, 19)
+    .replaceAll('-', '')
+    .replaceAll(':', '')
+    .replaceAll('T', '')
 }
 
-function resetForm() {
-  form.project_name = ''
-  form.number_of_tasks = 0
-  form.description = ''
-  form.priority = 'medium'
-  form.status = 'not_started'
+function formatStatus(value: string) {
+  return String(value || 'unknown').replaceAll('_', ' ')
 }
 
 async function loadProjects() {
@@ -197,27 +180,29 @@ async function loadProjects() {
   }
 }
 
-async function submitProject() {
-  if (!form.project_name.trim()) {
-    errorMessage.value = 'Project name is required.'
-    return
+function resetForm() {
+  form.value = {
+    project_name: '',
+    number_of_tasks: 0,
+    description: '',
   }
+}
 
+async function createProjectFromForm() {
   saving.value = true
   errorMessage.value = ''
-  successMessage.value = ''
 
   try {
+    const stamp = makeTimestamp()
     await createProject({
-      project_name: form.project_name,
-      description: form.description || null,
-      number_of_tasks: Number(form.number_of_tasks || 0),
-      status: form.status,
-      priority: form.priority,
+      project_name: form.value.project_name,
+      project_code: `NIX-${stamp}`,
+      description: form.value.description || null,
+      number_of_tasks: Number(form.value.number_of_tasks || 0),
+      status: 'not_started',
+      priority: 'medium',
       start_date: new Date().toISOString().slice(0, 10),
     })
-
-    successMessage.value = 'Project created successfully.'
     resetForm()
     showCreateForm.value = false
     await loadProjects()
@@ -235,17 +220,12 @@ onMounted(loadProjects)
 .page { padding: 24px; }
 .page-header, .section-header { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 24px; }
 .page-header h1 { margin: 0; font-size: 28px; font-weight: 800; color: #111827; }
-.page-header p, .section-header p, .create-card p { margin: 6px 0 0; color: #6b7280; }
+.page-header p, .section-header p { margin: 6px 0 0; color: #6b7280; }
 .primary-btn, .secondary-btn, .small-btn { border: none; text-decoration: none; padding: 11px 18px; border-radius: 12px; font-weight: 700; cursor: pointer; }
 .primary-btn { background: #2563eb; color: white; }
 .secondary-btn, .small-btn { background: #f3f4f6; color: #111827; }
 .cards-grid { display: grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
 .summary-card, .content-card, .project-card { background: white; border: 1px solid #e5e7eb; border-radius: 18px; padding: 20px; box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06); }
-.create-card { margin-bottom: 24px; }
-.project-form { display: grid; gap: 14px; margin-top: 16px; }
-.project-form label { display: grid; gap: 8px; color: #374151; font-weight: 700; }
-.project-form input, .project-form textarea, .project-form select { width: 100%; border: 1px solid #d1d5db; border-radius: 12px; padding: 11px 12px; font: inherit; }
-.form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
 .summary-card h3, .project-card h3 { margin: 0 0 10px; color: #374151; font-size: 14px; }
 .summary-card strong { display: block; font-size: 30px; color: #111827; }
 .summary-card span, .muted { color: #6b7280; font-size: 13px; }
@@ -259,9 +239,15 @@ onMounted(loadProjects)
 .progress-label { justify-content: space-between; margin-bottom: 8px; color: #374151; }
 .progress-bar { height: 10px; background: #e5e7eb; border-radius: 999px; overflow: hidden; }
 .progress-bar div { height: 100%; background: #2563eb; }
-.alert { margin-bottom: 16px; padding: 12px 14px; border-radius: 12px; }
-.alert.error { background: #fef2f2; color: #991b1b; }
-.alert.success { background: #ecfdf5; color: #065f46; }
-@media (max-width: 900px) { .cards-grid, .form-row { grid-template-columns: repeat(2, 1fr); } .page-header, .section-header { flex-direction: column; align-items: flex-start; } }
-@media (max-width: 520px) { .cards-grid, .form-row { grid-template-columns: 1fr; } }
+.alert.error { margin-bottom: 16px; padding: 12px 14px; border-radius: 12px; background: #fef2f2; color: #991b1b; }
+
+.create-form { margin-bottom: 24px; }
+.form-grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 16px; }
+.form-grid label { display: grid; gap: 8px; color: #374151; font-weight: 700; }
+.form-grid input, .form-grid textarea { width: 100%; border: 1px solid #d1d5db; border-radius: 12px; padding: 11px 12px; color: #111827; background: white; }
+.form-grid .full { grid-column: 1 / -1; }
+.form-actions { justify-content: flex-start; margin-top: 16px; }
+
+@media (max-width: 900px) { .cards-grid { grid-template-columns: repeat(2, 1fr); } .page-header, .section-header { flex-direction: column; align-items: flex-start; } }
+@media (max-width: 520px) { .cards-grid { grid-template-columns: 1fr; } }
 </style>

@@ -101,32 +101,9 @@
         <p>{{ alert.message }}</p>
 
         <div class="alert-actions">
-          <button
-            v-if="!alert.read_at"
-            class="action-btn read-btn"
-            type="button"
-            @click="markAsRead(alert.id)"
-          >
-            Mark Read
-          </button>
-
-          <button
-            v-if="alert.status === 'active'"
-            class="action-btn resolve-btn"
-            type="button"
-            @click="resolveAlert(alert.id)"
-          >
-            Resolve
-          </button>
-
-          <button
-            v-if="alert.status === 'active'"
-            class="action-btn dismiss-btn"
-            type="button"
-            @click="dismissAlert(alert.id)"
-          >
-            Dismiss
-          </button>
+          <button @click="markAsRead(alert.id)">Read</button>
+          <button @click="resolveAlert(alert.id)">Resolve</button>
+          <button @click="dismissAlert(alert.id)">Dismiss</button>
         </div>
       </article>
     </div>
@@ -400,51 +377,105 @@ onMounted(async () => {
   cursor: pointer;
 }
 
-.action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 92px;
-  min-height: 38px;
-  border: 1px solid transparent;
+/* Step 37: force readable Health Alerts buttons */
+.health-alerts-panel button,
+.alerts-panel button,
+.alert-actions button,
+.actions button,
+button {
+  color: #0f172a;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
   border-radius: 10px;
-  padding: 9px 14px;
-  font-size: 13px;
-  font-weight: 900;
-  line-height: 1;
-  cursor: pointer;
-  white-space: nowrap;
-  color: #ffffff !important;
-  background: #334155;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
+  font-weight: 700;
 }
 
-.action-btn:hover {
-  filter: brightness(0.96);
+.health-alerts-panel button:hover,
+.alerts-panel button:hover,
+.alert-actions button:hover,
+.actions button:hover,
+button:hover {
+  background: #f8fafc;
+  color: #0f172a;
 }
 
-.action-btn:disabled {
+.health-alerts-panel button:disabled,
+.alerts-panel button:disabled,
+.alert-actions button:disabled,
+.actions button:disabled,
+button:disabled {
+  color: #64748b;
+  background: #e2e8f0;
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
-.read-btn,
-.neutral-btn {
-  background: #2563eb !important;
-  border-color: #1d4ed8 !important;
-  color: #ffffff !important;
+.health-alerts-panel .primary-btn,
+.health-alerts-panel .run-btn,
+.health-alerts-panel .refresh-btn,
+.alerts-panel .primary-btn,
+.alerts-panel .run-btn,
+.alerts-panel .refresh-btn,
+button.primary-btn,
+button.run-btn,
+button.refresh-btn {
+  color: #ffffff;
+  background: #0f172a;
+  border-color: #0f172a;
 }
 
-.resolve-btn {
-  background: #16a34a !important;
-  border-color: #15803d !important;
-  color: #ffffff !important;
+.health-alerts-panel .primary-btn:hover,
+.health-alerts-panel .run-btn:hover,
+.health-alerts-panel .refresh-btn:hover,
+.alerts-panel .primary-btn:hover,
+.alerts-panel .run-btn:hover,
+.alerts-panel .refresh-btn:hover,
+button.primary-btn:hover,
+button.run-btn:hover,
+button.refresh-btn:hover {
+  color: #ffffff;
+  background: #1e293b;
 }
 
-.dismiss-btn {
-  background: #f59e0b !important;
-  border-color: #d97706 !important;
-  color: #111827 !important;
+.health-alerts-panel .read-btn,
+.health-alerts-panel .resolve-btn,
+.health-alerts-panel .dismiss-btn,
+.health-alerts-panel .delete-btn,
+.alerts-panel .read-btn,
+.alerts-panel .resolve-btn,
+.alerts-panel .dismiss-btn,
+.alerts-panel .delete-btn,
+button.read-btn,
+button.resolve-btn,
+button.dismiss-btn,
+button.delete-btn {
+  color: #0f172a;
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.health-alerts-panel .resolve-btn,
+.alerts-panel .resolve-btn,
+button.resolve-btn {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.health-alerts-panel .dismiss-btn,
+.alerts-panel .dismiss-btn,
+button.dismiss-btn {
+  color: #92400e;
+  background: #fef3c7;
+  border-color: #fde68a;
+}
+
+.health-alerts-panel .delete-btn,
+.alerts-panel .delete-btn,
+button.delete-btn {
+  color: #991b1b;
+  background: #fee2e2;
+  border-color: #fecaca;
 }
 
 </style>

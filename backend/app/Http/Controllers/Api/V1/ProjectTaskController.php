@@ -90,8 +90,32 @@ class ProjectTaskController extends Controller
             $query = DB::table($this->tableName())
                 ->where('user_id', $userId);
 
-            if ($request->filled('project_id') && in_array('project_id', $columns, true)) {
-                $query->where('project_id', $request->project_id);
+            $projectId = null;
+
+            if ($request->route('project')) {
+                $routeProject = $request->route('project');
+                $projectId = is_object($routeProject) && isset($routeProject->id)
+                    ? $routeProject->id
+                    : $routeProject;
+            }
+
+            if (!$projectId && preg_match('#/projects/([^/]+)/tasks#', $request->path(), $matches)) {
+                $projectId = $matches[1];
+            }
+
+            if (!$projectId && $request->filled('project_id')) {
+                $projectId = $request->project_id;
+            }
+
+            if ($projectId && in_array('project_id', $columns, true)) {
+                $projectExists = DB::table('projects')
+                    ->where('id', $projectId)
+                    ->where('user_id', $userId)
+                    ->exists();
+
+                abort_if(!$projectExists, 403, 'Unauthorized project access.');
+
+                $query->where('project_id', $projectId);
             }
 
             if ($request->filled('status') && in_array('status', $columns, true)) {
@@ -116,7 +140,9 @@ class ProjectTaskController extends Controller
                 });
             }
 
-            if ($dueDateColumn) {
+            if (in_array('task_order', $columns, true)) {
+                $query->orderBy('task_order');
+            } elseif ($dueDateColumn) {
                 $query->orderByRaw("CASE WHEN {$dueDateColumn} IS NULL THEN 1 ELSE 0 END");
                 $query->orderBy($dueDateColumn);
             } elseif ($titleColumn) {
@@ -512,6 +538,126 @@ class ProjectTaskController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Project task update failed.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function complete(Request $request, $project, $task)
+    {
+        try {
+            $userId = (string) $request->user()->id;
+            $columns = $this->columns();
+
+            $projectExists = DB::table('projects')
+                ->where('id', $project)
+                ->where('user_id', $userId)
+                ->exists();
+
+            abort_if(!$projectExists, 403, 'Unauthorized project access.');
+
+            $update = [];
+
+            if (in_array('status', $columns, true)) {
+                $update['status'] = 'done';
+            }
+
+            if (in_array('progress_percentage', $columns, true)) {
+                $update['progress_percentage'] = 100;
+            }
+
+            if (in_array('completed_at', $columns, true)) {
+                $update['completed_at'] = now();
+            }
+
+            if (in_array('updated_at', $columns, true)) {
+                $update['updated_at'] = now();
+            }
+
+            DB::table($this->tableName())
+                ->where('id', $task)
+                ->where('project_id', $project)
+                ->where('user_id', $userId)
+                ->update($update);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Project task marked as done.',
+                'data' => DB::table($this->tableName())
+                    ->where('id', $task)
+                    ->where('user_id', $userId)
+                    ->first(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Project task complete failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Project task complete failed.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function reopen(Request $request, $project, $task)
+    {
+        try {
+            $userId = (string) $request->user()->id;
+            $columns = $this->columns();
+
+            $projectExists = DB::table('projects')
+                ->where('id', $project)
+                ->where('user_id', $userId)
+                ->exists();
+
+            abort_if(!$projectExists, 403, 'Unauthorized project access.');
+
+            $update = [];
+
+            if (in_array('status', $columns, true)) {
+                $update['status'] = 'todo';
+            }
+
+            if (in_array('progress_percentage', $columns, true)) {
+                $update['progress_percentage'] = 0;
+            }
+
+            if (in_array('completed_at', $columns, true)) {
+                $update['completed_at'] = null;
+            }
+
+            if (in_array('updated_at', $columns, true)) {
+                $update['updated_at'] = now();
+            }
+
+            DB::table($this->tableName())
+                ->where('id', $task)
+                ->where('project_id', $project)
+                ->where('user_id', $userId)
+                ->update($update);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Project task reopened.',
+                'data' => DB::table($this->tableName())
+                    ->where('id', $task)
+                    ->where('user_id', $userId)
+                    ->first(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Project task reopen failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Project task reopen failed.',
                 'error' => $e->getMessage(),
             ], 500);
         }

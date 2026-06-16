@@ -85,6 +85,25 @@
             {{ savingDone === task.id ? 'Saving...' : 'Done' }}
           </button>
           <button class="small-btn" @click="loadSteps(task.id)">View Steps</button>
+
+          <button
+            v-if="task.status !== 'done'"
+            class="done-btn"
+            @click="markTaskDone(task.id)"
+            :disabled="savingStep === task.id"
+          >
+            {{ savingStep === task.id ? 'Saving...' : 'Done' }}
+          </button>
+
+          <button
+            v-else
+            class="small-btn"
+            @click="reopenTask(task.id)"
+            :disabled="savingStep === task.id"
+          >
+            {{ savingStep === task.id ? 'Saving...' : 'Reopen' }}
+          </button>
+
           <button class="small-btn" @click="createDemoStep(task.id)" :disabled="savingStep === task.id">
             {{ savingStep === task.id ? 'Adding...' : 'Add Done Step' }}
           </button>
@@ -109,6 +128,8 @@ import { computed, onMounted, ref } from 'vue'
 import {
   createProjectTask,
   createProjectTaskStep,
+  completeProjectTask,
+  reopenProjectTask,
   getProjectTaskSteps,
   getProjectTasks,
   getProjects,
@@ -224,6 +245,38 @@ async function loadSteps(taskId: string) {
   steps.value = normalizeList(response)
 }
 
+async function markTaskDone(taskId: string) {
+  if (!activeProjectId.value) return
+
+  savingStep.value = taskId
+  errorMessage.value = ''
+
+  try {
+    await completeProjectTask(activeProjectId.value, taskId)
+    await loadTasks()
+  } catch (error: any) {
+    errorMessage.value = error?.response?.data?.message || 'Failed to mark task as done.'
+  } finally {
+    savingStep.value = ''
+  }
+}
+
+async function reopenTask(taskId: string) {
+  if (!activeProjectId.value) return
+
+  savingStep.value = taskId
+  errorMessage.value = ''
+
+  try {
+    await reopenProjectTask(activeProjectId.value, taskId)
+    await loadTasks()
+  } catch (error: any) {
+    errorMessage.value = error?.response?.data?.message || 'Failed to reopen task.'
+  } finally {
+    savingStep.value = ''
+  }
+}
+
 async function createDemoStep(taskId: string) {
   if (!activeProjectId.value) return
 
@@ -266,6 +319,7 @@ onMounted(async () => {
 .page-header p, .task-card p { color: #6b7280; }
 .primary-btn, .secondary-btn, .small-btn { border: none; padding: 10px 16px; border-radius: 12px; font-weight: 700; cursor: pointer; }
 .primary-btn { background: #2563eb; color: white; }
+.done-btn { border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; background: #16a34a; color: white; }
 .secondary-btn, .small-btn { background: #f3f4f6; color: #111827; }
 .done-btn { border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; background: #16a34a; color: white; }
 .done-btn:disabled { opacity: 0.65; cursor: not-allowed; }
