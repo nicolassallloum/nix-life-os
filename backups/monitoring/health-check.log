@@ -38021,3 +38021,32 @@ AI Engine Internal Health
 Nix Life OS Health Check: FAIL
 Finished: 2026-06-16 20:05:03 EEST
 ==================================================
+==================================================
+Nix Life OS Health Check
+Started: 2026-06-16 20:10:01 EEST
+Base URL: https://nixlifeos.com
+==================================================
+[2026-06-16 20:10:02 EEST] FAIL - Frontend HTTPS - Expected 200 but got 000
+[2026-06-16 20:10:03 EEST] FAIL - Backend API HTTPS - Expected 200 but got 000
+[2026-06-16 20:10:03 EEST] FAIL - AI Public Block HTTPS - Expected 404 but got 000
+--------------------------------------------------
+Docker Containers
+--------------------------------------------------
+NAME                      IMAGE                   COMMAND                  SERVICE         CREATED       STATUS                   PORTS
+nixlifeos-ai-engine       nix-life-os-ai-engine   "uvicorn app:app --h…"   ai-engine       2 weeks ago   Up 6 days (healthy)      5000/tcp
+nixlifeos-backend         nix-life-os-backend     "docker-php-entrypoi…"   backend         13 days ago   Up 4 minutes (healthy)   9000/tcp
+nixlifeos-backend-nginx   nginx:1.27-alpine       "/docker-entrypoint.…"   backend-nginx   2 weeks ago   Up 4 minutes             0.0.0.0:8000->80/tcp, 0.0.0.0:8001->80/tcp, [::]:8000->80/tcp, [::]:8001->80/tcp
+nixlifeos-frontend        nix-life-os-frontend    "/docker-entrypoint.…"   frontend        13 days ago   Up 5 days                80/tcp
+nixlifeos-nginx           nginx:1.27-alpine       "/docker-entrypoint.…"   nginx           2 weeks ago   Up 5 days                127.0.0.1:8088->80/tcp
+nixlifeos-postgres        postgres:18             "docker-entrypoint.s…"   postgres        2 weeks ago   Up 6 days (healthy)      5432/tcp
+--------------------------------------------------
+PostgreSQL Internal Health
+--------------------------------------------------
+/var/run/postgresql:5432 - accepting connections
+--------------------------------------------------
+AI Engine Internal Health
+--------------------------------------------------
+==================================================
+Nix Life OS Health Check: FAIL
+Finished: 2026-06-16 20:10:03 EEST
+==================================================
