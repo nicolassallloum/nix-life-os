@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Health;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\HealthStepLogResource;
 use App\Models\HealthStepLog;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -33,47 +34,54 @@ class HealthStepLogController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $user = $request->user();
-
         $validated = $request->validate([
-            'log_date' => [
-                'required',
-                'date',
-                Rule::unique('health_step_logs', 'log_date')
-                    ->where(fn ($q) => $q->where('user_id', $user->id)),
-            ],
+            'log_date' => ['nullable', 'date'],
             'steps' => ['nullable', 'integer', 'min:0', 'max:200000'],
             'steps_count' => ['nullable', 'integer', 'min:0', 'max:200000'],
             'kilometers' => ['nullable', 'numeric', 'min:0'],
-            'calories_burned' => ['nullable', 'integer', 'min:0'],
-            'source' => ['nullable', 'string', 'max:255'],
+            'distance_km' => ['nullable', 'numeric', 'min:0'],
+            'calories_burned' => ['nullable', 'numeric', 'min:0'],
+            'source' => ['nullable', 'string', 'max:100'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
+        $logDate = ! empty($validated['log_date'])
+            ? Carbon::parse($validated['log_date'], config('app.timezone'))->toDateString()
+            : now(config('app.timezone'))->toDateString();
+
         $steps = (int) ($validated['steps'] ?? $validated['steps_count'] ?? 0);
+
         $kilometers = array_key_exists('kilometers', $validated) && $validated['kilometers'] !== null
-            ? round((float) $validated['kilometers'], 2)
-            : round($steps * 0.000762, 2);
+            ? round((float) $validated['kilometers'], 3)
+            : (
+                array_key_exists('distance_km', $validated) && $validated['distance_km'] !== null
+                    ? round((float) $validated['distance_km'], 3)
+                    : round($steps * 0.000762, 3)
+            );
 
         $caloriesBurned = array_key_exists('calories_burned', $validated) && $validated['calories_burned'] !== null
-            ? (int) $validated['calories_burned']
-            : (int) round($steps * 0.04);
+            ? (float) $validated['calories_burned']
+            : round($steps * 0.04, 2);
 
-        $log = HealthStepLog::create([
-            'user_id' => $user->id,
-            'log_date' => Carbon::parse($validated['log_date'])->toDateString(),
-            'steps' => $steps,
-            'kilometers' => $kilometers,
-            'calories_burned' => $caloriesBurned,
-            'source' => $validated['source'] ?? 'manual',
-            'notes' => $validated['notes'] ?? null,
-        ]);
+        $log = HealthStepLog::query()->updateOrCreate(
+            [
+                'user_id' => $request->user()->id,
+                'log_date' => $logDate,
+            ],
+            [
+                'steps' => $steps,
+                'kilometers' => $kilometers,
+                'calories_burned' => $caloriesBurned,
+                'source' => $validated['source'] ?? 'manual',
+                'notes' => $validated['notes'] ?? null,
+            ]
+        );
 
         return response()->json([
             'success' => true,
             'message' => 'Step log saved successfully.',
-            'data' => $this->serializeLog($log, $this->dailyStepsGoal($user->id)),
-        ], 201);
+            'data' => new HealthStepLogResource($log->fresh()),
+        ], $log->wasRecentlyCreated ? 201 : 200);
     }
 
     public function show(Request $request, string $id): JsonResponse
@@ -101,58 +109,73 @@ class HealthStepLogController extends Controller
 
     public function update(Request $request, string $id): JsonResponse
     {
-        $user = $request->user();
-
         $log = HealthStepLog::query()
-            ->where('user_id', $user->id)
-            ->where('id', $id)
-            ->first();
-
-        if (!$log) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Step log not found.',
-            ], 404);
-        }
+            ->where('user_id', $request->user()->id)
+            ->findOrFail($id);
 
         $validated = $request->validate([
-            'log_date' => [
-                'required',
-                'date',
-                Rule::unique('health_step_logs', 'log_date')
-                    ->where(fn ($q) => $q->where('user_id', $user->id))
-                    ->ignore($log->id),
-            ],
+            'log_date' => ['nullable', 'date'],
             'steps' => ['nullable', 'integer', 'min:0', 'max:200000'],
             'steps_count' => ['nullable', 'integer', 'min:0', 'max:200000'],
             'kilometers' => ['nullable', 'numeric', 'min:0'],
-            'calories_burned' => ['nullable', 'integer', 'min:0'],
-            'source' => ['nullable', 'string', 'max:255'],
+            'distance_km' => ['nullable', 'numeric', 'min:0'],
+            'calories_burned' => ['nullable', 'numeric', 'min:0'],
+            'source' => ['nullable', 'string', 'max:100'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
         $steps = (int) ($validated['steps'] ?? $validated['steps_count'] ?? $log->steps ?? 0);
+
         $kilometers = array_key_exists('kilometers', $validated) && $validated['kilometers'] !== null
-            ? round((float) $validated['kilometers'], 2)
-            : round($steps * 0.000762, 2);
+            ? round((float) $validated['kilometers'], 3)
+            : (
+                array_key_exists('distance_km', $validated) && $validated['distance_km'] !== null
+                    ? round((float) $validated['distance_km'], 3)
+                    : round((float) ($log->kilometers ?? ($steps * 0.000762)), 3)
+            );
 
         $caloriesBurned = array_key_exists('calories_burned', $validated) && $validated['calories_burned'] !== null
-            ? (int) $validated['calories_burned']
-            : (int) round($steps * 0.04);
+            ? (float) $validated['calories_burned']
+            : round((float) ($log->calories_burned ?? ($steps * 0.04)), 2);
 
-        $log->update([
-            'log_date' => Carbon::parse($validated['log_date'])->toDateString(),
-            'steps' => $steps,
-            'kilometers' => $kilometers,
-            'calories_burned' => $caloriesBurned,
-            'source' => $validated['source'] ?? $log->source ?? 'manual',
-            'notes' => $validated['notes'] ?? null,
-        ]);
+        $logDate = ! empty($validated['log_date'])
+            ? Carbon::parse($validated['log_date'], config('app.timezone'))->toDateString()
+            : $log->log_date?->format('Y-m-d');
+
+        $duplicate = HealthStepLog::query()
+            ->where('user_id', $request->user()->id)
+            ->whereDate('log_date', $logDate)
+            ->where('id', '!=', $log->id)
+            ->first();
+
+        if ($duplicate) {
+            $duplicate->update([
+                'steps' => $steps,
+                'kilometers' => $kilometers,
+                'calories_burned' => $caloriesBurned,
+                'source' => $validated['source'] ?? $duplicate->source ?? 'manual',
+                'notes' => $validated['notes'] ?? $duplicate->notes,
+            ]);
+
+            $log->delete();
+            $log = $duplicate->fresh();
+        } else {
+            $log->update([
+                'log_date' => $logDate,
+                'steps' => $steps,
+                'kilometers' => $kilometers,
+                'calories_burned' => $caloriesBurned,
+                'source' => $validated['source'] ?? $log->source ?? 'manual',
+                'notes' => $validated['notes'] ?? $log->notes,
+            ]);
+
+            $log = $log->fresh();
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Step log updated successfully.',
-            'data' => $this->serializeLog($log->fresh(), $this->dailyStepsGoal($user->id)),
+            'data' => new HealthStepLogResource($log),
         ]);
     }
 
@@ -184,11 +207,11 @@ class HealthStepLogController extends Controller
     {
         $user = $request->user();
 
-        $today = Carbon::today();
-        $weekStart = Carbon::now()->startOfWeek();
-        $weekEnd = Carbon::now()->endOfWeek();
-        $monthStart = Carbon::now()->startOfMonth();
-        $monthEnd = Carbon::now()->endOfMonth();
+        $today = Carbon::today(config('app.timezone'));
+        $weekStart = Carbon::now(config('app.timezone'))->startOfWeek();
+        $weekEnd = Carbon::now(config('app.timezone'))->endOfWeek();
+        $monthStart = Carbon::now(config('app.timezone'))->startOfMonth();
+        $monthEnd = Carbon::now(config('app.timezone'))->endOfMonth();
 
         $base = HealthStepLog::query()->where('user_id', $user->id);
 
@@ -218,7 +241,7 @@ class HealthStepLogController extends Controller
 
         $daysRange = (int) ($request->input('days') ?: $request->input('range') ?: 30);
         $daysRange = max(1, min($daysRange, 365));
-        $rangeStart = Carbon::today()->subDays($daysRange - 1);
+        $rangeStart = Carbon::today(config('app.timezone'))->subDays($daysRange - 1);
 
         $rangeLogs = (clone $base)
             ->whereDate('log_date', '>=', $rangeStart->toDateString())

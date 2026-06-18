@@ -524,6 +524,9 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('finance')->group(function () {
             Route::get('/ai-insights', [FinanceAIInsightController::class, 'index']);
+            // Finance dashboard aliases for frontend compatibility
+            Route::get('/dashboard', [FinanceTransactionController::class, 'summary']);
+            Route::get('/dashboard-summary', [FinanceTransactionController::class, 'summary']);
             Route::get('/summary', [FinanceTransactionController::class, 'summary']);
 
             Route::get('/accounts', [FinanceAccountController::class, 'index']);
