@@ -29,3 +29,5 @@ declare module '@/services/projectService' {
   const projectService: Record<string, any>
   export default projectService
 }
+export function completeProjectTask(projectId: string, taskId: string | number): Promise<any>
+export function reopenProjectTask(projectId: string, taskId: string | number): Promise<any>

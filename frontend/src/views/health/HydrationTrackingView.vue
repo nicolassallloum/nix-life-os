@@ -88,7 +88,7 @@
           <input
             v-model="form.log_date"
             type="date"
-            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"            required
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20" required
           />
         </div>
 
@@ -99,7 +99,7 @@
             type="number"
             min="1"
             step="1"
-            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"            required
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20" required
           />
         </div>
 
@@ -107,7 +107,7 @@
           <label class="mb-1 block text-sm font-medium text-slate-700">Drink Type</label>
           <select
             v-model="form.drink_type"
-            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          >
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20">
             <option value="water">Water</option>
             <option value="tea">Tea</option>
             <option value="coffee">Coffee</option>

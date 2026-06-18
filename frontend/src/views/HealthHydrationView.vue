@@ -351,7 +351,7 @@ onMounted(() => {
               <input
                 v-model="form.log_date"
                 type="date"
-                class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
 
@@ -362,7 +362,7 @@ onMounted(() => {
               <input
                 v-model="form.log_time"
                 type="time"
-                class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
 
@@ -372,9 +372,10 @@ onMounted(() => {
               </label>
               <select
                 v-model="form.drink_type"
-                class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               >
                 <option
+                  class="bg-white text-gray-900"
                   v-for="drink in drinkTypes"
                   :key="drink.value"
                   :value="drink.value"
@@ -393,7 +394,7 @@ onMounted(() => {
                 type="number"
                 min="1"
                 max="5000"
-                class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
               />
             </div>
 
@@ -404,7 +405,7 @@ onMounted(() => {
               <textarea
                 v-model="form.notes"
                 rows="3"
-                class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
+                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-gray-900 placeholder-gray-400 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                 placeholder="Optional notes..."
               ></textarea>
             </div>
