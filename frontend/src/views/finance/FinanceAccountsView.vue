@@ -214,7 +214,7 @@
               <input
                 v-model="form.name"
                 type="text"
-                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
                 placeholder="Example: Main Cash"
               />
             </div>
@@ -223,7 +223,7 @@
               <label class="block text-sm text-slate-300 mb-2">Account Type</label>
               <select
                 v-model="form.type"
-                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
               >
                 <option value="cash">Cash</option>
                 <option value="bank">Bank</option>
@@ -242,7 +242,7 @@
                   type="number"
                   step="0.01"
                   min="0"
-                  class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                  class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
                   placeholder="0.00"
                 />
               </div>
@@ -251,7 +251,7 @@
                 <label class="block text-sm text-slate-300 mb-2">Currency</label>
                 <select
                   v-model="form.currency"
-                  class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                  class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
                 >
                   <option value="USD">USD</option>
                   <option value="LBP">LBP</option>
@@ -265,7 +265,7 @@
               <textarea
                 v-model="form.description"
                 rows="3"
-                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
                 placeholder="Optional account description"
               ></textarea>
             </div>
