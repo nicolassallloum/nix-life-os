@@ -703,6 +703,15 @@ Route::prefix('v1')->group(function () {
             Route::get('/nutrition/summary', [HealthNutritionLogController::class, 'summary']);
             Route::get('/nutrition', [HealthNutritionLogController::class, 'index']);
             Route::post('/nutrition', [HealthNutritionLogController::class, 'store']);
+            // Nutrition frontend compatibility routes must be before /nutrition/{id}
+            Route::get('/nutrition/foods/search', [NutritionFoodController::class, 'search']);
+            Route::get('/nutrition/custom-foods', [NutritionCustomFoodController::class, 'index']);
+            Route::post('/nutrition/custom-foods', [NutritionCustomFoodController::class, 'store']);
+            Route::get('/nutrition/custom-foods/{id}', [NutritionCustomFoodController::class, 'show']);
+            Route::put('/nutrition/custom-foods/{id}', [NutritionCustomFoodController::class, 'update']);
+            Route::patch('/nutrition/custom-foods/{id}', [NutritionCustomFoodController::class, 'update']);
+            Route::delete('/nutrition/custom-foods/{id}', [NutritionCustomFoodController::class, 'destroy']);
+
             Route::get('/nutrition/{id}', [HealthNutritionLogController::class, 'show']);
             Route::put('/nutrition/{id}', [HealthNutritionLogController::class, 'update']);
             Route::patch('/nutrition/{id}', [HealthNutritionLogController::class, 'update']);
