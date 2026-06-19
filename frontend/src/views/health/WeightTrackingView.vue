@@ -36,14 +36,14 @@
       <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <p class="text-sm text-slate-500">Target Weight</p>
         <h2 class="mt-2 text-2xl font-bold text-slate-900">
-          {{ targetWeight }} kg
+          {{ targetWeight || "-" }} kg
         </h2>
       </div>
 
       <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <p class="text-sm text-slate-500">Difference</p>
         <h2 class="mt-2 text-2xl font-bold text-slate-900">
-          {{ weightDifference }} kg
+          {{ weightDifference || "-" }} kg
         </h2>
       </div>
 
@@ -55,6 +55,42 @@
       </div>
     </div>
 
+
+    <!-- Editable Target Weight -->
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-slate-900">Editable Weight Target</h2>
+          <p class="mt-1 text-sm text-slate-500">
+            Set your target weight used by the dashboard and progress cards.
+          </p>
+        </div>
+
+        <form class="flex flex-col gap-3 sm:flex-row sm:items-end" @submit.prevent="saveHealthGoals">
+          <div>
+            <label class="mb-1 block text-sm font-medium text-slate-700">Target Weight KG</label>
+            <input
+              v-model.number="targetWeight"
+              type="number"
+              min="20"
+              max="300"
+              step="0.1"
+              class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20 sm:w-48"
+              placeholder="Example: 55"
+            />
+          </div>
+
+          <button
+            type="submit"
+            :disabled="savingGoals"
+            class="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {{ savingGoals ? "Saving..." : "Save Target" }}
+          </button>
+        </form>
+      </div>
+    </div>
+
     <!-- Add Weight Form -->
     <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <h2 class="text-lg font-semibold text-slate-900">Add Weight Log</h2>
@@ -62,7 +98,7 @@
         Record your weight for a selected date.
       </p>
 
-      <form class="grid grid-cols-1 gap-4 md:grid-cols-4" @submit.prevent="saveWeightLog">
+      <form class="grid grid-cols-1 gap-4 md:grid-cols-5" @submit.prevent="saveWeightLog">
         <div>
           <label class="mb-1 block text-sm font-medium text-slate-700">Date</label>
           <input
@@ -84,16 +120,30 @@
         </div>
 
         <div>
-          <label class="mb-1 block text-sm font-medium text-slate-700">BMI</label>
+          <label class="mb-1 block text-sm font-medium text-slate-700">Length / Height CM</label>
           <input
-            v-model.number="form.bmi"
+            v-model.number="form.height_cm"
             type="number"
-            min="1"
+            min="30"
+            max="250"
             step="0.1"
-            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"          />
+            class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+            placeholder="Example: 151"
+          />
         </div>
 
         <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">BMI</label>
+          <input
+            :value="calculatedBmi || '-'"
+            type="text"
+            readonly
+            class="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+            placeholder="Auto calculated"
+          />
+        </div>
+
+        <div class="md:col-span-2">
           <label class="mb-1 block text-sm font-medium text-slate-700">Notes</label>
           <input
             v-model="form.notes"
@@ -102,7 +152,7 @@
           />
         </div>
 
-        <div class="md:col-span-4">
+        <div class="md:col-span-5">
           <button
             type="submit"
             :disabled="loading"
@@ -167,7 +217,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
 
@@ -175,14 +225,32 @@ const loading = ref(false);
 const error = ref("");
 const successMessage = ref("");
 const weightLogs = ref([]);
+const savingGoals = ref(false);
 
-const targetWeight = ref(60);
+const targetWeight = ref(null);
 
 const form = ref({
   log_date: new Date().toISOString().slice(0, 10),
   weight_kg: "",
+  height_cm: "",
   bmi: "",
   notes: "",
+});
+
+const calculatedBmi = computed(() => {
+  const weight = Number(form.value.weight_kg || 0);
+  const heightCm = Number(form.value.height_cm || 0);
+
+  if (weight > 0 && heightCm > 0) {
+    const heightM = heightCm / 100;
+    return Number((weight / (heightM * heightM)).toFixed(2));
+  }
+
+  return null;
+});
+
+watch(calculatedBmi, (value) => {
+  form.value.bmi = value || "";
 });
 
 const token = () =>
@@ -199,6 +267,10 @@ const latestWeight = computed(() => {
 });
 
 const weightDifference = computed(() => {
+  if (!targetWeight.value || !latestWeight.value) {
+    return 0;
+  }
+
   const difference = latestWeight.value - targetWeight.value;
   return Number(difference.toFixed(1));
 });
@@ -208,6 +280,64 @@ const normalizeList = (result) => {
   if (Array.isArray(result.data?.data)) return result.data.data;
   if (Array.isArray(result.data?.logs)) return result.data.logs;
   return [];
+};
+
+const loadHealthGoals = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/health/goals`, {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token()}`,
+      },
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || result.success === false) {
+      throw new Error(result.message || "Failed to load health goals.");
+    }
+
+    const goals = result.data || {};
+    targetWeight.value = goals.target_weight_kg ? Number(goals.target_weight_kg) : null;
+  } catch (err) {
+    console.error("Health goals load error:", err);
+  }
+};
+
+const saveHealthGoals = async () => {
+  try {
+    savingGoals.value = true;
+    error.value = "";
+    successMessage.value = "";
+
+    const payload = {
+      target_weight_kg: targetWeight.value ? Number(targetWeight.value) : null,
+    };
+
+    const response = await fetch(`${API_BASE_URL}/health/goals`, {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token()}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || result.success === false) {
+      throw new Error(result.message || "Failed to save target weight.");
+    }
+
+    targetWeight.value = result.data?.target_weight_kg ? Number(result.data.target_weight_kg) : null;
+    successMessage.value = "Target weight saved successfully.";
+  } catch (err) {
+    console.error("Health goals save error:", err);
+    error.value = err.message || "Failed to save target weight.";
+  } finally {
+    savingGoals.value = false;
+  }
 };
 
 const loadWeightLogs = async () => {
@@ -246,7 +376,9 @@ const saveWeightLog = async () => {
     const payload = {
       log_date: form.value.log_date,
       weight_kg: Number(form.value.weight_kg),
-      bmi: form.value.bmi ? Number(form.value.bmi) : null,
+      height_cm: form.value.height_cm ? Number(form.value.height_cm) : null,
+      length_cm: form.value.height_cm ? Number(form.value.height_cm) : null,
+      bmi: calculatedBmi.value ? Number(calculatedBmi.value) : null,
       notes: form.value.notes || null,
     };
 
@@ -271,6 +403,7 @@ const saveWeightLog = async () => {
     form.value = {
       log_date: new Date().toISOString().slice(0, 10),
       weight_kg: "",
+      height_cm: "",
       bmi: "",
       notes: "",
     };
@@ -285,6 +418,7 @@ const saveWeightLog = async () => {
 };
 
 onMounted(() => {
+  loadHealthGoals();
   loadWeightLogs();
 });
 </script>
