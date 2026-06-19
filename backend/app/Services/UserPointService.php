@@ -122,6 +122,7 @@ class UserPointService
             'points_to_next_level' => max(0, $nextLevelStart - (int) $points->total_points),
             'progress_percent' => $progressPercent,
             'achievements' => $this->achievements((int) $points->total_points, $level),
+            'earning_ideas' => $this->earningIdeas(),
         ];
     }
 
@@ -168,6 +169,60 @@ class UserPointService
     private function levelStartPoints(int $level): int
     {
         return max(0, ($level - 1) * 100);
+    }
+
+    private function earningIdeas(): array
+    {
+        return [
+            [
+                'module' => 'Health',
+                'action' => 'Add daily step log',
+                'points' => self::ACTION_POINTS['health.steps.add_log'],
+                'description' => 'Record your daily steps to build consistency.',
+            ],
+            [
+                'module' => 'Health',
+                'action' => 'Reach daily step goal',
+                'points' => self::ACTION_POINTS['health.steps.reach_goal'],
+                'description' => 'Complete your daily steps target for a larger reward.',
+            ],
+            [
+                'module' => 'Hydration',
+                'action' => 'Add hydration log',
+                'points' => self::ACTION_POINTS['health.hydration.add_log'],
+                'description' => 'Log water intake during the day.',
+            ],
+            [
+                'module' => 'Hydration',
+                'action' => 'Reach hydration goal',
+                'points' => self::ACTION_POINTS['health.hydration.reach_goal'],
+                'description' => 'Complete your daily water target.',
+            ],
+            [
+                'module' => 'Finance',
+                'action' => 'Add finance transaction',
+                'points' => self::ACTION_POINTS['finance.transaction.add'],
+                'description' => 'Track income, expense, transfer, or savings activity.',
+            ],
+            [
+                'module' => 'Productivity',
+                'action' => 'Complete a task',
+                'points' => self::ACTION_POINTS['productivity.task.complete'],
+                'description' => 'Mark tasks as completed to grow your productivity score.',
+            ],
+            [
+                'module' => 'Projects',
+                'action' => 'Complete a project',
+                'points' => self::ACTION_POINTS['projects.project.complete'],
+                'description' => 'Finish a full project for the highest level reward.',
+            ],
+            [
+                'module' => 'AI',
+                'action' => 'Add a happy win',
+                'points' => self::ACTION_POINTS['ai.happy_win.add'],
+                'description' => 'Record a positive win or achievement for AI life tracking.',
+            ],
+        ];
     }
 
     private function achievements(int $totalPoints, int $level): array
@@ -218,6 +273,7 @@ class UserPointService
             'points_to_next_level' => 100,
             'progress_percent' => 0,
             'achievements' => [],
+            'earning_ideas' => $this->earningIdeas(),
         ];
     }
 }

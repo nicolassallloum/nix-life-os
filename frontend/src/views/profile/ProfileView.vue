@@ -134,6 +134,34 @@
         <section class="content-card">
           <div class="section-header">
             <div>
+              <h2>How to Gain Points</h2>
+              <p>Complete these actions across Nix Life OS to level up faster.</p>
+            </div>
+          </div>
+
+          <div class="ideas-grid">
+            <div
+              v-for="idea in profile.points.earning_ideas"
+              :key="`${idea.module}-${idea.action}`"
+              class="idea-card"
+            >
+              <div>
+                <span class="idea-module">{{ idea.module }}</span>
+                <strong>{{ idea.action }}</strong>
+                <p>{{ idea.description }}</p>
+              </div>
+              <b>+{{ idea.points }}</b>
+            </div>
+
+            <div v-if="!profile.points.earning_ideas.length" class="empty-state">
+              No level-up ideas available yet.
+            </div>
+          </div>
+        </section>
+
+        <section class="content-card">
+          <div class="section-header">
+            <div>
               <h2>Achievements</h2>
               <p>Milestones unlocked from your activity across all modules.</p>
             </div>
@@ -209,6 +237,13 @@ type Achievement = {
   unlocked: boolean
 }
 
+type EarningIdea = {
+  module: string
+  action: string
+  points: number
+  description: string
+}
+
 type PointsSummary = {
   points: number
   level: number
@@ -217,6 +252,7 @@ type PointsSummary = {
   points_to_next_level: number
   progress_percent: number
   achievements: Achievement[]
+  earning_ideas: EarningIdea[]
 }
 
 type PointLog = {
@@ -258,6 +294,7 @@ const profile = reactive<{
     points_to_next_level: 100,
     progress_percent: 0,
     achievements: [],
+    earning_ideas: [],
   },
 })
 
@@ -326,6 +363,7 @@ function applyProfile(data: any) {
     points_to_next_level: Number(points.points_to_next_level || 100),
     progress_percent: Number(points.progress_percent || 0),
     achievements: Array.isArray(points.achievements) ? points.achievements : [],
+    earning_ideas: Array.isArray(points.earning_ideas) ? points.earning_ideas : [],
   }
 
   form.name = profile.user.name
@@ -739,4 +777,55 @@ onMounted(loadProfile)
     grid-template-columns: 1fr;
   }
 }
+
+.ideas-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.idea-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 1rem;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.idea-card strong {
+  display: block;
+  margin-top: 0.35rem;
+  color: #f8fafc;
+}
+
+.idea-card p {
+  margin: 0.35rem 0 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.idea-card b {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  background: rgba(34, 197, 94, 0.14);
+  color: #86efac;
+  font-size: 0.9rem;
+}
+
+.idea-module {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  background: rgba(99, 102, 241, 0.18);
+  color: #c7d2fe;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 </style>
