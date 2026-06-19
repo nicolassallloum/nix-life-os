@@ -15,6 +15,10 @@ use Spatie\Permission\Models\Role;
 
 class AdminUserController extends Controller
 {
+    private array $schemaTableCache = [];
+
+    private array $schemaColumnCache = [];
+
     private const ALLOWED_ROLES = ['admin', 'user', 'demo', 'qa'];
     private const ALLOWED_STATUSES = ['active', 'hold', 'inactive'];
 
@@ -446,7 +450,7 @@ class AdminUserController extends Controller
         $expenses = 0.0;
         $transfers = 0.0;
 
-        if (Schema::hasTable('finance_transactions')) {
+        if ($this->hasTable('finance_transactions')) {
             $income = (float) DB::table('finance_transactions')
                 ->where('user_id', $userId)
                 ->where('transaction_type', 'income')
@@ -483,7 +487,7 @@ class AdminUserController extends Controller
     private function userHealthDashboard(string $userId, string $today): array
     {
         $todaySteps = 0;
-        if (Schema::hasTable('health_step_logs')) {
+        if ($this->hasTable('health_step_logs')) {
             $todaySteps = (int) DB::table('health_step_logs')
                 ->where('user_id', $userId)
                 ->whereDate('log_date', $today)
@@ -491,9 +495,9 @@ class AdminUserController extends Controller
         }
 
         $todayWater = 0;
-        if (Schema::hasTable('health_hydration_logs')) {
-            $hydrationColumn = Schema::hasColumn('health_hydration_logs', 'quantity_ml') ? 'quantity_ml' : 'amount_ml';
-            $dateColumn = Schema::hasColumn('health_hydration_logs', 'log_date') ? 'log_date' : 'created_at';
+        if ($this->hasTable('health_hydration_logs')) {
+            $hydrationColumn = $this->hasColumn('health_hydration_logs', 'quantity_ml') ? 'quantity_ml' : 'amount_ml';
+            $dateColumn = $this->hasColumn('health_hydration_logs', 'log_date') ? 'log_date' : 'created_at';
 
             $todayWater = (int) DB::table('health_hydration_logs')
                 ->where('user_id', $userId)
@@ -507,26 +511,26 @@ class AdminUserController extends Controller
         $todayPotassium = 0;
         $todayPhosphorus = 0;
 
-        if (Schema::hasTable('health_nutrition_logs')) {
-            $dateColumn = Schema::hasColumn('health_nutrition_logs', 'meal_date') ? 'meal_date' : 'created_at';
+        if ($this->hasTable('health_nutrition_logs')) {
+            $dateColumn = $this->hasColumn('health_nutrition_logs', 'meal_date') ? 'meal_date' : 'created_at';
 
             $base = DB::table('health_nutrition_logs')
                 ->where('user_id', $userId)
                 ->whereDate($dateColumn, $today);
 
             $todayCalories = (float) (clone $base)->sum('calories');
-            $todayProtein = (float) (clone $base)->sum(Schema::hasColumn('health_nutrition_logs', 'protein_g') ? 'protein_g' : 'protein');
-            $todaySodium = (float) (clone $base)->sum(Schema::hasColumn('health_nutrition_logs', 'sodium_mg') ? 'sodium_mg' : 'sodium');
-            $todayPotassium = (float) (clone $base)->sum(Schema::hasColumn('health_nutrition_logs', 'potassium_mg') ? 'potassium_mg' : 'potassium');
-            $todayPhosphorus = (float) (clone $base)->sum(Schema::hasColumn('health_nutrition_logs', 'phosphorus_mg') ? 'phosphorus_mg' : 'phosphorus');
+            $todayProtein = (float) (clone $base)->sum($this->hasColumn('health_nutrition_logs', 'protein_g') ? 'protein_g' : 'protein');
+            $todaySodium = (float) (clone $base)->sum($this->hasColumn('health_nutrition_logs', 'sodium_mg') ? 'sodium_mg' : 'sodium');
+            $todayPotassium = (float) (clone $base)->sum($this->hasColumn('health_nutrition_logs', 'potassium_mg') ? 'potassium_mg' : 'potassium');
+            $todayPhosphorus = (float) (clone $base)->sum($this->hasColumn('health_nutrition_logs', 'phosphorus_mg') ? 'phosphorus_mg' : 'phosphorus');
         }
 
         $currentWeight = null;
         $currentBmi = null;
-        if (Schema::hasTable('health_weight_logs')) {
+        if ($this->hasTable('health_weight_logs')) {
             $weight = DB::table('health_weight_logs')
                 ->where('user_id', $userId)
-                ->orderByDesc(Schema::hasColumn('health_weight_logs', 'log_date') ? 'log_date' : 'created_at')
+                ->orderByDesc($this->hasColumn('health_weight_logs', 'log_date') ? 'log_date' : 'created_at')
                 ->first();
 
             $currentWeight = $weight?->weight_kg !== null ? (float) $weight->weight_kg : null;
@@ -534,7 +538,7 @@ class AdminUserController extends Controller
         }
 
         $lastSleepHours = null;
-        if (Schema::hasTable('health_sleep_logs')) {
+        if ($this->hasTable('health_sleep_logs')) {
             $sleep = DB::table('health_sleep_logs')
                 ->where('user_id', $userId)
                 ->orderByDesc('sleep_date')
@@ -549,7 +553,7 @@ class AdminUserController extends Controller
         }
 
         $todayMood = null;
-        if (Schema::hasTable('health_mood_logs')) {
+        if ($this->hasTable('health_mood_logs')) {
             $todayMood = DB::table('health_mood_logs')
                 ->where('user_id', $userId)
                 ->whereDate('mood_date', $today)
@@ -558,7 +562,7 @@ class AdminUserController extends Controller
         }
 
         $activeMedications = 0;
-        if (Schema::hasTable('health_medications')) {
+        if ($this->hasTable('health_medications')) {
             $activeMedications = DB::table('health_medications')
                 ->where('user_id', $userId)
                 ->where('status', 'active')
@@ -606,7 +610,7 @@ class AdminUserController extends Controller
 
     private function countRows(string $table, string $userId): int
     {
-        if (! Schema::hasTable($table) || ! Schema::hasColumn($table, 'user_id')) {
+        if (! $this->hasTable($table) || ! $this->hasColumn($table, 'user_id')) {
             return 0;
         }
 
@@ -615,7 +619,7 @@ class AdminUserController extends Controller
 
     private function countRowsWhere(string $table, string $userId, string $column, mixed $value): int
     {
-        if (! Schema::hasTable($table) || ! Schema::hasColumn($table, 'user_id') || ! Schema::hasColumn($table, $column)) {
+        if (! $this->hasTable($table) || ! $this->hasColumn($table, 'user_id') || ! $this->hasColumn($table, $column)) {
             return 0;
         }
 
@@ -624,7 +628,7 @@ class AdminUserController extends Controller
 
     private function sumRows(string $table, string $userId, string $column): float
     {
-        if (! Schema::hasTable($table) || ! Schema::hasColumn($table, 'user_id') || ! Schema::hasColumn($table, $column)) {
+        if (! $this->hasTable($table) || ! $this->hasColumn($table, 'user_id') || ! $this->hasColumn($table, $column)) {
             return 0.0;
         }
 
@@ -633,13 +637,13 @@ class AdminUserController extends Controller
 
     private function recentRows(string $table, string $userId, int $limit = 5): array
     {
-        if (! Schema::hasTable($table) || ! Schema::hasColumn($table, 'user_id')) {
+        if (! $this->hasTable($table) || ! $this->hasColumn($table, 'user_id')) {
             return [];
         }
 
-        $orderColumn = Schema::hasColumn($table, 'updated_at')
+        $orderColumn = $this->hasColumn($table, 'updated_at')
             ? 'updated_at'
-            : (Schema::hasColumn($table, 'created_at') ? 'created_at' : 'id');
+            : ($this->hasColumn($table, 'created_at') ? 'created_at' : 'id');
 
         return DB::table($table)
             ->where('user_id', $userId)
@@ -648,6 +652,18 @@ class AdminUserController extends Controller
             ->get()
             ->map(fn ($row) => (array) $row)
             ->toArray();
+    }
+
+    private function hasTable(string $table): bool
+    {
+        return $this->schemaTableCache[$table] ??= Schema::hasTable($table);
+    }
+
+    private function hasColumn(string $table, string $column): bool
+    {
+        $key = $table . '.' . $column;
+
+        return $this->schemaColumnCache[$key] ??= Schema::hasColumn($table, $column);
     }
 
 
