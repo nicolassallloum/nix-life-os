@@ -51,12 +51,36 @@ async function cachedGet(endpoint, label, ttlMs = DEFAULT_CACHE_MS) {
 function normalizeDashboardSummary(response) {
   const payload = response?.data || {}
   const data = payload.data || payload
+  const finance = data.finance || {}
+  const health = data.health || {}
+  const projects = data.projects || {}
+
+  const flattened = {
+    ...data,
+    total_balance: data.total_balance ?? finance.total_balance ?? 0,
+    income: data.income ?? finance.income ?? finance.monthly_income ?? finance.total_income ?? 0,
+    monthly_expense:
+      data.monthly_expense ??
+      finance.monthly_expense ??
+      finance.monthly_expenses ??
+      finance.total_expenses ??
+      0,
+    savings_rate: data.savings_rate ?? finance.savings_rate ?? 0,
+    today_steps: data.today_steps ?? health.today_steps ?? 0,
+    today_calories: data.today_calories ?? health.today_calories ?? 0,
+    water_intake_ml: data.water_intake_ml ?? health.today_water_ml ?? health.water_intake_ml ?? 0,
+    current_weight_kg: data.current_weight_kg ?? health.current_weight_kg ?? health.weight_kg ?? 0,
+    active_projects: data.active_projects ?? projects.active_projects ?? 0,
+    total_projects: data.total_projects ?? projects.total_projects ?? 0,
+    completed_projects: data.completed_projects ?? projects.completed_projects ?? 0,
+    average_progress: data.average_progress ?? projects.average_progress ?? 0,
+  }
 
   return {
     success: payload.success ?? payload.status ?? true,
     status: payload.status ?? payload.success ?? true,
     message: payload.message || 'Dashboard summary loaded successfully.',
-    data,
+    data: flattened,
   }
 }
 
@@ -79,7 +103,8 @@ export async function getDashboardKpis() {
 }
 
 export async function getDashboardRecentActivity() {
-  return emptyActivityResponse()
+  const response = await cachedGet('/dashboard/recent-activity', 'Dashboard recent activity')
+  return response?.data || emptyActivityResponse()
 }
 
 export async function getDashboardCharts() {
@@ -110,7 +135,7 @@ export async function getUnifiedDashboardKpis() {
 }
 
 export async function getUnifiedDashboardActivity() {
-  return emptyActivityResponse()
+  return getDashboardRecentActivity()
 }
 
 export function clearDashboardApiCache() {

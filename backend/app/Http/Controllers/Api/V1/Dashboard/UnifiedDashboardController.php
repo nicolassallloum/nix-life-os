@@ -322,10 +322,126 @@ class UnifiedDashboardController extends Controller
             $activities = $activities->merge($nutritionActivities);
         }
 
+        if ($this->tableExists('health_alerts')) {
+            $alertActivities = DB::table('health_alerts')
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->limit(8)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => 'health-alert-' . $item->id,
+                        'type' => 'health_alert',
+                        'module' => 'Health',
+                        'title' => $item->title ?? 'Health alert',
+                        'description' => $item->message ?? ucfirst((string) ($item->category ?? 'health')) . ' alert',
+                        'severity' => $item->severity ?? null,
+                        'status' => $item->status ?? null,
+                        'activity_date' => $item->created_at,
+                    ];
+                });
+
+            $activities = $activities->merge($alertActivities);
+        }
+
+        if ($this->tableExists('ai_recommendations')) {
+            $aiRecommendationActivities = DB::table('ai_recommendations')
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->limit(5)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => 'ai-recommendation-' . $item->id,
+                        'type' => 'ai_recommendation',
+                        'module' => 'AI',
+                        'title' => $item->title ?? 'AI recommendation',
+                        'description' => $item->message ?? $item->action_text ?? 'AI recommendation generated',
+                        'severity' => $item->severity ?? null,
+                        'status' => $item->status ?? null,
+                        'activity_date' => $item->created_at ?? $item->generated_at,
+                    ];
+                });
+
+            $activities = $activities->merge($aiRecommendationActivities);
+        }
+
+        if ($this->tableExists('ai_insights')) {
+            $aiInsightActivities = DB::table('ai_insights')
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->limit(5)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => 'ai-insight-' . $item->id,
+                        'type' => 'ai_insight',
+                        'module' => 'AI',
+                        'title' => $item->title ?? 'AI insight',
+                        'description' => $item->message ?? ucfirst((string) ($item->category ?? 'ai')) . ' insight',
+                        'severity' => $item->severity ?? null,
+                        'activity_date' => $item->created_at,
+                    ];
+                });
+
+            $activities = $activities->merge($aiInsightActivities);
+        }
+
+        if ($this->tableExists('ai_alerts')) {
+            $aiAlertActivities = DB::table('ai_alerts')
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->limit(5)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => 'ai-alert-' . $item->id,
+                        'type' => 'ai_alert',
+                        'module' => 'AI',
+                        'title' => $item->title ?? 'AI alert',
+                        'description' => $item->message ?? ucfirst((string) ($item->module ?? 'ai')) . ' alert',
+                        'severity' => $item->severity ?? null,
+                        'activity_date' => $item->created_at,
+                    ];
+                });
+
+            $activities = $activities->merge($aiAlertActivities);
+        }
+
+        if ($this->tableExists('user_point_logs')) {
+            $pointActivities = DB::table('user_point_logs')
+                ->where('user_id', $user->id)
+                ->orderByDesc('created_at')
+                ->limit(5)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => 'points-' . $item->id,
+                        'type' => 'points',
+                        'module' => ucfirst((string) $item->module),
+                        'title' => 'Points earned',
+                        'description' => '+' . (int) $item->points . ' points for ' . str_replace('.', ' ', (string) $item->action_name),
+                        'points' => (int) $item->points,
+                        'activity_date' => $item->created_at,
+                    ];
+                });
+
+            $activities = $activities->merge($pointActivities);
+        }
+
         $activities = $activities
             ->filter(fn ($item) => ! empty($item['activity_date']))
             ->sortByDesc('activity_date')
             ->take(10)
+            ->map(function ($item) {
+                $date = $item['activity_date'] ?? null;
+
+                return array_merge($item, [
+                    'message' => $item['description'] ?? $item['title'] ?? 'Activity',
+                    'created_at' => $date,
+                    'date' => $date,
+                ]);
+            })
             ->values();
 
         return response()->json([
