@@ -143,7 +143,8 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     */
     Route::get('health/dashboard-summary', [HealthDashboardController::class, 'summary']);
     Route::apiResource('health/water', HealthWaterController::class);
-    Route::apiResource('health/mood', HealthMoodController::class);
+    Route::get('health/mood/summary', [HealthMoodController::class, 'summary']);
+    Route::apiResource('health/mood', HealthMoodController::class)->except(['show']);
 
     /*
     |--------------------------------------------------------------------------
@@ -654,6 +655,7 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/mood', [HealthMoodLogController::class, 'index']);
             Route::post('/mood', [HealthMoodLogController::class, 'store']);
+            Route::get('/mood/summary', [HealthMoodLogController::class, 'summary']);
             Route::get('/mood/{id}', [HealthMoodLogController::class, 'show']);
             Route::put('/mood/{id}', [HealthMoodLogController::class, 'update']);
             Route::patch('/mood/{id}', [HealthMoodLogController::class, 'update']);

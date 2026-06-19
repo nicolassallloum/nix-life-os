@@ -941,4 +941,24 @@ th {
     width: 100%;
   }
 }
+
+/* Production readability fix: prevent inherited white text in mood forms. */
+.mood-page input,
+.mood-page select,
+.mood-page textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  caret-color: #0f172a;
+}
+
+.mood-page input::placeholder,
+.mood-page textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.mood-page option {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
 </style>

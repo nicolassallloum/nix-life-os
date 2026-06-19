@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\HealthMoodLog;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -86,8 +87,82 @@ class HealthMoodController extends Controller
         ], 201);
     }
 
+    private function moodDateString($value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d');
+        }
+
+        try {
+            return Carbon::parse($value)->format('Y-m-d');
+        } catch (\Throwable $e) {
+            return is_string($value) ? substr($value, 0, 10) : null;
+        }
+    }
+
+    public function summary(Request $request): JsonResponse
+    {
+        $logs = HealthMoodLog::query()
+            ->where('user_id', $request->user()->id)
+            ->orderByDesc('mood_date')
+            ->orderByDesc('created_at')
+            ->get();
+
+        $today = now(config('app.timezone'))->toDateString();
+
+        $todayMood = $logs
+            ->first(fn (HealthMoodLog $log) => $this->moodDateString($log->mood_date) === $today);
+
+        $averageScore = $logs->count() > 0
+            ? round((float) $logs->avg('mood_score'), 2)
+            : 0;
+
+        $moodCounts = $logs
+            ->groupBy('mood_label')
+            ->map(fn ($items, $label) => [
+                'mood_label' => $label,
+                'count' => $items->count(),
+            ])
+            ->values();
+
+        $chart = $logs
+            ->sortBy('mood_date')
+            ->values()
+            ->map(fn (HealthMoodLog $log) => [
+                'date' => $this->moodDateString($log->mood_date),
+                'mood_date' => $this->moodDateString($log->mood_date),
+                'mood_label' => $log->mood_label,
+                'mood' => strtolower(str_replace(' ', '_', (string) $log->mood_label)),
+                'mood_score' => $log->mood_score !== null ? (int) $log->mood_score : null,
+            ])
+            ->values();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mood summary retrieved successfully.',
+            'data' => [
+                'total_logs' => $logs->count(),
+                'today_mood' => $todayMood?->mood_label,
+                'today_mood_score' => $todayMood?->mood_score,
+                'average_mood_score' => $averageScore,
+                'latest_mood' => $logs->first()?->mood_label,
+                'latest_mood_score' => $logs->first()?->mood_score,
+                'mood_counts' => $moodCounts,
+                'chart' => $chart,
+            ],
+        ]);
+    }
+
     public function show(Request $request, string $id): JsonResponse
     {
+        if ($id === 'summary') {
+            return $this->summary($request);
+        }
+
         $log = HealthMoodLog::query()
             ->where('user_id', $request->user()->id)
             ->where('id', $id)
