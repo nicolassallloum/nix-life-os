@@ -21,10 +21,10 @@
     </div>
 
     <div class="summary-grid">
-      <div class="summary-card">
+      <div class="summary-card" :class="{ warning: dailyTotals.calories > ckdLimits.calories }">
         <span>Calories</span>
         <strong>{{ dailyTotals.calories.toFixed(0) }}</strong>
-        <small>kcal</small>
+        <small>Max: {{ ckdLimits.calories }} kcal</small>
       </div>
 
       <div class="summary-card" :class="{ warning: dailyTotals.protein > ckdLimits.protein }">
@@ -67,15 +67,36 @@
           <h3>Editable Daily Nutrition Limits</h3>
           <p>Update the maximum values used for daily warnings.</p>
         </div>
-        <button type="button" class="btn-small" @click="resetLimits">
-          Reset Defaults
-        </button>
+        <div class="limits-actions">
+          <button type="button" class="btn-small" @click="saveLimits" :disabled="isSavingLimits">
+            {{ isSavingLimits ? 'Saving...' : 'Save Limits' }}
+          </button>
+
+          <button type="button" class="btn-small secondary" @click="resetLimits">
+            Reset Defaults
+          </button>
+        </div>
       </div>
 
       <div class="limits-grid">
         <div class="form-group">
+          <label>Calories Max kcal</label>
+          <input type="number" min="0" step="50" v-model.number="ckdLimits.calories" />
+        </div>
+
+        <div class="form-group">
           <label>Protein Max g</label>
           <input type="number" min="0" step="1" v-model.number="ckdLimits.protein" />
+        </div>
+
+        <div class="form-group">
+          <label>Carbs Max g</label>
+          <input type="number" min="0" step="5" v-model.number="ckdLimits.carbs" />
+        </div>
+
+        <div class="form-group">
+          <label>Fat Max g</label>
+          <input type="number" min="0" step="5" v-model.number="ckdLimits.fat" />
         </div>
 
         <div class="form-group">
@@ -301,6 +322,7 @@ export default {
       isLoading: false,
       isSearching: false,
       isSaving: false,
+      isSavingLimits: false,
       isEditing: false,
 
       editingId: null,
@@ -310,8 +332,11 @@ export default {
       successMessage: '',
 
       ckdLimits: {
+        calories: 1800,
         protein: 50,
-        sodium: 2000,
+        carbs: 220,
+        fat: 70,
+        sodium: 1000,
         potassium: 2000,
         phosphorus: 800
       },
@@ -349,8 +374,20 @@ export default {
     limitWarnings() {
       const warnings = []
 
+      if (this.dailyTotals.calories > this.ckdLimits.calories) {
+        warnings.push(`Calories limit exceeded: ${this.dailyTotals.calories.toFixed(0)} kcal / ${this.ckdLimits.calories} kcal`)
+      }
+
       if (this.dailyTotals.protein > this.ckdLimits.protein) {
         warnings.push(`Protein limit exceeded: ${this.dailyTotals.protein.toFixed(1)}g / ${this.ckdLimits.protein}g`)
+      }
+
+      if (this.dailyTotals.carbs > this.ckdLimits.carbs) {
+        warnings.push(`Carbs limit exceeded: ${this.dailyTotals.carbs.toFixed(1)}g / ${this.ckdLimits.carbs}g`)
+      }
+
+      if (this.dailyTotals.fat > this.ckdLimits.fat) {
+        warnings.push(`Fat limit exceeded: ${this.dailyTotals.fat.toFixed(1)}g / ${this.ckdLimits.fat}g`)
       }
 
       if (this.dailyTotals.sodium > this.ckdLimits.sodium) {
@@ -371,16 +408,76 @@ export default {
 
   mounted() {
     this.form.meal_date = this.selectedDate
+    this.loadProfile()
     this.loadLogs()
   },
 
   methods: {
     resetLimits() {
       this.ckdLimits = {
+        calories: 1800,
         protein: 50,
-        sodium: 2000,
+        carbs: 220,
+        fat: 70,
+        sodium: 1000,
         potassium: 2000,
         phosphorus: 800
+      }
+    },
+
+    applyProfile(profile) {
+      if (!profile) {
+        return
+      }
+
+      this.ckdLimits = {
+        calories: Number(profile.daily_calories_max ?? this.ckdLimits.calories ?? 1800),
+        protein: Number(profile.daily_protein_max_g ?? this.ckdLimits.protein ?? 50),
+        carbs: Number(profile.daily_carbs_max_g ?? this.ckdLimits.carbs ?? 220),
+        fat: Number(profile.daily_fat_max_g ?? this.ckdLimits.fat ?? 70),
+        sodium: Number(profile.daily_sodium_max_mg ?? this.ckdLimits.sodium ?? 1000),
+        potassium: Number(profile.daily_potassium_max_mg ?? this.ckdLimits.potassium ?? 2000),
+        phosphorus: Number(profile.daily_phosphorus_max_mg ?? this.ckdLimits.phosphorus ?? 800)
+      }
+    },
+
+    async loadProfile() {
+      try {
+        const response = await nutritionService.getNutritionProfile()
+        const profile = response.data?.data || response.data
+        this.applyProfile(profile)
+      } catch (error) {
+        console.warn('Nutrition profile could not be loaded', error)
+      }
+    },
+
+    async saveLimits() {
+      this.errorMessage = ''
+      this.successMessage = ''
+      this.isSavingLimits = true
+
+      const payload = {
+        profile_name: 'CKD Daily Nutrition Profile',
+        daily_calories_min: 0,
+        daily_calories_max: Number(this.ckdLimits.calories || 0),
+        daily_protein_max_g: Number(this.ckdLimits.protein || 0),
+        daily_carbs_max_g: Number(this.ckdLimits.carbs || 0),
+        daily_fat_max_g: Number(this.ckdLimits.fat || 0),
+        daily_sodium_max_mg: Number(this.ckdLimits.sodium || 0),
+        daily_potassium_max_mg: Number(this.ckdLimits.potassium || 0),
+        daily_phosphorus_max_mg: Number(this.ckdLimits.phosphorus || 0),
+        is_ckd_safe_mode: true,
+        notes: 'Nutrition limits updated from Nutrition Tracking screen'
+      }
+
+      try {
+        const response = await nutritionService.saveNutritionProfile(payload)
+        this.applyProfile(response.data?.data || response.data)
+        this.successMessage = 'Nutrition maximum values saved successfully.'
+      } catch (error) {
+        this.errorMessage = this.getErrorMessage(error, 'Failed to save nutrition limits.')
+      } finally {
+        this.isSavingLimits = false
       }
     },
 
@@ -1021,4 +1118,36 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+/* Production readability fix: prevent inherited white text in nutrition forms. */
+.nutrition-page input,
+.nutrition-page select,
+.nutrition-page textarea {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  caret-color: #0f172a;
+}
+
+.nutrition-page input::placeholder,
+.nutrition-page textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+.nutrition-page option {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+.limits-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn-small.secondary {
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
 </style>

@@ -37,6 +37,14 @@ const nutritionService = {
 
   deleteNutritionLog(id) {
     return api.delete(`/health/nutrition/${id}`)
+  },
+
+  getNutritionProfile() {
+    return api.get('/health/nutrition/profile')
+  },
+
+  saveNutritionProfile(payload) {
+    return api.post('/health/nutrition/profile', payload)
   }
 }
 
