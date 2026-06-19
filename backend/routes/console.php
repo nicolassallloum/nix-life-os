@@ -7,6 +7,9 @@ use App\Jobs\CheckTaskRemindersJob;
 use App\Jobs\CheckBudgetAlertsJob;
 use App\Jobs\CheckHealthWarningsJob;
 Schedule::command('health:generate-alerts')->hourly();
+Schedule::command('ai:generate-recommendations')
+    ->dailyAt('23:50')
+    ->withoutOverlapping();
 Schedule::command('ai:daily-insights')
     ->dailyAt('23:55');
 
