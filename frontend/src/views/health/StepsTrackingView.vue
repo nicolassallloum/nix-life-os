@@ -66,6 +66,7 @@
           <input
             id="log_date"
             v-model="form.log_date"
+            class="step-log-field"
             type="date"
             required
           />
@@ -76,6 +77,7 @@
           <input
             id="steps_count"
             v-model.number="form.steps_count"
+            class="step-log-field"
             type="number"
             min="0"
             max="200000"
@@ -89,6 +91,7 @@
           <input
             id="notes"
             v-model="form.notes"
+            class="step-log-field"
             type="text"
             maxlength="1000"
             placeholder="Optional notes"
@@ -522,16 +525,26 @@ function formatNumber(value) {
   color: #334155;
 }
 
-.form-group input {
+.form-group input,
+.form-group .step-log-field {
   width: 100%;
   height: 42px;
   padding: 0 12px;
   font-size: 14px;
-  color: #0f172a;
-  background: #ffffff;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  caret-color: #0f172a;
+  background: #ffffff !important;
   border: 1px solid #cbd5e1;
   border-radius: 10px;
   outline: none;
+  color-scheme: light;
+}
+
+.form-group .step-log-field::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1;
 }
 
 .form-group input:focus {
