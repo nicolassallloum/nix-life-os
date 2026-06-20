@@ -42,6 +42,37 @@
     </section>
 
     <section class="panel">
+      <div class="target-panel">
+        <div>
+          <h2>Editable Steps Target</h2>
+          <p>
+            Set your daily steps target used by the dashboard, progress cards, and step log status.
+          </p>
+        </div>
+
+        <form class="target-form" @submit.prevent="saveHealthGoals">
+          <div class="form-group">
+            <label for="daily_steps_goal">Daily Steps Target</label>
+            <input
+              id="daily_steps_goal"
+              v-model.number="dailyStepsGoal"
+              class="step-log-field"
+              type="number"
+              min="0"
+              max="100000"
+              step="100"
+              placeholder="Example: 8000"
+            />
+          </div>
+
+          <button class="primary-btn" type="submit" :disabled="savingGoals">
+            {{ savingGoals ? 'Saving...' : 'Save Target' }}
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <section class="panel">
       <div class="panel-header">
         <div>
           <h2>{{ isEditing ? 'Edit Step Log' : 'Add Step Log' }}</h2>
@@ -184,10 +215,12 @@ const API_BASE_URL =
 
 const loading = ref(false)
 const loadingLogs = ref(false)
+const savingGoals = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
 const stepLogs = ref([])
 const editingId = ref(null)
+const dailyStepsGoal = ref(8000)
 
 const form = reactive({
   log_date: new Date().toISOString().slice(0, 10),
@@ -206,13 +239,14 @@ const todayLog = computed(() => {
 })
 
 const todaySteps = computed(() => Number(todayLog.value?.steps_count || 0))
-const todayGoal = computed(() => Number(todayLog.value?.goal_steps || 10000))
+const todayGoal = computed(() => Number(dailyStepsGoal.value || todayLog.value?.goal_steps || 8000))
 const todayProgress = computed(() => {
   const value = Number(todayLog.value?.goal_percentage || 0)
   return Number.isFinite(value) ? value.toFixed(0) : 0
 })
 
 onMounted(() => {
+  loadHealthGoals()
   loadStepLogs()
 })
 
@@ -267,6 +301,49 @@ function getValidationMessage(data) {
   }
 
   return typeof firstError === 'string' ? firstError : ''
+}
+
+async function loadHealthGoals() {
+  try {
+    const response = await apiRequest('/health/goals')
+    const goals = response.data || {}
+
+    dailyStepsGoal.value = Number(goals.daily_steps_goal || 8000)
+  } catch (error) {
+    console.error('Health goals load error:', error)
+  }
+}
+
+async function saveHealthGoals() {
+  savingGoals.value = true
+  errorMessage.value = ''
+  successMessage.value = ''
+
+  try {
+    const target = Number(dailyStepsGoal.value || 0)
+
+    if (!Number.isFinite(target) || target < 0 || target > 100000) {
+      errorMessage.value = 'Daily steps target must be between 0 and 100000.'
+      return
+    }
+
+    const response = await apiRequest('/health/goals', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        daily_steps_goal: target,
+      }),
+    })
+
+    const goals = response.data || {}
+    dailyStepsGoal.value = Number(goals.daily_steps_goal || target)
+    successMessage.value = 'Steps target saved successfully.'
+
+    await loadStepLogs()
+  } catch (error) {
+    errorMessage.value = error.message || 'Failed to save steps target.'
+  } finally {
+    savingGoals.value = false
+  }
 }
 
 async function loadStepLogs() {
@@ -506,6 +583,36 @@ function formatNumber(value) {
   color: #64748b;
 }
 
+.target-panel {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.target-panel h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.target-panel p {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.target-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.target-form .form-group {
+  min-width: 220px;
+}
+
 .steps-form {
   display: grid;
   grid-template-columns: 1fr 1fr 2fr;
@@ -705,8 +812,15 @@ tbody tr:hover {
   }
 
   .page-header,
-  .panel-header {
+  .panel-header,
+  .target-panel,
+  .target-form {
     flex-direction: column;
+    align-items: stretch;
+  }
+
+  .target-form .form-group {
+    min-width: 0;
   }
 
   .stats-grid {
