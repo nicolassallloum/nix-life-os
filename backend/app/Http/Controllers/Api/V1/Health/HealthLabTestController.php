@@ -151,8 +151,16 @@ class HealthLabTestController extends Controller
 
             $labTest = HealthLabTest::create($payload);
 
-            $draftRows = $this->defaultDraftLabResultRows($labTest->fresh());
-            $this->prepareDraftLabResultRows($labTest, $draftRows);
+            $extractedRows = $this->extractLabResultRowsFromFile($labTest->fresh());
+            $draftRows = ! empty($extractedRows)
+                ? $extractedRows
+                : $this->defaultDraftLabResultRows($labTest->fresh());
+
+            $this->prepareDraftLabResultRows(
+                $labTest,
+                $draftRows,
+                ! empty($extractedRows) ? 'pdf_text_extraction' : 'upload_draft_rows'
+            );
             $this->syncDraftLabResultRows($labTest->fresh(), $draftRows);
 
             return response()->json([
@@ -191,36 +199,25 @@ class HealthLabTestController extends Controller
     {
         $labTest = $this->findUserLabTest($request, $id);
 
-        $draftResults = data_get($labTest->extracted_payload, 'results', []);
+        $extractedRows = $this->extractLabResultRowsFromFile($labTest);
+        $draftResults = ! empty($extractedRows)
+            ? $extractedRows
+            : data_get($labTest->extracted_payload, 'results', []);
 
         if (empty($draftResults)) {
-            $draftResults = [[
-                'test_name' => $labTest->test_name ?: '',
-                'result_value' => null,
-                'unit' => '',
-                'reference_min' => null,
-                'reference_max' => null,
-                'reference_text' => '',
-                'status' => 'pending_review',
-                'result_date' => optional($labTest->test_date)->format('Y-m-d') ?: now()->toDateString(),
-                'doctor_name' => $labTest->doctor_name,
-                'ai_confidence' => 0,
-            ]];
+            $draftResults = $this->defaultDraftLabResultRows($labTest);
         }
 
-        $labTest->update($this->filterColumns('health_lab_tests', [
-            'ai_status' => 'pending_review',
-            'status' => 'pending_review',
-            'extracted_payload' => [
-                'source' => 'manual_placeholder',
-                'message' => 'OCR/AI extraction is not enabled yet. Please manually review/edit values before approval.',
-                'results' => $draftResults,
-            ],
-        ]));
+        $source = ! empty($extractedRows) ? 'pdf_text_extraction' : 'manual_placeholder';
+
+        $this->prepareDraftLabResultRows($labTest, $draftResults, $source);
+        $this->syncDraftLabResultRows($labTest->fresh(), $draftResults);
 
         return response()->json([
             'success' => true,
-            'message' => 'Extraction placeholder created. Please review and edit values before approval.',
+            'message' => ! empty($extractedRows)
+                ? 'Lab test values extracted from the uploaded file. Please review before approval.'
+                : 'Extraction placeholder created. Please manually review/edit values before approval.',
             'data' => $this->serializeLabTest($labTest->fresh('results')),
         ]);
     }
@@ -413,6 +410,299 @@ class HealthLabTestController extends Controller
     }
 
 
+
+    private function extractLabResultRowsFromFile(HealthLabTest $labTest): array
+    {
+        $filePath = $labTest->file_path ?: $labTest->attachment_path;
+
+        if (! $filePath || ! Storage::disk('public')->exists($filePath)) {
+            return [];
+        }
+
+        $absolutePath = Storage::disk('public')->path($filePath);
+        $text = $this->extractTextFromPdfOrImage($absolutePath, (string) $labTest->file_type);
+
+        if (trim($text) === '') {
+            return [];
+        }
+
+        return $this->parseLabResultText($text, $labTest);
+    }
+
+    private function extractTextFromPdfOrImage(string $absolutePath, string $fileType): string
+    {
+        if (! is_file($absolutePath)) {
+            return '';
+        }
+
+        $text = '';
+
+        if (str_contains(strtolower($fileType), 'pdf')) {
+            $text = $this->runShellCommand(
+                'pdftotext -layout ' . escapeshellarg($absolutePath) . ' - 2>/dev/null'
+            );
+
+            if ($this->looksLikeLabText($text)) {
+                return $text;
+            }
+
+            $ocrText = $this->ocrPdf($absolutePath);
+
+            return trim($ocrText) !== '' ? $ocrText : $text;
+        }
+
+        return $this->runShellCommand(
+            'tesseract ' . escapeshellarg($absolutePath) . ' stdout --psm 6 2>/dev/null'
+        );
+    }
+
+    private function ocrPdf(string $absolutePath): string
+    {
+        if (trim($this->runShellCommand('command -v pdftoppm 2>/dev/null')) === '') {
+            return '';
+        }
+
+        if (trim($this->runShellCommand('command -v tesseract 2>/dev/null')) === '') {
+            return '';
+        }
+
+        $prefix = storage_path('app/lab-ocr-' . uniqid('', true));
+        $this->runShellCommand(
+            'pdftoppm -r 220 -png -f 1 -l 3 ' . escapeshellarg($absolutePath) . ' ' . escapeshellarg($prefix) . ' 2>/dev/null'
+        );
+
+        $text = '';
+        $images = glob($prefix . '-*.png') ?: [];
+
+        foreach ($images as $image) {
+            $text .= "\n" . $this->runShellCommand(
+                'tesseract ' . escapeshellarg($image) . ' stdout --psm 6 2>/dev/null'
+            );
+
+            @unlink($image);
+        }
+
+        return $text;
+    }
+
+    private function looksLikeLabText(string $text): bool
+    {
+        $text = strtolower($text);
+
+        $matches = 0;
+
+        foreach (['creatinine', 'urea', 'sodium', 'potassium', 'chloride', 'calcium', 'phosphorus', 'parathormone', 'gfr'] as $term) {
+            if (str_contains($text, $term)) {
+                $matches++;
+            }
+        }
+
+        return $matches >= 2;
+    }
+
+    private function parseLabResultText(string $text, HealthLabTest $labTest): array
+    {
+        $definitions = [
+            ['name' => 'Creatinine', 'aliases' => ['Creatinine'], 'unit' => 'mg/dL'],
+            ['name' => 'eGFR', 'aliases' => ['Estimated GFR', 'Est. GFR', 'eGFR', 'EGFR', 'GFR'], 'unit' => 'mL/min'],
+            ['name' => 'Urea', 'aliases' => ['Urea'], 'unit' => 'mg/dL'],
+            ['name' => 'Sodium', 'aliases' => ['Sodium', 'Na'], 'unit' => 'mEq/L'],
+            ['name' => 'Potassium', 'aliases' => ['Potassium', 'K'], 'unit' => 'mEq/L'],
+            ['name' => 'Chloride', 'aliases' => ['Chloride', 'Cl'], 'unit' => 'mEq/L'],
+            ['name' => 'CO2', 'aliases' => ['CO2', 'CO₂', 'Carbon Dioxide', 'Bicarbonate'], 'unit' => 'mEq/L'],
+            ['name' => 'Anion Gap', 'aliases' => ['Anion Gap'], 'unit' => 'mEq/L'],
+            ['name' => 'Calcium', 'aliases' => ['Calcium', 'Ca'], 'unit' => 'mg/dL'],
+            ['name' => 'Phosphorus', 'aliases' => ['Phosphorus', 'Phosphate'], 'unit' => 'mg/dL'],
+            ['name' => 'Parathormone', 'aliases' => ['Parathormone', 'PTH', 'Parathyroid Hormone'], 'unit' => 'pg/mL'],
+            ['name' => 'Hemoglobin', 'aliases' => ['Hemoglobin', 'Hb', 'Hgb'], 'unit' => 'g/dL'],
+            ['name' => 'WBC', 'aliases' => ['WBC', 'White Blood Cells'], 'unit' => '10^3/uL'],
+            ['name' => 'RBC', 'aliases' => ['RBC', 'Red Blood Cells'], 'unit' => '10^6/uL'],
+            ['name' => 'Hematocrit', 'aliases' => ['Hematocrit', 'HCT'], 'unit' => '%'],
+        ];
+
+        $rows = [];
+        $seen = [];
+
+        foreach (preg_split('/\R/u', $text) as $line) {
+            $line = $this->normalizeLabTextLine($line);
+
+            if ($line === '') {
+                continue;
+            }
+
+            foreach ($definitions as $definition) {
+                $row = $this->parseKnownLabLine($line, $definition, $labTest);
+
+                if (! $row) {
+                    continue;
+                }
+
+                $key = strtolower($row['test_name']);
+
+                if (! isset($seen[$key])) {
+                    $rows[] = $row;
+                    $seen[$key] = true;
+                }
+
+                break;
+            }
+        }
+
+        return $rows;
+    }
+
+    private function normalizeLabTextLine(string $line): string
+    {
+        $line = str_replace(["\u{00A0}", '–', '—', '−'], [' ', '-', '-', '-'], $line);
+        $line = preg_replace('/[|]+/', ' ', $line);
+        $line = preg_replace('/\s+/', ' ', trim($line));
+
+        return $line ?: '';
+    }
+
+    private function parseKnownLabLine(string $line, array $definition, HealthLabTest $labTest): ?array
+    {
+        foreach ($definition['aliases'] as $alias) {
+            $pattern = '/^(?:.*?\s)?' . preg_quote($alias, '/') . '\s+(.+)$/iu';
+
+            if (! preg_match($pattern, $line, $matches)) {
+                continue;
+            }
+
+            $tail = trim($matches[1]);
+
+            if (! preg_match('/-?\d+(?:[.,]\d+)?/', $tail, $valueMatch)) {
+                continue;
+            }
+
+            $value = str_replace(',', '.', $valueMatch[0]);
+            $unit = $this->extractUnitFromLabLine($tail, $definition['unit']);
+            [$referenceText, $referenceMin, $referenceMax] = $this->extractReferenceRangeFromLabLine($tail);
+            $status = $this->extractStatusFromLabLine($tail);
+
+            return [
+                'test_name' => $definition['name'],
+                'result_value' => $value,
+                'unit' => $unit,
+                'reference_min' => $referenceMin,
+                'reference_max' => $referenceMax,
+                'reference_text' => $referenceText,
+                'status' => $status,
+                'result_date' => $this->labTestDateValue($labTest),
+                'doctor_name' => $labTest->doctor_name,
+                'ai_confidence' => 0.85,
+                'user_approved' => false,
+            ];
+        }
+
+        return null;
+    }
+
+    private function extractUnitFromLabLine(string $line, string $defaultUnit): string
+    {
+        $unitPatterns = [
+            'mL/min/1.73m²',
+            'mL/min/1.73m2',
+            'mL/min/1.73',
+            'ml/mn/1.73m^2',
+            'ml/mn/1.73m²',
+            'ml/mn/1.73m2',
+            'ml/mn/1.73',
+            'ml/mn',
+            'mL/min',
+            'mg/dL',
+            'mg/dl',
+            'mEq/L',
+            'mEq/l',
+            'mmol/L',
+            'mmol/l',
+            'pg/mL',
+            'pg/ml',
+            'g/dL',
+            'g/dl',
+            '10^3/uL',
+            '10^6/uL',
+            '%',
+        ];
+
+        foreach ($unitPatterns as $unit) {
+            if (stripos($line, $unit) !== false) {
+                return match (strtolower($unit)) {
+                    'mg/dl' => 'mg/dL',
+                    'meq/l' => 'mEq/L',
+                    'mmol/l' => 'mmol/L',
+                    'pg/ml' => 'pg/mL',
+                    'g/dl' => 'g/dL',
+                    'ml/min/1.73m2', 'ml/min/1.73', 'ml/mn/1.73m^2', 'ml/mn/1.73m²', 'ml/mn/1.73m2', 'ml/mn/1.73', 'ml/mn' => 'mL/min/1.73m²',
+                    default => $unit,
+                };
+            }
+        }
+
+        return $defaultUnit;
+    }
+
+    private function extractReferenceRangeFromLabLine(string $line): array
+    {
+        if (preg_match('/(-?\d+(?:[.,]\d+)?)\s*-\s*(-?\d+(?:[.,]\d+)?)/', $line, $matches)) {
+            $min = str_replace(',', '.', $matches[1]);
+            $max = str_replace(',', '.', $matches[2]);
+
+            return [$min . ' - ' . $max, $min, $max];
+        }
+
+        if (preg_match('/(>=|<=|>|<)\s*(-?\d+(?:[.,]\d+)?)/', $line, $matches)) {
+            $value = str_replace(',', '.', $matches[2]);
+
+            return [$matches[1] . ' ' . $value, null, null];
+        }
+
+        return ['', null, null];
+    }
+
+    private function extractStatusFromLabLine(string $line): string
+    {
+        // Match only explicit status flags separated by spaces.
+        // This avoids false LOW matches from units such as mg/dL or mEq/L.
+        if (preg_match('/(?:^|\s)(H|HIGH)(?=\s|$)/i', $line)) {
+            return 'high';
+        }
+
+        if (preg_match('/(?:^|\s)(L|LOW)(?=\s|$)/i', $line)) {
+            return 'low';
+        }
+
+        return 'normal';
+    }
+
+    private function runShellCommand(string $command): string
+    {
+        if (! function_exists('proc_open')) {
+            return '';
+        }
+
+        $pipes = [];
+        $process = @proc_open($command, [
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ], $pipes);
+
+        if (! is_resource($process)) {
+            return '';
+        }
+
+        $output = stream_get_contents($pipes[1]) ?: '';
+        fclose($pipes[1]);
+
+        $error = stream_get_contents($pipes[2]) ?: '';
+        fclose($pipes[2]);
+
+        proc_close($process);
+
+        return trim($output) !== '' ? $output : $error;
+    }
+
+
     private function defaultDraftLabResultRows(HealthLabTest $labTest): array
     {
         $categoryValue = $labTest->category_name
@@ -478,14 +768,25 @@ class HealthLabTestController extends Controller
         return $date ? (string) $date : now()->toDateString();
     }
 
-    private function prepareDraftLabResultRows(HealthLabTest $labTest, array $draftRows): void
-    {
+    private function prepareDraftLabResultRows(
+        HealthLabTest $labTest,
+        array $draftRows,
+        string $source = 'upload_draft_rows'
+    ): void {
+        $message = $source === 'pdf_text_extraction'
+            ? 'Lab values were extracted from the uploaded file. Review and edit values before final approval.'
+            : 'Editable draft result rows were created after upload. Review and update values before final approval.';
+
+        if ($source === 'manual_placeholder') {
+            $message = 'Automatic extraction could not read enough values. Please manually review/edit values before approval.';
+        }
+
         $labTest->forceFill($this->filterColumns('health_lab_tests', [
             'ai_status' => 'pending_review',
             'status' => 'pending_review',
             'extracted_payload' => [
-                'source' => 'upload_draft_rows',
-                'message' => 'Editable draft result rows were created after upload. Review and update values before final approval.',
+                'source' => $source,
+                'message' => $message,
                 'results' => $draftRows,
             ],
         ]))->save();
@@ -499,16 +800,7 @@ class HealthLabTestController extends Controller
             return 0;
         }
 
-        $deleteQuery = DB::table($table)->where('lab_test_id', $labTest->id);
-
-        if (Schema::hasColumn($table, 'user_approved')) {
-            $deleteQuery->where(function ($query) {
-                $query->whereNull('user_approved')
-                    ->orWhere('user_approved', false);
-            });
-        }
-
-        $deleteQuery->delete();
+        DB::table($table)->where('lab_test_id', $labTest->id)->delete();
 
         $count = 0;
         $now = now();

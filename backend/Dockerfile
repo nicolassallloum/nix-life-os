@@ -7,6 +7,9 @@ RUN apt-get update && apt-get install -y \
     curl \
     unzip \
     zip \
+    tesseract-ocr-eng \
+    tesseract-ocr \
+    poppler-utils \
     libpq-dev \
     libzip-dev \
     libpng-dev \
