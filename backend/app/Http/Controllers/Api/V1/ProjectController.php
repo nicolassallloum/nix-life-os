@@ -8,6 +8,7 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -327,29 +328,120 @@ class ProjectController extends Controller
 
     private function createInitialTasks(Project $project, int $taskCount, string $userId): void
     {
+        if (! Schema::hasTable('project_tasks')) {
+            return;
+        }
+
         $now = now();
+        $columns = Schema::getColumnListing('project_tasks');
+
+        $titleColumn = $this->firstExistingProjectTaskColumn($columns, [
+            'task_title',
+            'title',
+            'task_name',
+            'name',
+        ]);
+
+        if (! $titleColumn) {
+            throw new \RuntimeException('No starter task title column found in project_tasks table.');
+        }
+
+        $descriptionColumn = $this->firstExistingProjectTaskColumn($columns, [
+            'task_description',
+            'description',
+            'details',
+        ]);
 
         for ($i = 1; $i <= $taskCount; $i++) {
-            DB::table('project_tasks')->insert([
-                'id' => (string) Str::uuid(),
-                'user_id' => $userId,
-                'project_id' => (string) $project->id,
-                'title' => "Task {$i}",
-                'description' => null,
-                'priority' => 'medium',
-                'status' => 'todo',
-                'start_date' => null,
-                'due_date' => null,
-                'completed_at' => null,
-                'assigned_to' => null,
-                'notes' => null,
-                'task_order' => $i,
-                'progress_percentage' => 0,
-                'weight' => 1,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
+            $insert = [];
+
+            if (in_array('id', $columns, true)) {
+                $insert['id'] = (string) Str::uuid();
+            }
+
+            if (in_array('user_id', $columns, true)) {
+                $insert['user_id'] = $userId;
+            }
+
+            if (in_array('project_id', $columns, true)) {
+                $insert['project_id'] = (string) $project->id;
+            }
+
+            $insert[$titleColumn] = "Task {$i}";
+
+            if ($descriptionColumn) {
+                $insert[$descriptionColumn] = null;
+            }
+
+            if (in_array('priority', $columns, true)) {
+                $insert['priority'] = 'medium';
+            }
+
+            if (in_array('status', $columns, true)) {
+                $insert['status'] = 'todo';
+            }
+
+            if (in_array('start_date', $columns, true)) {
+                $insert['start_date'] = null;
+            }
+
+            if (in_array('due_date', $columns, true)) {
+                $insert['due_date'] = null;
+            }
+
+            if (in_array('completed_at', $columns, true)) {
+                $insert['completed_at'] = null;
+            }
+
+            if (in_array('completed_date', $columns, true)) {
+                $insert['completed_date'] = null;
+            }
+
+            if (in_array('assigned_to', $columns, true)) {
+                $insert['assigned_to'] = null;
+            }
+
+            if (in_array('notes', $columns, true)) {
+                $insert['notes'] = null;
+            }
+
+            if (in_array('task_order', $columns, true)) {
+                $insert['task_order'] = $i;
+            }
+
+            if (in_array('progress_percentage', $columns, true)) {
+                $insert['progress_percentage'] = 0;
+            }
+
+            if (in_array('weight', $columns, true)) {
+                $insert['weight'] = 1;
+            }
+
+            if (in_array('metadata', $columns, true)) {
+                $insert['metadata'] = null;
+            }
+
+            if (in_array('created_at', $columns, true)) {
+                $insert['created_at'] = $now;
+            }
+
+            if (in_array('updated_at', $columns, true)) {
+                $insert['updated_at'] = $now;
+            }
+
+            DB::table('project_tasks')->insert($insert);
         }
+    }
+
+    private function firstExistingProjectTaskColumn(array $columns, array $candidates): ?string
+    {
+        foreach ($candidates as $candidate) {
+            if (in_array($candidate, $columns, true)) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     private function authorizeProject(Request $request, Project $project): void
