@@ -214,7 +214,8 @@
               <input
                 v-model="form.name"
                 type="text"
-                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                autocomplete="off"
+                class="finance-account-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
                 placeholder="Example: Main Cash"
               />
             </div>
@@ -223,7 +224,7 @@
               <label class="block text-sm text-slate-300 mb-2">Account Type</label>
               <select
                 v-model="form.type"
-                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                class="finance-account-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
               >
                 <option value="cash">Cash</option>
                 <option value="bank">Bank</option>
@@ -242,7 +243,7 @@
                   type="number"
                   step="0.01"
                   min="0"
-                  class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                  class="finance-account-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
                   placeholder="Enter opening balance"
                 />
               </div>
@@ -251,7 +252,7 @@
                 <label class="block text-sm text-slate-300 mb-2">Currency</label>
                 <select
                   v-model="form.currency"
-                  class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                  class="finance-account-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
                 >
                   <option value="USD">USD</option>
                   <option value="LBP">LBP</option>
@@ -264,8 +265,9 @@
               <label class="block text-sm text-slate-300 mb-2">Description</label>
               <textarea
                 v-model="form.description"
+                autocomplete="off"
                 rows="3"
-                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                class="finance-account-field w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
                 placeholder="Write account description, notes, or purpose"
               ></textarea>
             </div>
@@ -655,7 +657,9 @@ onMounted(() => {
 :deep(select),
 :deep(textarea) {
   color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
   background-color: #ffffff !important;
+  opacity: 1 !important;
 }
 
 :deep(input::placeholder),
@@ -681,4 +685,34 @@ onMounted(() => {
   caret-color: #0f172a !important;
 }
 
+</style>
+
+
+<style>
+.finance-account-field,
+.finance-account-field:focus,
+.finance-account-field:active,
+.finance-account-field:hover {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.finance-account-field::placeholder {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+}
+
+.finance-account-field:-webkit-autofill,
+.finance-account-field:-webkit-autofill:hover,
+.finance-account-field:-webkit-autofill:focus,
+.finance-account-field:-webkit-autofill:active {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  caret-color: #0f172a !important;
+}
 </style>
