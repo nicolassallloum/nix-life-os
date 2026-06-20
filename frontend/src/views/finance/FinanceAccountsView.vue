@@ -214,7 +214,7 @@
               <input
                 v-model="form.name"
                 type="text"
-                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
                 placeholder="Example: Main Cash"
               />
             </div>
@@ -223,7 +223,7 @@
               <label class="block text-sm text-slate-300 mb-2">Account Type</label>
               <select
                 v-model="form.type"
-                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
               >
                 <option value="cash">Cash</option>
                 <option value="bank">Bank</option>
@@ -242,8 +242,8 @@
                   type="number"
                   step="0.01"
                   min="0"
-                  class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
-                  placeholder="0.00"
+                  class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                  placeholder="Enter opening balance"
                 />
               </div>
 
@@ -251,7 +251,7 @@
                 <label class="block text-sm text-slate-300 mb-2">Currency</label>
                 <select
                   v-model="form.currency"
-                  class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                  class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
                 >
                   <option value="USD">USD</option>
                   <option value="LBP">LBP</option>
@@ -265,8 +265,8 @@
               <textarea
                 v-model="form.description"
                 rows="3"
-                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
-                placeholder="Optional account description"
+                class="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-600 focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                placeholder="Write account description, notes, or purpose"
               ></textarea>
             </div>
 
@@ -660,7 +660,8 @@ onMounted(() => {
 
 :deep(input::placeholder),
 :deep(textarea::placeholder) {
-  color: #64748b !important;
+  color: #334155 !important;
+  font-weight: 500 !important;
   opacity: 1 !important;
 }
 
@@ -668,4 +669,16 @@ onMounted(() => {
   color: #0f172a !important;
   background-color: #ffffff !important;
 }
+
+:deep(input:-webkit-autofill),
+:deep(input:-webkit-autofill:hover),
+:deep(input:-webkit-autofill:focus),
+:deep(textarea:-webkit-autofill),
+:deep(textarea:-webkit-autofill:hover),
+:deep(textarea:-webkit-autofill:focus) {
+  -webkit-text-fill-color: #0f172a !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  caret-color: #0f172a !important;
+}
+
 </style>
