@@ -85,6 +85,17 @@
         placeholder="Amount"
       />
 
+      <div>
+        <label class="mb-1 block text-sm font-medium text-slate-700">
+          Transaction Date
+        </label>
+        <input
+          v-model="form.transaction_date"
+          type="date"
+          class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400"
+        />
+      </div>
+
       <textarea
         v-model="form.description"
         rows="3"
@@ -120,6 +131,7 @@ const form = reactive({
   transfer_account_id: '',
   category: '',
   amount: '',
+  transaction_date: new Date().toISOString().slice(0, 10),
   description: '',
 })
 
@@ -222,6 +234,11 @@ async function save() {
     return
   }
 
+  if (!form.transaction_date) {
+    errorMessage.value = 'Please select a transaction date.'
+    return
+  }
+
   saving.value = true
 
   try {
@@ -232,11 +249,12 @@ async function save() {
       category: form.transaction_type === 'transfer' ? 'Account Transfer' : form.category,
       amount: Number(form.amount),
       description: form.description,
-      transaction_date: new Date().toISOString().slice(0, 10),
+      transaction_date: form.transaction_date,
     })
 
     form.amount = ''
     form.description = ''
+    form.transaction_date = new Date().toISOString().slice(0, 10)
     form.transfer_account_id = ''
     form.category = form.transaction_type === 'transfer' ? 'Account Transfer' : ''
 
@@ -261,3 +279,24 @@ onMounted(async () => {
   ])
 })
 </script>
+
+
+<style scoped>
+:deep(input),
+:deep(select),
+:deep(textarea) {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+:deep(input::placeholder),
+:deep(textarea::placeholder) {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+:deep(option) {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+</style>

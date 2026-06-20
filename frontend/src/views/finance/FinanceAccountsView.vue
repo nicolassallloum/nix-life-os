@@ -120,11 +120,11 @@
                 </td>
 
                 <td class="px-5 py-4 font-semibold">
-                  {{ formatMoney(account.balance, account.currency) }}
+                  {{ formatMoney(getAccountBalance(account), getAccountCurrency(account)) }}
                 </td>
 
                 <td class="px-5 py-4">
-                  {{ account.currency || "USD" }}
+                  {{ getAccountCurrency(account) }}
                 </td>
 
                 <td class="px-5 py-4">
@@ -324,14 +324,14 @@
             <div class="bg-slate-950 rounded-xl p-4">
               <p class="text-slate-400 text-sm">Balance</p>
               <p class="text-lg font-semibold">
-                {{ formatMoney(selectedAccount.balance, selectedAccount.currency) }}
+                {{ formatMoney(getAccountBalance(selectedAccount), getAccountCurrency(selectedAccount)) }}
               </p>
             </div>
 
             <div class="bg-slate-950 rounded-xl p-4">
               <p class="text-slate-400 text-sm">Currency</p>
               <p class="text-lg font-semibold">
-                {{ selectedAccount.currency || "USD" }}
+                {{ getAccountCurrency(selectedAccount) }}
               </p>
             </div>
 
@@ -457,10 +457,17 @@ const submitAccount = async () => {
 
     const method = isEditing.value ? "PUT" : "POST"
 
+    const balance = Number(form.value.balance || 0)
+
     const payload = {
       account_name: form.value.name,
+      name: form.value.name,
       account_type: form.value.type,
-      balance: Number(form.value.balance || 0),
+      type: form.value.type,
+      opening_balance: balance,
+      current_balance: balance,
+      balance,
+      currency_code: form.value.currency,
       currency: form.value.currency,
       description: form.value.description,
     }
@@ -502,7 +509,7 @@ const submitAccount = async () => {
 
 const deleteAccount = async (account) => {
   const confirmed = window.confirm(
-    `Are you sure you want to delete "${account.name}"?`
+    `Are you sure you want to delete "${account.account_name || account.name}"?`
   )
 
   if (!confirmed) return
@@ -560,8 +567,8 @@ const openEditModal = (account) => {
   form.value = {
     name: account.name || "",
     type: account.type || "cash",
-    balance: Number(account.balance || 0),
-    currency: account.currency || "USD",
+    balance: Number(getAccountBalance(account) || 0),
+    currency: getAccountCurrency(account),
     description: account.description || "",
   }
 
@@ -588,7 +595,7 @@ const closeViewModal = () => {
 
 const totalBalance = computed(() => {
   return accounts.value.reduce((sum, account) => {
-    return sum + Number(account.balance || 0)
+    return sum + Number(getAccountBalance(account) || 0)
   }, 0)
 })
 
@@ -597,6 +604,23 @@ const activeAccountsCount = computed(() => {
     return account.is_active === true || account.is_active === 1
   }).length
 })
+
+const getAccountBalance = (account) => {
+  return (
+    account?.current_balance ??
+    account?.balance ??
+    account?.opening_balance ??
+    0
+  )
+}
+
+const getAccountCurrency = (account) => {
+  return (
+    account?.currency_code ||
+    account?.currency ||
+    "USD"
+  )
+}
 
 const formatMoney = (value, currency = "USD") => {
   const amount = Number(value || 0)
@@ -624,3 +648,24 @@ onMounted(() => {
   fetchAccounts()
 })
 </script>
+
+
+<style scoped>
+:deep(input),
+:deep(select),
+:deep(textarea) {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+:deep(input::placeholder),
+:deep(textarea::placeholder) {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+:deep(option) {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+</style>
