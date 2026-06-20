@@ -617,23 +617,23 @@ Route::prefix('v1')->group(function () {
             Route::post('/medications', [MedicationController::class, 'store']);
             Route::get('/medications/today', [MedicationController::class, 'today']);
             Route::get('medications/today-schedule', [MedicationController::class, 'todaySchedule']);
-            Route::get('/medications/{id}', [MedicationController::class, 'show']);
-            Route::put('/medications/{id}', [MedicationController::class, 'update']);
-            Route::patch('/medications/{id}', [MedicationController::class, 'update']);
-            Route::delete('/medications/{id}', [MedicationController::class, 'destroy']);
+            Route::get('/medications/{id}', [MedicationController::class, 'show'])->whereUuid('id');
+            Route::put('/medications/{id}', [MedicationController::class, 'update'])->whereUuid('id');
+            Route::patch('/medications/{id}', [MedicationController::class, 'update'])->whereUuid('id');
+            Route::delete('/medications/{id}', [MedicationController::class, 'destroy'])->whereUuid('id');
 
             Route::get('/medication-reminders', [MedicationReminderController::class, 'index']);
             Route::get('/medication-reminders/today', [MedicationReminderController::class, 'today']);
             Route::post('/medication-reminders', [MedicationReminderController::class, 'store']);
-            Route::put('/medication-reminders/{id}', [MedicationReminderController::class, 'update']);
-            Route::patch('/medication-reminders/{id}', [MedicationReminderController::class, 'update']);
-            Route::delete('/medication-reminders/{id}', [MedicationReminderController::class, 'destroy']);
+            Route::put('/medication-reminders/{id}', [MedicationReminderController::class, 'update'])->whereUuid('id');
+            Route::patch('/medication-reminders/{id}', [MedicationReminderController::class, 'update'])->whereUuid('id');
+            Route::delete('/medication-reminders/{id}', [MedicationReminderController::class, 'destroy'])->whereUuid('id');
 
             Route::apiResource('hydration-reminders', HydrationReminderController::class);
 
             Route::get('/medication-doses/history', [MedicationDoseController::class, 'history']);
-            Route::post('/medication-doses/{id}/taken', [MedicationDoseController::class, 'markTaken']);
-            Route::post('/medication-doses/{id}/skipped', [MedicationDoseController::class, 'markSkipped']);
+            Route::post('/medication-doses/{id}/taken', [MedicationDoseController::class, 'markTaken'])->whereUuid('id');
+            Route::post('/medication-doses/{id}/skipped', [MedicationDoseController::class, 'markSkipped'])->whereUuid('id');
 
             Route::get('/lab-tests/categories', [HealthLabTestController::class, 'categories']);
             Route::get('/lab-tests/trends', [HealthLabTestController::class, 'trends']);
