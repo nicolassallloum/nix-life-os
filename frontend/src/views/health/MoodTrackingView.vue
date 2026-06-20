@@ -274,8 +274,16 @@ const errorMessage = ref('')
 const successMessage = ref('')
 const tagsInput = ref('')
 
+const localDateValue = (date = new Date()) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 const form = reactive({
-  mood_date: new Date().toISOString().slice(0, 10),
+  mood_date: localDateValue(),
   mood_label: '',
   mood_score: 5,
   notes: '',
@@ -291,9 +299,13 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token =
+    localStorage.getItem('nix_token') ||
     localStorage.getItem('token') ||
     localStorage.getItem('auth_token') ||
-    localStorage.getItem('access_token')
+    localStorage.getItem('access_token') ||
+    sessionStorage.getItem('token') ||
+    sessionStorage.getItem('auth_token') ||
+    sessionStorage.getItem('access_token')
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
@@ -333,7 +345,15 @@ const fetchMoodLogs = async () => {
 
   try {
     const response = await api.get('/health/mood')
-    moodLogs.value = Array.isArray(response.data.data) ? response.data.data : []
+    const payload = response.data?.data || response.data
+
+    moodLogs.value = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload?.mood_logs)
+          ? payload.mood_logs
+          : []
   } catch (error) {
     errorMessage.value = getErrorMessage(error)
   } finally {
@@ -368,7 +388,7 @@ const closeForm = () => {
 }
 
 const resetForm = () => {
-  form.mood_date = new Date().toISOString().slice(0, 10)
+  form.mood_date = localDateValue()
   form.mood_label = ''
   form.mood_score = 5
   form.notes = ''
@@ -499,7 +519,7 @@ const averageMoodScore = computed(() => {
 })
 
 const todayMood = computed(() => {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = localDateValue()
 
   return moodLogs.value.find((item) => {
     return String(item.mood_date).slice(0, 10) === today

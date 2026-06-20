@@ -143,8 +143,10 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     */
     Route::get('health/dashboard-summary', [HealthDashboardController::class, 'summary']);
     Route::apiResource('health/water', HealthWaterController::class);
-    Route::get('health/mood/summary', [HealthMoodController::class, 'summary']);
-    Route::apiResource('health/mood', HealthMoodController::class)->except(['show']);
+    // Health mood routes are handled by Api\V1\Health\HealthMoodLogController below.
+    // Legacy duplicate routes disabled to prevent /health/mood/{id} conflicts.
+    // Route::get('health/mood/summary', [HealthMoodController::class, 'summary']);
+    // Route::apiResource('health/mood', HealthMoodController::class)->except(['show']);
 
     /*
     |--------------------------------------------------------------------------
@@ -657,10 +659,10 @@ Route::prefix('v1')->group(function () {
             Route::post('/mood', [HealthMoodLogController::class, 'store']);
             Route::get('/mood/summary', [HealthMoodLogController::class, 'summary']);
             Route::get('/mood/dashboard', [HealthMoodLogController::class, 'summary']);
-            Route::get('/mood/{id}', [HealthMoodLogController::class, 'show']);
-            Route::put('/mood/{id}', [HealthMoodLogController::class, 'update']);
-            Route::patch('/mood/{id}', [HealthMoodLogController::class, 'update']);
-            Route::delete('/mood/{id}', [HealthMoodLogController::class, 'destroy']);
+            Route::get('/mood/{id}', [HealthMoodLogController::class, 'show'])->whereUuid('id');
+            Route::put('/mood/{id}', [HealthMoodLogController::class, 'update'])->whereUuid('id');
+            Route::patch('/mood/{id}', [HealthMoodLogController::class, 'update'])->whereUuid('id');
+            Route::delete('/mood/{id}', [HealthMoodLogController::class, 'destroy'])->whereUuid('id');
 
             Route::get('/sleep/summary', [SleepLogController::class, 'summary']);
             Route::get('/sleep/today', [SleepLogController::class, 'today']);
