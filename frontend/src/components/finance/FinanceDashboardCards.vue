@@ -14,7 +14,7 @@
           to="/finance/transactions"
           class="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
         >
-          Transfer Money
+          Transactions
         </RouterLink>
 
         <RouterLink
@@ -140,6 +140,99 @@
           </div>
         </div>
 
+        <!-- Category Breakdown -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="mb-5">
+              <h2 class="text-lg font-semibold text-slate-900">Expense Categories</h2>
+              <p class="text-sm text-slate-500">
+                Percentage of monthly expenses by category.
+              </p>
+            </div>
+
+            <div v-if="expenseCategoryRows.length === 0" class="py-10 text-center text-sm text-slate-500">
+              No expense category data available.
+            </div>
+
+            <div v-else class="grid grid-cols-1 gap-5 md:grid-cols-[180px_1fr] md:items-center">
+              <div class="mx-auto flex h-40 w-40 items-center justify-center rounded-full" :style="pieStyle(expenseCategoryRows)">
+                <div class="flex h-24 w-24 items-center justify-center rounded-full bg-white text-center shadow-inner">
+                  <div>
+                    <p class="text-xs font-semibold text-slate-500">Expenses</p>
+                    <p class="text-sm font-bold text-slate-900">{{ formatMoney(monthlyExpenses) }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div
+                  v-for="row in expenseCategoryRows"
+                  :key="`expense-${row.category}`"
+                  class="space-y-1"
+                >
+                  <div class="flex items-center justify-between gap-3 text-sm">
+                    <div class="flex min-w-0 items-center gap-2">
+                      <span class="h-3 w-3 rounded-full" :style="{ backgroundColor: row.color }"></span>
+                      <span class="truncate font-semibold text-slate-800">{{ row.category }}</span>
+                    </div>
+                    <span class="font-bold text-slate-900">{{ row.percentage }}%</span>
+                  </div>
+
+                  <div class="flex items-center justify-between text-xs text-slate-500">
+                    <span>{{ formatMoney(row.amount) }}</span>
+                    <span>{{ row.count }} transaction{{ row.count === 1 ? '' : 's' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="mb-5">
+              <h2 class="text-lg font-semibold text-slate-900">Income Categories</h2>
+              <p class="text-sm text-slate-500">
+                Percentage of monthly income by category.
+              </p>
+            </div>
+
+            <div v-if="incomeCategoryRows.length === 0" class="py-10 text-center text-sm text-slate-500">
+              No income category data available.
+            </div>
+
+            <div v-else class="grid grid-cols-1 gap-5 md:grid-cols-[180px_1fr] md:items-center">
+              <div class="mx-auto flex h-40 w-40 items-center justify-center rounded-full" :style="pieStyle(incomeCategoryRows)">
+                <div class="flex h-24 w-24 items-center justify-center rounded-full bg-white text-center shadow-inner">
+                  <div>
+                    <p class="text-xs font-semibold text-slate-500">Income</p>
+                    <p class="text-sm font-bold text-slate-900">{{ formatMoney(monthlyIncome) }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div
+                  v-for="row in incomeCategoryRows"
+                  :key="`income-${row.category}`"
+                  class="space-y-1"
+                >
+                  <div class="flex items-center justify-between gap-3 text-sm">
+                    <div class="flex min-w-0 items-center gap-2">
+                      <span class="h-3 w-3 rounded-full" :style="{ backgroundColor: row.color }"></span>
+                      <span class="truncate font-semibold text-slate-800">{{ row.category }}</span>
+                    </div>
+                    <span class="font-bold text-slate-900">{{ row.percentage }}%</span>
+                  </div>
+
+                  <div class="flex items-center justify-between text-xs text-slate-500">
+                    <span>{{ formatMoney(row.amount) }}</span>
+                    <span>{{ row.count }} transaction{{ row.count === 1 ? '' : 's' }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Recent Transactions -->
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div class="mb-4 flex items-center justify-between gap-3">
@@ -244,6 +337,41 @@
 
       <!-- Right Column -->
       <div class="space-y-6">
+        <!-- Currency Rates -->
+        <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div class="mb-5">
+            <h2 class="text-lg font-semibold text-slate-900">Currency Rates</h2>
+            <p class="text-sm text-slate-500">
+              Manual LBP reference rates used for finance display.
+            </p>
+          </div>
+
+          <div class="space-y-3">
+            <div
+              v-for="rate in currencyRates"
+              :key="rate.code"
+              class="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 px-4 py-3"
+            >
+              <div>
+                <p class="text-sm font-bold text-slate-900">
+                  1 {{ rate.code }}
+                </p>
+                <p class="text-xs text-slate-500">
+                  {{ rate.label }}
+                </p>
+              </div>
+
+              <p class="text-sm font-bold text-slate-900">
+                {{ formatNumber(rate.lbp) }} LBP
+              </p>
+            </div>
+          </div>
+
+          <p class="mt-4 text-xs text-slate-400">
+            Rates can later be connected to an external exchange-rate provider.
+          </p>
+        </div>
+
         <!-- Budget Progress -->
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <div class="mb-5">
@@ -366,6 +494,34 @@ const loading = ref(false);
 const loadingTransactions = ref(false);
 const error = ref("");
 const transactionError = ref("");
+
+const currencyRates = [
+  {
+    code: "USD",
+    label: "US Dollar",
+    lbp: 89500,
+  },
+  {
+    code: "EUR",
+    label: "Euro",
+    lbp: 102500,
+  },
+];
+
+const categoryColors = [
+  "#4f46e5",
+  "#2563eb",
+  "#0ea5e9",
+  "#06b6d4",
+  "#14b8a6",
+  "#22c55e",
+  "#eab308",
+  "#f97316",
+  "#ef4444",
+  "#ec4899",
+  "#9333ea",
+  "#64748b",
+];
 
 const token = () =>
   localStorage.getItem("token") ||
@@ -577,6 +733,74 @@ const getTransactionType = (transaction) => {
   );
 };
 
+const getDisplayCategory = (transaction) => {
+  return (
+    transaction.category ||
+    transaction.category_name ||
+    transaction.finance_category_name ||
+    transaction.categoryName ||
+    "Uncategorized"
+  );
+};
+
+const buildCategoryRows = (type) => {
+  const grouped = new Map();
+
+  monthlyTransactions.value
+    .filter((transaction) => getTransactionType(transaction) === type)
+    .forEach((transaction) => {
+      const category = getDisplayCategory(transaction);
+      const key = category.toLowerCase();
+      const current = grouped.get(key) || {
+        category,
+        amount: 0,
+        count: 0,
+      };
+
+      current.amount += Math.abs(Number(transaction.amount || 0));
+      current.count += 1;
+
+      grouped.set(key, current);
+    });
+
+  const total = Array.from(grouped.values()).reduce((sum, row) => {
+    return sum + row.amount;
+  }, 0);
+
+  return Array.from(grouped.values())
+    .sort((a, b) => b.amount - a.amount)
+    .map((row, index) => ({
+      ...row,
+      color: categoryColors[index % categoryColors.length],
+      percentage: total > 0 ? Math.round((row.amount / total) * 100) : 0,
+    }));
+};
+
+const expenseCategoryRows = computed(() => buildCategoryRows("expense"));
+
+const incomeCategoryRows = computed(() => buildCategoryRows("income"));
+
+const pieStyle = (rows) => {
+  if (!rows.length) {
+    return {
+      background: "#e2e8f0",
+    };
+  }
+
+  let cursor = 0;
+  const segments = rows.map((row) => {
+    const start = cursor;
+    const end = cursor + row.percentage;
+    cursor = end;
+
+    return `${row.color} ${start}% ${end}%`;
+  });
+
+  return {
+    background: `conic-gradient(${segments.join(", ")})`,
+  };
+};
+
 const getBudgetCategory = (budget) => {
   return normalizeText(
     budget.category ||
@@ -709,6 +933,12 @@ const maxChartValue = computed(() => {
 
 const getChartWidth = (value) => {
   return Math.round((Number(value || 0) / maxChartValue.value) * 100);
+};
+
+const formatNumber = (value) => {
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0));
 };
 
 const formatMoney = (amount, currency = "USD") => {
