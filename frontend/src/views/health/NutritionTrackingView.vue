@@ -64,8 +64,8 @@
     <div class="limits-card">
       <div class="limits-header">
         <div>
-          <h3>Editable Daily Nutrition Limits</h3>
-          <p>Update the maximum values used for daily warnings.</p>
+          <h3>Editable Nutrition Goals</h3>
+          <p>Update the daily nutrition goals and CKD warning limits used across Health dashboards.</p>
         </div>
         <div class="limits-actions">
           <button type="button" class="btn-small" @click="saveLimits" :disabled="isSavingLimits">
@@ -314,7 +314,7 @@ export default {
 
   data() {
     return {
-      selectedDate: new Date().toISOString().slice(0, 10),
+      selectedDate: this.getTodayDate(),
 
       logs: [],
       foodSearch: '',
@@ -415,6 +415,15 @@ export default {
   },
 
   methods: {
+    getTodayDate() {
+      const date = new Date()
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+
+      return `${year}-${month}-${day}`
+    },
+
     resetLimits() {
       this.ckdLimits = {
         calories: 1800,
@@ -475,7 +484,7 @@ export default {
       try {
         const response = await nutritionService.saveNutritionProfile(payload)
         this.applyProfile(response.data?.data || response.data)
-        this.successMessage = 'Nutrition maximum values saved successfully.'
+        this.successMessage = 'Nutrition goals saved successfully.'
       } catch (error) {
         this.errorMessage = this.getErrorMessage(error, 'Failed to save nutrition limits.')
       } finally {
@@ -485,7 +494,7 @@ export default {
 
     getEmptyForm() {
       return {
-        meal_date: new Date().toISOString().slice(0, 10),
+        meal_date: this.getTodayDate(),
         meal_type: 'breakfast',
         food_name: '',
         quantity: 100,
