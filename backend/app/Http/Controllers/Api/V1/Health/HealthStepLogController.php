@@ -45,11 +45,9 @@ class HealthStepLogController extends Controller
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $logDate = ! empty($validated['log_date'])
-            ? Carbon::parse($validated['log_date'], config('app.timezone'))->toDateString()
-            : now(config('app.timezone'))->toDateString();
+        $logDate = $this->normalizeLogDate($validated['log_date'] ?? null);
 
-        $steps = (int) ($validated['steps'] ?? $validated['steps_count'] ?? 0);
+        $steps = $this->stepsFromValidated($validated);
 
         $kilometers = array_key_exists('kilometers', $validated) && $validated['kilometers'] !== null
             ? round((float) $validated['kilometers'], 3)
@@ -80,7 +78,7 @@ class HealthStepLogController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Step log saved successfully.',
-            'data' => new HealthStepLogResource($log->fresh()),
+            'data' => $this->serializeLog($log->fresh(), $this->dailyStepsGoal($request->user()->id)),
         ], $log->wasRecentlyCreated ? 201 : 200);
     }
 
@@ -124,7 +122,7 @@ class HealthStepLogController extends Controller
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
-        $steps = (int) ($validated['steps'] ?? $validated['steps_count'] ?? $log->steps ?? 0);
+        $steps = $this->stepsFromValidated($validated, (int) ($log->steps ?? 0));
 
         $kilometers = array_key_exists('kilometers', $validated) && $validated['kilometers'] !== null
             ? round((float) $validated['kilometers'], 3)
@@ -138,8 +136,8 @@ class HealthStepLogController extends Controller
             ? (float) $validated['calories_burned']
             : round((float) ($log->calories_burned ?? ($steps * 0.04)), 2);
 
-        $logDate = ! empty($validated['log_date'])
-            ? Carbon::parse($validated['log_date'], config('app.timezone'))->toDateString()
+        $logDate = array_key_exists('log_date', $validated)
+            ? $this->normalizeLogDate($validated['log_date'] ?? null)
             : $log->log_date?->format('Y-m-d');
 
         $duplicate = HealthStepLog::query()
@@ -175,7 +173,7 @@ class HealthStepLogController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Step log updated successfully.',
-            'data' => new HealthStepLogResource($log),
+            'data' => $this->serializeLog($log, $this->dailyStepsGoal($request->user()->id)),
         ]);
     }
 
@@ -320,6 +318,36 @@ class HealthStepLogController extends Controller
             'created_at' => $log->created_at,
             'updated_at' => $log->updated_at,
         ];
+    }
+
+    private function normalizeLogDate(?string $value): string
+    {
+        if (! $value) {
+            return now(config('app.timezone'))->toDateString();
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+            return $value;
+        }
+
+        return Carbon::parse($value)
+            ->setTimezone(config('app.timezone'))
+            ->toDateString();
+    }
+
+    private function stepsFromValidated(array $validated, int $fallback = 0): int
+    {
+        foreach (['steps_count', 'steps'] as $field) {
+            if (
+                array_key_exists($field, $validated)
+                && $validated[$field] !== null
+                && $validated[$field] !== ''
+            ) {
+                return (int) $validated[$field];
+            }
+        }
+
+        return $fallback;
     }
 
     private function dailyStepsGoal(string $userId): int

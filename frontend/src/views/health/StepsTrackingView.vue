@@ -223,7 +223,7 @@ const editingId = ref(null)
 const dailyStepsGoal = ref(8000)
 
 const form = reactive({
-  log_date: new Date().toISOString().slice(0, 10),
+  log_date: todayDateValue(),
   steps_count: '',
   notes: '',
 })
@@ -231,7 +231,7 @@ const form = reactive({
 const isEditing = computed(() => Boolean(editingId.value))
 
 const todayLog = computed(() => {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = todayDateValue()
 
   return stepLogs.value.find((log) => {
     return formatDate(log.log_date) === today
@@ -377,9 +377,17 @@ async function saveStepLog() {
       return
     }
 
+    const stepCount = Number(form.steps_count)
+
+    if (!Number.isFinite(stepCount) || stepCount < 0 || stepCount > 200000) {
+      errorMessage.value = 'The steps count must be between 0 and 200000.'
+      return
+    }
+
     const payload = {
-      steps_count: Number(form.steps_count),
-      log_date: form.log_date,
+      steps: stepCount,
+      steps_count: stepCount,
+      log_date: normalizeDateValue(form.log_date),
       notes: form.notes || null,
     }
 
@@ -410,7 +418,7 @@ async function saveStepLog() {
 
 function editLog(log) {
   editingId.value = log.id
-  form.log_date = formatDate(log.log_date)
+  form.log_date = normalizeDateValue(log.log_date)
   form.steps_count = Number(log.steps_count || 0)
   form.notes = log.notes || ''
 
@@ -450,19 +458,42 @@ async function deleteLog(id) {
 
 function resetForm() {
   editingId.value = null
-  form.log_date = new Date().toISOString().slice(0, 10)
+  form.log_date = todayDateValue()
   form.steps_count = ''
   form.notes = ''
 }
 
-function formatDate(value) {
-  if (!value) return '-'
+function todayDateValue() {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+function normalizeDateValue(value) {
+  if (!value) return ''
 
   if (typeof value === 'string') {
     return value.slice(0, 10)
   }
 
-  return new Date(value).toISOString().slice(0, 10)
+  const date = new Date(value)
+
+  if (Number.isNaN(date.getTime())) {
+    return ''
+  }
+
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+function formatDate(value) {
+  return normalizeDateValue(value) || '-'
 }
 
 function formatNumber(value) {
