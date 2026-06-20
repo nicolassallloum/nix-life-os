@@ -307,6 +307,8 @@
 <script>
 import nutritionService from '@/services/nutritionService'
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
+
 export default {
   name: 'NutritionTrackingView',
 
@@ -495,6 +497,8 @@ export default {
         sodium: 0,
         potassium: 0,
         phosphorus: 0,
+        custom_food_id: null,
+        food_source: 'manual',
         notes: ''
       }
     },
@@ -536,26 +540,131 @@ export default {
       this.isSearching = true
       this.errorMessage = ''
 
-      try {
-        const response = await nutritionService.searchFoods(this.foodSearch.trim())
-        const payload = response.data.data
+      const query = this.foodSearch.trim()
+      let standardFoods = []
+      let customFoods = []
+      let lastError = null
 
-        this.foodResults = Array.isArray(payload)
-          ? payload
-          : payload?.data || []
+      try {
+        const response = await nutritionService.searchFoods(query)
+        standardFoods = this.normalizeFoodResults(response.data?.data || response.data)
       } catch (error) {
-        this.errorMessage = this.getErrorMessage(error, 'Failed to search foods.')
+        lastError = error
+      }
+
+      try {
+        customFoods = await this.searchCustomFoods(query)
+      } catch (error) {
+        lastError = lastError || error
+      }
+
+      try {
+        this.foodResults = this.mergeFoodResults(customFoods, standardFoods)
+
+        if (!this.foodResults.length && lastError) {
+          this.errorMessage = this.getErrorMessage(lastError, 'Failed to search foods.')
+        }
       } finally {
         this.isSearching = false
       }
     },
 
+    getAuthToken() {
+      return (
+        localStorage.getItem('nix_token') ||
+        localStorage.getItem('token') ||
+        localStorage.getItem('auth_token') ||
+        localStorage.getItem('access_token') ||
+        sessionStorage.getItem('token') ||
+        sessionStorage.getItem('auth_token') ||
+        sessionStorage.getItem('access_token') ||
+        ''
+      )
+    },
+
+    normalizeFoodResults(payload) {
+      if (Array.isArray(payload)) return payload
+      if (Array.isArray(payload?.data)) return payload.data
+      if (Array.isArray(payload?.data?.data)) return payload.data.data
+      if (Array.isArray(payload?.items)) return payload.items
+
+      return []
+    },
+
+    normalizeCustomFood(food) {
+      return {
+        id: food.id,
+        name: food.name || food.food_name || 'Custom Food',
+        brand_name: food.brand || food.brand_name || null,
+        brand: food.brand || food.brand_name || null,
+        category: food.category || 'Custom',
+        default_serving_label: `${food.serving_size || 100} ${food.serving_unit || food.unit || 'g'}`,
+        default_serving_grams: Number(food.serving_size || food.quantity || 100),
+        serving_size: Number(food.serving_size || food.quantity || 100),
+        serving_unit: food.serving_unit || food.unit || 'g',
+        calories: Number(food.calories || 0),
+        protein_g: Number(food.protein_g || food.protein || 0),
+        carbs_g: Number(food.carbs_g || food.carbs || 0),
+        fat_g: Number(food.fat_g || food.fat || 0),
+        sodium_mg: Number(food.sodium_mg || food.sodium || 0),
+        potassium_mg: Number(food.potassium_mg || food.potassium || 0),
+        phosphorus_mg: Number(food.phosphorus_mg || food.phosphorus || 0),
+        ckd_warning_level: 'custom',
+        ckd_notes: food.notes || 'Custom food saved by user.',
+        food_source: 'custom',
+        source_type: 'custom',
+        custom_food_id: food.id,
+      }
+    },
+
+    async searchCustomFoods(query) {
+      const token = this.getAuthToken()
+      const url = `${API_BASE_URL}/nutrition/custom-foods?search=${encodeURIComponent(query)}&per_page=20`
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      })
+
+      const payload = await response.json().catch(() => ({}))
+
+      if (!response.ok || payload?.success === false) {
+        throw new Error(payload?.message || 'Failed to search custom foods.')
+      }
+
+      return this.normalizeFoodResults(payload.data || payload).map(this.normalizeCustomFood)
+    },
+
+    mergeFoodResults(customFoods, standardFoods) {
+      const seen = new Set()
+      const merged = []
+
+      for (const food of [...customFoods, ...standardFoods]) {
+        const source = food.source_type || food.food_source || (food.custom_food_id ? 'custom' : 'database')
+        const key = `${source}:${food.custom_food_id || food.id || food.name}`
+
+        if (seen.has(key)) {
+          continue
+        }
+
+        seen.add(key)
+        merged.push(food)
+      }
+
+      return merged
+    },
+
     selectFood(food) {
       this.selectedFoodBase = { ...food }
 
+      const isCustomFood = food.source_type === 'custom' || food.food_source === 'custom' || Boolean(food.custom_food_id)
+
       this.form.food_name = food.name
-      this.form.quantity = Number(food.default_serving_grams || 100)
-      this.form.unit = 'g'
+      this.form.quantity = Number(food.default_serving_grams || food.serving_size || 100)
+      this.form.unit = food.serving_unit || food.unit || 'g'
 
       this.form.calories = Number(food.calories || 0)
       this.form.protein = Number(food.protein_g || 0)
@@ -564,6 +673,8 @@ export default {
       this.form.sodium = Number(food.sodium_mg || 0)
       this.form.potassium = Number(food.potassium_mg || 0)
       this.form.phosphorus = Number(food.phosphorus_mg || 0)
+      this.form.custom_food_id = isCustomFood ? (food.custom_food_id || food.id) : null
+      this.form.food_source = isCustomFood ? 'custom' : 'database'
 
       this.foodSearch = food.name
       this.foodResults = []
@@ -625,6 +736,8 @@ export default {
         potassium_mg: this.form.potassium || 0,
         phosphorus: this.form.phosphorus || 0,
         phosphorus_mg: this.form.phosphorus || 0,
+        custom_food_id: this.form.custom_food_id || null,
+        food_source: this.form.food_source || (this.form.custom_food_id ? 'custom' : 'manual'),
         notes: this.form.notes || ''
       }
 
@@ -663,7 +776,9 @@ export default {
         fat: Number(log.fat || 0),
         sodium: Number(log.sodium || 0),
         potassium: Number(log.potassium || 0),
-        phosphorus: Number(log.phosphorus || 0),
+        phosphorus: Number(log.phosphorus || log.phosphorus_mg || 0),
+        custom_food_id: log.custom_food_id || null,
+        food_source: log.food_source || (log.custom_food_id ? 'custom' : 'manual'),
         notes: log.notes || ''
       }
 

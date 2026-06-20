@@ -184,6 +184,9 @@ class HealthNutritionLogController extends Controller
             // Frontend short aliases
             'carbs' => ['nullable', 'numeric', 'min:0'],
             'fat' => ['nullable', 'numeric', 'min:0'],
+
+            'custom_food_id' => ['nullable', 'uuid'],
+            'food_source' => ['nullable', 'string', 'max:50'],
             'notes' => ['nullable', 'string'],
         ];
 
@@ -212,6 +215,8 @@ class HealthNutritionLogController extends Controller
             'potassium' => $validated['potassium'] ?? $validated['potassium_mg'] ?? 0,
             'phosphorus' => $validated['phosphorus'] ?? $validated['phosphorus_mg'] ?? 0,
 
+            'custom_food_id' => $validated['custom_food_id'] ?? null,
+            'food_source' => $validated['food_source'] ?? (($validated['custom_food_id'] ?? null) ? 'custom' : 'manual'),
             'notes' => $validated['notes'] ?? null,
         ];
 
