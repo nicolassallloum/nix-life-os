@@ -344,12 +344,20 @@ const successMessage = ref("");
 const sleepLogs = ref([]);
 const editingId = ref(null);
 
-const today = new Date().toISOString().slice(0, 10);
+const localDateValue = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+const today = localDateValue();
 
 const tomorrowDate = () => {
   const date = new Date();
   date.setDate(date.getDate() + 1);
-  return date.toISOString().slice(0, 10);
+  return localDateValue(date);
 };
 
 const form = ref({
@@ -675,9 +683,9 @@ const quickAdd = async (hours, quality) => {
   wake.setHours(bed.getHours() + hours);
 
   form.value = {
-    sleep_date: bed.toISOString().slice(0, 10),
+    sleep_date: localDateValue(bed),
     bed_time: bed.toTimeString().slice(0, 5),
-    wake_date: wake.toISOString().slice(0, 10),
+    wake_date: localDateValue(wake),
     wake_time: wake.toTimeString().slice(0, 5),
     quality_score: quality,
     notes: `Quick add ${hours} hours sleep`,
