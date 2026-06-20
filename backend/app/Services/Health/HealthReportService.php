@@ -47,6 +47,29 @@ class HealthReportService
         ];
     }
 
+    public function dateRangeReport(string $userId, string $fromDate, string $toDate): array
+    {
+        [$startDate, $endDate] = $this->normalizeDateRange($fromDate, $toDate);
+
+        return [
+            'period' => [
+                'type' => 'date_range',
+                'from_date' => $startDate,
+                'to_date' => $endDate,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+            ],
+            'summary' => $this->summary($userId, $startDate, $endDate),
+            'nutrition' => $this->nutritionTotals($userId, $startDate, $endDate),
+            'hydration' => $this->hydrationTotals($userId, $startDate, $endDate),
+            'weight' => $this->weightTrend($userId, $startDate, $endDate),
+            'steps' => $this->stepsTrend($userId, $startDate, $endDate),
+            'lab_results' => $this->labResultsTrend($userId, $startDate, $endDate),
+            'medication_adherence' => $this->medicationAdherence($userId, $startDate, $endDate),
+            'export_ready' => true,
+        ];
+    }
+
     public function monthlyReport(string $userId, string $month): array
     {
         $startDate = Carbon::parse($month . '-01')->startOfMonth()->toDateString();
@@ -78,7 +101,13 @@ class HealthReportService
         ?string $startDate = null,
         ?string $endDate = null
     ): array {
-        if ($period === 'daily') {
+        if (in_array($period, ['date_range', 'range', 'custom'], true) || $startDate || $endDate) {
+            $report = $this->dateRangeReport(
+                $userId,
+                $startDate ?: $date,
+                $endDate ?: ($startDate ?: $date)
+            );
+        } elseif ($period === 'daily') {
             $report = $this->dailyReport($userId, $date);
         } elseif ($period === 'weekly') {
             $report = $this->weeklyReport(
@@ -107,6 +136,19 @@ class HealthReportService
                 'doctor_notes_placeholder',
             ],
         ];
+    }
+
+
+    private function normalizeDateRange(string $fromDate, string $toDate): array
+    {
+        $start = Carbon::parse($fromDate ?: now()->startOfMonth()->toDateString())->toDateString();
+        $end = Carbon::parse($toDate ?: $start)->toDateString();
+
+        if ($start > $end) {
+            return [$end, $start];
+        }
+
+        return [$start, $end];
     }
 
     private function summary(string $userId, string $startDate, string $endDate): array

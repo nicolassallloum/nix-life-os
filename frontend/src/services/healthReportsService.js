@@ -1,6 +1,20 @@
 import api from './api'
 
-function reportParams(period = 'daily', date = '', month = '', startDate = '', endDate = '') {
+function reportParams(period = 'date_range', date = '', month = '', startDate = '', endDate = '') {
+  if (period === 'date_range' || period === 'range' || period === 'custom') {
+    const fromDate = startDate || date
+    const toDate = endDate || startDate || date
+
+    return {
+      period: 'date_range',
+      date: fromDate,
+      from_date: fromDate,
+      to_date: toDate,
+      start_date: fromDate,
+      end_date: toDate,
+    }
+  }
+
   if (period === 'weekly') {
     return {
       period,
@@ -24,6 +38,12 @@ function reportParams(period = 'daily', date = '', month = '', startDate = '', e
 }
 
 export const healthReportsService = {
+  getDateRangeReport(fromDate, toDate) {
+    return api.get('/health/reports', {
+      params: reportParams('date_range', fromDate, '', fromDate, toDate),
+    })
+  },
+
   getDailyReport(date) {
     return api.get('/health/reports/daily', {
       params: { date },

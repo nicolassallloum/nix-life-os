@@ -3,7 +3,7 @@
     <div class="page-header">
       <div>
         <h1>Health Reports</h1>
-        <p>Daily, weekly, and monthly health summaries with nutrition, hydration, weight, steps, labs, and medication adherence.</p>
+        <p>Health summaries between two selected dates with nutrition, hydration, weight, steps, labs, and medication adherence.</p>
       </div>
 
       <div class="header-actions">
@@ -19,32 +19,17 @@
 
     <div class="filters-card">
       <div class="filter-group">
-        <label>Report Type</label>
-        <select v-model="reportType" @change="loadReport">
-          <option value="daily">Daily</option>
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-        </select>
+        <label>From Date</label>
+        <input type="date" v-model="fromDate" @change="loadReport" />
       </div>
 
-      <div class="filter-group" v-if="reportType === 'daily'">
-        <label>Date</label>
-        <input type="date" v-model="selectedDate" @change="loadReport" />
+      <div class="filter-group">
+        <label>To Date</label>
+        <input type="date" v-model="toDate" @change="loadReport" />
       </div>
 
-      <div class="filter-group" v-if="reportType === 'weekly'">
-        <label>Start Date</label>
-        <input type="date" v-model="startDate" @change="loadReport" />
-      </div>
-
-      <div class="filter-group" v-if="reportType === 'weekly'">
-        <label>End Date</label>
-        <input type="date" v-model="endDate" @change="loadReport" />
-      </div>
-
-      <div class="filter-group" v-if="reportType === 'monthly'">
-        <label>Month</label>
-        <input type="month" v-model="selectedMonth" @change="loadReport" />
+      <div class="filter-note">
+        Report period: <strong>{{ fromDate }}</strong> to <strong>{{ toDate }}</strong>
       </div>
     </div>
 
@@ -239,12 +224,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { healthReportsService } from '@/services/healthReportsService'
 
-const reportType = ref('daily')
-const selectedDate = ref(getTodayDate())
-const selectedMonth = ref(getCurrentMonth())
-
-const startDate = ref(getStartOfWeek())
-const endDate = ref(getTodayDate())
+const fromDate = ref(getStartOfCurrentMonth())
+const toDate = ref(getTodayDate())
 
 const report = ref(null)
 const loading = ref(false)
@@ -271,15 +252,9 @@ async function loadReport() {
   error.value = null
 
   try {
-    let response
+    validateDateRange()
 
-    if (reportType.value === 'daily') {
-      response = await healthReportsService.getDailyReport(selectedDate.value)
-    } else if (reportType.value === 'weekly') {
-      response = await healthReportsService.getWeeklyReport(startDate.value, endDate.value)
-    } else {
-      response = await healthReportsService.getMonthlyReport(selectedMonth.value)
-    }
+    const response = await healthReportsService.getDateRangeReport(fromDate.value, toDate.value)
 
     report.value = response.data.data
   } catch (err) {
@@ -336,7 +311,7 @@ async function downloadPdfReport() {
     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')
 
     link.href = url
-    link.download = `nix-life-os-health-report-${reportType.value}-${timestamp}.pdf`
+    link.download = `nix-life-os-health-report-${fromDate.value}-to-${toDate.value}-${timestamp}.pdf`
     document.body.appendChild(link)
     link.click()
     link.remove()
@@ -350,12 +325,30 @@ async function downloadPdfReport() {
 }
 
 function reportRequestContext() {
+  validateDateRange()
+
   return {
-    period: reportType.value,
-    date: selectedDate.value,
-    month: selectedMonth.value,
-    startDate: startDate.value,
-    endDate: endDate.value,
+    period: 'date_range',
+    date: fromDate.value,
+    month: '',
+    startDate: fromDate.value,
+    endDate: toDate.value,
+  }
+}
+
+function validateDateRange() {
+  if (!fromDate.value) {
+    fromDate.value = getStartOfCurrentMonth()
+  }
+
+  if (!toDate.value) {
+    toDate.value = getTodayDate()
+  }
+
+  if (fromDate.value > toDate.value) {
+    const originalFrom = fromDate.value
+    fromDate.value = toDate.value
+    toDate.value = originalFrom
   }
 }
 
@@ -367,22 +360,10 @@ function getTodayDate() {
   return formatDateValue(new Date())
 }
 
-function getCurrentMonth() {
+function getStartOfCurrentMonth() {
   const date = new Date()
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
 
-  return `${year}-${month}`
-}
-
-function getStartOfWeek() {
-  const date = new Date()
-  const day = date.getDay()
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1)
-  const monday = new Date(date)
-  monday.setDate(diff)
-
-  return formatDateValue(monday)
+  return formatDateValue(new Date(date.getFullYear(), date.getMonth(), 1))
 }
 
 function formatDateValue(date) {
@@ -612,4 +593,43 @@ th {
     flex-direction: column;
   }
 }
+
+/* Health report date range readability fix */
+.health-reports-page input,
+.health-reports-page select,
+.health-reports-page textarea,
+.health-reports-page input:disabled,
+.health-reports-page select:disabled,
+.health-reports-page textarea:disabled {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  caret-color: #2563eb !important;
+  opacity: 1 !important;
+  color-scheme: light !important;
+}
+
+.health-reports-page input::placeholder,
+.health-reports-page textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.health-reports-page input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1 !important;
+  cursor: pointer;
+}
+
+.filter-note {
+  align-self: flex-end;
+  color: #475569;
+  font-size: 14px;
+  padding: 10px 0;
+}
+
+.filter-note strong {
+  color: #0f172a;
+}
+
 </style>

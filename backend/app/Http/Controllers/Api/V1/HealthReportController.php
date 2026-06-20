@@ -24,6 +24,23 @@ class HealthReportController extends Controller
 
         abort_if(! $user, 401, 'Unauthenticated.');
 
+        $fromDate = $request->query('from_date', $request->query('start_date'));
+        $toDate = $request->query('to_date', $request->query('end_date'));
+
+        if ($fromDate || $toDate) {
+            $data = $this->healthReportService->dateRangeReport(
+                (string) $user->id,
+                $fromDate ?: now()->startOfMonth()->toDateString(),
+                $toDate ?: now()->toDateString()
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Date range health report loaded successfully.',
+                'data' => $data,
+            ]);
+        }
+
         $date = $request->query('date', now()->toDateString());
 
         $data = $this->healthReportService->dailyReport((string) $user->id, $date);
@@ -77,11 +94,11 @@ class HealthReportController extends Controller
         abort_if(! $user, 401, 'Unauthenticated.');
 
         try {
-            $period = $request->query('period', 'monthly');
+            $period = $request->query('period', 'date_range');
             $date = $request->query('date', now()->toDateString());
             $month = $request->query('month', now()->format('Y-m'));
-            $startDate = $request->query('start_date');
-            $endDate = $request->query('end_date');
+            $startDate = $request->query('from_date', $request->query('start_date'));
+            $endDate = $request->query('to_date', $request->query('end_date'));
 
             $data = $this->healthReportService->exportPreview(
                 (string) $user->id,
@@ -121,11 +138,11 @@ class HealthReportController extends Controller
         try {
             $userId = (string) $user->id;
 
-            $period = $request->query('period', 'monthly');
+            $period = $request->query('period', 'date_range');
             $date = $request->query('date', now()->toDateString());
             $month = $request->query('month', now()->format('Y-m'));
-            $startDate = $request->query('start_date');
-            $endDate = $request->query('end_date');
+            $startDate = $request->query('from_date', $request->query('start_date'));
+            $endDate = $request->query('to_date', $request->query('end_date'));
 
             $preview = $this->healthReportService->exportPreview(
                 $userId,
@@ -295,6 +312,10 @@ class HealthReportController extends Controller
 
         if ($type === 'weekly') {
             return 'Weekly Report - ' . ($period['start_date'] ?? '') . ' to ' . ($period['end_date'] ?? '');
+        }
+
+        if (in_array($type, ['date_range', 'range', 'custom'], true)) {
+            return 'Date Range Report - ' . ($period['from_date'] ?? $period['start_date'] ?? '') . ' to ' . ($period['to_date'] ?? $period['end_date'] ?? '');
         }
 
         return 'Monthly Report - ' . ($period['month'] ?? now()->format('Y-m'));
