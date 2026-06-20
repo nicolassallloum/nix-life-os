@@ -3,6 +3,8 @@
 namespace App\Services\Health;
 
 use Carbon\Carbon;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -68,14 +70,22 @@ class HealthReportService
         ];
     }
 
-    public function exportPreview(string $userId, string $period, string $date, string $month): array
-    {
+    public function exportPreview(
+        string $userId,
+        string $period,
+        string $date,
+        string $month,
+        ?string $startDate = null,
+        ?string $endDate = null
+    ): array {
         if ($period === 'daily') {
             $report = $this->dailyReport($userId, $date);
         } elseif ($period === 'weekly') {
-            $startDate = Carbon::parse($date)->startOfWeek()->toDateString();
-            $endDate = Carbon::parse($date)->endOfWeek()->toDateString();
-            $report = $this->weeklyReport($userId, $startDate, $endDate);
+            $report = $this->weeklyReport(
+                $userId,
+                $startDate ?: Carbon::parse($date)->startOfWeek()->toDateString(),
+                $endDate ?: Carbon::parse($date)->endOfWeek()->toDateString()
+            );
         } else {
             $report = $this->monthlyReport($userId, $month);
         }
@@ -119,65 +129,67 @@ class HealthReportService
 
     private function nutritionTotals(string $userId, string $startDate, string $endDate): array
     {
-        if (!Schema::hasTable('health_nutrition_logs')) {
-            return [
-                'totals' => [
-                    'calories' => 0.0,
-                    'protein_g' => 0.0,
-                    'carbs_g' => 0.0,
-                    'fat_g' => 0.0,
-                    'sodium_mg' => 0.0,
-                    'potassium_mg' => 0.0,
-                    'phosphorus_mg' => 0.0,
-                ],
-                'ckd_warnings' => [
-                    'high_sodium' => false,
-                    'high_potassium' => false,
-                    'high_phosphorus' => false,
-                    'high_protein' => false,
-                ],
-            ];
-        }
-
-        $row = DB::table('health_nutrition_logs')
-            ->where('user_id', $userId)
-            ->whereBetween('meal_date', [$startDate, $endDate])
-            ->selectRaw('
-                COALESCE(SUM(calories), 0) as calories,
-                COALESCE(SUM(COALESCE(protein_g, protein, 0)), 0) as protein_g,
-                COALESCE(SUM(COALESCE(carbs_g, 0)), 0) as carbs_g,
-                COALESCE(SUM(COALESCE(fat_g, 0)), 0) as fat_g,
-                COALESCE(SUM(COALESCE(sodium_mg, sodium, 0)), 0) as sodium_mg,
-                COALESCE(SUM(COALESCE(potassium_mg, potassium, 0)), 0) as potassium_mg,
-                COALESCE(SUM(COALESCE(phosphorus_mg, phosphorus, 0)), 0) as phosphorus_mg
-            ')
-            ->first();
-
-        return [
+        $defaults = [
             'totals' => [
-                'calories' => (float) $row->calories,
-                'protein_g' => (float) $row->protein_g,
-                'carbs_g' => (float) $row->carbs_g,
-                'fat_g' => (float) $row->fat_g,
-                'sodium_mg' => (float) $row->sodium_mg,
-                'potassium_mg' => (float) $row->potassium_mg,
-                'phosphorus_mg' => (float) $row->phosphorus_mg,
+                'calories' => 0.0,
+                'protein_g' => 0.0,
+                'carbs_g' => 0.0,
+                'fat_g' => 0.0,
+                'sodium_mg' => 0.0,
+                'potassium_mg' => 0.0,
+                'phosphorus_mg' => 0.0,
             ],
             'ckd_warnings' => [
-                'high_sodium' => (float) $row->sodium_mg > 2000,
-                'high_potassium' => (float) $row->potassium_mg > 2500,
-                'high_phosphorus' => (float) $row->phosphorus_mg > 1000,
-                'high_protein' => (float) $row->protein_g > 60,
+                'high_sodium' => false,
+                'high_potassium' => false,
+                'high_phosphorus' => false,
+                'high_protein' => false,
+            ],
+        ];
+
+        if (! Schema::hasTable('health_nutrition_logs')) {
+            return $defaults;
+        }
+
+        $baseQuery = DB::table('health_nutrition_logs');
+        $this->applyUserFilter($baseQuery, 'health_nutrition_logs', $userId);
+        $this->applyDateRange($baseQuery, 'health_nutrition_logs', ['meal_date', 'log_date', 'date', 'created_at'], $startDate, $endDate);
+
+        $totals = [
+            'calories' => $this->sumFirstAvailable($baseQuery, 'health_nutrition_logs', ['calories', 'calories_kcal', 'energy_kcal']),
+            'protein_g' => $this->sumFirstAvailable($baseQuery, 'health_nutrition_logs', ['protein_g', 'protein']),
+            'carbs_g' => $this->sumFirstAvailable($baseQuery, 'health_nutrition_logs', ['carbs_g', 'carbohydrates_g', 'carbs']),
+            'fat_g' => $this->sumFirstAvailable($baseQuery, 'health_nutrition_logs', ['fat_g', 'fat']),
+            'sodium_mg' => $this->sumFirstAvailable($baseQuery, 'health_nutrition_logs', ['sodium_mg', 'sodium']),
+            'potassium_mg' => $this->sumFirstAvailable($baseQuery, 'health_nutrition_logs', ['potassium_mg', 'potassium']),
+            'phosphorus_mg' => $this->sumFirstAvailable($baseQuery, 'health_nutrition_logs', ['phosphorus_mg', 'phosphorus']),
+        ];
+
+        return [
+            'totals' => $totals,
+            'ckd_warnings' => [
+                'high_sodium' => $totals['sodium_mg'] > 2000,
+                'high_potassium' => $totals['potassium_mg'] > 2500,
+                'high_phosphorus' => $totals['phosphorus_mg'] > 1000,
+                'high_protein' => $totals['protein_g'] > 60,
             ],
         ];
     }
 
     private function hydrationTotals(string $userId, string $startDate, string $endDate): array
     {
-        $total = DB::table('health_hydration_logs')
-            ->where('user_id', $userId)
-            ->whereBetween('log_date', [$startDate, $endDate])
-            ->sum('amount_ml');
+        if (! Schema::hasTable('health_hydration_logs')) {
+            return [
+                'total_water_ml' => 0,
+                'total_water_liters' => 0,
+            ];
+        }
+
+        $baseQuery = DB::table('health_hydration_logs');
+        $this->applyUserFilter($baseQuery, 'health_hydration_logs', $userId);
+        $this->applyDateRange($baseQuery, 'health_hydration_logs', ['log_date', 'hydration_date', 'date', 'created_at'], $startDate, $endDate);
+
+        $total = $this->sumFirstAvailable($baseQuery, 'health_hydration_logs', ['amount_ml', 'water_ml', 'quantity_ml', 'ml']);
 
         return [
             'total_water_ml' => (int) $total,
@@ -187,13 +199,40 @@ class HealthReportService
 
     private function weightTrend(string $userId, string $startDate, string $endDate): array
     {
-        $items = DB::table('health_weight_logs')
-            ->where('user_id', $userId)
-            ->whereBetween('log_date', [$startDate, $endDate])
-            ->orderBy('log_date')
+        if (! Schema::hasTable('health_weight_logs')) {
+            return [
+                'items' => collect(),
+                'start_weight' => null,
+                'latest_weight' => null,
+                'change_kg' => null,
+            ];
+        }
+
+        $dateColumn = $this->firstExistingColumn('health_weight_logs', ['log_date', 'weight_date', 'date', 'created_at']);
+        $weightColumn = $this->firstExistingColumn('health_weight_logs', ['weight_kg', 'weight']);
+
+        if (! $weightColumn) {
+            return [
+                'items' => collect(),
+                'start_weight' => null,
+                'latest_weight' => null,
+                'change_kg' => null,
+            ];
+        }
+
+        $query = DB::table('health_weight_logs');
+        $this->applyUserFilter($query, 'health_weight_logs', $userId);
+
+        if ($dateColumn) {
+            $query->whereDate($dateColumn, '>=', $startDate)
+                ->whereDate($dateColumn, '<=', $endDate)
+                ->orderBy($dateColumn);
+        }
+
+        $items = $query
             ->get([
-                'log_date',
-                'weight_kg',
+                $dateColumn ? DB::raw($dateColumn . ' as log_date') : DB::raw('NULL as log_date'),
+                DB::raw($weightColumn . ' as weight_kg'),
             ]);
 
         return [
@@ -201,37 +240,45 @@ class HealthReportService
             'start_weight' => $items->first()->weight_kg ?? null,
             'latest_weight' => $items->last()->weight_kg ?? null,
             'change_kg' => $items->count() >= 2
-                ? round($items->last()->weight_kg - $items->first()->weight_kg, 2)
+                ? round((float) $items->last()->weight_kg - (float) $items->first()->weight_kg, 2)
                 : null,
         ];
     }
 
     private function stepsTrend(string $userId, string $startDate, string $endDate): array
     {
-        if (Schema::hasTable('health_step_logs')) {
-            $items = DB::table('health_step_logs')
-                ->where('user_id', $userId)
-                ->whereBetween('log_date', [$startDate, $endDate])
-                ->orderBy('log_date')
-                ->get([
-                    'log_date',
-                    'steps',
-                    'kilometers',
-                    'calories_burned',
-                ]);
-        } elseif (Schema::hasTable('health_step_log')) {
-            $items = DB::table('health_step_log')
-                ->where('user_id', $userId)
-                ->whereBetween('log_date', [$startDate, $endDate])
-                ->orderBy('log_date')
-                ->get([
-                    'log_date',
-                    'steps_count as steps',
-                    'distance_km as kilometers',
-                ]);
-        } else {
-            $items = collect();
+        $table = $this->firstExistingTable(['health_step_logs', 'health_steps_logs', 'health_step_log']);
+
+        if (! $table) {
+            return [
+                'items' => collect(),
+                'total_steps' => 0,
+                'average_steps' => 0,
+                'total_kilometers' => 0.0,
+                'total_calories_burned' => 0.0,
+            ];
         }
+
+        $dateColumn = $this->firstExistingColumn($table, ['log_date', 'steps_date', 'date', 'created_at']);
+        $stepsColumn = $this->firstExistingColumn($table, ['steps', 'steps_count']);
+        $distanceColumn = $this->firstExistingColumn($table, ['kilometers', 'distance_km', 'distance']);
+        $caloriesColumn = $this->firstExistingColumn($table, ['calories_burned', 'burned_calories']);
+
+        $query = DB::table($table);
+        $this->applyUserFilter($query, $table, $userId);
+
+        if ($dateColumn) {
+            $query->whereDate($dateColumn, '>=', $startDate)
+                ->whereDate($dateColumn, '<=', $endDate)
+                ->orderBy($dateColumn);
+        }
+
+        $items = $query->get([
+            $dateColumn ? DB::raw($dateColumn . ' as log_date') : DB::raw('NULL as log_date'),
+            $stepsColumn ? DB::raw($stepsColumn . ' as steps') : DB::raw('0 as steps'),
+            $distanceColumn ? DB::raw($distanceColumn . ' as kilometers') : DB::raw('0 as kilometers'),
+            $caloriesColumn ? DB::raw($caloriesColumn . ' as calories_burned') : DB::raw('0 as calories_burned'),
+        ]);
 
         return [
             'items' => $items,
@@ -244,44 +291,91 @@ class HealthReportService
 
     private function labResultsTrend(string $userId, string $startDate, string $endDate): array
     {
-        $items = DB::table('health_lab_tests')
-            ->where('user_id', $userId)
-            ->whereBetween('test_date', [$startDate, $endDate])
-            ->orderBy('test_date')
-            ->get([
-                'test_date',
-                'test_name',
-                'result_value',
-                'unit',
-                'reference_range',
-            ])
-            ->map(function ($item) {
-                $item->status = 'normal';
+        if (! Schema::hasTable('health_lab_tests')) {
+            return [
+                'items' => collect(),
+                'total_tests' => 0,
+                'abnormal_tests' => 0,
+            ];
+        }
+
+        $dateColumn = $this->firstExistingColumn('health_lab_tests', ['test_date', 'created_at']);
+        $statusColumn = $this->firstExistingColumn('health_lab_tests', ['status', 'ai_status']);
+
+        $query = DB::table('health_lab_tests');
+        $this->applyUserFilter($query, 'health_lab_tests', $userId);
+
+        if ($dateColumn) {
+            $query->whereDate($dateColumn, '>=', $startDate)
+                ->whereDate($dateColumn, '<=', $endDate)
+                ->orderBy($dateColumn);
+        }
+
+        $items = $query
+            ->get($this->selectAliases('health_lab_tests', [
+                'test_date' => ['test_date', 'created_at'],
+                'test_name' => ['test_name', 'name', 'category'],
+                'result_value' => ['result_value', 'value'],
+                'unit' => ['unit'],
+                'reference_range' => ['reference_range', 'reference_text'],
+                'status' => ['status', 'ai_status'],
+            ]))
+            ->map(function ($item) use ($statusColumn) {
+                $item->status = $item->status ?: 'normal';
+
                 return $item;
             });
+
+        $abnormalTests = $items->filter(function ($item) {
+            return in_array(strtolower((string) $item->status), ['abnormal', 'high', 'low', 'critical'], true);
+        })->count();
 
         return [
             'items' => $items,
             'total_tests' => $items->count(),
-            'abnormal_tests' => 0,
+            'abnormal_tests' => $abnormalTests,
         ];
     }
 
     private function medicationAdherence(string $userId, string $startDate, string $endDate): array
     {
-        $baseQuery = DB::table('health_medication_dose_logs')
-            ->where('user_id', $userId)
-            ->whereDate('scheduled_for', '>=', $startDate)
-            ->whereDate('scheduled_for', '<=', $endDate);
+        if (! Schema::hasTable('health_medication_dose_logs')) {
+            return [
+                'total_doses' => 0,
+                'taken_doses' => 0,
+                'missed_doses' => 0,
+                'adherence_percent' => 0,
+            ];
+        }
+
+        $dateColumn = $this->firstExistingColumn('health_medication_dose_logs', ['scheduled_for', 'dose_date', 'scheduled_at', 'taken_at', 'created_at']);
+        $statusColumn = $this->firstExistingColumn('health_medication_dose_logs', ['status']);
+
+        $baseQuery = DB::table('health_medication_dose_logs');
+        $this->applyUserFilter($baseQuery, 'health_medication_dose_logs', $userId);
+
+        if ($dateColumn) {
+            $baseQuery->whereDate($dateColumn, '>=', $startDate)
+                ->whereDate($dateColumn, '<=', $endDate);
+        }
 
         $totalDoses = (clone $baseQuery)->count();
 
+        if (! $statusColumn) {
+            return [
+                'total_doses' => $totalDoses,
+                'taken_doses' => 0,
+                'missed_doses' => 0,
+                'adherence_percent' => 0,
+            ];
+        }
+
         $takenDoses = (clone $baseQuery)
-            ->where('status', 'taken')
+            ->whereIn($statusColumn, ['taken', 'completed'])
             ->count();
 
         $missedDoses = (clone $baseQuery)
-            ->where('status', 'missed')
+            ->whereIn($statusColumn, ['missed', 'skipped'])
             ->count();
 
         $adherencePercent = $totalDoses > 0
@@ -307,5 +401,73 @@ class HealthReportService
         }
 
         return 'Good';
+    }
+
+    private function applyUserFilter(Builder $query, string $table, string $userId): void
+    {
+        if (Schema::hasColumn($table, 'user_id')) {
+            $query->where('user_id', $userId);
+        }
+    }
+
+    private function applyDateRange(Builder $query, string $table, array $candidates, string $startDate, string $endDate): void
+    {
+        $dateColumn = $this->firstExistingColumn($table, $candidates);
+
+        if ($dateColumn) {
+            $query->whereDate($dateColumn, '>=', $startDate)
+                ->whereDate($dateColumn, '<=', $endDate);
+        }
+    }
+
+    private function sumFirstAvailable(Builder $query, string $table, array $candidates): float
+    {
+        $column = $this->firstExistingColumn($table, $candidates);
+
+        if (! $column) {
+            return 0.0;
+        }
+
+        return (float) (clone $query)->sum($column);
+    }
+
+    private function selectAliases(string $table, array $aliases): array
+    {
+        $select = [];
+
+        foreach ($aliases as $alias => $candidates) {
+            foreach ($candidates as $column) {
+                if (Schema::hasColumn($table, $column)) {
+                    $select[] = DB::raw($column . ' as ' . $alias);
+                    continue 2;
+                }
+            }
+
+            $select[] = DB::raw('NULL as ' . $alias);
+        }
+
+        return $select;
+    }
+
+    private function firstExistingTable(array $tables): ?string
+    {
+        foreach ($tables as $table) {
+            if (Schema::hasTable($table)) {
+                return $table;
+            }
+        }
+
+        return null;
+    }
+
+    private function firstExistingColumn(string $table, array $columns): ?string
+    {
+        foreach ($columns as $column) {
+            if (Schema::hasColumn($table, $column)) {
+                return $column;
+            }
+        }
+
+        return null;
     }
 }

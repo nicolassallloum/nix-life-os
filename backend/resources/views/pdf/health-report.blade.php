@@ -387,8 +387,8 @@
                         <td>{{ $lab->result_value }} {{ $lab->unit }}</td>
                         <td>{{ $lab->reference_range ?? 'N/A' }}</td>
                         <td>
-                            {{ $lab->status ?? ($lab->is_abnormal ? 'abnormal' : 'normal') }}
-                            @if($lab->abnormal_reason)
+                            {{ $lab->status ?? (!empty($lab->is_abnormal) ? 'abnormal' : 'normal') }}
+                            @if(!empty($lab->abnormal_reason))
                                 <br><span class="small">{{ $lab->abnormal_reason }}</span>
                             @endif
                         </td>

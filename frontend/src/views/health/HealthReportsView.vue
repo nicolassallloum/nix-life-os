@@ -240,11 +240,11 @@ import { computed, onMounted, ref } from 'vue'
 import { healthReportsService } from '@/services/healthReportsService'
 
 const reportType = ref('daily')
-const selectedDate = ref(new Date().toISOString().slice(0, 10))
-const selectedMonth = ref(new Date().toISOString().slice(0, 7))
+const selectedDate = ref(getTodayDate())
+const selectedMonth = ref(getCurrentMonth())
 
 const startDate = ref(getStartOfWeek())
-const endDate = ref(new Date().toISOString().slice(0, 10))
+const endDate = ref(getTodayDate())
 
 const report = ref(null)
 const loading = ref(false)
@@ -292,17 +292,20 @@ async function loadReport() {
 
 async function loadExportPreview() {
   try {
+    const context = reportRequestContext()
     const response = await healthReportsService.getExportPreview(
-      reportType.value,
-      selectedDate.value,
-      selectedMonth.value
+      context.period,
+      context.date,
+      context.month,
+      context.startDate,
+      context.endDate
     )
 
     exportPreview.value = response.data.data
     alert('Export preview loaded successfully.')
   } catch (err) {
     console.error(err)
-    alert('Failed to load export preview.')
+    alert(errorMessageFromResponse(err, 'Failed to load export preview.'))
   }
 }
 
@@ -310,11 +313,22 @@ async function downloadPdfReport() {
   exportingPdf.value = true
 
   try {
+    const context = reportRequestContext()
     const response = await healthReportsService.downloadPdfReport(
-      reportType.value,
-      selectedDate.value,
-      selectedMonth.value
+      context.period,
+      context.date,
+      context.month,
+      context.startDate,
+      context.endDate
     )
+
+    const contentType = String(response.headers?.['content-type'] || '')
+
+    if (contentType.includes('application/json')) {
+      const text = await response.data.text()
+      const payload = JSON.parse(text)
+      throw new Error(payload.message || 'PDF export returned an error.')
+    }
 
     const blob = new Blob([response.data], { type: 'application/pdf' })
     const url = window.URL.createObjectURL(blob)
@@ -329,19 +343,54 @@ async function downloadPdfReport() {
     window.URL.revokeObjectURL(url)
   } catch (err) {
     console.error(err)
-    alert('Failed to export PDF report.')
+    alert(err?.message || 'Failed to export PDF report.')
   } finally {
     exportingPdf.value = false
   }
+}
+
+function reportRequestContext() {
+  return {
+    period: reportType.value,
+    date: selectedDate.value,
+    month: selectedMonth.value,
+    startDate: startDate.value,
+    endDate: endDate.value,
+  }
+}
+
+function errorMessageFromResponse(err, fallback) {
+  return err?.response?.data?.message || err?.message || fallback
+}
+
+function getTodayDate() {
+  return formatDateValue(new Date())
+}
+
+function getCurrentMonth() {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+
+  return `${year}-${month}`
 }
 
 function getStartOfWeek() {
   const date = new Date()
   const day = date.getDay()
   const diff = date.getDate() - day + (day === 0 ? -6 : 1)
-  const monday = new Date(date.setDate(diff))
+  const monday = new Date(date)
+  monday.setDate(diff)
 
-  return monday.toISOString().slice(0, 10)
+  return formatDateValue(monday)
+}
+
+function formatDateValue(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
 }
 </script>
 
