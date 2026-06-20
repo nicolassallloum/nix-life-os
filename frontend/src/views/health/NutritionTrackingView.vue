@@ -1274,4 +1274,59 @@ textarea {
   border: 1px solid #cbd5e1;
 }
 
+
+/* Health follow-up readability fix: force readable text in light form fields */
+.nutrition-page input,
+.nutrition-page select,
+.nutrition-page textarea,
+.nutrition-page input:disabled,
+.nutrition-page select:disabled,
+.nutrition-page textarea:disabled,
+.nutrition-page input[readonly],
+.nutrition-page select[readonly],
+.nutrition-page textarea[readonly] {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  caret-color: #2563eb !important;
+  opacity: 1 !important;
+  color-scheme: light !important;
+}
+
+.nutrition-page input::placeholder,
+.nutrition-page textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.nutrition-page select option,
+.nutrition-page option {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+.nutrition-page input:-webkit-autofill,
+.nutrition-page textarea:-webkit-autofill,
+.nutrition-page select:-webkit-autofill {
+  -webkit-text-fill-color: #020617 !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 9999s ease-out 0s !important;
+}
+
+.nutrition-page input::selection,
+.nutrition-page textarea::selection,
+.nutrition-page select::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+.nutrition-page input::-moz-selection,
+.nutrition-page textarea::-moz-selection,
+.nutrition-page select::-moz-selection {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
+}
 </style>

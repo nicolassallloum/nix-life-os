@@ -181,3 +181,60 @@ onMounted(async () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Health follow-up readability fix: force readable text in light form fields */
+input,
+select,
+textarea,
+input:disabled,
+select:disabled,
+textarea:disabled,
+input[readonly],
+select[readonly],
+textarea[readonly] {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  caret-color: #2563eb !important;
+  opacity: 1 !important;
+  color-scheme: light !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+select option,
+option {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #020617 !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 9999s ease-out 0s !important;
+}
+
+input::selection,
+textarea::selection,
+select::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+input::-moz-selection,
+textarea::-moz-selection,
+select::-moz-selection {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+</style>

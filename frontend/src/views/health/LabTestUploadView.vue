@@ -278,4 +278,59 @@ button:disabled {
   background: #dcfce7;
   color: #166534;
 }
+
+/* Health follow-up readability fix: force readable text in light form fields */
+.upload-page input,
+.upload-page select,
+.upload-page textarea,
+.upload-page input:disabled,
+.upload-page select:disabled,
+.upload-page textarea:disabled,
+.upload-page input[readonly],
+.upload-page select[readonly],
+.upload-page textarea[readonly] {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  caret-color: #2563eb !important;
+  opacity: 1 !important;
+  color-scheme: light !important;
+}
+
+.upload-page input::placeholder,
+.upload-page textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.upload-page select option,
+.upload-page option {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+.upload-page input:-webkit-autofill,
+.upload-page textarea:-webkit-autofill,
+.upload-page select:-webkit-autofill {
+  -webkit-text-fill-color: #020617 !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 9999s ease-out 0s !important;
+}
+
+.upload-page input::selection,
+.upload-page textarea::selection,
+.upload-page select::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+.upload-page input::-moz-selection,
+.upload-page textarea::-moz-selection,
+.upload-page select::-moz-selection {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
+}
 </style>

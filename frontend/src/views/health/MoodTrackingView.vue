@@ -981,4 +981,59 @@ th {
   color: #0f172a;
 }
 
+
+/* Health follow-up readability fix: force readable text in light form fields */
+.mood-page input,
+.mood-page select,
+.mood-page textarea,
+.mood-page input:disabled,
+.mood-page select:disabled,
+.mood-page textarea:disabled,
+.mood-page input[readonly],
+.mood-page select[readonly],
+.mood-page textarea[readonly] {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  caret-color: #2563eb !important;
+  opacity: 1 !important;
+  color-scheme: light !important;
+}
+
+.mood-page input::placeholder,
+.mood-page textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.mood-page select option,
+.mood-page option {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+.mood-page input:-webkit-autofill,
+.mood-page textarea:-webkit-autofill,
+.mood-page select:-webkit-autofill {
+  -webkit-text-fill-color: #020617 !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 9999s ease-out 0s !important;
+}
+
+.mood-page input::selection,
+.mood-page textarea::selection,
+.mood-page select::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+.mood-page input::-moz-selection,
+.mood-page textarea::-moz-selection,
+.mood-page select::-moz-selection {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
+}
 </style>

@@ -151,6 +151,10 @@ class HealthLabTestController extends Controller
 
             $labTest = HealthLabTest::create($payload);
 
+            $draftRows = $this->defaultDraftLabResultRows($labTest->fresh());
+            $this->prepareDraftLabResultRows($labTest, $draftRows);
+            $this->syncDraftLabResultRows($labTest->fresh(), $draftRows);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Lab test uploaded successfully.',
@@ -407,6 +411,140 @@ class HealthLabTestController extends Controller
             'updated_at' => $test->updated_at,
         ];
     }
+
+
+    private function defaultDraftLabResultRows(HealthLabTest $labTest): array
+    {
+        $categoryValue = $labTest->category_name
+            ?? data_get($labTest, 'category.name')
+            ?? $labTest->category
+            ?? $labTest->category_id
+            ?? 'general';
+
+        if (is_array($categoryValue)) {
+            $categoryValue = $categoryValue['name'] ?? $categoryValue['key'] ?? 'general';
+        }
+
+        if (is_object($categoryValue)) {
+            $categoryValue = data_get($categoryValue, 'name') ?? data_get($categoryValue, 'key') ?? 'general';
+        }
+
+        $categoryName = strtolower(trim((string) $categoryValue));
+
+        $tests = match (true) {
+            str_contains($categoryName, 'kidney') => [
+                ['Creatinine', 'mg/dL'],
+                ['Urea', 'mg/dL'],
+                ['eGFR', 'mL/min'],
+            ],
+            str_contains($categoryName, 'electrolyte') => [
+                ['Sodium', 'mmol/L'],
+                ['Potassium', 'mmol/L'],
+                ['Phosphorus', 'mg/dL'],
+            ],
+            str_contains($categoryName, 'blood') || str_contains($categoryName, 'anemia') => [
+                ['Hemoglobin', 'g/dL'],
+            ],
+            default => [
+                [$labTest->test_name ?: 'Uploaded Lab Test', ''],
+            ],
+        };
+
+        return array_map(function (array $test) use ($labTest) {
+            return [
+                'test_name' => $test[0],
+                'result_value' => null,
+                'unit' => $test[1],
+                'reference_min' => null,
+                'reference_max' => null,
+                'reference_text' => '',
+                'status' => 'pending_review',
+                'result_date' => $this->labTestDateValue($labTest),
+                'doctor_name' => $labTest->doctor_name,
+                'ai_confidence' => 0,
+                'user_approved' => false,
+            ];
+        }, $tests);
+    }
+
+    private function labTestDateValue(HealthLabTest $labTest): string
+    {
+        $date = $labTest->test_date;
+
+        if ($date instanceof \Carbon\CarbonInterface) {
+            return $date->toDateString();
+        }
+
+        return $date ? (string) $date : now()->toDateString();
+    }
+
+    private function prepareDraftLabResultRows(HealthLabTest $labTest, array $draftRows): void
+    {
+        $labTest->forceFill($this->filterColumns('health_lab_tests', [
+            'ai_status' => 'pending_review',
+            'status' => 'pending_review',
+            'extracted_payload' => [
+                'source' => 'upload_draft_rows',
+                'message' => 'Editable draft result rows were created after upload. Review and update values before final approval.',
+                'results' => $draftRows,
+            ],
+        ]))->save();
+    }
+
+    private function syncDraftLabResultRows(HealthLabTest $labTest, array $draftRows): int
+    {
+        $table = 'health_lab_test_results';
+
+        if (! Schema::hasTable($table)) {
+            return 0;
+        }
+
+        $deleteQuery = DB::table($table)->where('lab_test_id', $labTest->id);
+
+        if (Schema::hasColumn($table, 'user_approved')) {
+            $deleteQuery->where(function ($query) {
+                $query->whereNull('user_approved')
+                    ->orWhere('user_approved', false);
+            });
+        }
+
+        $deleteQuery->delete();
+
+        $count = 0;
+        $now = now();
+
+        foreach ($draftRows as $row) {
+            $testName = trim((string) ($row['test_name'] ?? ''));
+
+            if ($testName === '') {
+                $testName = 'Uploaded Lab Test';
+            }
+
+            $payload = [
+                'lab_test_id' => $labTest->id,
+                'user_id' => $labTest->user_id,
+                'test_name' => $testName,
+                'result_value' => $row['result_value'] ?? null,
+                'unit' => $row['unit'] ?? '',
+                'reference_min' => $row['reference_min'] ?? null,
+                'reference_max' => $row['reference_max'] ?? null,
+                'reference_text' => $row['reference_text'] ?? '',
+                'status' => $row['status'] ?? 'pending_review',
+                'result_date' => $row['result_date'] ?? $this->labTestDateValue($labTest),
+                'doctor_name' => $row['doctor_name'] ?? $labTest->doctor_name,
+                'ai_confidence' => $row['ai_confidence'] ?? 0,
+                'user_approved' => false,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+
+            DB::table($table)->insert($this->filterColumns($table, $payload));
+            $count++;
+        }
+
+        return $count;
+    }
+
 
     private function resolveCategoryName(mixed $value): string
     {

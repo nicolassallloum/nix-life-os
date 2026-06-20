@@ -169,7 +169,15 @@ const editingId = ref<number | null>(null)
 const message = ref('')
 const error = ref('')
 
-const today = new Date().toISOString().slice(0, 10)
+function localDateValue(date = new Date()) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+const today = localDateValue()
 const nowTime = new Date().toTimeString().slice(0, 5)
 
 const form = reactive({
@@ -197,6 +205,59 @@ const charts = reactive<Record<'daily' | 'weekly' | 'monthly' | 'all_time', Char
   monthly: [],
   all_time: [],
 })
+
+function getLogAmountMl(log: any): number {
+  return Number(log.quantity_ml ?? log.amount_ml ?? log.water_ml ?? log.intake_ml ?? log.ml ?? 0)
+}
+
+function getLogDateValue(log: any): string {
+  return String(log.log_date || log.hydration_date || log.date || log.created_at || '').slice(0, 10)
+}
+
+function addDays(date: Date, days: number) {
+  const copy = new Date(date)
+  copy.setDate(copy.getDate() + days)
+  return copy
+}
+
+function applySummaryFallbackFromLogs() {
+  if (!logs.value.length || Number(summary.all_time_total_ml || 0) > 0) {
+    return
+  }
+
+  const todayValue = localDateValue()
+  const todayDate = new Date(`${todayValue}T00:00:00`)
+  const weekStart = localDateValue(addDays(todayDate, -6))
+  const monthStart = localDateValue(new Date(todayDate.getFullYear(), todayDate.getMonth(), 1))
+
+  const totals = logs.value.reduce(
+    (acc, log: any) => {
+      const dateValue = getLogDateValue(log)
+      const amount = getLogAmountMl(log)
+
+      acc.all += amount
+
+      if (dateValue === todayValue) acc.day += amount
+      if (dateValue >= weekStart && dateValue <= todayValue) acc.week += amount
+      if (dateValue >= monthStart && dateValue <= todayValue) acc.month += amount
+
+      return acc
+    },
+    { day: 0, week: 0, month: 0, all: 0 },
+  )
+
+  Object.assign(summary, {
+    daily_total_ml: totals.day,
+    weekly_total_ml: totals.week,
+    monthly_total_ml: totals.month,
+    all_time_total_ml: totals.all,
+    daily_total_liters: Number((totals.day / 1000).toFixed(2)),
+    weekly_total_liters: Number((totals.week / 1000).toFixed(2)),
+    monthly_total_liters: Number((totals.month / 1000).toFixed(2)),
+    all_time_total_liters: Number((totals.all / 1000).toFixed(2)),
+  })
+}
+
 
 function getToken(): string {
   return (
@@ -235,7 +296,7 @@ async function loadLogs() {
   logs.value = (payload.data || []).map((log: any) => ({
     ...log,
     hydration_type: log.hydration_type || log.drink_type || 'Water',
-    quantity_ml: Number(log.quantity_ml || log.amount_ml || log.water_ml || 0),
+    quantity_ml: getLogAmountMl(log),
     log_time: log.log_time ? String(log.log_time).slice(0, 5) : '',
   }))
 }
@@ -266,6 +327,7 @@ async function loadAll() {
   error.value = ''
   try {
     await Promise.all([loadLogs(), loadSummary(), loadCharts()])
+    applySummaryFallbackFromLogs()
   } catch (err) {
     error.value = err instanceof Error ? err.message : 'Failed to load hydration data.'
   } finally {
@@ -690,5 +752,60 @@ th {
     flex-direction: column;
     align-items: flex-start;
   }
+}
+
+/* Health follow-up readability fix: force readable text in light form fields */
+.hydration-page input,
+.hydration-page select,
+.hydration-page textarea,
+.hydration-page input:disabled,
+.hydration-page select:disabled,
+.hydration-page textarea:disabled,
+.hydration-page input[readonly],
+.hydration-page select[readonly],
+.hydration-page textarea[readonly] {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  caret-color: #2563eb !important;
+  opacity: 1 !important;
+  color-scheme: light !important;
+}
+
+.hydration-page input::placeholder,
+.hydration-page textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.hydration-page select option,
+.hydration-page option {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+.hydration-page input:-webkit-autofill,
+.hydration-page textarea:-webkit-autofill,
+.hydration-page select:-webkit-autofill {
+  -webkit-text-fill-color: #020617 !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 9999s ease-out 0s !important;
+}
+
+.hydration-page input::selection,
+.hydration-page textarea::selection,
+.hydration-page select::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+.hydration-page input::-moz-selection,
+.hydration-page textarea::-moz-selection,
+.hydration-page select::-moz-selection {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
 }
 </style>

@@ -221,7 +221,7 @@ function isBadPlaceholderRow(row: any) {
 function normalizeResultRows(rows: any[]) {
   const source = String(labTest.value?.extracted_payload?.source || '')
 
-  if (source === 'manual_placeholder') {
+  if (source === 'manual_placeholder' && (!Array.isArray(rows) || rows.length === 0)) {
     return [emptyRow()]
   }
 
@@ -525,4 +525,59 @@ button {
   background-color: #2563eb !important;
 }
 
+
+/* Health follow-up readability fix: force readable text in light form fields */
+.preview-page input,
+.preview-page select,
+.preview-page textarea,
+.preview-page input:disabled,
+.preview-page select:disabled,
+.preview-page textarea:disabled,
+.preview-page input[readonly],
+.preview-page select[readonly],
+.preview-page textarea[readonly] {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  caret-color: #2563eb !important;
+  opacity: 1 !important;
+  color-scheme: light !important;
+}
+
+.preview-page input::placeholder,
+.preview-page textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.preview-page select option,
+.preview-page option {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+.preview-page input:-webkit-autofill,
+.preview-page textarea:-webkit-autofill,
+.preview-page select:-webkit-autofill {
+  -webkit-text-fill-color: #020617 !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 9999s ease-out 0s !important;
+}
+
+.preview-page input::selection,
+.preview-page textarea::selection,
+.preview-page select::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+.preview-page input::-moz-selection,
+.preview-page textarea::-moz-selection,
+.preview-page select::-moz-selection {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
+}
 </style>

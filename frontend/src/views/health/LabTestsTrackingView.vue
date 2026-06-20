@@ -928,4 +928,59 @@ td small {
     padding: 16px;
   }
 }
+
+/* Health follow-up readability fix: force readable text in light form fields */
+.lab-page input,
+.lab-page select,
+.lab-page textarea,
+.lab-page input:disabled,
+.lab-page select:disabled,
+.lab-page textarea:disabled,
+.lab-page input[readonly],
+.lab-page select[readonly],
+.lab-page textarea[readonly] {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  caret-color: #2563eb !important;
+  opacity: 1 !important;
+  color-scheme: light !important;
+}
+
+.lab-page input::placeholder,
+.lab-page textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.lab-page select option,
+.lab-page option {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+.lab-page input:-webkit-autofill,
+.lab-page textarea:-webkit-autofill,
+.lab-page select:-webkit-autofill {
+  -webkit-text-fill-color: #020617 !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 9999s ease-out 0s !important;
+}
+
+.lab-page input::selection,
+.lab-page textarea::selection,
+.lab-page select::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+.lab-page input::-moz-selection,
+.lab-page textarea::-moz-selection,
+.lab-page select::-moz-selection {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
+}
 </style>

@@ -63,7 +63,7 @@
 
         <div class="result-summary">
           <strong>{{ test.results?.length || 0 }}</strong>
-          approved result rows
+          result rows
         </div>
 
         <div class="actions">
@@ -349,5 +349,60 @@ select {
 
 .error {
   color: #b91c1c;
+}
+
+/* Health follow-up readability fix: force readable text in light form fields */
+.lab-tests-page input,
+.lab-tests-page select,
+.lab-tests-page textarea,
+.lab-tests-page input:disabled,
+.lab-tests-page select:disabled,
+.lab-tests-page textarea:disabled,
+.lab-tests-page input[readonly],
+.lab-tests-page select[readonly],
+.lab-tests-page textarea[readonly] {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  caret-color: #2563eb !important;
+  opacity: 1 !important;
+  color-scheme: light !important;
+}
+
+.lab-tests-page input::placeholder,
+.lab-tests-page textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.lab-tests-page select option,
+.lab-tests-page option {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+.lab-tests-page input:-webkit-autofill,
+.lab-tests-page textarea:-webkit-autofill,
+.lab-tests-page select:-webkit-autofill {
+  -webkit-text-fill-color: #020617 !important;
+  box-shadow: 0 0 0 1000px #ffffff inset !important;
+  transition: background-color 9999s ease-out 0s !important;
+}
+
+.lab-tests-page input::selection,
+.lab-tests-page textarea::selection,
+.lab-tests-page select::selection {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #2563eb !important;
+}
+
+.lab-tests-page input::-moz-selection,
+.lab-tests-page textarea::-moz-selection,
+.lab-tests-page select::-moz-selection {
+  color: #ffffff !important;
+  background-color: #2563eb !important;
 }
 </style>
