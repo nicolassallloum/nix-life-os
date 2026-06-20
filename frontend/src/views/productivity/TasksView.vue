@@ -188,10 +188,10 @@
         <div class="task-actions">
           <button
             v-if="task.status !== 'completed'"
-            class="success-btn"
+            class="success-btn done-btn"
             @click="completeTask(task)"
           >
-            Complete
+            Done
           </button>
 
           <button
@@ -340,7 +340,7 @@ async function completeTask(task) {
 
   try {
     await taskService.complete(task.id);
-    successMessage.value = "Task completed successfully.";
+    successMessage.value = "Task marked as done successfully.";
     await fetchTasks();
   } catch (error) {
     errorMessage.value = error.message || "Failed to complete task.";

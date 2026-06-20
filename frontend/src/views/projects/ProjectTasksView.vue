@@ -77,22 +77,12 @@
 
         <div class="actions">
           <button
-            v-if="task.status !== 'done'"
+            v-if="!isTaskDone(task)"
             class="done-btn"
             @click="markTaskDone(task)"
             :disabled="savingDone === task.id"
           >
             {{ savingDone === task.id ? 'Saving...' : 'Done' }}
-          </button>
-          <button class="small-btn" @click="loadSteps(task.id)">View Steps</button>
-
-          <button
-            v-if="task.status !== 'done'"
-            class="done-btn"
-            @click="markTaskDone(task.id)"
-            :disabled="savingStep === task.id"
-          >
-            {{ savingStep === task.id ? 'Saving...' : 'Done' }}
           </button>
 
           <button
@@ -103,6 +93,8 @@
           >
             {{ savingStep === task.id ? 'Saving...' : 'Reopen' }}
           </button>
+
+          <button class="small-btn" @click="loadSteps(task.id)">View Steps</button>
 
           <button class="small-btn" @click="createDemoStep(task.id)" :disabled="savingStep === task.id">
             {{ savingStep === task.id ? 'Adding...' : 'Add Done Step' }}
@@ -153,8 +145,8 @@ const errorMessage = ref('')
 
 const activeProjectId = computed(() => projectId || selectedProjectId.value)
 
-const openTasks = computed(() => tasks.value.filter((task) => task.status !== 'done').length)
-const doneTasks = computed(() => tasks.value.filter((task) => task.status === 'done').length)
+const openTasks = computed(() => tasks.value.filter((task) => !isTaskDone(task)).length)
+const doneTasks = computed(() => tasks.value.filter((task) => isTaskDone(task)).length)
 const avgProgress = computed(() => {
   if (!tasks.value.length) return 0
   return Math.round(tasks.value.reduce((sum, task) => sum + Number(task.progress_percentage || 0), 0) / tasks.value.length)
@@ -218,6 +210,10 @@ async function createDemoTask() {
 }
 
 
+function isTaskDone(task: any) {
+  return ['done', 'completed'].includes(String(task?.status || '').toLowerCase())
+}
+
 async function markTaskDone(task: any) {
   if (!activeProjectId.value || !task?.id) return
 
@@ -225,10 +221,7 @@ async function markTaskDone(task: any) {
   errorMessage.value = ''
 
   try {
-    await updateProjectTask(activeProjectId.value, task.id, {
-      status: 'done',
-      progress_percentage: 100,
-    })
+    await completeProjectTask(activeProjectId.value, task.id)
     await loadTasks()
   } catch (error: any) {
     errorMessage.value = error?.response?.data?.message || 'Failed to mark task as done.'
@@ -305,7 +298,6 @@ onMounted(async () => {
 .primary-btn { background: #2563eb; color: white; }
 .done-btn { border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; background: #16a34a; color: white; }
 .secondary-btn, .small-btn { background: #f3f4f6; color: #111827; }
-.done-btn { border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; background: #16a34a; color: white; }
 .done-btn:disabled { opacity: 0.65; cursor: not-allowed; }
 .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
 .summary-card, .content-card, .task-card { background: white; border: 1px solid #e5e7eb; border-radius: 18px; padding: 20px; box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06); }
