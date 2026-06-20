@@ -70,6 +70,8 @@ class HealthWeightLogController extends Controller
             ],
             [
                 'weight_kg' => $request->weight_kg,
+                'height_cm' => $heightCm,
+                'length_cm' => $heightCm,
                 'body_fat_percentage' => $request->body_fat_percentage ?? $request->body_fat_percent,
                 'muscle_mass_kg' => $request->muscle_mass_kg,
                 'bmi' => $bmi,
@@ -145,12 +147,22 @@ class HealthWeightLogController extends Controller
 
         unset($payload['body_fat_percent']);
 
+        $hasHeightInput = array_key_exists('height_cm', $payload) || array_key_exists('length_cm', $payload);
         $heightCm = $payload['height_cm'] ?? $payload['length_cm'] ?? null;
         unset($payload['height_cm'], $payload['length_cm']);
 
-        if (array_key_exists('weight_kg', $payload) || $heightCm !== null || array_key_exists('bmi', $payload)) {
+        if ($hasHeightInput) {
+            $payload['height_cm'] = $heightCm;
+            $payload['length_cm'] = $heightCm;
+        }
+
+        if (array_key_exists('weight_kg', $payload) || $hasHeightInput || array_key_exists('bmi', $payload)) {
             $weightKg = $payload['weight_kg'] ?? $log->weight_kg;
-            $payload['bmi'] = $this->resolveBmi($weightKg, $heightCm, $payload['bmi'] ?? null);
+            $heightForBmi = $hasHeightInput
+                ? $heightCm
+                : ($log->height_cm ?? $log->length_cm ?? null);
+
+            $payload['bmi'] = $this->resolveBmi($weightKg, $heightForBmi, $payload['bmi'] ?? $log->bmi);
         }
 
         $log->update($payload);
@@ -237,6 +249,8 @@ class HealthWeightLogController extends Controller
             return [
                 'date' => $log->log_date->format('Y-m-d'),
                 'weight_kg' => (float) $log->weight_kg,
+                'height_cm' => $log->height_cm !== null ? (float) $log->height_cm : null,
+                'length_cm' => $log->length_cm !== null ? (float) $log->length_cm : null,
                 'bmi' => $log->bmi !== null ? (float) $log->bmi : null,
                 'body_fat_percentage' => $log->body_fat_percentage !== null ? (float) $log->body_fat_percentage : null,
                 'body_fat_percent' => $log->body_fat_percentage !== null ? (float) $log->body_fat_percentage : null,

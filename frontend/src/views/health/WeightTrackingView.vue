@@ -194,6 +194,7 @@
             <tr class="border-b border-slate-200 text-slate-500">
               <th class="py-3 pr-4 font-medium">Date</th>
               <th class="py-3 pr-4 font-medium">Weight KG</th>
+              <th class="py-3 pr-4 font-medium">Height CM</th>
               <th class="py-3 pr-4 font-medium">BMI</th>
               <th class="py-3 pr-4 font-medium">Notes</th>
             </tr>
@@ -206,6 +207,7 @@
             >
               <td class="py-3 pr-4">{{ log.log_date || log.date }}</td>
               <td class="py-3 pr-4">{{ log.weight_kg || log.weight || 0 }}</td>
+              <td class="py-3 pr-4">{{ log.height_cm || log.length_cm || "-" }}</td>
               <td class="py-3 pr-4">{{ log.bmi || "-" }}</td>
               <td class="py-3 pr-4">{{ log.notes || "-" }}</td>
             </tr>
@@ -230,12 +232,21 @@ const savingGoals = ref(false);
 const targetWeight = ref(null);
 
 const form = ref({
-  log_date: new Date().toISOString().slice(0, 10),
+  log_date: todayDateValue(),
   weight_kg: "",
   height_cm: "",
   bmi: "",
   notes: "",
 });
+
+function todayDateValue() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
 
 const calculatedBmi = computed(() => {
   const weight = Number(form.value.weight_kg || 0);
@@ -401,7 +412,7 @@ const saveWeightLog = async () => {
     successMessage.value = "Weight log saved successfully.";
 
     form.value = {
-      log_date: new Date().toISOString().slice(0, 10),
+      log_date: todayDateValue(),
       weight_kg: "",
       height_cm: "",
       bmi: "",
