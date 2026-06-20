@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\Health\HealthAIInsightService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class HealthAIInsightController extends Controller
@@ -17,23 +18,32 @@ class HealthAIInsightController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $user = $request->user();
+
+        abort_if(! $user, 401, 'Unauthenticated.');
+
         try {
-            $payload = $this->healthAIInsightService->generateForUser((string) $request->user()->id);
+            $payload = $this->healthAIInsightService->generateForUser((string) $user->id);
 
             return response()->json([
                 'success' => true,
-                'message' => $payload['summary']['has_health_data']
+                'message' => ($payload['summary']['has_health_data'] ?? false)
                     ? 'Health AI insights generated successfully.'
                     : 'No health data available yet.',
                 'data' => $payload,
             ]);
         } catch (Throwable $exception) {
-            report($exception);
+            Log::error('Health AI insights generation failed', [
+                'user_id' => $user->id,
+                'message' => $exception->getMessage(),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+            ]);
 
             return response()->json([
                 'success' => false,
                 'message' => 'Unable to generate Health AI insights.',
-                'error' => config('app.debug') ? $exception->getMessage() : 'Internal server error.',
+                'error' => config('app.debug') ? $exception->getMessage() : null,
             ], 500);
         }
     }
@@ -47,5 +57,4 @@ class HealthAIInsightController extends Controller
     {
         return $this->index($request);
     }
-
 }

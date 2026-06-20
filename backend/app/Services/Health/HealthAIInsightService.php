@@ -2,15 +2,11 @@
 
 namespace App\Services\Health;
 
-use App\Models\HealthHydrationLog;
-use App\Models\HealthLabTest;
-use App\Models\HealthMedication;
-use App\Models\HealthMedicationReminder;
-use App\Models\HealthNutritionLog;
-use App\Models\HealthStepLog;
-use App\Models\HealthWeightLog;
 use Carbon\Carbon;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class HealthAIInsightService
 {
@@ -18,60 +14,54 @@ class HealthAIInsightService
     {
         $today = Carbon::today();
         $startDate = $today->copy()->subDays(30);
+        $labStartDate = $today->copy()->subMonths(6);
 
-        $nutritionLogs = HealthNutritionLog::query()
-            ->where('user_id', $userId)
-            ->whereDate('meal_date', '>=', $startDate)
-            ->orderByDesc('meal_date')
-            ->orderByDesc('created_at')
-            ->get();
+        $nutritionLogs = $this->rows(
+            table: 'health_nutrition_logs',
+            userId: $userId,
+            startDate: $startDate,
+            dateCandidates: ['meal_date', 'log_date', 'date', 'created_at'],
+            orderCandidates: ['meal_date', 'log_date', 'created_at']
+        );
 
-        $hydrationLogs = HealthHydrationLog::query()
-            ->where('user_id', $userId)
-            ->whereDate('log_date', '>=', $startDate)
-            ->orderByDesc('log_date')
-            ->orderByDesc('created_at')
-            ->get();
+        $hydrationLogs = $this->rows(
+            table: 'health_hydration_logs',
+            userId: $userId,
+            startDate: $startDate,
+            dateCandidates: ['log_date', 'hydration_date', 'date', 'created_at'],
+            orderCandidates: ['log_date', 'hydration_date', 'created_at']
+        );
 
-        $weightLogs = HealthWeightLog::query()
-            ->where('user_id', $userId)
-            ->whereDate('log_date', '>=', $startDate)
-            ->orderByDesc('log_date')
-            ->orderByDesc('created_at')
-            ->get();
+        $weightLogs = $this->rows(
+            table: 'health_weight_logs',
+            userId: $userId,
+            startDate: $startDate,
+            dateCandidates: ['log_date', 'weight_date', 'date', 'created_at'],
+            orderCandidates: ['log_date', 'weight_date', 'created_at']
+        );
 
-        $stepLogs = HealthStepLog::query()
-            ->where('user_id', $userId)
-            ->whereDate('log_date', '>=', $startDate)
-            ->orderByDesc('log_date')
-            ->orderByDesc('created_at')
-            ->get();
+        $stepTable = $this->firstExistingTable(['health_step_logs', 'health_steps_logs', 'health_step_log']);
 
-        $labTests = HealthLabTest::query()
-            ->where('user_id', $userId)
-            ->whereDate('test_date', '>=', $today->copy()->subMonths(6))
-            ->orderByDesc('test_date')
-            ->orderByDesc('created_at')
-            ->get();
+        $stepLogs = $stepTable
+            ? $this->rows(
+                table: $stepTable,
+                userId: $userId,
+                startDate: $startDate,
+                dateCandidates: ['log_date', 'steps_date', 'date', 'created_at'],
+                orderCandidates: ['log_date', 'steps_date', 'created_at']
+            )
+            : collect();
 
-        $medications = HealthMedication::query()
-            ->where('user_id', $userId)
-            ->where(function ($query) use ($today) {
-                $query->whereNull('status')
-                    ->orWhereIn('status', ['active', 'ACTIVE', 'ongoing', 'ONGOING']);
-            })
-            ->where(function ($query) use ($today) {
-                $query->whereNull('end_date')
-                    ->orWhereDate('end_date', '>=', $today);
-            })
-            ->orderByDesc('created_at')
-            ->get();
+        $labTests = $this->rows(
+            table: 'health_lab_tests',
+            userId: $userId,
+            startDate: $labStartDate,
+            dateCandidates: ['test_date', 'result_date', 'created_at'],
+            orderCandidates: ['test_date', 'result_date', 'created_at']
+        );
 
-        $reminders = HealthMedicationReminder::query()
-            ->where('user_id', $userId)
-            ->where('is_active', true)
-            ->orderBy('reminder_time')
-            ->get();
+        $medications = $this->activeMedications($userId, $today);
+        $reminders = $this->activeMedicationReminders($userId);
 
         $insights = collect()
             ->merge($this->nutritionInsights($nutritionLogs))
@@ -114,32 +104,34 @@ class HealthAIInsightService
             return [];
         }
 
-        $todayLogs = $logs->filter(fn ($log) => Carbon::parse($log->meal_date)->isToday());
+        $todayLogs = $logs->filter(fn ($log) => $this->dateIsToday($this->value($log, ['meal_date', 'log_date', 'date', 'created_at'])));
         $dailyLogs = $todayLogs->isNotEmpty() ? $todayLogs : $logs->take(10);
 
-        $totalSodium = $dailyLogs->sum(fn ($log) => $this->number($log->sodium));
-        $totalPotassium = $dailyLogs->sum(fn ($log) => $this->number($log->potassium));
-        $totalPhosphorus = $dailyLogs->sum(fn ($log) => $this->number($log->phosphorus));
-        $totalProtein = $dailyLogs->sum(fn ($log) => $this->number($log->protein));
+        $totalSodium = $dailyLogs->sum(fn ($log) => $this->number($this->value($log, ['sodium_mg', 'sodium'])));
+        $totalPotassium = $dailyLogs->sum(fn ($log) => $this->number($this->value($log, ['potassium_mg', 'potassium'])));
+        $totalPhosphorus = $dailyLogs->sum(fn ($log) => $this->number($this->value($log, ['phosphorus_mg', 'phosphorus'])));
+        $totalProtein = $dailyLogs->sum(fn ($log) => $this->number($this->value($log, ['protein_g', 'protein'])));
 
-        $highestSodium = $logs->sortByDesc(fn ($log) => $this->number($log->sodium))->first();
+        $highestSodium = $logs
+            ->sortByDesc(fn ($log) => $this->number($this->value($log, ['sodium_mg', 'sodium'])))
+            ->first();
+
         $insights = [];
 
-        if ($highestSodium && $this->number($highestSodium->sodium) >= 400) {
+        if ($highestSodium && $this->number($this->value($highestSodium, ['sodium_mg', 'sodium'])) >= 400) {
+            $sodium = $this->number($this->value($highestSodium, ['sodium_mg', 'sodium']));
+            $foodName = $this->value($highestSodium, ['food_name', 'name', 'meal_name']) ?: 'This food';
+
             $insights[] = $this->insight(
                 'nutrition_warning',
-                $this->number($highestSodium->sodium) >= 600 || $totalSodium >= 1500 ? 'warning' : 'info',
+                $sodium >= 600 || $totalSodium >= 1500 ? 'warning' : 'info',
                 'High sodium food detected',
-                sprintf(
-                    '%s contains about %s mg sodium. High sodium intake can make kidney-friendly eating harder to control.',
-                    $highestSodium->food_name,
-                    number_format($this->number($highestSodium->sodium), 0)
-                ),
+                sprintf('%s contains about %s mg sodium. High sodium intake can make kidney-friendly eating harder to control.', $foodName, number_format($sodium, 0)),
                 'Reduce salty snacks and processed foods, avoid adding table salt, and choose fresh lower-sodium options when possible.',
                 'nutrition',
                 [
-                    'food_name' => $highestSodium->food_name,
-                    'sodium_mg' => $this->round($highestSodium->sodium),
+                    'food_name' => $foodName,
+                    'sodium_mg' => $this->round($sodium),
                     'daily_sodium_mg' => $this->round($totalSodium),
                 ]
             );
@@ -162,11 +154,7 @@ class HealthAIInsightService
                 'nutrition_warning',
                 'warning',
                 'Kidney-related minerals need attention',
-                sprintf(
-                    'Recent logs show about %s mg potassium and %s mg phosphorus.',
-                    number_format($totalPotassium, 0),
-                    number_format($totalPhosphorus, 0)
-                ),
+                sprintf('Recent logs show about %s mg potassium and %s mg phosphorus.', number_format($totalPotassium, 0), number_format($totalPhosphorus, 0)),
                 'Review high-potassium and high-phosphorus foods with your healthcare provider or renal dietitian.',
                 'nutrition',
                 [
@@ -176,7 +164,7 @@ class HealthAIInsightService
             );
         }
 
-        if ($totalSodium < 400 && $totalProtein <= 70 && $totalPotassium <= 2000 && $totalPhosphorus <= 800) {
+        if (empty($insights)) {
             $insights[] = $this->insight(
                 'nutrition_warning',
                 'success',
@@ -197,14 +185,16 @@ class HealthAIInsightService
         }
 
         $todayTotal = $logs
-            ->filter(fn ($log) => Carbon::parse($log->log_date)->isToday())
-            ->sum(fn ($log) => $this->number($log->amount_ml));
+            ->filter(fn ($log) => $this->dateIsToday($this->value($log, ['log_date', 'hydration_date', 'date', 'created_at'])))
+            ->sum(fn ($log) => $this->number($this->value($log, ['amount_ml', 'water_ml', 'quantity_ml', 'ml'])));
 
         if ($todayTotal <= 0) {
-            $latestDate = optional($logs->first()->log_date)->format('Y-m-d') ?: Carbon::parse($logs->first()->log_date)->toDateString();
+            $latest = $logs->first();
+            $latestDate = $this->dateString($this->value($latest, ['log_date', 'hydration_date', 'date', 'created_at']));
+
             $todayTotal = $logs
-                ->filter(fn ($log) => Carbon::parse($log->log_date)->toDateString() === $latestDate)
-                ->sum(fn ($log) => $this->number($log->amount_ml));
+                ->filter(fn ($log) => $this->dateString($this->value($log, ['log_date', 'hydration_date', 'date', 'created_at'])) === $latestDate)
+                ->sum(fn ($log) => $this->number($this->value($log, ['amount_ml', 'water_ml', 'quantity_ml', 'ml'])));
         }
 
         if ($todayTotal < 1000) {
@@ -256,8 +246,14 @@ class HealthAIInsightService
 
         $latest = $logs->first();
         $previous = $logs->skip(1)->first();
-        $latestWeight = $this->number($latest->weight_kg);
-        $previousWeight = $this->number($previous->weight_kg);
+
+        $latestWeight = $this->number($this->value($latest, ['weight_kg', 'weight']));
+        $previousWeight = $this->number($this->value($previous, ['weight_kg', 'weight']));
+
+        if ($latestWeight <= 0 || $previousWeight <= 0) {
+            return [];
+        }
+
         $change = $latestWeight - $previousWeight;
 
         if (abs($change) < 0.3) {
@@ -310,9 +306,9 @@ class HealthAIInsightService
         }
 
         $recent = $logs->take(7);
-        $averageSteps = $recent->avg(fn ($log) => $this->number($log->steps)) ?: 0;
+        $averageSteps = $recent->avg(fn ($log) => $this->number($this->value($log, ['steps', 'steps_count']))) ?: 0;
         $latest = $logs->first();
-        $goal = $this->number($latest->goal_steps) ?: 6000;
+        $goal = $this->number($this->value($latest, ['goal_steps', 'steps_goal', 'daily_steps_goal'])) ?: 6000;
 
         if ($averageSteps < 3000) {
             return [
@@ -399,7 +395,8 @@ class HealthAIInsightService
         ];
 
         foreach ($kidneyMarkers as $field => $rule) {
-            $value = $this->number($latest->{$field});
+            $value = $this->number($this->value($latest, [$field]));
+
             if ($value <= 0) {
                 continue;
             }
@@ -417,31 +414,34 @@ class HealthAIInsightService
                     'labs',
                     ['marker' => $field, 'value' => $this->round($value)]
                 );
+
                 break;
             }
         }
 
-        if ($this->number($latest->egfr) > 0 && $this->number($latest->egfr) < 30) {
+        $egfr = $this->number($this->value($latest, ['egfr', 'e_gfr']));
+        if ($egfr > 0 && $egfr < 30) {
             $insights[] = $this->insight(
                 'lab_result_trend',
                 'warning',
                 'eGFR result needs follow-up',
-                sprintf('Your latest eGFR value is %s.', number_format($this->number($latest->egfr), 2)),
+                sprintf('Your latest eGFR value is %s.', number_format($egfr, 2)),
                 'Discuss this result with your nephrologist or healthcare provider for personalized guidance.',
                 'labs',
-                ['marker' => 'egfr', 'value' => $this->round($latest->egfr)]
+                ['marker' => 'egfr', 'value' => $this->round($egfr)]
             );
         }
 
-        if ($this->number($latest->hemoglobin) > 0 && $this->number($latest->hemoglobin) < 12) {
+        $hemoglobin = $this->number($this->value($latest, ['hemoglobin', 'hgb']));
+        if ($hemoglobin > 0 && $hemoglobin < 12) {
             $insights[] = $this->insight(
                 'lab_result_trend',
                 'info',
                 'Hemoglobin may need monitoring',
-                sprintf('Your latest hemoglobin value is %s.', number_format($this->number($latest->hemoglobin), 2)),
+                sprintf('Your latest hemoglobin value is %s.', number_format($hemoglobin, 2)),
                 'Keep monitoring this value and review it with your healthcare provider, especially if you feel tired or dizzy.',
                 'labs',
-                ['marker' => 'hemoglobin', 'value' => $this->round($latest->hemoglobin)]
+                ['marker' => 'hemoglobin', 'value' => $this->round($hemoglobin)]
             );
         }
 
@@ -465,10 +465,11 @@ class HealthAIInsightService
             return [];
         }
 
-        $recentSodium = $nutritionLogs->take(10)->sum(fn ($log) => $this->number($log->sodium));
+        $recentSodium = $nutritionLogs->take(10)->sum(fn ($log) => $this->number($this->value($log, ['sodium_mg', 'sodium'])));
         $latestLab = $labTests->first();
-        $potassium = $latestLab ? $this->number($latestLab->potassium) : 0;
-        $phosphorus = $latestLab ? $this->number($latestLab->phosphorus) : 0;
+
+        $potassium = $latestLab ? $this->number($this->value($latestLab, ['potassium'])) : 0;
+        $phosphorus = $latestLab ? $this->number($this->value($latestLab, ['phosphorus'])) : 0;
 
         $message = 'Focus on sodium control, balanced portions, and consistent tracking.';
 
@@ -493,6 +494,124 @@ class HealthAIInsightService
         ];
     }
 
+    private function activeMedications(string $userId, Carbon $today): Collection
+    {
+        if (! Schema::hasTable('health_medications')) {
+            return collect();
+        }
+
+        $query = DB::table('health_medications');
+        $this->applyUserFilter($query, 'health_medications', $userId);
+
+        if (Schema::hasColumn('health_medications', 'deleted_at')) {
+            $query->whereNull('deleted_at');
+        }
+
+        if (Schema::hasColumn('health_medications', 'status')) {
+            $query->where(function (Builder $builder) {
+                $builder->whereNull('status')
+                    ->orWhereIn('status', ['active', 'ACTIVE', 'ongoing', 'ONGOING']);
+            });
+        }
+
+        if (Schema::hasColumn('health_medications', 'end_date')) {
+            $query->where(function (Builder $builder) use ($today) {
+                $builder->whereNull('end_date')
+                    ->orWhereDate('end_date', '>=', $today->toDateString());
+            });
+        }
+
+        $this->applyOrdering($query, 'health_medications', ['created_at', 'medication_name', 'name']);
+
+        return $query->limit(100)->get();
+    }
+
+    private function activeMedicationReminders(string $userId): Collection
+    {
+        if (! Schema::hasTable('health_medication_reminders')) {
+            return collect();
+        }
+
+        $query = DB::table('health_medication_reminders');
+        $this->applyUserFilter($query, 'health_medication_reminders', $userId);
+
+        if (Schema::hasColumn('health_medication_reminders', 'is_active')) {
+            $query->where('is_active', true);
+        }
+
+        $this->applyOrdering($query, 'health_medication_reminders', ['reminder_time', 'scheduled_time', 'time', 'created_at']);
+
+        return $query->limit(100)->get();
+    }
+
+    private function rows(
+        string $table,
+        string $userId,
+        ?Carbon $startDate = null,
+        array $dateCandidates = [],
+        array $orderCandidates = []
+    ): Collection {
+        if (! Schema::hasTable($table)) {
+            return collect();
+        }
+
+        $query = DB::table($table);
+        $this->applyUserFilter($query, $table, $userId);
+
+        $dateColumn = $this->firstExistingColumn($table, $dateCandidates);
+
+        if ($startDate && $dateColumn) {
+            $query->whereDate($dateColumn, '>=', $startDate->toDateString());
+        }
+
+        $this->applyOrdering($query, $table, $orderCandidates ?: $dateCandidates);
+
+        return $query->limit(200)->get();
+    }
+
+    private function applyUserFilter(Builder $query, string $table, string $userId): void
+    {
+        if (Schema::hasColumn($table, 'user_id')) {
+            $query->where('user_id', $userId);
+        }
+    }
+
+    private function applyOrdering(Builder $query, string $table, array $candidates): void
+    {
+        foreach ($candidates as $column) {
+            if (Schema::hasColumn($table, $column)) {
+                $query->orderByDesc($column);
+                return;
+            }
+        }
+
+        if (Schema::hasColumn($table, 'id')) {
+            $query->orderByDesc('id');
+        }
+    }
+
+    private function firstExistingTable(array $tables): ?string
+    {
+        foreach ($tables as $table) {
+            if (Schema::hasTable($table)) {
+                return $table;
+            }
+        }
+
+        return null;
+    }
+
+    private function firstExistingColumn(string $table, array $columns): ?string
+    {
+        foreach ($columns as $column) {
+            if (Schema::hasColumn($table, $column)) {
+                return $column;
+            }
+        }
+
+        return null;
+    }
+
     private function insight(
         string $type,
         string $severity,
@@ -514,6 +633,21 @@ class HealthAIInsightService
         ];
     }
 
+    private function value(mixed $item, array $keys): mixed
+    {
+        foreach ($keys as $key) {
+            if (is_array($item) && array_key_exists($key, $item)) {
+                return $item[$key];
+            }
+
+            if (is_object($item) && property_exists($item, $key)) {
+                return $item->{$key};
+            }
+        }
+
+        return null;
+    }
+
     private function number(mixed $value): float
     {
         if ($value === null || $value === '') {
@@ -528,5 +662,23 @@ class HealthAIInsightService
         return round($this->number($value), 2);
     }
 
+    private function dateIsToday(mixed $value): bool
+    {
+        $date = $this->dateString($value);
 
+        return $date !== null && $date === Carbon::today()->toDateString();
+    }
+
+    private function dateString(mixed $value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value)->toDateString();
+        } catch (\Throwable) {
+            return null;
+        }
+    }
 }

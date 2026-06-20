@@ -167,10 +167,12 @@ async function loadInsights() {
 
   try {
     const response = await healthService.aiInsights();
-    payload.value = response.data?.data || {
-      summary: {},
-      insights: [],
-      empty_state: null,
+    const data = response.data?.data || response.data || {};
+
+    payload.value = {
+      summary: data.summary || {},
+      insights: Array.isArray(data.insights) ? data.insights : [],
+      empty_state: data.empty_state || null,
     };
   } catch (err) {
     error.value = err.response?.data?.message || err.message || "Failed to load Health AI insights.";
