@@ -640,20 +640,16 @@ Route::prefix('v1')->group(function () {
 
             // IMPORTANT: special lab-test routes must stay before /lab-tests/{id}
             Route::post('/lab-tests/upload', [HealthLabTestController::class, 'upload']);
-            Route::post('/lab-tests/{id}/extract', [HealthLabTestController::class, 'extract']);
-            Route::get('/lab-tests/{id}/preview', [HealthLabTestController::class, 'preview']);
-            Route::post('/lab-tests/{id}/approve', [HealthLabTestController::class, 'approve']);
-
             Route::get('/lab-tests', [HealthLabTestController::class, 'index']);
             Route::post('/lab-tests', [HealthLabTestController::class, 'store']);
-            Route::post('/lab-tests/upload', [HealthLabTestController::class, 'store']);
-            Route::post('/lab-tests/{id}/extract', [HealthLabTestController::class, 'extract']);
-            Route::get('/lab-tests/{id}/preview', [HealthLabTestController::class, 'preview']);
-            Route::post('/lab-tests/{id}/approve', [HealthLabTestController::class, 'approve']);
-            Route::get('/lab-tests/{id}', [HealthLabTestController::class, 'show']);
-            Route::put('/lab-tests/{id}', [HealthLabTestController::class, 'update']);
-            Route::patch('/lab-tests/{id}', [HealthLabTestController::class, 'update']);
-            Route::delete('/lab-tests/{id}', [HealthLabTestController::class, 'destroy']);
+
+            Route::post('/lab-tests/{id}/extract', [HealthLabTestController::class, 'extract'])->whereNumber('id');
+            Route::get('/lab-tests/{id}/preview', [HealthLabTestController::class, 'preview'])->whereNumber('id');
+            Route::post('/lab-tests/{id}/approve', [HealthLabTestController::class, 'approve'])->whereNumber('id');
+            Route::get('/lab-tests/{id}', [HealthLabTestController::class, 'show'])->whereNumber('id');
+            Route::put('/lab-tests/{id}', [HealthLabTestController::class, 'update'])->whereNumber('id');
+            Route::patch('/lab-tests/{id}', [HealthLabTestController::class, 'update'])->whereNumber('id');
+            Route::delete('/lab-tests/{id}', [HealthLabTestController::class, 'destroy'])->whereNumber('id');
 
             Route::get('/mood', [HealthMoodLogController::class, 'index']);
             Route::post('/mood', [HealthMoodLogController::class, 'store']);

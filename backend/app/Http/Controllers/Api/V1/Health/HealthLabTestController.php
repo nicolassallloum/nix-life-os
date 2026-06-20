@@ -77,10 +77,31 @@ class HealthLabTestController extends Controller
 
     public function categories(): JsonResponse
     {
+        $categories = $this->categories;
+
+        if (Schema::hasTable('health_test_categories')) {
+            $dbCategories = DB::table('health_test_categories')
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get()
+                ->map(fn ($category) => [
+                    'id' => (string) $category->id,
+                    'key' => $category->slug ?? (string) $category->id,
+                    'name' => $category->name,
+                    'tests' => [],
+                ])
+                ->values()
+                ->all();
+
+            if (! empty($dbCategories)) {
+                $categories = array_merge($dbCategories, $this->categories);
+            }
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Lab test categories retrieved successfully.',
-            'data' => $this->categories,
+            'data' => $categories,
         ]);
     }
 
@@ -135,6 +156,8 @@ class HealthLabTestController extends Controller
                 'message' => 'Lab test uploaded successfully.',
                 'data' => $this->serializeLabTest($labTest->fresh('results')),
             ], Response::HTTP_CREATED);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
         } catch (\Throwable $e) {
             Log::error('Lab test upload failed', [
                 'message' => $e->getMessage(),
@@ -144,12 +167,7 @@ class HealthLabTestController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Lab test upload failed.',
-                'debug' => [
-                    'message' => $e->getMessage(),
-                    'file' => basename($e->getFile()),
-                    'line' => $e->getLine(),
-                ],
+                'message' => 'Lab test upload failed. Please verify the file and try again.',
             ], 500);
         }
     }
@@ -324,10 +342,30 @@ class HealthLabTestController extends Controller
 
     public function trends(Request $request): JsonResponse
     {
+        $rows = HealthLabTest::query()
+            ->where('user_id', $request->user()->id)
+            ->orderBy('test_date')
+            ->get()
+            ->map(fn (HealthLabTest $test) => [
+                'id' => $test->id,
+                'test_date' => optional($test->test_date)->format('Y-m-d') ?: $test->test_date,
+                'creatinine' => $test->creatinine,
+                'urea' => $test->urea,
+                'egfr' => $test->egfr,
+                'hemoglobin' => $test->hemoglobin,
+                'sodium' => $test->sodium,
+                'potassium' => $test->potassium,
+                'phosphorus' => $test->phosphorus,
+            ])
+            ->values();
+
         return response()->json([
             'success' => true,
             'message' => 'Lab test trends retrieved successfully.',
-            'data' => [],
+            'data' => [
+                'chart' => $rows,
+                'warnings' => [],
+            ],
         ]);
     }
 

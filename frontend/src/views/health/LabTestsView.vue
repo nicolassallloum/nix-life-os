@@ -86,6 +86,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import { getAuthToken } from '@/utils/auth'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
 
@@ -99,11 +100,28 @@ const filters = reactive({
   ai_status: '',
 })
 
+function authToken() {
+  return (
+    getAuthToken?.() ||
+    localStorage.getItem('nix_token') ||
+    localStorage.getItem('token') ||
+    localStorage.getItem('auth_token') ||
+    localStorage.getItem('access_token') ||
+    localStorage.getItem('nixlifeos_token') ||
+    sessionStorage.getItem('token') ||
+    sessionStorage.getItem('auth_token') ||
+    sessionStorage.getItem('access_token') ||
+    sessionStorage.getItem('nixlifeos_token') ||
+    ''
+  )
+}
+
 function authHeaders() {
-  const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || ''
+  const token = authToken()
+
   return {
     Accept: 'application/json',
-    Authorization: `Bearer ${token}`,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
 }
 
@@ -137,7 +155,11 @@ async function loadCategories() {
     const payload = await response.json()
 
     if (response.ok && payload.success !== false) {
-      categories.value = Array.isArray(payload.data) ? payload.data : []
+      categories.value = Array.isArray(payload.data)
+        ? payload.data
+        : Array.isArray(payload.categories)
+          ? payload.categories
+          : []
     }
   } catch {
     categories.value = categories.value || []

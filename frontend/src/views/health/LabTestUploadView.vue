@@ -64,10 +64,21 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import { getAuthToken } from '@/utils/auth'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
+
+function getTodayDate() {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 
 const categories = ref<any[]>([])
 const selectedFile = ref<File | null>(null)
@@ -77,17 +88,34 @@ const success = ref('')
 
 const form = reactive({
   category_id: '',
-  test_date: new Date().toISOString().slice(0, 10),
+  test_date: getTodayDate(),
   lab_name: '',
   doctor_name: '',
   notes: '',
 })
 
+function authToken() {
+  return (
+    getAuthToken?.() ||
+    localStorage.getItem('nix_token') ||
+    localStorage.getItem('token') ||
+    localStorage.getItem('auth_token') ||
+    localStorage.getItem('access_token') ||
+    localStorage.getItem('nixlifeos_token') ||
+    sessionStorage.getItem('token') ||
+    sessionStorage.getItem('auth_token') ||
+    sessionStorage.getItem('access_token') ||
+    sessionStorage.getItem('nixlifeos_token') ||
+    ''
+  )
+}
+
 function authHeaders() {
-  const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || ''
+  const token = authToken()
+
   return {
     Accept: 'application/json',
-    Authorization: `Bearer ${token}`,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
 }
 
@@ -103,7 +131,11 @@ async function loadCategories() {
     })
 
     const payload = await response.json()
-    categories.value = Array.isArray(payload.data) ? payload.data : []
+    categories.value = Array.isArray(payload.data)
+      ? payload.data
+      : Array.isArray(payload.categories)
+        ? payload.categories
+        : []
   } catch {
     categories.value = []
   }
@@ -143,10 +175,15 @@ async function submitUpload() {
 
     const id = payload.data.id
 
-    await fetch(`${API_BASE_URL}/health/lab-tests/${id}/extract`, {
+    const extractResponse = await fetch(`${API_BASE_URL}/health/lab-tests/${id}/extract`, {
       method: 'POST',
       headers: authHeaders(),
     })
+
+    if (!extractResponse.ok) {
+      const extractPayload = await extractResponse.json().catch(() => ({}))
+      throw new Error(extractPayload.message || 'Upload succeeded, but review preparation failed.')
+    }
 
     success.value = 'Uploaded successfully. Redirecting to review...'
     router.push(`/health/lab-tests/${id}/preview`)

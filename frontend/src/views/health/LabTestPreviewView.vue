@@ -117,11 +117,22 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { getAuthToken } from '@/utils/auth'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1'
+
+function getTodayDate() {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 
 const loading = ref(false)
 const saving = ref(false)
@@ -137,11 +148,28 @@ const previewUrl = ref('')
 const previewError = ref('')
 const isPdf = computed(() => String(labTest.value?.file_type || '').includes('pdf'))
 
+function authToken() {
+  return (
+    getAuthToken?.() ||
+    localStorage.getItem('nix_token') ||
+    localStorage.getItem('token') ||
+    localStorage.getItem('auth_token') ||
+    localStorage.getItem('access_token') ||
+    localStorage.getItem('nixlifeos_token') ||
+    sessionStorage.getItem('token') ||
+    sessionStorage.getItem('auth_token') ||
+    sessionStorage.getItem('access_token') ||
+    sessionStorage.getItem('nixlifeos_token') ||
+    ''
+  )
+}
+
+
 function authHeaders(json = false) {
-  const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || ''
+  const token = authToken()
   const headers: Record<string, string> = {
     Accept: 'application/json',
-    Authorization: `Bearer ${token}`,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
 
   if (json) headers['Content-Type'] = 'application/json'
@@ -158,7 +186,7 @@ function emptyRow() {
     reference_max: null,
     reference_text: '',
     status: 'pending_review',
-    result_date: new Date().toISOString().slice(0, 10),
+    result_date: getTodayDate(),
     doctor_name: labTest.value?.doctor_name || '',
     ai_confidence: 0,
   }
@@ -166,10 +194,11 @@ function emptyRow() {
 
 
 function authPreviewHeaders() {
-  const token = localStorage.getItem('token') || localStorage.getItem('auth_token') || ''
+  const token = authToken()
+
   return {
     Accept: 'application/pdf,image/*,*/*',
-    Authorization: `Bearer ${token}`,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
   }
 }
 
@@ -205,7 +234,7 @@ function normalizeResultRows(rows: any[]) {
       unit: String(row?.unit || '').trim(),
       reference_text: String(row?.reference_text || '').trim(),
       status: row?.status || 'pending_review',
-      result_date: row?.result_date || new Date().toISOString().slice(0, 10),
+      result_date: row?.result_date || getTodayDate(),
       doctor_name: row?.doctor_name || labTest.value?.doctor_name || '',
       ai_confidence: row?.ai_confidence || 0,
     }))
