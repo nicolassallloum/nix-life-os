@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\AdminUserController;
 use App\Http\Controllers\Api\Admin\AdminPointIdeaController;
+use App\Http\Controllers\Api\Admin\AdminPointSummaryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +45,7 @@ Route::middleware(['auth:sanctum', 'admin'])
         Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
 
         Route::get('/point-levels', [AdminPointIdeaController::class, 'levels']);
+        Route::get('/point-summary', [AdminPointSummaryController::class, 'show']);
         Route::get('/point-ideas', [AdminPointIdeaController::class, 'index']);
         Route::post('/point-ideas', [AdminPointIdeaController::class, 'store']);
         Route::put('/point-ideas/{id}', [AdminPointIdeaController::class, 'update']);

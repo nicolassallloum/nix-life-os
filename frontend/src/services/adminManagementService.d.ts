@@ -11,6 +11,7 @@ declare const adminManagementService: {
   getAuditLogs(params?: Record<string, any>): Promise<any>
 
   getPointLevels(): Promise<any>
+  getPointSummary(): Promise<any>
   getPointIdeas(params?: Record<string, any>): Promise<any>
   createPointIdea(payload: Record<string, any>): Promise<any>
   updatePointIdea(id: string, payload: Record<string, any>): Promise<any>

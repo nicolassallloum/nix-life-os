@@ -3,7 +3,7 @@
     <div class="page-header">
       <div>
         <h1>Admin Point Ideas</h1>
-        <p>Create admin-only point tasks, targets, and level ideas.</p>
+        <p>Create admin-only point tasks and track your level progression.</p>
       </div>
 
       <button class="primary-btn" type="button" @click="resetForm">New Idea</button>
@@ -11,8 +11,30 @@
 
     <div v-if="errorMessage" class="alert error">{{ errorMessage }}</div>
 
+    <div class="summary-strip">
+      <div class="summary-box">
+        <span>Total Points</span>
+        <strong>{{ formatNumber(pointSummary.total_points || 0) }}</strong>
+      </div>
+
+      <div class="summary-box">
+        <span>Current Level</span>
+        <strong>Level {{ pointSummary.level || 1 }}</strong>
+      </div>
+
+      <div class="summary-box">
+        <span>Points to Next Level</span>
+        <strong>{{ formatNumber(pointSummary.points_to_next_level || 0) }}</strong>
+      </div>
+    </div>
+
     <div class="cards-grid">
-      <div v-for="level in levels" :key="level.level" class="level-card">
+      <div
+        v-for="level in levels"
+        :key="level.level"
+        class="level-card"
+        :class="{ active: Number(level.level) === Number(pointSummary.level || 1) }"
+      >
         <span>{{ level.label }}</span>
         <strong>{{ formatNumber(level.required_points) }}</strong>
       </div>
@@ -22,7 +44,7 @@
       <div class="section-header">
         <div>
           <h2>{{ editingId ? 'Edit Point Idea' : 'Create Point Idea' }}</h2>
-          <p>Write the task name, points used, target points, and level.</p>
+          <p>Write the task name, points used, and optional description.</p>
         </div>
       </div>
 
@@ -35,21 +57,6 @@
         <label>
           Points Used
           <input v-model.number="form.points" type="number" min="0" placeholder="Example: 250" />
-        </label>
-
-        <label>
-          Target Points
-          <input v-model.number="form.target_points" type="number" min="0" placeholder="Example: 50000" />
-        </label>
-
-        <label>
-          Level
-          <select v-model.number="form.level">
-            <option :value="null">No Level</option>
-            <option v-for="level in levels" :key="level.level" :value="level.level">
-              {{ level.label }} — {{ formatNumber(level.required_points) }}
-            </option>
-          </select>
         </label>
 
         <label>
@@ -101,8 +108,6 @@
 
           <div class="idea-meta">
             <span class="badge">Points: {{ formatNumber(idea.points) }}</span>
-            <span class="badge">Target: {{ formatNumber(idea.target_points) }}</span>
-            <span class="badge priority">Level {{ idea.level || '—' }}</span>
             <span class="badge status">{{ idea.status }}</span>
           </div>
 
@@ -128,12 +133,16 @@ const saving = ref(false)
 const errorMessage = ref('')
 const editingId = ref('')
 
+const pointSummary = ref({
+  total_points: 0,
+  level: 1,
+  points_to_next_level: 0,
+})
+
 const form = ref({
   name: '',
   description: '',
   points: 0,
-  target_points: null as number | null,
-  level: null as number | null,
   status: 'active',
 })
 
@@ -148,8 +157,6 @@ function resetForm() {
     name: '',
     description: '',
     points: 0,
-    target_points: null,
-    level: null,
     status: 'active',
   }
 }
@@ -160,8 +167,6 @@ function editIdea(idea: any) {
     name: idea.name || '',
     description: idea.description || '',
     points: Number(idea.points || 0),
-    target_points: idea.target_points === null || idea.target_points === undefined ? null : Number(idea.target_points),
-    level: idea.level === null || idea.level === undefined ? null : Number(idea.level),
     status: idea.status || 'active',
   }
 }
@@ -171,13 +176,19 @@ async function loadData() {
   errorMessage.value = ''
 
   try {
-    const [levelsResponse, ideasResponse] = await Promise.all([
+    const [levelsResponse, ideasResponse, summaryResponse] = await Promise.all([
       adminManagementService.getPointLevels(),
       adminManagementService.getPointIdeas(),
+      adminManagementService.getPointSummary(),
     ])
 
     levels.value = normalizeList(levelsResponse)
     ideas.value = normalizeList(ideasResponse)
+    pointSummary.value = summaryResponse?.data || {
+      total_points: 0,
+      level: 1,
+      points_to_next_level: 0,
+    }
   } catch (error: any) {
     errorMessage.value = error?.response?.data?.message || error?.message || 'Failed to load admin point ideas.'
   } finally {
@@ -194,8 +205,6 @@ async function saveIdea() {
       name: form.value.name,
       description: form.value.description || null,
       points: Number(form.value.points || 0),
-      target_points: form.value.target_points,
-      level: form.value.level,
       status: form.value.status,
     }
 
@@ -292,13 +301,14 @@ onMounted(loadData)
   color: #fee2e2;
 }
 
-.cards-grid {
+.summary-strip {
   display: grid;
-  grid-template-columns: repeat(5, minmax(130px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 14px;
   margin-bottom: 20px;
 }
 
+.summary-box,
 .level-card,
 .content-card,
 .idea-card {
@@ -309,6 +319,7 @@ onMounted(loadData)
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
 }
 
+.summary-box span,
 .level-card span {
   display: block;
   color: #94a3b8;
@@ -316,9 +327,30 @@ onMounted(loadData)
   margin-bottom: 6px;
 }
 
+.summary-box strong,
 .level-card strong {
   color: #f8fafc;
   font-size: 20px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(130px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.level-card.active {
+  border-color: #3b82f6;
+  background: linear-gradient(180deg, #172554 0%, #0f172a 100%);
+  box-shadow:
+    0 0 0 2px rgba(59, 130, 246, 0.22),
+    0 16px 40px rgba(0, 0, 0, 0.24);
+}
+
+.level-card.active span,
+.level-card.active strong {
+  color: #dbeafe;
 }
 
 .content-card {
@@ -380,11 +412,6 @@ onMounted(loadData)
   font-weight: 800;
 }
 
-.priority {
-  background: #164e63;
-  color: #a5f3fc;
-}
-
 .status {
   background: #14532d;
   color: #bbf7d0;
@@ -408,6 +435,7 @@ onMounted(loadData)
 }
 
 @media (max-width: 900px) {
+  .summary-strip,
   .cards-grid,
   .form-grid {
     grid-template-columns: 1fr;

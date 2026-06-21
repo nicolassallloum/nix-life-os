@@ -56,6 +56,11 @@ export default {
     return response.data
   },
 
+  async getPointSummary() {
+    const response = await api.get('/admin/point-summary')
+    return response.data
+  },
+
   async getPointIdeas(params = {}) {
     const response = await api.get('/admin/point-ideas', { params })
     return response.data
