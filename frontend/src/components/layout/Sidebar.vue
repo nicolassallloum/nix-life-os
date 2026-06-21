@@ -197,6 +197,11 @@ const managementMenu = [
     path: '/admin/users-management',
     icon: '👥',
   },
+  {
+    label: 'Point Ideas',
+    path: '/admin/point-ideas',
+    icon: '💡',
+  },
 ]
 
 const systemMenu = [

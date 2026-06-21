@@ -18,6 +18,7 @@ declare module '@/services/projectService' {
   export function createProjectGoal(projectId: string, payload: Record<string, any>): Promise<any>
   export function updateProjectGoal(projectId: string, goalId: string, payload: Record<string, any>): Promise<any>
   export function deleteProjectGoal(projectId: string, goalId: string): Promise<any>
+  export function recalculateProjectGoal(projectId: string, goalId: string): Promise<any>
 
   export function getProjectTaskSteps(projectId: string, taskId: string): Promise<any>
   export function createProjectTaskStep(projectId: string, taskId: string, payload: Record<string, any>): Promise<any>

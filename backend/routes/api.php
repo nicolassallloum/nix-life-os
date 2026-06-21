@@ -337,6 +337,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/{project}/goals', [ProjectGoalController::class, 'store']);
             Route::put('/{project}/goals/{goal}', [ProjectGoalController::class, 'update']);
             Route::patch('/{project}/goals/{goal}', [ProjectGoalController::class, 'update']);
+            Route::post('/{project}/goals/{goal}/recalculate', [ProjectGoalController::class, 'recalculate']);
             Route::delete('/{project}/goals/{goal}', [ProjectGoalController::class, 'destroy']);
 
             Route::get('/{project}/tasks', [ProjectTaskController::class, 'byProject']);

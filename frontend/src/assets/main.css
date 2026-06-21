@@ -1170,3 +1170,64 @@ input::placeholder,
 textarea::placeholder {
   color: #94a3b8 !important;
 }
+/* ============================================================
+   Nix Life OS - Dark project/admin form compatibility patch
+   Added for project goals, project tasks, projects, and admin ideas.
+   ============================================================ */
+
+.project-goals-page input,
+.project-goals-page select,
+.project-goals-page textarea,
+.admin-point-page input,
+.admin-point-page select,
+.admin-point-page textarea,
+.page input,
+.page select,
+.page textarea {
+  color: #f8fafc !important;
+  background-color: #111827 !important;
+  border-color: #334155 !important;
+}
+
+.project-goals-page input::placeholder,
+.project-goals-page textarea::placeholder,
+.admin-point-page input::placeholder,
+.admin-point-page textarea::placeholder,
+.page input::placeholder,
+.page textarea::placeholder {
+  color: #64748b !important;
+}
+
+.project-goals-page select option,
+.admin-point-page select option,
+.page select option {
+  color: #f8fafc !important;
+  background-color: #111827 !important;
+}
+
+.project-goals-page .content-card,
+.project-goals-page .summary-card,
+.project-goals-page .goal-card,
+.admin-point-page .content-card,
+.admin-point-page .level-card,
+.admin-point-page .idea-card,
+.page .content-card,
+.page .summary-card,
+.page .project-card,
+.page .task-card {
+  color: #e5e7eb !important;
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+.project-goals-page h1,
+.project-goals-page h2,
+.project-goals-page h3,
+.admin-point-page h1,
+.admin-point-page h2,
+.admin-point-page h3,
+.page h1,
+.page h2,
+.page h3 {
+  color: #f8fafc !important;
+}

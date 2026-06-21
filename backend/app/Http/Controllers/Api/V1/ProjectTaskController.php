@@ -466,9 +466,32 @@ class ProjectTaskController extends Controller
                 'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             ]);
 
+            $titleColumn = $this->firstExistingColumn($columns, [
+                'task_title',
+                'title',
+                'task_name',
+                'name',
+            ]);
+
+            $descriptionColumn = $this->firstExistingColumn($columns, [
+                'task_description',
+                'description',
+                'details',
+            ]);
+
             $update = [];
 
             foreach ($validated as $key => $value) {
+                if ($key === 'title' && $titleColumn) {
+                    $update[$titleColumn] = $value;
+                    continue;
+                }
+
+                if ($key === 'description' && $descriptionColumn) {
+                    $update[$descriptionColumn] = $value;
+                    continue;
+                }
+
                 if (in_array($key, $columns, true)) {
                     $update[$key] = $value;
                 }
