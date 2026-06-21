@@ -7,6 +7,7 @@ use App\Models\ProjectGoal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 
 class ProjectGoalController extends Controller
@@ -26,6 +27,19 @@ class ProjectGoalController extends Controller
         'critical',
     ];
 
+    private array $linkedModules = [
+        'manual',
+        'health_steps',
+        'steps',
+    ];
+
+    private array $linkedMetrics = [
+        'manual',
+        'steps',
+        'kilometers',
+        'distance_km',
+    ];
+
     public function index(Request $request, $project)
     {
         try {
@@ -38,7 +52,7 @@ class ProjectGoalController extends Controller
                 'priority' => ['nullable', Rule::in($this->priorities)],
             ]);
 
-            $query = DB::table('project_goals')
+            $query = ProjectGoal::query()
                 ->where('user_id', $userId)
                 ->where('project_id', $projectRow->id);
 
@@ -59,14 +73,18 @@ class ProjectGoalController extends Controller
                 $query->where('priority', $validated['priority']);
             }
 
+            $goals = $query
+                ->orderByRaw('CASE WHEN due_date IS NULL THEN 1 ELSE 0 END')
+                ->orderBy('due_date')
+                ->orderByDesc('created_at')
+                ->get()
+                ->map(fn (ProjectGoal $goal) => $this->refreshLinkedGoal($goal))
+                ->values();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Project goals loaded successfully.',
-                'data' => $query
-                    ->orderByRaw('CASE WHEN due_date IS NULL THEN 1 ELSE 0 END')
-                    ->orderBy('due_date')
-                    ->orderByDesc('created_at')
-                    ->get(),
+                'data' => $goals,
             ]);
         } catch (\Throwable $e) {
             Log::error('Project goals index failed', [
@@ -89,35 +107,21 @@ class ProjectGoalController extends Controller
             $userId = (string) $request->user()->id;
             $projectRow = $this->getAuthorizedProject($userId, $project);
 
-            $validated = $request->validate([
-                'title' => ['required', 'string', 'max:255'],
-                'description' => ['nullable', 'string'],
-                'status' => ['nullable', Rule::in($this->statuses)],
-                'priority' => ['nullable', Rule::in($this->priorities)],
-                'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
-                'start_date' => ['nullable', 'date'],
-                'due_date' => ['nullable', 'date'],
-                'completed_at' => ['nullable', 'date'],
-                'metadata' => ['nullable', 'array'],
-            ]);
+            $validated = $request->validate($this->validationRules(false));
 
             $validated['user_id'] = $userId;
             $validated['project_id'] = $projectRow->id;
             $validated['status'] = $validated['status'] ?? 'not_started';
             $validated['priority'] = $validated['priority'] ?? 'medium';
-            $validated['progress_percentage'] = $validated['progress_percentage'] ?? 0;
 
-            if ($validated['status'] === 'completed') {
-                $validated['progress_percentage'] = 100;
-                $validated['completed_at'] = $validated['completed_at'] ?? now();
-            }
+            $validated = $this->normalizeGoalPayload($validated, $userId);
 
             $goal = ProjectGoal::create($validated);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Project goal created successfully.',
-                'data' => $goal,
+                'data' => $this->refreshLinkedGoal($goal),
             ], 201);
         } catch (\Throwable $e) {
             Log::error('Project goals store failed', [
@@ -146,33 +150,36 @@ class ProjectGoalController extends Controller
                 ->where('project_id', $projectRow->id)
                 ->firstOrFail();
 
-            $validated = $request->validate([
-                'title' => ['sometimes', 'required', 'string', 'max:255'],
-                'description' => ['nullable', 'string'],
-                'status' => ['sometimes', Rule::in($this->statuses)],
-                'priority' => ['sometimes', Rule::in($this->priorities)],
-                'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
-                'start_date' => ['nullable', 'date'],
-                'due_date' => ['nullable', 'date'],
-                'completed_at' => ['nullable', 'date'],
-                'metadata' => ['nullable', 'array'],
-            ]);
+            $validated = $request->validate($this->validationRules(true));
 
-            if (($validated['status'] ?? null) === 'completed') {
-                $validated['progress_percentage'] = 100;
-                $validated['completed_at'] = $validated['completed_at'] ?? now();
-            }
-
-            if (($validated['status'] ?? null) !== 'completed' && array_key_exists('completed_at', $validated)) {
-                $validated['completed_at'] = $validated['completed_at'] ?: null;
-            }
+            $merged = array_merge($goalModel->toArray(), $validated);
+            $validated = array_intersect_key(
+                $this->normalizeGoalPayload($merged, $userId),
+                array_flip([
+                    'title',
+                    'description',
+                    'status',
+                    'priority',
+                    'progress_percentage',
+                    'target_value',
+                    'current_value',
+                    'unit',
+                    'linked_module',
+                    'linked_metric',
+                    'last_progress_sync_at',
+                    'start_date',
+                    'due_date',
+                    'completed_at',
+                    'metadata',
+                ])
+            );
 
             $goalModel->update($validated);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Project goal updated successfully.',
-                'data' => $goalModel->fresh(),
+                'data' => $this->refreshLinkedGoal($goalModel->fresh()),
             ]);
         } catch (\Throwable $e) {
             Log::error('Project goals update failed', [
@@ -184,6 +191,38 @@ class ProjectGoalController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Project goal update failed.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function recalculate(Request $request, $project, $goal)
+    {
+        try {
+            $userId = (string) $request->user()->id;
+            $projectRow = $this->getAuthorizedProject($userId, $project);
+
+            $goalModel = ProjectGoal::query()
+                ->where('id', $goal)
+                ->where('user_id', $userId)
+                ->where('project_id', $projectRow->id)
+                ->firstOrFail();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Project goal progress recalculated successfully.',
+                'data' => $this->refreshLinkedGoal($goalModel),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Project goals recalculation failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Project goal recalculation failed.',
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -220,6 +259,141 @@ class ProjectGoalController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function validationRules(bool $isUpdate): array
+    {
+        $titleRule = $isUpdate
+            ? ['sometimes', 'required', 'string', 'max:255']
+            : ['required', 'string', 'max:255'];
+
+        return [
+            'title' => $titleRule,
+            'description' => ['nullable', 'string'],
+            'status' => [$isUpdate ? 'sometimes' : 'nullable', Rule::in($this->statuses)],
+            'priority' => [$isUpdate ? 'sometimes' : 'nullable', Rule::in($this->priorities)],
+            'progress_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+
+            'target_value' => ['nullable', 'numeric', 'min:0'],
+            'current_value' => ['nullable', 'numeric', 'min:0'],
+            'unit' => ['nullable', 'string', 'max:50'],
+            'linked_module' => ['nullable', Rule::in($this->linkedModules)],
+            'linked_metric' => ['nullable', Rule::in($this->linkedMetrics)],
+
+            'start_date' => ['nullable', 'date'],
+            'due_date' => ['nullable', 'date'],
+            'completed_at' => ['nullable', 'date'],
+            'metadata' => ['nullable', 'array'],
+        ];
+    }
+
+    private function normalizeGoalPayload(array $payload, string $userId): array
+    {
+        $payload['linked_module'] = $this->normalizeLinkedModule($payload['linked_module'] ?? null);
+        $payload['linked_metric'] = $this->normalizeLinkedMetric($payload['linked_metric'] ?? null);
+        $payload['target_value'] = isset($payload['target_value']) ? (float) $payload['target_value'] : null;
+
+        if ($payload['linked_module']) {
+            $payload['current_value'] = $this->linkedCurrentValue(
+                $userId,
+                $payload['linked_module'],
+                $payload['linked_metric']
+            );
+            $payload['last_progress_sync_at'] = now();
+        } else {
+            $payload['current_value'] = isset($payload['current_value'])
+                ? (float) $payload['current_value']
+                : (float) ($payload['current_value'] ?? 0);
+        }
+
+        $payload['progress_percentage'] = $this->calculateProgress(
+            $payload['current_value'] ?? 0,
+            $payload['target_value'] ?? null,
+            $payload['progress_percentage'] ?? 0
+        );
+
+        if ((float) $payload['progress_percentage'] >= 100) {
+            $payload['status'] = 'completed';
+            $payload['completed_at'] = $payload['completed_at'] ?? now();
+        } elseif (($payload['status'] ?? null) === 'completed') {
+            $payload['progress_percentage'] = 100;
+            $payload['completed_at'] = $payload['completed_at'] ?? now();
+        } elseif (! isset($payload['status']) || $payload['status'] === 'not_started') {
+            $payload['status'] = ((float) $payload['progress_percentage'] > 0) ? 'in_progress' : 'not_started';
+        }
+
+        return $payload;
+    }
+
+    private function refreshLinkedGoal(ProjectGoal $goal): ProjectGoal
+    {
+        if (! $goal->linked_module) {
+            return $goal;
+        }
+
+        $payload = $this->normalizeGoalPayload($goal->toArray(), (string) $goal->user_id);
+
+        $goal->update([
+            'current_value' => $payload['current_value'],
+            'progress_percentage' => $payload['progress_percentage'],
+            'status' => $payload['status'],
+            'completed_at' => $payload['completed_at'] ?? $goal->completed_at,
+            'last_progress_sync_at' => now(),
+        ]);
+
+        return $goal->fresh();
+    }
+
+    private function normalizeLinkedModule(?string $module): ?string
+    {
+        if (!$module || $module === 'manual') {
+            return null;
+        }
+
+        if ($module === 'steps') {
+            return 'health_steps';
+        }
+
+        return $module;
+    }
+
+    private function normalizeLinkedMetric(?string $metric): string
+    {
+        if (!$metric || $metric === 'manual') {
+            return 'kilometers';
+        }
+
+        if ($metric === 'distance_km') {
+            return 'kilometers';
+        }
+
+        return $metric;
+    }
+
+    private function linkedCurrentValue(string $userId, ?string $module, string $metric): float
+    {
+        if ($module !== 'health_steps' || ! Schema::hasTable('health_step_logs')) {
+            return 0;
+        }
+
+        $column = $metric === 'steps' ? 'steps' : 'kilometers';
+
+        if (! Schema::hasColumn('health_step_logs', $column)) {
+            return 0;
+        }
+
+        return round((float) DB::table('health_step_logs')
+            ->where('user_id', $userId)
+            ->sum($column), 3);
+    }
+
+    private function calculateProgress(float $currentValue, ?float $targetValue, float $fallbackProgress): float
+    {
+        if (!$targetValue || $targetValue <= 0) {
+            return round(max(0, min(100, $fallbackProgress)), 2);
+        }
+
+        return round(max(0, min(100, ($currentValue / $targetValue) * 100)), 2);
     }
 
     private function getAuthorizedProject(string $userId, string $project)

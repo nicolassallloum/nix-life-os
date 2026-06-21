@@ -288,35 +288,231 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page { padding: 24px; }
-.back-link { display: inline-block; margin-bottom: 16px; color: #2563eb; font-weight: 700; text-decoration: none; }
-.page-header, .section-header, .task-main, .actions, .line-item { display: flex; justify-content: space-between; gap: 16px; align-items: center; }
-.page-header { margin-bottom: 24px; }
-.page-header h1 { margin: 0; font-size: 28px; font-weight: 800; color: #111827; }
-.page-header p, .task-card p { color: #6b7280; }
-.primary-btn, .secondary-btn, .small-btn { border: none; padding: 10px 16px; border-radius: 12px; font-weight: 700; cursor: pointer; }
-.primary-btn { background: #2563eb; color: white; }
-.done-btn { border: none; padding: 10px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; background: #16a34a; color: white; }
-.secondary-btn, .small-btn { background: #f3f4f6; color: #111827; }
-.done-btn:disabled { opacity: 0.65; cursor: not-allowed; }
-.cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
-.summary-card, .content-card, .task-card { background: white; border: 1px solid #e5e7eb; border-radius: 18px; padding: 20px; box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06); }
-.summary-card h3 { margin: 0 0 8px; color: #6b7280; font-size: 13px; }
-.summary-card strong { font-size: 28px; color: #111827; }
-.selector-card { margin-bottom: 20px; display: grid; gap: 8px; }
-.selector-card select { padding: 11px; border: 1px solid #d1d5db; border-radius: 12px; }
-.task-card { margin-top: 14px; }
-.task-card h3 { margin: 0; }
-.task-meta { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.badge { background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 5px 10px; font-size: 12px; font-weight: 700; text-transform: capitalize; }
-.priority { background: #ecfeff; color: #155e75; }
-.progress-bar { height: 10px; background: #e5e7eb; border-radius: 999px; overflow: hidden; margin: 14px 0; }
-.progress-bar div { height: 100%; background: #2563eb; }
-.steps-panel { margin-top: 14px; padding: 14px; border-radius: 14px; background: #f8fafc; }
-.line-item { padding: 10px 0; border-top: 1px solid #e5e7eb; }
-.line-item span { color: #6b7280; }
-.empty-state { padding: 18px; border-radius: 14px; background: #f8fafc; color: #64748b; }
-.compact { padding: 12px; }
-.alert.error { margin-bottom: 16px; padding: 12px 14px; border-radius: 12px; background: #fef2f2; color: #991b1b; }
-@media (max-width: 900px) { .cards-grid { grid-template-columns: 1fr; } .page-header, .section-header, .task-main, .line-item { flex-direction: column; align-items: flex-start; } }
+.page {
+  min-height: 100vh;
+  padding: 24px;
+  color: #e5e7eb;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: #93c5fd;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.page-header,
+.section-header,
+.task-main,
+.actions,
+.line-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h1,
+.section-header h2,
+.task-card h3,
+.steps-panel h4 {
+  margin: 0;
+  color: #f8fafc;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.page-header p,
+.task-card p {
+  color: #94a3b8;
+}
+
+.primary-btn,
+.secondary-btn,
+.small-btn,
+.done-btn {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.done-btn {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.secondary-btn,
+.small-btn {
+  background: #1e293b;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+}
+
+.done-btn:disabled,
+.primary-btn:disabled,
+.secondary-btn:disabled,
+.small-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.summary-card,
+.content-card,
+.task-card {
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.24);
+}
+
+.summary-card h3 {
+  margin: 0 0 8px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.summary-card strong {
+  font-size: 28px;
+  color: #f8fafc;
+}
+
+.selector-card {
+  margin-bottom: 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.selector-card label {
+  display: grid;
+  gap: 8px;
+  color: #cbd5e1;
+  font-weight: 800;
+}
+
+.selector-card select {
+  padding: 11px;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  color: #f8fafc !important;
+  background: #111827 !important;
+}
+
+.selector-card select option {
+  color: #f8fafc !important;
+  background: #111827 !important;
+}
+
+.task-card {
+  margin-top: 14px;
+}
+
+.task-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.badge {
+  background: #312e81;
+  color: #c7d2fe;
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.priority {
+  background: #164e63;
+  color: #a5f3fc;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #1e293b;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 14px 0;
+}
+
+.progress-bar div {
+  height: 100%;
+  background: #2563eb;
+}
+
+.steps-panel {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #111827;
+  border: 1px solid #334155;
+}
+
+.line-item {
+  padding: 10px 0;
+  border-top: 1px solid #334155;
+}
+
+.line-item span {
+  color: #94a3b8;
+}
+
+.empty-state {
+  padding: 18px;
+  border-radius: 14px;
+  background: #111827;
+  color: #94a3b8;
+  border: 1px dashed #334155;
+}
+
+.compact {
+  padding: 12px;
+}
+
+.alert.error {
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #7f1d1d;
+  color: #fee2e2;
+  border: 1px solid #b91c1c;
+}
+
+@media (max-width: 900px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header,
+  .section-header,
+  .task-main,
+  .line-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
 </style>

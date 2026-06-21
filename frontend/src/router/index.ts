@@ -68,6 +68,7 @@ const UserManagementView = () => import('@/views/admin/UserManagementView.vue')
 const UserCreateView = () => import('@/views/admin/UserCreateView.vue')
 const UserDetailsView = () => import('@/views/admin/UserDetailsView.vue')
 const AdminRolesView = () => import('@/views/admin/AdminRolesView.vue')
+const AdminPointIdeasView = () => import('@/views/admin/AdminPointIdeasView.vue')
 const SecurityOverviewView = () => import('@/views/security/SecurityOverviewView.vue')
 const SecurityAuditLogsView = () => import('@/views/security/SecurityAuditLogsView.vue')
 
@@ -750,6 +751,17 @@ const routes = [
       requiresAdmin: true,
       requiresRole: 'admin',
       title: 'User Details',
+    },
+  },
+
+  {
+    path: '/admin/point-ideas',
+    name: 'AdminPointIdeas',
+    component: AdminPointIdeasView,
+    meta: {
+      requiresAuth: true,
+      requiresRole: 'admin',
+      title: 'Admin Point Ideas',
     },
   },
 

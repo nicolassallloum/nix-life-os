@@ -19,8 +19,8 @@ class ProjectProgressService
             $milestones = $project->milestones()->get();
 
             $totalTasks = $tasks->count();
-            $completedTasks = $tasks->where('status', 'completed')->count();
-            $pendingTasks = $tasks->whereIn('status', ['todo', 'pending'])->count();
+            $completedTasks = $tasks->whereIn('status', ['completed', 'done'])->count();
+            $pendingTasks = $tasks->whereIn('status', ['todo', 'pending', 'not_started'])->count();
             $inProgressTasks = $tasks->where('status', 'in_progress')->count();
             $blockedTasks = $tasks->whereIn('status', ['blocked'])->count();
             $cancelledTasks = $tasks->where('status', 'cancelled')->count();
@@ -114,7 +114,7 @@ class ProjectProgressService
             $newStatus = $status ?: $this->statusFromProgress($progressPercentage);
 
             if ($progressPercentage >= 100) {
-                $newStatus = 'completed';
+                $newStatus = 'done';
             }
 
             $task->update([
@@ -155,8 +155,8 @@ class ProjectProgressService
         $milestones = $project->milestones;
 
         $totalTasks = $tasks->count();
-        $completedTasks = $tasks->where('status', 'completed')->count();
-        $pendingTasks = $tasks->whereIn('status', ['todo', 'pending'])->count();
+        $completedTasks = $tasks->whereIn('status', ['completed', 'done'])->count();
+        $pendingTasks = $tasks->whereIn('status', ['todo', 'pending', 'not_started'])->count();
         $inProgressTasks = $tasks->where('status', 'in_progress')->count();
         $blockedTasks = $tasks->where('status', 'blocked')->count();
         $cancelledTasks = $tasks->where('status', 'cancelled')->count();
@@ -200,7 +200,7 @@ class ProjectProgressService
                     ['status' => 'todo', 'label' => 'To Do', 'value' => $pendingTasks],
                     ['status' => 'in_progress', 'label' => 'In Progress', 'value' => $inProgressTasks],
                     ['status' => 'blocked', 'label' => 'Blocked', 'value' => $blockedTasks],
-                    ['status' => 'completed', 'label' => 'Completed', 'value' => $completedTasks],
+                    ['status' => 'done', 'label' => 'Done', 'value' => $completedTasks],
                     ['status' => 'cancelled', 'label' => 'Cancelled', 'value' => $cancelledTasks],
                 ],
                 'milestones_by_status' => [

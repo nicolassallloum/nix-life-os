@@ -93,6 +93,11 @@ export async function deleteProjectGoal(projectId, goalId) {
   return response.data
 }
 
+export async function recalculateProjectGoal(projectId, goalId) {
+  const response = await api.post(`/projects/${projectId}/goals/${goalId}/recalculate`)
+  return response.data
+}
+
 export async function getProjectTaskSteps(projectId, taskId) {
   const response = await api.get(`/projects/${projectId}/tasks/${taskId}/steps`)
   return response.data
@@ -136,6 +141,7 @@ export default {
   createProjectGoal,
   updateProjectGoal,
   deleteProjectGoal,
+  recalculateProjectGoal,
   getProjectTaskSteps,
   createProjectTaskStep,
   updateProjectTaskStep,

@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Admin\AdminDashboardController;
 use App\Http\Controllers\Api\Admin\AdminUserController;
+use App\Http\Controllers\Api\Admin\AdminPointIdeaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,4 +42,11 @@ Route::middleware(['auth:sanctum', 'admin'])
         Route::post('/users/{id}/deactivate', [AdminUserController::class, 'hold']);
         Route::post('/users/{id}/change-password', [AdminUserController::class, 'changePassword']);
         Route::delete('/users/{id}', [AdminUserController::class, 'destroy']);
+
+        Route::get('/point-levels', [AdminPointIdeaController::class, 'levels']);
+        Route::get('/point-ideas', [AdminPointIdeaController::class, 'index']);
+        Route::post('/point-ideas', [AdminPointIdeaController::class, 'store']);
+        Route::put('/point-ideas/{id}', [AdminPointIdeaController::class, 'update']);
+        Route::patch('/point-ideas/{id}', [AdminPointIdeaController::class, 'update']);
+        Route::delete('/point-ideas/{id}', [AdminPointIdeaController::class, 'destroy']);
     });

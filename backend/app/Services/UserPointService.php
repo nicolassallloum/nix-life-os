@@ -7,6 +7,19 @@ use Illuminate\Support\Facades\Schema;
 
 class UserPointService
 {
+    private const LEVEL_THRESHOLDS = [
+        1 => 0,
+        2 => 50000,
+        3 => 125000,
+        4 => 225000,
+        5 => 350000,
+        6 => 500000,
+        7 => 650000,
+        8 => 800000,
+        9 => 950000,
+        10 => 1000000,
+    ];
+
     public const ACTION_POINTS = [
         'health.steps.add_log' => 5,
         'health.steps.reach_goal' => 20,
@@ -109,7 +122,7 @@ class UserPointService
 
         $level = (int) $points->level;
         $currentLevelStart = $this->levelStartPoints($level);
-        $nextLevelStart = $this->levelStartPoints($level + 1);
+        $nextLevelStart = $level >= 10 ? self::LEVEL_THRESHOLDS[10] : $this->levelStartPoints($level + 1);
         $levelRange = max(1, $nextLevelStart - $currentLevelStart);
         $progressPoints = max(0, (int) $points->total_points - $currentLevelStart);
         $progressPercent = min(100, round(($progressPoints / $levelRange) * 100));
@@ -119,7 +132,7 @@ class UserPointService
             'level' => $level,
             'total_points' => (int) $points->total_points,
             'next_level_points' => $nextLevelStart,
-            'points_to_next_level' => max(0, $nextLevelStart - (int) $points->total_points),
+            'points_to_next_level' => $level >= 10 ? 0 : max(0, $nextLevelStart - (int) $points->total_points),
             'progress_percent' => $progressPercent,
             'achievements' => $this->achievements((int) $points->total_points, $level),
             'earning_ideas' => $this->earningIdeas(),
@@ -158,17 +171,32 @@ class UserPointService
 
     public function calculateLevel(int $totalPoints): int
     {
-        return max(1, (int) floor($totalPoints / 100) + 1);
+        $level = 1;
+
+        foreach (self::LEVEL_THRESHOLDS as $thresholdLevel => $requiredPoints) {
+            if ($totalPoints >= $requiredPoints) {
+                $level = $thresholdLevel;
+            }
+        }
+
+        return min(10, max(1, $level));
     }
 
     private function pointsIntoCurrentLevel(int $totalPoints): int
     {
-        return $totalPoints % 100;
+        $level = $this->calculateLevel($totalPoints);
+        $start = $this->levelStartPoints($level);
+
+        return max(0, $totalPoints - $start);
     }
 
     private function levelStartPoints(int $level): int
     {
-        return max(0, ($level - 1) * 100);
+        if ($level >= 10) {
+            return self::LEVEL_THRESHOLDS[10];
+        }
+
+        return self::LEVEL_THRESHOLDS[max(1, $level)] ?? 0;
     }
 
     private function earningIdeas(): array

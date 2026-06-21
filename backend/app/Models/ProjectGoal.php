@@ -18,6 +18,12 @@ class ProjectGoal extends Model
         'status',
         'priority',
         'progress_percentage',
+        'last_progress_sync_at',
+        'linked_metric',
+        'linked_module',
+        'unit',
+        'current_value',
+        'target_value',
         'start_date',
         'due_date',
         'completed_at',
@@ -29,6 +35,9 @@ class ProjectGoal extends Model
         'due_date' => 'date',
         'completed_at' => 'datetime',
         'progress_percentage' => 'decimal:2',
+        'target_value' => 'decimal:3',
+        'current_value' => 'decimal:3',
+        'last_progress_sync_at' => 'datetime',
         'metadata' => 'array',
     ];
 

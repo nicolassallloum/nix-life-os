@@ -352,6 +352,9 @@ class ProjectController extends Controller
             'details',
         ]);
 
+        $baseTaskName = preg_replace('/[^A-Za-z0-9]+/', '_', trim((string) $project->project_name));
+        $baseTaskName = trim((string) $baseTaskName, '_') ?: 'Project';
+
         for ($i = 1; $i <= $taskCount; $i++) {
             $insert = [];
 
@@ -367,7 +370,7 @@ class ProjectController extends Controller
                 $insert['project_id'] = (string) $project->id;
             }
 
-            $insert[$titleColumn] = "Task {$i}";
+            $insert[$titleColumn] = "{$baseTaskName}_Task_{$i}";
 
             if ($descriptionColumn) {
                 $insert[$descriptionColumn] = null;
