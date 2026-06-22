@@ -153,7 +153,10 @@
               class="idea-card"
             >
               <div>
-                <span class="idea-module">{{ idea.module }}</span>
+                <div class="idea-tags">
+                  <span class="idea-module">{{ idea.module }}</span>
+                  <span class="idea-category">{{ idea.category || 'General' }}</span>
+                </div>
                 <strong>{{ idea.action }}</strong>
                 <p>{{ idea.description }}</p>
               </div>
@@ -246,6 +249,7 @@ type Achievement = {
 
 type EarningIdea = {
   module: string
+  category?: string
   action: string
   points: number
   description: string
@@ -908,6 +912,30 @@ onMounted(loadProfile)
 .history-list {
   background: rgba(2, 6, 23, 0.52) !important;
   color: #cbd5e1 !important;
+}
+
+
+/* Gain points category badge */
+.idea-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.idea-category {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: rgba(14, 165, 233, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #bae6fd;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 </style>

@@ -495,62 +495,93 @@ class UserPointService
 
     private function earningIdeas(): array
     {
-        return [
-            [
-                'module' => 'Health',
-                'action' => 'Add daily step log',
-                'points' => self::ACTION_POINTS['health.steps.add_log'],
-                'description' => 'Record your daily steps to build consistency.',
-            ],
-            [
-                'module' => 'Health',
-                'action' => 'Reach daily step goal',
-                'points' => self::ACTION_POINTS['health.steps.reach_goal'],
-                'description' => 'Complete your daily steps target for a larger reward.',
-            ],
-            [
-                'module' => 'Hydration',
-                'action' => 'Add hydration log',
-                'points' => self::ACTION_POINTS['health.hydration.add_log'],
-                'description' => 'Log water intake during the day.',
-            ],
-            [
-                'module' => 'Hydration',
-                'action' => 'Reach hydration goal',
-                'points' => self::ACTION_POINTS['health.hydration.reach_goal'],
-                'description' => 'Complete your daily water target.',
-            ],
-            [
-                'module' => 'Finance',
-                'action' => 'Add finance transaction',
-                'points' => self::ACTION_POINTS['finance.transaction.add'],
-                'description' => 'Track income, expense, transfer, or savings activity.',
-            ],
-            [
-                'module' => 'Productivity',
-                'action' => 'Complete a task',
-                'points' => self::ACTION_POINTS['productivity.task.complete'],
-                'description' => 'Mark tasks as completed to grow your productivity score.',
-            ],
-            [
-                'module' => 'Projects',
-                'action' => 'Complete a project task',
-                'points' => self::ACTION_POINTS['projects.task.complete'],
-                'description' => 'Finish project work to earn project points.',
-            ],
-            [
-                'module' => 'Projects',
-                'action' => 'Complete a project goal',
-                'points' => self::ACTION_POINTS['projects.project.complete'],
-                'description' => 'Complete a full project goal for the highest reward.',
-            ],
-            [
-                'module' => 'AI',
-                'action' => 'Add a happy win',
-                'points' => self::ACTION_POINTS['ai.happy_win.add'],
-                'description' => 'Record a positive win or achievement for AI life tracking.',
-            ],
+        $ideas = [
+            // Dashboard / Profile
+            ['module' => 'Profile', 'category' => 'Profile', 'action' => 'Complete profile information', 'points' => 10, 'description' => 'Keep your name, phone, and profile details updated.'],
+
+            // Health
+            ['module' => 'Health', 'category' => 'Steps', 'action' => 'Add daily step log', 'points' => self::ACTION_POINTS['health.steps.add_log'], 'description' => 'Record your daily steps to build consistency.'],
+            ['module' => 'Health', 'category' => 'Steps', 'action' => 'Reach daily step goal', 'points' => self::ACTION_POINTS['health.steps.reach_goal'], 'description' => 'Complete your daily steps target for a larger reward.'],
+            ['module' => 'Health', 'category' => 'Hydration', 'action' => 'Add hydration log', 'points' => self::ACTION_POINTS['health.hydration.add_log'], 'description' => 'Log water intake during the day.'],
+            ['module' => 'Health', 'category' => 'Hydration', 'action' => 'Reach hydration goal', 'points' => self::ACTION_POINTS['health.hydration.reach_goal'], 'description' => 'Complete your daily water target.'],
+            ['module' => 'Health', 'category' => 'Weight', 'action' => 'Add weight log', 'points' => 5, 'description' => 'Track your weight progress and health trend.'],
+            ['module' => 'Health', 'category' => 'Nutrition', 'action' => 'Add meal / nutrition log', 'points' => 5, 'description' => 'Record meals and nutrition intake.'],
+            ['module' => 'Health', 'category' => 'Custom Foods', 'action' => 'Create custom food item', 'points' => 5, 'description' => 'Add reusable custom foods to your nutrition list.'],
+            ['module' => 'Health', 'category' => 'Sleep', 'action' => 'Add sleep log', 'points' => 5, 'description' => 'Track sleep duration and quality.'],
+            ['module' => 'Health', 'category' => 'Mood', 'action' => 'Add mood log', 'points' => 5, 'description' => 'Record mood and emotional status.'],
+            ['module' => 'Health', 'category' => 'Medications', 'action' => 'Mark medication as taken', 'points' => 5, 'description' => 'Stay consistent with medication tracking.'],
+            ['module' => 'Health', 'category' => 'Lab Tests', 'action' => 'Upload or add lab test', 'points' => 10, 'description' => 'Track medical lab results and history.'],
+            ['module' => 'Health', 'category' => 'Alerts', 'action' => 'Review health alert', 'points' => 3, 'description' => 'Review important health notifications.'],
+            ['module' => 'Health', 'category' => 'Reports', 'action' => 'Generate health report', 'points' => 10, 'description' => 'Create a health report or preview.'],
+            ['module' => 'Health', 'category' => 'AI Insights', 'action' => 'Review health AI insight', 'points' => 5, 'description' => 'Use AI insights to improve health tracking.'],
+
+            // Finance
+            ['module' => 'Finance', 'category' => 'Transactions', 'action' => 'Add finance transaction', 'points' => self::ACTION_POINTS['finance.transaction.add'], 'description' => 'Track income, expense, transfer, or savings activity.'],
+            ['module' => 'Finance', 'category' => 'Accounts', 'action' => 'Create or update account', 'points' => 5, 'description' => 'Keep finance accounts organized.'],
+            ['module' => 'Finance', 'category' => 'Budgets', 'action' => 'Create budget', 'points' => 10, 'description' => 'Create budgets to control expenses.'],
+            ['module' => 'Finance', 'category' => 'Categories', 'action' => 'Create finance category', 'points' => 5, 'description' => 'Organize transactions by category.'],
+            ['module' => 'Finance', 'category' => 'AI Insights', 'action' => 'Review finance AI insight', 'points' => 5, 'description' => 'Use AI to understand spending and saving behavior.'],
+
+            // Projects
+            ['module' => 'Projects', 'category' => 'Projects', 'action' => 'Create project', 'points' => 10, 'description' => 'Create a project to organize work.'],
+            ['module' => 'Projects', 'category' => 'Tasks', 'action' => 'Complete project task', 'points' => self::ACTION_POINTS['projects.task.complete'], 'description' => 'Finish project work to earn project points.'],
+            ['module' => 'Projects', 'category' => 'Goals', 'action' => 'Complete project goal', 'points' => self::ACTION_POINTS['projects.project.complete'], 'description' => 'Complete a full project goal for the highest reward.'],
+            ['module' => 'Projects', 'category' => 'Task Steps', 'action' => 'Complete project task step', 'points' => 3, 'description' => 'Complete smaller steps inside project tasks.'],
+            ['module' => 'Projects', 'category' => 'Dashboard', 'action' => 'Review project dashboard', 'points' => 3, 'description' => 'Review project progress and status.'],
+
+            // Productivity
+            ['module' => 'Productivity', 'category' => 'Tasks', 'action' => 'Complete productivity task', 'points' => self::ACTION_POINTS['productivity.task.complete'], 'description' => 'Mark tasks as completed to grow your productivity score.'],
+            ['module' => 'Productivity', 'category' => 'Goals', 'action' => 'Complete productivity goal', 'points' => self::ACTION_POINTS['productivity.goal.complete'], 'description' => 'Complete productivity goals and track progress.'],
+            ['module' => 'Productivity', 'category' => 'Habits', 'action' => 'Complete habit check-in', 'points' => 5, 'description' => 'Build consistency through daily habit tracking.'],
+            ['module' => 'Productivity', 'category' => 'Calendar', 'action' => 'Complete calendar item', 'points' => 5, 'description' => 'Complete scheduled work or personal events.'],
+            ['module' => 'Productivity', 'category' => 'Reminders', 'action' => 'Complete reminder', 'points' => 3, 'description' => 'Finish reminders on time.'],
+            ['module' => 'Productivity', 'category' => 'AI Insights', 'action' => 'Review productivity AI insight', 'points' => 5, 'description' => 'Use AI suggestions to improve productivity.'],
+
+            // AI / Life Balance
+            ['module' => 'AI', 'category' => 'Happy Wins', 'action' => 'Add a happy win', 'points' => self::ACTION_POINTS['ai.happy_win.add'], 'description' => 'Record a positive win or achievement for AI life tracking.'],
+            ['module' => 'AI', 'category' => 'Recommendations', 'action' => 'Review AI recommendation', 'points' => 5, 'description' => 'Review AI recommendations across your life OS.'],
+            ['module' => 'AI', 'category' => 'Life Balance', 'action' => 'Review life balance', 'points' => 5, 'description' => 'Review balance between health, finance, projects, and productivity.'],
+
+            // Management / Admin
+            ['module' => 'Management', 'category' => 'Point Ideas', 'action' => 'Create admin point idea', 'points' => 5, 'description' => 'Admin-only: create point ideas and reward rules.'],
+            ['module' => 'Management', 'category' => 'Users Management', 'action' => 'Review user profile or activity', 'points' => 3, 'description' => 'Admin-only: review users and activity.'],
+            ['module' => 'System', 'category' => 'Settings', 'action' => 'Update settings', 'points' => 3, 'description' => 'Maintain system and user settings.'],
         ];
+
+        if (Schema::hasTable('admin_point_ideas')) {
+            $adminIdeas = DB::table('admin_point_ideas')
+                ->orderBy('level')
+                ->orderBy('target_points')
+                ->orderBy('name')
+                ->limit(100)
+                ->get()
+                ->map(fn ($idea) => [
+                    'module' => 'Admin Point Ideas',
+                    'category' => $idea->level ? 'Level ' . $idea->level : 'Custom',
+                    'action' => $idea->name ?? 'Custom point idea',
+                    'points' => (int) ($idea->points ?? 0),
+                    'description' => $idea->description ?? 'Custom admin-defined point idea.',
+                ])
+                ->all();
+
+            $ideas = array_merge($ideas, $adminIdeas);
+        }
+
+        return collect($ideas)
+            ->map(fn ($idea) => [
+                'module' => $idea['module'],
+                'category' => $idea['category'] ?? 'General',
+                'action' => $idea['action'],
+                'points' => (int) $idea['points'],
+                'description' => $idea['description'],
+            ])
+            ->sortBy([
+                ['module', 'asc'],
+                ['category', 'asc'],
+                ['action', 'asc'],
+            ])
+            ->values()
+            ->all();
     }
 
     private function emptySummary(): array
