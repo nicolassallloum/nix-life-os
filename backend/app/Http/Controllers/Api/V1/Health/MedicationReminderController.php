@@ -77,7 +77,30 @@ class MedicationReminderController extends Controller
         $validated['is_active'] = $validated['is_active'] ?? true;
         $validated['notification_enabled'] = $validated['notification_enabled'] ?? true;
 
-        $reminder = HealthMedicationReminder::create($validated);
+        $lookup = [
+            'user_id' => $validated['user_id'],
+            'medication_id' => $validated['medication_id'],
+            'reminder_time' => $validated['reminder_time'],
+            'frequency_type' => $validated['frequency_type'] ?? 'daily',
+            'timezone' => $validated['timezone'] ?? 'Asia/Beirut',
+        ];
+
+        $reminder = HealthMedicationReminder::query()->firstOrCreate(
+            $lookup,
+            array_merge($validated, [
+                'is_active' => $validated['is_active'] ?? true,
+                'notification_enabled' => $validated['notification_enabled'] ?? true,
+            ])
+        );
+
+        if (! $reminder->wasRecentlyCreated) {
+            $reminder->update([
+                'is_active' => $validated['is_active'] ?? true,
+                'notification_enabled' => $validated['notification_enabled'] ?? true,
+                'days_of_week' => $validated['days_of_week'] ?? $reminder->days_of_week,
+                'interval_hours' => $validated['interval_hours'] ?? $reminder->interval_hours,
+            ]);
+        }
 
         return response()->json([
             'success' => true,
