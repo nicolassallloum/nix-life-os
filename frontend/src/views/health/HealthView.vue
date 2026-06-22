@@ -104,6 +104,16 @@
         </RouterLink>
 
         <RouterLink
+          to="/health/sports"
+          class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
+        >
+          <div class="flex items-center gap-3">
+            <span class="text-xl">🏃</span>
+            <span>Sport</span>
+          </div>
+        </RouterLink>
+
+        <RouterLink
           to="/health/medications"
           class="rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 text-sm font-semibold text-gray-700 transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700"
         >

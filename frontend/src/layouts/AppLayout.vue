@@ -30,6 +30,7 @@ const menuGroups = computed(() => [
     items: [
       { label: 'Health Dashboard', icon: '❤️', to: '/health/dashboard', match: ['/health', '/health/dashboard'] },
       { label: 'Steps & KM', icon: '🚶', to: '/health/steps', match: ['/health/steps'] },
+      { label: 'Sport', icon: '🏃', to: '/health/sports', match: ['/health/sports'] },
       { label: 'Hydration', icon: '💧', to: '/health/hydration', match: ['/health/hydration'] },
       { label: 'Calories', icon: '🔥', to: '/health/calories', match: ['/health/calories', '/health/nutrition'] },
       { label: 'Weight', icon: '⚖️', to: '/health/weight', match: ['/health/weight'] },

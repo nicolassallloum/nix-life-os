@@ -117,6 +117,21 @@ const healthService = {
     },
   },
 
+  sports: {
+    list(params = {}) {
+      return api.get("/health/sports", { params });
+    },
+    create(payload) {
+      return api.post("/health/sports", payload);
+    },
+    update(id, payload) {
+      return api.put(`/health/sports/${id}`, payload);
+    },
+    delete(id) {
+      return api.delete(`/health/sports/${id}`);
+    },
+  },
+
   medications: {
     list(params = {}) {
       return api.get("/health/medications", { params });

@@ -25,6 +25,7 @@ const MedicationTrackingView = () => import('@/views/health/MedicationTrackingVi
 const MedicamentsTrackingView = () => import('@/views/health/MedicamentsTrackingView.vue')
 const LabTestsTrackingView = () => import('@/views/health/LabTestsTrackingView.vue')
 const MoodTrackingView = () => import('@/views/health/MoodTrackingView.vue')
+const SportTrackingView = () => import('@/views/health/SportTrackingView.vue')
 const HealthAlertsView = () => import('@/views/health/HealthAlertsView.vue')
 const HealthReportsView = () => import('@/views/health/HealthReportsView.vue')
 const NutritionDashboardView = () => import('@/views/health/nutrition/NutritionDashboardView.vue')
@@ -409,6 +410,16 @@ const routes = [
       title: 'Mood Tracking'
     }
   },
+  {
+    path: '/health/sports',
+    name: 'HealthSports',
+    component: SportTrackingView,
+    meta: {
+      requiresAuth: true,
+      title: 'Sport Tracking',
+    },
+  },
+
   {
     path: '/health/medications',
     name: 'health-medications',
