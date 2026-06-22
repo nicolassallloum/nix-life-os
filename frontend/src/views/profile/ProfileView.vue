@@ -109,8 +109,13 @@
             <div>
               <h2>Level Progress</h2>
               <p>
-                {{ profile.points.points_to_next_level }}
-                points remaining to reach Level {{ profile.points.level + 1 }}.
+                <template v-if="profile.points.level >= 10">
+                  Max Level Reached
+                </template>
+                <template v-else>
+                  {{ profile.points.points_to_next_level }}
+                  points remaining to reach Level {{ profile.points.level + 1 }}.
+                </template>
               </p>
             </div>
             <div class="points-pill">
@@ -127,7 +132,9 @@
 
           <div class="progress-meta">
             <span>Total: {{ profile.points.total_points }}</span>
-            <span>Next Level: {{ profile.points.next_level_points }}</span>
+            <span>
+              {{ profile.points.level >= 10 ? 'Max Level Reached' : `Next Level: ${profile.points.next_level_points}` }}
+            </span>
           </div>
         </section>
 
@@ -290,8 +297,8 @@ const profile = reactive<{
     points: 0,
     level: 1,
     total_points: 0,
-    next_level_points: 100,
-    points_to_next_level: 100,
+    next_level_points: 50000,
+    points_to_next_level: 50000,
     progress_percent: 0,
     achievements: [],
     earning_ideas: [],
@@ -356,11 +363,11 @@ function applyProfile(data: any) {
   }
 
   profile.points = {
-    points: Number(points.points || 0),
-    level: Number(points.level || 1),
+    points: Number(points.current_points ?? points.points ?? 0),
+    level: Number(points.current_level ?? points.level ?? 1),
     total_points: Number(points.total_points || 0),
-    next_level_points: Number(points.next_level_points || 100),
-    points_to_next_level: Number(points.points_to_next_level || 100),
+    next_level_points: Number(points.next_level_points || points.next_threshold || 50000),
+    points_to_next_level: Number(points.points_to_next_level || points.remaining_points || 50000),
     progress_percent: Number(points.progress_percent || 0),
     achievements: Array.isArray(points.achievements) ? points.achievements : [],
     earning_ideas: Array.isArray(points.earning_ideas) ? points.earning_ideas : [],
@@ -826,6 +833,81 @@ onMounted(loadProfile)
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+
+/* Profile points level readability fix */
+.profile-card,
+.content-card,
+.loading-card {
+  background: rgba(15, 23, 42, 0.96) !important;
+  border: 1px solid rgba(148, 163, 184, 0.22) !important;
+  color: #e5e7eb !important;
+}
+
+.profile-card h2,
+.content-card h2,
+.section-header h2,
+.achievement-card strong,
+.idea-card strong,
+.history-item strong,
+.points-summary strong,
+.profile-meta strong {
+  color: #f8fafc !important;
+}
+
+.profile-card p,
+.content-card p,
+.section-header p,
+.achievement-card span,
+.idea-card p,
+.history-item span,
+.points-summary span,
+.profile-meta span,
+.progress-meta span,
+.empty-state {
+  color: #94a3b8 !important;
+}
+
+.profile-meta div,
+.points-summary div,
+.idea-card,
+.history-item,
+.empty-state {
+  background: rgba(2, 6, 23, 0.52) !important;
+  border: 1px solid rgba(148, 163, 184, 0.16) !important;
+}
+
+.achievement-card {
+  background: rgba(30, 41, 59, 0.88) !important;
+  border: 1px solid rgba(148, 163, 184, 0.22) !important;
+  color: #e5e7eb !important;
+}
+
+.achievement-card.unlocked {
+  background: rgba(37, 99, 235, 0.18) !important;
+  border-color: rgba(96, 165, 250, 0.55) !important;
+}
+
+.form-grid input {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border: 1px solid rgba(148, 163, 184, 0.28) !important;
+  color: #f8fafc !important;
+}
+
+.form-grid input:disabled {
+  color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+.progress-track {
+  background: rgba(226, 232, 240, 0.16) !important;
+}
+
+.history-card .empty-state,
+.history-list {
+  background: rgba(2, 6, 23, 0.52) !important;
+  color: #cbd5e1 !important;
 }
 
 </style>
