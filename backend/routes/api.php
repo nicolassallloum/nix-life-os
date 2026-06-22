@@ -58,6 +58,7 @@ use App\Http\Controllers\Api\V1\Health\MedicationDoseController;
 use App\Http\Controllers\Api\V1\Health\SleepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthStepLogController;
 use App\Http\Controllers\Api\V1\Health\HealthMoodLogController;
+use App\Http\Controllers\Api\V1\Health\HealthSportController;
 use App\Http\Controllers\Api\V1\HealthWeightLogController;
 use App\Http\Controllers\Api\V1\HealthHydrationLogController;
 use App\Http\Controllers\Api\V1\FinanceCategoryController;
@@ -692,6 +693,13 @@ Route::prefix('v1')->group(function () {
             Route::put('/weight/{id}', [HealthWeightLogController::class, 'update'])->whereNumber('id');
             Route::patch('/weight/{id}', [HealthWeightLogController::class, 'update'])->whereNumber('id');
             Route::delete('/weight/{id}', [HealthWeightLogController::class, 'destroy'])->whereNumber('id');
+
+            Route::get('/sports', [HealthSportController::class, 'index']);
+            Route::post('/sports', [HealthSportController::class, 'store']);
+            Route::get('/sports/{id}', [HealthSportController::class, 'show'])->whereUuid('id');
+            Route::put('/sports/{id}', [HealthSportController::class, 'update'])->whereUuid('id');
+            Route::patch('/sports/{id}', [HealthSportController::class, 'update'])->whereUuid('id');
+            Route::delete('/sports/{id}', [HealthSportController::class, 'destroy'])->whereUuid('id');
 
             Route::get('/nutrition/profile', [\App\Http\Controllers\Api\V1\Health\HealthNutritionProfileController::class, 'index']);
             Route::post('/nutrition/profile', [\App\Http\Controllers\Api\V1\Health\HealthNutritionProfileController::class, 'store']);
