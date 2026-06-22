@@ -202,18 +202,19 @@
 
       <section class="export-card">
         <h2>Export-Ready PDF Structure</h2>
-        <p>This screen is structured for future PDF export.</p>
+        <p>Use Export PDF to download a professional medical-style report.</p>
 
         <ul>
-          <li>Cover Page</li>
-          <li>Health Summary</li>
+          <li>Professional Report Header</li>
+          <li>Executive Summary</li>
+          <li>Health Overview</li>
           <li>Nutrition Summary</li>
           <li>Hydration Summary</li>
           <li>Weight Trend</li>
           <li>Steps Trend</li>
           <li>Lab Results Trend</li>
           <li>Medication Adherence</li>
-          <li>Doctor Notes Placeholder</li>
+          <li>Doctor Review Notes</li>
         </ul>
       </section>
     </template>

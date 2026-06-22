@@ -133,7 +133,7 @@ class HealthReportService
                 'steps_trend',
                 'lab_results_trend',
                 'medication_adherence',
-                'doctor_notes_placeholder',
+                'doctor_review_notes',
             ],
         ];
     }
@@ -385,7 +385,10 @@ class HealthReportService
             return [
                 'total_doses' => 0,
                 'taken_doses' => 0,
+                'late_doses' => 0,
                 'missed_doses' => 0,
+                'skipped_doses' => 0,
+                'pending_doses' => 0,
                 'adherence_percent' => 0,
             ];
         }
@@ -407,17 +410,32 @@ class HealthReportService
             return [
                 'total_doses' => $totalDoses,
                 'taken_doses' => 0,
+                'late_doses' => 0,
                 'missed_doses' => 0,
+                'skipped_doses' => 0,
+                'pending_doses' => 0,
                 'adherence_percent' => 0,
             ];
         }
 
         $takenDoses = (clone $baseQuery)
-            ->whereIn($statusColumn, ['taken', 'completed'])
+            ->whereIn($statusColumn, ['taken', 'completed', 'late'])
+            ->count();
+
+        $lateDoses = (clone $baseQuery)
+            ->where($statusColumn, 'late')
             ->count();
 
         $missedDoses = (clone $baseQuery)
-            ->whereIn($statusColumn, ['missed', 'skipped'])
+            ->where($statusColumn, 'missed')
+            ->count();
+
+        $skippedDoses = (clone $baseQuery)
+            ->where($statusColumn, 'skipped')
+            ->count();
+
+        $pendingDoses = (clone $baseQuery)
+            ->where($statusColumn, 'pending')
             ->count();
 
         $adherencePercent = $totalDoses > 0
@@ -427,7 +445,10 @@ class HealthReportService
         return [
             'total_doses' => $totalDoses,
             'taken_doses' => $takenDoses,
+            'late_doses' => $lateDoses,
             'missed_doses' => $missedDoses,
+            'skipped_doses' => $skippedDoses,
+            'pending_doses' => $pendingDoses,
             'adherence_percent' => $adherencePercent,
         ];
     }

@@ -229,7 +229,7 @@ class HealthReportController extends Controller
 
         return $query
             ->orderBy($orderColumn)
-            ->limit(20)
+            ->limit(50)
             ->get($this->selectAliases('health_medications', [
                 'medication_name' => ['medication_name', 'name'],
                 'dosage' => ['dosage'],
@@ -241,7 +241,16 @@ class HealthReportController extends Controller
                 'doctor_name' => ['doctor_name', 'prescribed_by'],
                 'prescribed_by' => ['prescribed_by', 'doctor_name'],
                 'notes' => ['notes'],
-            ]));
+            ]))
+            ->unique(function ($medication) {
+                return strtolower(trim(
+                    ($medication->medication_name ?? '') . '|' .
+                    ($medication->dosage ?? $medication->daily_dose ?? '') . '|' .
+                    ($medication->frequency ?? '')
+                ));
+            })
+            ->values()
+            ->take(20);
     }
 
     private function recentLabTests(string $userId)
