@@ -43,7 +43,13 @@ const FinanceTransactionsView = () => import('@/views/finance/FinanceTransaction
 const FinanceBudgetsView = () => import('@/views/finance/FinanceBudgetsView.vue')
 const FinanceAIInsightsView = () => import('@/views/finance/FinanceAIInsightsView.vue')
 const ExpensesView = () => import('@/views/finance/ExpensesView.vue')
-
+const TodoMainView = () => import('@/views/todo/TodoMainView.vue')
+const TodoDashboardView = () => import('@/views/todo/TodoDashboardView.vue')
+const TodoTasksView = () => import('@/views/todo/TodoTasksView.vue')
+const TodoProjectsView = () => import('@/views/todo/TodoProjectsView.vue')
+const TodoProjectDetailsView = () => import('@/views/todo/TodoProjectDetailsView.vue')
+const TodoTaskCreateView = () => import('@/views/todo/TodoTaskCreateView.vue')
+const TodoTaskEditView = () => import('@/views/todo/TodoTaskEditView.vue')
 const ProjectsView = () => import('@/views/projects/ProjectsView.vue')
 const ProjectGoalsView = () => import('@/views/projects/ProjectGoalsView.vue')
 const ProjectTasksView = () => import('@/views/projects/ProjectTasksView.vue')
@@ -118,6 +124,69 @@ const routes = [
       guestOnly: true,
       publicLayout: true,
       title: 'Login',
+    },
+  },
+  {
+    path: '/todo',
+    name: 'todo',
+    component: TodoMainView,
+    meta: {
+      requiresAuth: true,
+      title: 'To-Do',
+    },
+  },
+  {
+    path: '/todo/dashboard',
+    name: 'todo-dashboard',
+    component: TodoDashboardView,
+    meta: {
+      requiresAuth: true,
+      title: 'To-Do Dashboard',
+    },
+  },
+  {
+    path: '/todo/tasks',
+    name: 'todo-tasks',
+    component: TodoTasksView,
+    meta: {
+      requiresAuth: true,
+      title: 'Tasks',
+    },
+  },
+  {
+    path: '/todo/projects',
+    name: 'todo-projects',
+    component: TodoProjectsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Projects',
+    },
+  },
+  {
+    path: '/todo/projects/:id',
+    name: 'todo-project-details',
+    component: TodoProjectDetailsView,
+    meta: {
+      requiresAuth: true,
+      title: 'Project Details',
+    },
+  },
+  {
+    path: '/todo/tasks/create',
+    name: 'todo-task-create',
+    component: TodoTaskCreateView,
+    meta: {
+      requiresAuth: true,
+      title: 'Create Task',
+    },
+  },
+  {
+    path: '/todo/tasks/:id/edit',
+    name: 'todo-task-edit',
+    component: TodoTaskEditView,
+    meta: {
+      requiresAuth: true,
+      title: 'Edit Task',
     },
   },
   {
