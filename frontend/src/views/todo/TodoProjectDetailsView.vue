@@ -296,7 +296,9 @@ const normalizeTask = (task: any, index: number): TodoTask => {
 }
 
 const normalizeProject = (rawProject: any): TodoProject => {
-  const relatedTasks = Array.isArray(rawProject.tasks) ? rawProject.tasks.map(normalizeTask) : []
+  const relatedTasks: TodoTask[] = Array.isArray(rawProject.tasks)
+    ? rawProject.tasks.map(normalizeTask)
+    : []
 
   const totalTasks = numberValue(
     rawProject.totalTasks ??
@@ -310,7 +312,7 @@ const normalizeProject = (rawProject: any): TodoProject => {
       rawProject.finished_tasks ??
       rawProject.completedTasks ??
       rawProject.completed_tasks ??
-      relatedTasks.filter((task) => task.status === 'finished' || task.status === 'completed').length,
+      relatedTasks.filter((task: TodoTask) => task.status === 'finished' || task.status === 'completed').length,
   )
 
   const calculatedPercentage = totalTasks > 0 ? Math.round((finishedTasks / totalTasks) * 100) : 0
