@@ -12,8 +12,8 @@ return new class extends Migration
         Schema::create('todo_tasks', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('user_id')
-                ->constrained()
+            $table->foreignUuid('user_id')
+                ->constrained('users')
                 ->cascadeOnDelete();
 
             $table->foreignId('project_id')
