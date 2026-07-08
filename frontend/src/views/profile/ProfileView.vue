@@ -338,7 +338,7 @@ async function apiRequest(path: string, options: RequestInit = {}) {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
+      ...options.headers,
     },
   })
 

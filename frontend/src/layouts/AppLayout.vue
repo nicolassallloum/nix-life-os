@@ -201,14 +201,6 @@ async function logout() {
               <span class="nix-sidebar-link-icon">{{ item.icon }}</span>
               <span v-if="!sidebarCollapsed" class="nix-sidebar-link-text">{{ item.label }}</span>
             </RouterLink>
-            <RouterLink
-      to="/todo"
-      class="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"
-      active-class="bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300"
-    >
-      <span class="text-lg">✅</span>
-      <span>To-Do</span>
-    </RouterLink>
           </div>
         </section>
       </nav>

@@ -529,7 +529,7 @@ const apiRequest = async (url, options = {}) => {
       Accept: "application/json",
       ...(options.body ? { "Content-Type": "application/json" } : {}),
       Authorization: `Bearer ${authToken}`,
-      ...(options.headers || {}),
+      ...options.headers,
     },
   });
 
