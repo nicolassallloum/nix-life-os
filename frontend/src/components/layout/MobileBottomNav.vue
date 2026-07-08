@@ -22,27 +22,27 @@ const navItems = [
   {
     label: 'Home',
     path: '/dashboard',
-    icon: '🏠'
+    icon: '🏠',
   },
   {
     label: 'Finance',
     path: '/finance',
-    icon: '💰'
+    icon: '💰',
   },
   {
     label: 'Health',
     path: '/health',
-    icon: '❤️'
+    icon: '❤️',
   },
   {
     label: 'Projects',
     path: '/projects',
-    icon: '📁'
+    icon: '📁',
   },
   {
-    label: 'Tasks',
-    path: '/productivity',
-    icon: '✅'
-  }
+    label: 'To-Do',
+    path: '/todo',
+    icon: '✅',
+  },
 ]
 </script>
