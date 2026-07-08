@@ -180,6 +180,11 @@ const lifeMenu = [
     icon: '❤️',
   },
   {
+    label: 'To-Do',
+    path: '/todo',
+    icon: '✅',
+  },
+  {
     label: 'Projects',
     path: '/projects',
     icon: '📁',
