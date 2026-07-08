@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Plan;
 use App\Models\Subscription;
+
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -43,7 +44,15 @@ class User extends Authenticatable
     {
         return $this->hasMany(AIRecommendation::class, 'user_id');
     }
+    public function todoProjects(): HasMany
+    {
+        return $this->hasMany(TodoProject::class);
+    }
 
+    public function todoTasks(): HasMany
+    {
+        return $this->hasMany(TodoTask::class);
+    }
     public function aiRecommendationFeedback(): HasMany
     {
         return $this->hasMany(AIRecommendationFeedback::class, 'user_id');
