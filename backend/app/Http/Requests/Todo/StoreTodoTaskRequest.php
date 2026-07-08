@@ -27,9 +27,9 @@ class StoreTodoTaskRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
 
-            'task_type' => ['required', Rule::in(TodoTask::TYPES)],
-            'status' => ['required', Rule::in(TodoTask::STATUSES)],
-            'priority' => ['required', Rule::in(TodoTask::PRIORITIES)],
+            'task_type' => ['sometimes', 'nullable', Rule::in(TodoTask::TYPES)],
+            'status' => ['sometimes', 'nullable', Rule::in(TodoTask::STATUSES)],
+            'priority' => ['sometimes', 'nullable', Rule::in(TodoTask::PRIORITIES)],
 
             'points' => ['nullable', 'integer', 'min:0'],
 
