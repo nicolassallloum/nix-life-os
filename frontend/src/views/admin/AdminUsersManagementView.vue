@@ -406,7 +406,7 @@ async function apiRequest(path, options = {}) {
       Accept: 'application/json',
       'Content-Type': 'application/json',
       Authorization: token ? `Bearer ${token}` : '',
-      ...(options.headers || {}),
+      ...options.headers,
     },
   })
 
