@@ -979,3 +979,55 @@ Route::prefix('v1')->group(function () {
     });
 });
 
+/*
+|--------------------------------------------------------------------------
+| Bundle 3 - To-Do Module Backend APIs
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth:sanctum')->prefix('todo')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Api\V1\Todo\TodoDashboardController::class, 'index']);
+
+    Route::get('/projects', [\App\Http\Controllers\Api\V1\Todo\TodoProjectController::class, 'index']);
+    Route::post('/projects', [\App\Http\Controllers\Api\V1\Todo\TodoProjectController::class, 'store']);
+    Route::get('/projects/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoProjectController::class, 'show'])->whereNumber('id');
+    Route::put('/projects/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoProjectController::class, 'update'])->whereNumber('id');
+    Route::patch('/projects/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoProjectController::class, 'update'])->whereNumber('id');
+    Route::delete('/projects/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoProjectController::class, 'destroy'])->whereNumber('id');
+
+    Route::get('/tasks', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'index']);
+    Route::post('/tasks', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'store']);
+    Route::patch('/tasks/reorder', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'reorder']);
+    Route::get('/tasks/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'show'])->whereNumber('id');
+    Route::put('/tasks/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'update'])->whereNumber('id');
+    Route::patch('/tasks/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'update'])->whereNumber('id');
+    Route::delete('/tasks/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'destroy'])->whereNumber('id');
+    Route::patch('/tasks/{id}/status', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'updateStatus'])->whereNumber('id');
+    Route::patch('/tasks/{id}/move', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'move'])->whereNumber('id');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Bundle 3 - To-Do Module V1 Compatibility APIs
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth:sanctum')->prefix('v1/todo')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\Api\V1\Todo\TodoDashboardController::class, 'index']);
+
+    Route::get('/projects', [\App\Http\Controllers\Api\V1\Todo\TodoProjectController::class, 'index']);
+    Route::post('/projects', [\App\Http\Controllers\Api\V1\Todo\TodoProjectController::class, 'store']);
+    Route::get('/projects/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoProjectController::class, 'show'])->whereNumber('id');
+    Route::put('/projects/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoProjectController::class, 'update'])->whereNumber('id');
+    Route::patch('/projects/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoProjectController::class, 'update'])->whereNumber('id');
+    Route::delete('/projects/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoProjectController::class, 'destroy'])->whereNumber('id');
+
+    Route::get('/tasks', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'index']);
+    Route::post('/tasks', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'store']);
+    Route::patch('/tasks/reorder', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'reorder']);
+    Route::get('/tasks/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'show'])->whereNumber('id');
+    Route::put('/tasks/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'update'])->whereNumber('id');
+    Route::patch('/tasks/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'update'])->whereNumber('id');
+    Route::delete('/tasks/{id}', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'destroy'])->whereNumber('id');
+    Route::patch('/tasks/{id}/status', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'updateStatus'])->whereNumber('id');
+    Route::patch('/tasks/{id}/move', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'move'])->whereNumber('id');
+});
+
