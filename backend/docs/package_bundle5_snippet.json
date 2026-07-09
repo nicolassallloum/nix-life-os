@@ -1,0 +1,7 @@
+{
+  "dependencies_to_add_if_missing": {
+    "sortablejs": "latest",
+    "vuedraggable": "next"
+  },
+  "install_command": "npm install vuedraggable@next sortablejs"
+}
