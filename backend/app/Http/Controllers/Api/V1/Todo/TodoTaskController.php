@@ -161,27 +161,41 @@ class TodoTaskController extends Controller
             'data' => $this->formatTask($task),
         ]);
     }
-   public function grouped(Request $request): JsonResponse
-   {
-       $user = $request->user();
+    public function grouped(Request $request): JsonResponse
+    {
+        $user = $request->user();
 
-       $tasks = \App\Models\Todo\TodoTask::query()
-           ->where('user_id', $user->id)
-           ->with('project')
-           ->orderBy('sort_order')
-           ->orderByRaw('due_date ASC NULLS LAST')
-           ->orderByDesc('created_at')
-           ->get();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated.',
+                'error' => [
+                    'code' => 'UNAUTHENTICATED',
+                    'status' => 401,
+                ],
+            ], 401);
+        }
 
-       return response()->json([
-           'data' => [
-               'general' => $tasks->where('task_type', 'general')->values(),
-               'monthly' => $tasks->where('task_type', 'monthly')->values(),
-               'weekly' => $tasks->where('task_type', 'weekly')->values(),
-               'daily' => $tasks->where('task_type', 'daily')->values(),
-           ],
-       ]);
+        $tasks = \App\Models\TodoTask::query()
+            ->where('user_id', $user->id)
+            ->with('project')
+            ->orderBy('sort_order')
+            ->orderByRaw('due_date ASC NULLS LAST')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Grouped todo tasks loaded successfully.',
+            'data' => [
+                'general' => $tasks->where('task_type', 'general')->values(),
+                'monthly' => $tasks->where('task_type', 'monthly')->values(),
+                'weekly' => $tasks->where('task_type', 'weekly')->values(),
+                'daily' => $tasks->where('task_type', 'daily')->values(),
+            ],
+        ]);
     }
+
     public function move(Request $request, int $id): JsonResponse
     {
         $data = $request->validate([
