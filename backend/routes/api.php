@@ -1033,3 +1033,6 @@ Route::middleware('auth:sanctum')->prefix('v1/todo')->group(function () {
     Route::patch('/tasks/{id}/move', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'move'])->whereNumber('id');
 });
 
+
+// Bundle 5 grouped tasks alias for frontend TodoBoard.vue
+Route::middleware('auth:sanctum')->get('/todo/tasks/grouped', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'grouped']);
