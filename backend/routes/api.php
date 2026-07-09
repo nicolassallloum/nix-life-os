@@ -148,12 +148,14 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     // Legacy duplicate routes disabled to prevent /health/mood/{id} conflicts.
     // Route::get('health/mood/summary', [HealthMoodController::class, 'summary']);
     // Route::apiResource('health/mood', HealthMoodController::class)->except(['show']);
-
+    Route::get('/tasks/grouped', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'grouped']);
     /*
     |--------------------------------------------------------------------------
     | Project Tasks
     |--------------------------------------------------------------------------
     */
+    Route::patch('/tasks/reorder', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'reorder']);
+    Route::patch('/tasks/{id}/move', [\App\Http\Controllers\Api\V1\Todo\TodoTaskController::class, 'move']);
     Route::apiResource('projects/tasks', ProjectTaskController::class);
     Route::get('projects/{project}/tasks', [ProjectTaskController::class, 'byProject']);
     Route::patch('projects/{project}/tasks/{task}/complete', [ProjectTaskController::class, 'complete']);
