@@ -25,7 +25,6 @@ class TodoTaskController extends Controller
         ]);
 
         $query = TodoTask::query()
-            ->with('project')
             ->where('user_id', $userId);
 
         foreach (['task_type', 'status', 'priority', 'project_id'] as $filter) {
@@ -75,7 +74,6 @@ class TodoTaskController extends Controller
     public function show(Request $request, int $id): JsonResponse
     {
         $task = TodoTask::query()
-            ->with('project')
             ->where('user_id', $request->user()->id)
             ->whereKey($id)
             ->first();
@@ -178,7 +176,6 @@ class TodoTaskController extends Controller
 
         $tasks = \App\Models\TodoTask::query()
             ->where('user_id', $user->id)
-            ->with('project')
             ->orderBy('sort_order')
             ->orderByRaw('due_date ASC NULLS LAST')
             ->orderByDesc('created_at')
@@ -256,7 +253,6 @@ class TodoTaskController extends Controller
         });
 
         $tasks = TodoTask::query()
-            ->with('project')
             ->where('user_id', $userId)
             ->whereIn('id', $taskIds)
             ->orderBy('sort_order')
