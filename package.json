@@ -3,8 +3,6 @@
     "chart.js": "^4.5.1",
     "idb": "^8.0.3",
     "lucide-vue-next": "^1.0.0",
-    "sortablejs": "^1.15.7",
-    "vue-chartjs": "^5.3.3",
-    "vuedraggable": "^4.1.0"
+    "vue-chartjs": "^5.3.3"
   }
 }
