@@ -1,263 +1,153 @@
 <template>
-  <div class="space-y-6">
-    <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+  <div class="todo-page">
+    <div class="todo-page__header">
       <div>
-        <RouterLink
-          to="/todo/tasks"
-          class="text-sm font-bold text-cyan-600 hover:text-cyan-500 dark:text-cyan-300"
-        >
-          ← Back to Tasks
-        </RouterLink>
-
-        <h1 class="mt-2 text-2xl font-bold text-gray-900 dark:text-white">
-          Edit Task
-        </h1>
-        <p class="text-gray-600 dark:text-gray-300">
-          Update task details, schedule, status, priority, project, and points.
-        </p>
+        <RouterLink to="/todo/tasks" class="todo-link">Back to Tasks</RouterLink>
+        <h1>Edit Task</h1>
+        <p>Update task details, schedule, status, priority, project, and points.</p>
       </div>
 
-      <RouterLink
-        to="/todo/tasks/create"
-        class="inline-flex items-center justify-center rounded-xl bg-cyan-500 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-400"
-      >
-        + Create Task
+      <RouterLink to="/todo/tasks/create" class="todo-button todo-button--primary">
+        Create Task
       </RouterLink>
     </div>
 
-    <div
-      v-if="successMessage"
-      class="rounded-xl border border-emerald-300/40 bg-emerald-50 p-4 text-sm text-emerald-800 dark:border-emerald-400/20 dark:bg-emerald-500/10 dark:text-emerald-200"
-    >
-      {{ successMessage }}
-    </div>
+    <TodoNotification :type="notification.type" :message="notification.message" @dismiss="clearNotification" />
 
-    <div
-      v-if="errorMessage"
-      class="rounded-xl border border-red-300/40 bg-red-50 p-4 text-sm text-red-800 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-200"
-    >
-      {{ errorMessage }}
-    </div>
+    <TodoLoadingState v-if="loading" message="Loading task..." />
 
-    <section
-      v-if="loading"
-      class="rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
-    >
-      Loading task...
-    </section>
-
-    <section
-      v-else
-      class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
-    >
-      <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+    <section v-else class="todo-panel">
+      <div class="todo-panel__header">
         <div>
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-            Task Information
-          </h2>
-          <p class="text-sm text-gray-600 dark:text-gray-300">
-            Edit the selected To-Do task.
-          </p>
+          <h2>Task Information</h2>
+          <p>Edit the selected To-Do task.</p>
         </div>
-
-        <span
-          class="rounded-full px-3 py-1 text-xs font-black"
-          :class="statusClass(form.status)"
-        >
-          {{ formatStatus(form.status) }}
-        </span>
+        <div class="todo-badge-row">
+          <TodoBadge kind="type" :value="form.task_type" />
+          <TodoBadge kind="status" :value="form.status" />
+        </div>
       </div>
 
-      <form class="mt-5 grid grid-cols-1 gap-4 xl:grid-cols-2" @submit.prevent="updateTask">
-        <div class="xl:col-span-2">
-          <label class="mb-1 block text-sm font-bold text-gray-700 dark:text-gray-300">
-            Task Title
-          </label>
-          <input
-            v-model.trim="form.title"
-            type="text"
-            required
-            class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition focus:border-cyan-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-            placeholder="Task title"
-          />
-        </div>
+      <form class="todo-form-grid" novalidate @submit.prevent="updateTask">
+        <label class="todo-field todo-field--full">
+          <span>Task Name</span>
+          <input v-model.trim="form.title" type="text" class="todo-control" placeholder="Task name" />
+          <small v-if="validationErrors.title">{{ validationErrors.title }}</small>
+        </label>
 
-        <div>
-          <label class="mb-1 block text-sm font-bold text-gray-700 dark:text-gray-300">
-            Project
-          </label>
-          <select
-            v-model="form.project_id"
-            class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition focus:border-cyan-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-          >
+        <label class="todo-field">
+          <span>Project</span>
+          <select v-model="form.project_id" class="todo-control">
             <option value="">No project</option>
-            <option
-              v-for="project in projects"
-              :key="project.id"
-              :value="project.id"
-            >
+            <option v-for="project in projects" :key="project.id" :value="project.id">
               {{ project.name }}
             </option>
           </select>
-        </div>
+          <small v-if="validationErrors.project_id">{{ validationErrors.project_id }}</small>
+        </label>
 
-        <div>
-          <label class="mb-1 block text-sm font-bold text-gray-700 dark:text-gray-300">
-            Task Type
-          </label>
-          <select
-            v-model="form.task_type"
-            class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition focus:border-cyan-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-          >
-            <option value="general">General Task</option>
-            <option value="monthly">Monthly Task</option>
-            <option value="weekly">Weekly Task</option>
-            <option value="daily">Daily Task</option>
+        <label class="todo-field">
+          <span>Task Type</span>
+          <select v-model="form.task_type" class="todo-control">
+            <option value="general">General</option>
+            <option value="monthly">Monthly</option>
+            <option value="weekly">Weekly</option>
+            <option value="daily">Daily</option>
           </select>
-        </div>
+          <small v-if="validationErrors.task_type">{{ validationErrors.task_type }}</small>
+        </label>
 
-        <div>
-          <label class="mb-1 block text-sm font-bold text-gray-700 dark:text-gray-300">
-            Status
-          </label>
-          <select
-            v-model="form.status"
-            class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition focus:border-cyan-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-          >
+        <label class="todo-field">
+          <span>Status</span>
+          <select v-model="form.status" class="todo-control">
             <option value="pending">Pending</option>
             <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
             <option value="finished">Finished</option>
           </select>
-        </div>
+          <small v-if="validationErrors.status">{{ validationErrors.status }}</small>
+        </label>
 
-        <div>
-          <label class="mb-1 block text-sm font-bold text-gray-700 dark:text-gray-300">
-            Priority
-          </label>
-          <select
-            v-model="form.priority"
-            class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition focus:border-cyan-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-          >
-            <option value="low">Low</option>
-            <option value="normal">Normal</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="urgent">Urgent</option>
+        <label class="todo-field">
+          <span>Priority</span>
+          <select v-model="form.priority" class="todo-control">
+            <option value="low">Low Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="high">High Priority</option>
           </select>
+          <small v-if="validationErrors.priority">{{ validationErrors.priority }}</small>
+        </label>
+
+        <label class="todo-field">
+          <span>Points</span>
+          <input v-model.number="form.points" type="number" min="0" step="1" class="todo-control" placeholder="0" />
+          <small v-if="validationErrors.points">{{ validationErrors.points }}</small>
+        </label>
+
+        <label class="todo-field">
+          <span>Due Date</span>
+          <input v-model="form.due_date" type="date" class="todo-control" />
+          <small v-if="validationErrors.due_date">{{ validationErrors.due_date }}</small>
+        </label>
+
+        <label class="todo-field todo-field--full">
+          <span>Description</span>
+          <textarea v-model.trim="form.description" rows="5" class="todo-control todo-control--textarea" placeholder="Write task details"></textarea>
+        </label>
+
+        <div class="todo-preview todo-field--full">
+          <h3>Task Summary</h3>
+          <p>{{ schedulePreview }}</p>
         </div>
 
-        <div>
-          <label class="mb-1 block text-sm font-bold text-gray-700 dark:text-gray-300">
-            Points
-          </label>
-          <input
-            v-model.number="form.points"
-            type="number"
-            min="0"
-            step="1"
-            class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition focus:border-cyan-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-            placeholder="0"
-          />
-        </div>
-
-        <div>
-          <label class="mb-1 block text-sm font-bold text-gray-700 dark:text-gray-300">
-            Due Date
-          </label>
-          <input
-            v-model="form.due_date"
-            type="date"
-            class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition focus:border-cyan-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-          />
-        </div>
-
-        <div>
-          <label class="mb-1 block text-sm font-bold text-gray-700 dark:text-gray-300">
-            Start Date
-          </label>
-          <input
-            v-model="form.start_date"
-            type="date"
-            class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition focus:border-cyan-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-          />
-        </div>
-
-        <div>
-          <label class="mb-1 block text-sm font-bold text-gray-700 dark:text-gray-300">
-            End Date
-          </label>
-          <input
-            v-model="form.end_date"
-            type="date"
-            class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition focus:border-cyan-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-          />
-        </div>
-
-        <div class="xl:col-span-2">
-          <label class="mb-1 block text-sm font-bold text-gray-700 dark:text-gray-300">
-            Description
-          </label>
-          <textarea
-            v-model.trim="form.description"
-            rows="5"
-            class="w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-gray-900 outline-none transition focus:border-cyan-400 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-            placeholder="Write task details..."
-          />
-        </div>
-
-        <div class="xl:col-span-2 rounded-2xl bg-gray-50 p-4 dark:bg-gray-900/50">
-          <h3 class="font-bold text-gray-900 dark:text-white">
-            Task Summary
-          </h3>
-          <p class="mt-1 text-sm text-gray-600 dark:text-gray-300">
-            {{ schedulePreview }}
-          </p>
-        </div>
-
-        <div class="flex flex-wrap gap-2 xl:col-span-2">
-          <button
-            type="submit"
-            :disabled="saving"
-            class="inline-flex items-center justify-center rounded-xl bg-cyan-500 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
-          >
+        <div class="todo-actions todo-field--full">
+          <button type="submit" class="todo-button todo-button--primary" :disabled="saving">
             {{ saving ? 'Saving...' : 'Update Task' }}
           </button>
-
-          <button
-            type="button"
-            :disabled="saving"
-            class="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-200 dark:hover:bg-emerald-500/20"
-            @click="markFinished"
-          >
-            Mark Finished
+          <button type="button" class="todo-button todo-button--success" :disabled="saving" @click="markFinished">
+            {{ saving && form.status === 'finished' ? 'Completing...' : 'Mark Finished' }}
           </button>
-
-          <RouterLink
-            to="/todo/tasks"
-            class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-bold text-gray-800 transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-700"
-          >
+          <RouterLink to="/todo/tasks" class="todo-button todo-button--secondary">
             Cancel
           </RouterLink>
-
-          <button
-            type="button"
-            :disabled="deleting"
-            class="inline-flex items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-200 dark:hover:bg-red-500/20"
-            @click="deleteTask"
-          >
+          <button type="button" class="todo-button todo-button--danger" :disabled="deleting" @click="confirmDeleteOpen = true">
             {{ deleting ? 'Deleting...' : 'Delete Task' }}
           </button>
         </div>
       </form>
     </section>
+
+    <TodoConfirmDialog
+      :open="confirmDeleteOpen"
+      title="Delete task"
+      message="Are you sure you want to delete this task?"
+      :loading="deleting"
+      @cancel="confirmDeleteOpen = false"
+      @confirm="deleteTask"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import api from '@/services/api'
+import TodoBadge from '@/components/todo/TodoBadge.vue'
+import TodoConfirmDialog from '@/components/todo/TodoConfirmDialog.vue'
+import TodoLoadingState from '@/components/todo/TodoLoadingState.vue'
+import TodoNotification from '@/components/todo/TodoNotification.vue'
+import {
+  dateInputValue,
+  extractList,
+  getApiMessage,
+  mapValidationErrors,
+  normalizeTaskPriority,
+  normalizeTaskStatus,
+  normalizeTaskType,
+  numberValue,
+  taskPriorities,
+  taskStatuses,
+  taskTypes,
+} from '@/components/todo/todoUtils'
 
 type TodoProject = {
   id: number | string
@@ -273,19 +163,20 @@ type TaskForm = {
   priority: string
   points: number
   due_date: string
-  start_date: string
-  end_date: string
 }
 
 const route = useRoute()
 const router = useRouter()
-
 const loading = ref(false)
 const saving = ref(false)
 const deleting = ref(false)
-const errorMessage = ref('')
-const successMessage = ref('')
+const confirmDeleteOpen = ref(false)
 const projects = ref<TodoProject[]>([])
+const validationErrors = reactive<Record<string, string>>({})
+const notification = reactive<{ type: 'success' | 'error' | 'info'; message: string }>({
+  type: 'info',
+  message: '',
+})
 
 const form = reactive<TaskForm>({
   title: '',
@@ -293,216 +184,355 @@ const form = reactive<TaskForm>({
   project_id: '',
   task_type: 'general',
   status: 'pending',
-  priority: 'normal',
+  priority: 'medium',
   points: 0,
   due_date: '',
-  start_date: '',
-  end_date: '',
 })
 
 const taskId = computed(() => String(route.params.id || ''))
 
-const numberValue = (value: unknown): number => {
-  const parsed = Number(value)
-
-  return Number.isFinite(parsed) ? parsed : 0
+const notify = (type: 'success' | 'error' | 'info', message: string) => {
+  notification.type = type
+  notification.message = message
 }
 
-const dateValue = (value: unknown): string => {
-  if (!value) {
-    return ''
-  }
-
-  return String(value).slice(0, 10)
+const clearNotification = () => {
+  notification.message = ''
 }
 
-const normalizeProject = (project: any, index: number): TodoProject => {
-  return {
-    id: project.id ?? index,
-    name: project.name ?? project.title ?? `Project ${index + 1}`,
-  }
+const clearValidationErrors = () => {
+  Object.keys(validationErrors).forEach((key) => {
+    delete validationErrors[key]
+  })
 }
 
-const extractProjects = (payload: any): TodoProject[] => {
-  const source =
-    payload?.data?.data ||
-    payload?.data?.projects ||
-    payload?.data ||
-    payload?.projects ||
-    payload
-
-  if (!Array.isArray(source)) {
-    return []
-  }
-
-  return source.map(normalizeProject)
-}
-
-const extractTask = (payload: any): any => {
-  return payload?.data?.task || payload?.data || payload?.task || payload
-}
+const normalizeProject = (project: any, index: number): TodoProject => ({
+  id: project.id ?? index,
+  name: project.name ?? project.title ?? `Project ${index + 1}`,
+})
 
 const hydrateForm = (task: any) => {
   form.title = task.title ?? task.name ?? ''
   form.description = task.description ?? ''
   form.project_id = task.project_id ?? task.projectId ?? task.project?.id ?? ''
-  form.task_type = task.task_type ?? task.type ?? task.schedule_type ?? 'general'
-  form.status = task.status ?? 'pending'
-  form.priority = task.priority ?? 'normal'
+  form.task_type = normalizeTaskType(task.task_type ?? task.type ?? task.schedule_type)
+  form.status = normalizeTaskStatus(task.status)
+  form.priority = normalizeTaskPriority(task.priority)
   form.points = numberValue(task.points)
-  form.due_date = dateValue(task.due_date ?? task.dueDate)
-  form.start_date = dateValue(task.start_date ?? task.startDate)
-  form.end_date = dateValue(task.end_date ?? task.endDate)
+  form.due_date = dateInputValue(task.due_date ?? task.dueDate)
 }
 
-const buildPayload = () => {
-  return {
-    title: form.title,
-    name: form.title,
-    description: form.description || null,
-    project_id: form.project_id || null,
-    task_type: form.task_type,
-    type: form.task_type,
-    schedule_type: form.task_type,
-    status: form.status,
-    priority: form.priority,
-    points: Number(form.points) || 0,
-    due_date: form.due_date || null,
-    start_date: form.start_date || null,
-    end_date: form.end_date || null,
-  }
-}
+const extractTask = (payload: any): any => payload?.data?.task || payload?.data || payload?.task || payload
 
 const schedulePreview = computed(() => {
   if (form.task_type === 'daily') {
     return `Daily task${form.due_date ? ` due on ${form.due_date}` : ' with no due date yet'}.`
   }
 
-  if (form.task_type === 'weekly') {
-    return `Weekly task${form.start_date || form.end_date ? ` from ${form.start_date || 'no start date'} to ${form.end_date || 'no end date'}` : ' with no week range yet'}.`
-  }
-
-  if (form.task_type === 'monthly') {
-    return `Monthly task${form.start_date || form.end_date ? ` from ${form.start_date || 'no start date'} to ${form.end_date || 'no end date'}` : ' with no month range yet'}.`
-  }
+  if (form.task_type === 'weekly') return 'Weekly task grouped in the weekly planning list.'
+  if (form.task_type === 'monthly') return 'Monthly task grouped in the monthly planning list.'
 
   return 'General task with no schedule bucket.'
 })
 
-const clearMessages = () => {
-  errorMessage.value = ''
-  successMessage.value = ''
+const validateTask = () => {
+  clearValidationErrors()
+
+  if (!form.title.trim()) validationErrors.title = 'Task name is required.'
+  if (!taskTypes.includes(form.task_type as any)) validationErrors.task_type = 'Task type must be General, Monthly, Weekly, or Daily.'
+  if (!taskStatuses.includes(form.status as any)) validationErrors.status = 'Task status must be Pending, In Progress, or Finished.'
+  if (!taskPriorities.includes(form.priority as any)) validationErrors.priority = 'Priority must be Low, Medium, or High.'
+  if (!Number.isFinite(Number(form.points)) || Number(form.points) < 0) validationErrors.points = 'Points must be a numeric value of 0 or greater.'
+  if (form.due_date && Number.isNaN(Date.parse(form.due_date))) validationErrors.due_date = 'Due date must be a valid date.'
+
+  if (form.project_id && !projects.value.some((project) => String(project.id) === String(form.project_id))) {
+    validationErrors.project_id = 'Project ID is not valid.'
+  }
+
+  return Object.keys(validationErrors).length === 0
 }
+
+const buildPayload = () => ({
+  title: form.title,
+  description: form.description || null,
+  project_id: form.project_id || null,
+  task_type: normalizeTaskType(form.task_type),
+  status: normalizeTaskStatus(form.status),
+  priority: normalizeTaskPriority(form.priority),
+  points: numberValue(form.points),
+  due_date: form.due_date || null,
+})
 
 const loadProjects = async () => {
   try {
     const response = await api.get('/todo/projects')
-    projects.value = extractProjects(response.data)
+    projects.value = extractList<any>(response.data, 'projects').map(normalizeProject)
   } catch (error) {
     projects.value = []
-    console.warn('[To-Do Edit Task] Failed to load projects.', error)
+    notify('error', getApiMessage(error, 'API failure. Failed to load projects.'))
   }
 }
 
 const loadTask = async () => {
   loading.value = true
-  clearMessages()
+  clearNotification()
 
   try {
     const response = await api.get(`/todo/tasks/${taskId.value}`)
     hydrateForm(extractTask(response.data))
-  } catch (error: any) {
-    errorMessage.value =
-      error?.response?.data?.message ||
-      error?.response?.data?.error ||
-      'Task details API is not available yet or failed to load.'
-    console.warn('[To-Do Edit Task] Failed to load task.', error)
+  } catch (error) {
+    notify('error', getApiMessage(error, 'API failure. Failed to load task details.'))
   } finally {
     loading.value = false
   }
 }
 
 const updateTask = async () => {
-  if (!form.title.trim()) {
-    errorMessage.value = 'Task title is required.'
+  if (!validateTask()) {
+    notify('error', 'Validation errors. Please fix the highlighted task fields.')
     return
   }
 
   saving.value = true
-  clearMessages()
+  clearNotification()
 
   try {
     await api.put(`/todo/tasks/${taskId.value}`, buildPayload())
-    successMessage.value = 'Task updated successfully.'
-
-    window.setTimeout(() => {
-      router.push('/todo/tasks')
-    }, 500)
+    notify('success', form.status === 'finished' ? 'Task completed.' : 'Task updated.')
+    window.setTimeout(() => router.push('/todo/tasks'), 500)
   } catch (error: any) {
-    errorMessage.value =
-      error?.response?.data?.message ||
-      error?.response?.data?.error ||
-      'Task update failed.'
-    console.warn('[To-Do Edit Task] Failed to update task.', error)
+    Object.assign(validationErrors, mapValidationErrors(error))
+    notify('error', getApiMessage(error, 'Failed update. Task update failed.'))
   } finally {
     saving.value = false
   }
 }
 
 const markFinished = async () => {
-  form.status = 'completed'
+  form.status = 'finished'
   await updateTask()
 }
 
 const deleteTask = async () => {
-  const confirmed = window.confirm(`Delete task "${form.title || taskId.value}"?`)
-
-  if (!confirmed) {
-    return
-  }
-
   deleting.value = true
-  clearMessages()
+  clearNotification()
 
   try {
     await api.delete(`/todo/tasks/${taskId.value}`)
-    successMessage.value = 'Task deleted successfully.'
-
-    window.setTimeout(() => {
-      router.push('/todo/tasks')
-    }, 500)
-  } catch (error: any) {
-    errorMessage.value =
-      error?.response?.data?.message ||
-      error?.response?.data?.error ||
-      'Task delete failed.'
-    console.warn('[To-Do Edit Task] Failed to delete task.', error)
+    notify('success', 'Task deleted.')
+    confirmDeleteOpen.value = false
+    window.setTimeout(() => router.push('/todo/tasks'), 500)
+  } catch (error) {
+    notify('error', getApiMessage(error, 'Failed delete. Task delete failed.'))
   } finally {
     deleting.value = false
   }
-}
-
-const formatStatus = (value: string): string => {
-  return String(value || '')
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (letter: string) => letter.toUpperCase())
-}
-
-const statusClass = (status: string): string => {
-  const normalized = String(status || '').toLowerCase()
-
-  if (normalized === 'finished' || normalized === 'completed') {
-    return 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-200'
-  }
-
-  if (normalized === 'in_progress') {
-    return 'bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-200'
-  }
-
-  return 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-200'
 }
 
 onMounted(async () => {
   await Promise.all([loadProjects(), loadTask()])
 })
 </script>
+
+<style scoped>
+.todo-page {
+  display: grid;
+  gap: 24px;
+}
+
+.todo-page__header,
+.todo-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.todo-page__header h1,
+.todo-panel__header h2 {
+  margin: 0;
+  color: var(--nix-text, #0f172a);
+  font-weight: 900;
+}
+
+.todo-page__header h1 {
+  margin-top: 8px;
+  font-size: 1.6rem;
+}
+
+.todo-panel__header h2 {
+  font-size: 1.05rem;
+}
+
+.todo-page__header p,
+.todo-panel__header p {
+  margin: 6px 0 0;
+  color: var(--nix-text-muted, #64748b);
+}
+
+.todo-link {
+  color: #0891b2;
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.todo-panel {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+  background: var(--nix-surface, #ffffff);
+  border: 1px solid var(--nix-border, #e2e8f0);
+  border-radius: 20px;
+  box-shadow: var(--nix-shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.05));
+}
+
+.todo-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.todo-field {
+  display: grid;
+  gap: 7px;
+}
+
+.todo-field--full {
+  grid-column: 1 / -1;
+}
+
+.todo-field span {
+  color: var(--nix-text, #0f172a);
+  font-size: 0.86rem;
+  font-weight: 900;
+}
+
+.todo-field small {
+  color: #dc2626;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.todo-control {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  caret-color: #0891b2;
+  background: #ffffff;
+  border: 1px solid var(--nix-border, #e2e8f0);
+  border-radius: 14px;
+  outline: none;
+}
+
+.todo-control--textarea {
+  min-height: 130px;
+  resize: vertical;
+}
+
+.todo-control:focus {
+  border-color: #06b6d4;
+  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.14);
+}
+
+.todo-badge-row,
+.todo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.todo-preview {
+  padding: 16px;
+  background: rgba(148, 163, 184, 0.08);
+  border-radius: 16px;
+}
+
+.todo-preview h3 {
+  margin: 0;
+  color: var(--nix-text, #0f172a);
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.todo-preview p {
+  margin: 6px 0 0;
+  color: var(--nix-text-muted, #64748b);
+}
+
+.todo-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.todo-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+.todo-button--primary {
+  color: #0f172a;
+  background: #06b6d4;
+  border: 1px solid #06b6d4;
+}
+
+.todo-button--secondary {
+  color: var(--nix-text, #0f172a);
+  background: var(--nix-surface, #ffffff);
+  border: 1px solid var(--nix-border, #e2e8f0);
+}
+
+.todo-button--success {
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+}
+
+.todo-button--danger {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+:global(.dark) .todo-control {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  background: #0f172a;
+  border-color: #334155;
+}
+
+:global(.dark) .todo-button--success {
+  color: #bbf7d0;
+  background: rgba(34, 197, 94, 0.14);
+  border-color: rgba(134, 239, 172, 0.22);
+}
+
+:global(.dark) .todo-button--danger {
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.14);
+  border-color: rgba(252, 165, 165, 0.22);
+}
+
+@media (max-width: 700px) {
+  .todo-page__header,
+  .todo-panel__header,
+  .todo-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .todo-actions,
+  .todo-button {
+    width: 100%;
+  }
+}
+</style>

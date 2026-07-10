@@ -464,7 +464,7 @@ const normalizeTask = (task: any, index: number): TodoTask => {
     id: task.id ?? index,
     title: task.title ?? task.name ?? `Task ${index + 1}`,
     status: task.status ?? 'pending',
-    priority: task.priority ?? 'normal',
+    priority: task.priority ?? 'medium',
     type: task.type ?? task.task_type ?? task.schedule_type ?? 'general',
     points: numberValue(task.points),
     projectName: task.projectName ?? task.project_name ?? task.project?.name ?? '',

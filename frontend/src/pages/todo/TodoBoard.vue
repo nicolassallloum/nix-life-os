@@ -2,20 +2,28 @@
   <main class="todo-board-page">
     <header class="todo-board-header">
       <div>
-        <p class="eyebrow">To-Do Module</p>
+        <p class="todo-board-eyebrow">To-Do Module</p>
         <h1>Task Organization</h1>
       </div>
-      <button type="button" class="refresh-btn" :disabled="loading" @click="fetchBoard">
-        {{ loading ? 'Refreshing...' : 'Refresh' }}
+      <button type="button" class="todo-board-button" :disabled="loading || syncing" @click="fetchBoard">
+        {{ loading ? 'Refreshing...' : syncing ? 'Saving...' : 'Refresh' }}
       </button>
     </header>
 
+    <TodoNotification :type="notification.type" :message="notification.message" @dismiss="clearNotification" />
     <TodoPointsSummary :points="pointsSummary" />
+    <TodoLoadingState v-if="loading" message="Loading task board..." />
 
-    <p v-if="error" class="todo-error">{{ error }}</p>
-
-    <section class="todo-sections">
-      <article v-for="section in sectionList" :key="section.type" class="todo-section">
+    <section v-else class="todo-sections">
+      <article
+        v-for="section in sectionList"
+        :key="section.type"
+        class="todo-section"
+        :class="{
+          'todo-section--active': activeDropZone === section.type,
+          'todo-section--saving': syncing && savingSection === section.type,
+        }"
+      >
         <header class="todo-section-header">
           <div>
             <h2>{{ section.label }}</h2>
@@ -23,6 +31,10 @@
           </div>
           <strong>{{ number(pointsFor(section.type)) }} pts</strong>
         </header>
+
+        <div v-if="syncing && savingSection === section.type" class="todo-saving">
+          Saving task order...
+        </div>
 
         <draggable
           v-model="sections[section.type]"
@@ -33,29 +45,21 @@
           ghost-class="task-card--ghost"
           drag-class="task-card--dragging"
           :move="canMoveTask"
+          :disabled="syncing"
+          @start="activeDropZone = section.type"
+          @end="activeDropZone = ''"
           @change="event => onSectionChange(section.type, event)"
         >
           <template #item="{ element }">
-            <div class="task-card">
-              <div class="task-main">
-                <strong>{{ element.title }}</strong>
-                <p v-if="element.description">{{ element.description }}</p>
-              </div>
-
-              <div class="task-meta">
-                <span class="task-pill">{{ readableStatus(element.status) }}</span>
-                <span class="task-pill">{{ readableType(element.task_type) }}</span>
-                <span v-if="element.due_date" class="task-pill">Due {{ element.due_date }}</span>
-                <span v-if="element.project_name" class="task-pill">{{ element.project_name }}</span>
-                <span class="task-points">{{ number(element.points) }} pts</span>
-              </div>
-            </div>
+            <TodoTaskCard :task="normalizeBoardTask(element)" :show-actions="false" dragging />
           </template>
 
           <template #footer>
-            <div v-if="!sections[section.type].length" class="empty-dropzone">
-              Drop tasks here
-            </div>
+            <TodoEmptyState
+              v-if="!sections[section.type].length"
+              :title="emptyTitle(section.type)"
+              message="Drop tasks here."
+            />
           </template>
         </draggable>
       </article>
@@ -66,7 +70,18 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import draggable from 'vuedraggable'
+import TodoEmptyState from '@/components/todo/TodoEmptyState.vue'
+import TodoLoadingState from '@/components/todo/TodoLoadingState.vue'
+import TodoNotification from '@/components/todo/TodoNotification.vue'
 import TodoPointsSummary from '@/components/todo/TodoPointsSummary.vue'
+import TodoTaskCard from '@/components/todo/TodoTaskCard.vue'
+import {
+  getApiMessage,
+  normalizeTaskPriority,
+  normalizeTaskStatus,
+  normalizeTaskType,
+  numberValue,
+} from '@/components/todo/todoUtils'
 import api from '@/services/api'
 
 const sectionList = [
@@ -94,8 +109,23 @@ const pointsSummary = ref({
 
 const loading = ref(false)
 const syncing = ref(false)
-const error = ref('')
+const savingSection = ref('')
+const activeDropZone = ref('')
+const notification = reactive({ type: 'info', message: '' })
 let lastGoodState = null
+
+const clearNotification = () => {
+  notification.message = ''
+}
+
+const notify = (type, message) => {
+  notification.type = type
+  notification.message = message
+
+  if (type === 'success') {
+    window.setTimeout(clearNotification, 2600)
+  }
+}
 
 const cloneState = () => JSON.parse(JSON.stringify({ sections, pointsSummary: pointsSummary.value }))
 
@@ -107,24 +137,41 @@ const restoreState = state => {
   pointsSummary.value = state.pointsSummary || pointsSummary.value
 }
 
+const normalizeBoardTask = task => ({
+  id: task.id,
+  title: task.title || task.name || 'Untitled task',
+  description: task.description || '',
+  task_type: normalizeTaskType(task.task_type || task.type),
+  status: normalizeTaskStatus(task.status),
+  priority: normalizeTaskPriority(task.priority),
+  points: numberValue(task.points),
+  due_date: task.due_date || task.dueDate || '',
+  projectName: task.project_name || task.projectName || task.project?.name || '',
+})
+
 const applyPayload = payload => {
-  const grouped = payload.tasks || payload.grouped_tasks || {}
+  const data = payload?.data || payload || {}
+  const grouped = data.tasks || data.grouped_tasks || data
+
   for (const section of sectionList) {
-    sections[section.type] = grouped[section.type] || []
+    sections[section.type] = Array.isArray(grouped[section.type])
+      ? grouped[section.type].map(normalizeBoardTask)
+      : []
   }
-  pointsSummary.value = payload.points_summary || payload.pointsSummary || pointsSummary.value
+
+  pointsSummary.value = data.points_summary || data.pointsSummary || pointsSummary.value
   lastGoodState = cloneState()
 }
 
 const fetchBoard = async () => {
   loading.value = true
-  error.value = ''
+  clearNotification()
 
   try {
     const { data } = await api.get('/todo/tasks/grouped')
     applyPayload(data)
   } catch (exception) {
-    error.value = exception?.response?.data?.message || 'Unable to load tasks.'
+    notify('error', getApiMessage(exception, 'Network error. Unable to load tasks.'))
   } finally {
     loading.value = false
   }
@@ -139,39 +186,43 @@ const onSectionChange = async (targetType, event) => {
   if (!addedTask && !movedTask) return
 
   syncing.value = true
-  error.value = ''
+  savingSection.value = targetType
+  clearNotification()
 
   try {
     if (addedTask) {
-      const { data } = await api.patch(`/todo/tasks/${addedTask.id}/move`, {
+      await api.patch(`/todo/tasks/${addedTask.id}/move`, {
         task_type: targetType,
         sort_order: event.added.newIndex,
       })
-      applyPayload(data)
-      return
-    }
-
-    if (movedTask) {
-      const { data } = await api.patch('/todo/tasks/reorder', {
-        task_type: targetType,
+      notify('success', 'Task moved.')
+    } else if (movedTask) {
+      await api.patch('/todo/tasks/reorder', {
         tasks: sections[targetType].map((task, index) => ({
           id: task.id,
           sort_order: index,
         })),
       })
-      applyPayload(data)
+      notify('success', 'Task reordered.')
     }
+
+    lastGoodState = cloneState()
   } catch (exception) {
     restoreState(lastGoodState)
-    error.value = exception?.response?.data?.message || 'Unable to save task movement.'
+    notify('error', getApiMessage(exception, 'Failed drag-and-drop save. Previous task order was restored.'))
   } finally {
     syncing.value = false
+    savingSection.value = ''
   }
 }
 
 const canMoveTask = event => {
+  if (syncing.value) return false
+
   const from = event.from?.dataset?.section
   const to = event.to?.dataset?.section
+
+  activeDropZone.value = to || ''
 
   if (!from || !to) return false
   if (from === to) return true
@@ -187,10 +238,16 @@ const canMoveTask = event => {
   return allowed[from]?.includes(to) || false
 }
 
+const emptyTitle = type => {
+  if (type === 'monthly') return 'No monthly tasks'
+  if (type === 'weekly') return 'No weekly tasks'
+  if (type === 'daily') return 'No daily tasks'
+
+  return 'No tasks'
+}
+
 const pointsFor = type => pointsSummary.value?.[`${type}_points`] || 0
 const number = value => new Intl.NumberFormat().format(Number(value || 0))
-const readableType = type => `${type || 'general'}`.replace('_', ' ')
-const readableStatus = status => `${status || 'pending'}`.replace('_', ' ')
 
 onMounted(fetchBoard)
 </script>
@@ -198,72 +255,106 @@ onMounted(fetchBoard)
 <style scoped>
 .todo-board-page {
   display: grid;
-  gap: 1.25rem;
+  gap: 20px;
 }
 
 .todo-board-header,
-.todo-section-header,
-.task-meta {
+.todo-section-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 16px;
 }
 
-.eyebrow {
-  margin: 0 0 0.25rem;
+.todo-board-eyebrow {
+  margin: 0 0 4px;
+  color: var(--nix-text-muted, #64748b);
   font-size: 0.78rem;
+  font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  opacity: 0.7;
 }
 
-.refresh-btn {
-  border: 0;
-  border-radius: 999px;
-  padding: 0.65rem 1rem;
-  cursor: pointer;
+.todo-board-header h1 {
+  margin: 0;
+  color: var(--nix-text, #0f172a);
+  font-size: 1.6rem;
+  font-weight: 900;
+}
+
+.todo-board-button {
+  min-height: 42px;
+  padding: 10px 16px;
+  color: #0f172a;
+  background: #06b6d4;
+  border: 1px solid #06b6d4;
+  border-radius: 14px;
+  font-weight: 900;
+}
+
+.todo-board-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
 }
 
 .todo-sections {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(4, minmax(240px, 1fr));
+  gap: 16px;
 }
 
 .todo-section {
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  border-radius: 20px;
-  padding: 1rem;
+  display: grid;
+  align-content: start;
+  gap: 12px;
   min-height: 360px;
-  background: rgba(15, 23, 42, 0.06);
+  padding: 16px;
+  background: var(--nix-surface, #ffffff);
+  border: 1px solid var(--nix-border, #e2e8f0);
+  border-radius: 20px;
+  box-shadow: var(--nix-shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.05));
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
-.todo-section-header {
-  margin-bottom: 0.75rem;
+.todo-section--active {
+  border-color: #06b6d4;
+  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.14);
+}
+
+.todo-section--saving {
+  opacity: 0.78;
 }
 
 .todo-section-header h2 {
   margin: 0;
+  color: var(--nix-text, #0f172a);
   font-size: 1rem;
+  font-weight: 900;
+}
+
+.todo-section-header span,
+.todo-section-header strong {
+  color: var(--nix-text-muted, #64748b);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.todo-saving {
+  padding: 10px 12px;
+  color: #155e75;
+  background: #ecfeff;
+  border-radius: 12px;
+  font-size: 0.86rem;
+  font-weight: 900;
 }
 
 .task-dropzone {
   display: grid;
-  gap: 0.75rem;
+  align-content: start;
+  gap: 12px;
   min-height: 260px;
-}
-
-.task-card,
-.empty-dropzone {
-  border: 1px solid rgba(148, 163, 184, 0.25);
-  border-radius: 16px;
-  padding: 0.85rem;
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.task-card {
-  cursor: grab;
 }
 
 .task-card--ghost {
@@ -274,40 +365,29 @@ onMounted(fetchBoard)
   cursor: grabbing;
 }
 
-.task-main p {
-  margin: 0.35rem 0 0;
-  opacity: 0.8;
+:global(.dark) .todo-saving {
+  color: #a5f3fc;
+  background: rgba(6, 182, 212, 0.14);
 }
 
-.task-meta {
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  margin-top: 0.75rem;
+@media (max-width: 1280px) {
+  .todo-sections {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-.task-pill,
-.task-points {
-  border-radius: 999px;
-  padding: 0.25rem 0.55rem;
-  background: rgba(148, 163, 184, 0.16);
-  font-size: 0.76rem;
-}
+@media (max-width: 760px) {
+  .todo-board-header,
+  .todo-section-header {
+    display: grid;
+  }
 
-.task-points {
-  font-weight: 700;
-}
+  .todo-sections {
+    grid-template-columns: 1fr;
+  }
 
-.empty-dropzone {
-  display: grid;
-  place-items: center;
-  min-height: 96px;
-  border-style: dashed;
-  opacity: 0.7;
-}
-
-.todo-error {
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  background: rgba(239, 68, 68, 0.12);
+  .todo-board-button {
+    width: 100%;
+  }
 }
 </style>

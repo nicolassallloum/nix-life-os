@@ -1,194 +1,111 @@
-cd /u01/nix-life-os/frontend
-cat > src/views/todo/TodoDashboardView.vue <<'EOF'
 <template>
-  <div class="space-y-6">
-    <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+  <div class="todo-page">
+    <div class="todo-page__header">
       <div>
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-          To-Do Dashboard
-        </h1>
-        <p class="text-gray-600 dark:text-gray-300">
-          Track task progress, project completion, schedules, and total points.
-        </p>
+        <h1>To-Do Dashboard</h1>
+        <p>Track task progress, project completion, schedules, and total points.</p>
       </div>
 
-      <RouterLink
-        to="/todo/tasks/create"
-        class="inline-flex items-center justify-center rounded-xl bg-cyan-500 px-4 py-2 text-sm font-bold text-slate-950 transition hover:bg-cyan-400"
-      >
-        + Create Task
+      <RouterLink to="/todo/tasks/create" class="todo-button todo-button--primary">
+        Create Task
       </RouterLink>
     </div>
 
-    <div
-      v-if="errorMessage"
-      class="rounded-xl border border-amber-300/40 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-400/20 dark:bg-amber-500/10 dark:text-amber-200"
-    >
-      {{ errorMessage }}
-    </div>
+    <TodoNotification :type="notification.type" :message="notification.message" @dismiss="clearNotification" />
 
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <section
-        v-for="card in dashboardCards"
-        :key="card.label"
-        class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
-      >
-        <div class="flex items-start justify-between gap-3">
-          <div>
-            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
-              {{ card.label }}
-            </p>
-            <p class="mt-2 text-2xl font-black text-gray-900 dark:text-white">
-              {{ card.value }}
-            </p>
-          </div>
+    <TodoLoadingState v-if="loading" message="Loading dashboard..." />
 
-          <span class="rounded-xl bg-cyan-50 px-3 py-2 text-xl dark:bg-cyan-500/10">
-            {{ card.icon }}
-          </span>
-        </div>
-      </section>
-    </div>
-
-    <section class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-      <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-            Completion Progress
-          </h2>
-          <p class="text-sm text-gray-600 dark:text-gray-300">
-            Finished tasks compared to total tasks.
-          </p>
-        </div>
-
-        <p class="text-2xl font-black text-cyan-600 dark:text-cyan-300">
-          {{ completionPercentage }}%
-        </p>
-      </div>
-
-      <div class="mt-4 h-4 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
-        <div
-          class="h-full rounded-full bg-cyan-500 transition-all"
-          :style="{ width: `${completionPercentage}%` }"
-        />
-      </div>
-
-      <div class="mt-3 flex flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-300">
-        <span>Finished: {{ stats.finishedTasks }}</span>
-        <span>Pending: {{ stats.pendingTasks }}</span>
-        <span>In Progress: {{ stats.inProgressTasks }}</span>
-      </div>
-    </section>
-
-    <div class="grid grid-cols-1 gap-4 xl:grid-cols-3">
-      <section class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800 xl:col-span-2">
-        <div class="flex items-center justify-between gap-3">
-          <div>
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-              Project Progress Summary
-            </h2>
-            <p class="text-sm text-gray-600 dark:text-gray-300">
-              Active and completed project progress.
-            </p>
-          </div>
-
-          <RouterLink
-            to="/todo/projects"
-            class="text-sm font-bold text-cyan-600 hover:text-cyan-500 dark:text-cyan-300"
-          >
-            View projects
-          </RouterLink>
-        </div>
-
-        <div v-if="loading" class="mt-5 text-sm text-gray-600 dark:text-gray-300">
-          Loading project summary...
-        </div>
-
-        <div v-else-if="projectSummaries.length === 0" class="mt-5 rounded-xl border border-dashed border-gray-300 p-5 text-sm text-gray-600 dark:border-gray-600 dark:text-gray-300">
-          No project progress data found yet.
-        </div>
-
-        <div v-else class="mt-5 space-y-4">
-          <article
-            v-for="project in projectSummaries"
-            :key="project.id"
-            class="rounded-xl border border-gray-100 p-4 dark:border-gray-700"
-          >
-            <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-              <div>
-                <h3 class="font-bold text-gray-900 dark:text-white">
-                  {{ project.name }}
-                </h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                  {{ project.finishedTasks }} / {{ project.totalTasks }} tasks finished · {{ project.points }} points
-                </p>
-              </div>
-
-              <RouterLink
-                :to="`/todo/projects/${project.id}`"
-                class="text-sm font-bold text-cyan-600 hover:text-cyan-500 dark:text-cyan-300"
-              >
-                Details
-              </RouterLink>
-            </div>
-
-            <div class="mt-3 h-3 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-700">
-              <div
-                class="h-full rounded-full bg-cyan-500"
-                :style="{ width: `${project.completionPercentage}%` }"
-              />
-            </div>
-
-            <p class="mt-2 text-right text-xs font-bold text-gray-500 dark:text-gray-400">
-              {{ project.completionPercentage }}%
-            </p>
+    <template v-else>
+      <section class="todo-panel">
+        <div class="todo-summary-grid">
+          <article v-for="card in dashboardCards" :key="card.label" class="todo-summary-card">
+            <span>{{ card.label }}</span>
+            <strong>{{ card.value }}</strong>
           </article>
         </div>
+
+        <TodoProgressBar
+          :value="completionPercentage"
+          label="Overall task completion"
+          :meta="`${stats.finishedTasks} of ${stats.totalTasks} tasks finished`"
+        />
       </section>
 
-      <section class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <h2 class="text-lg font-bold text-gray-900 dark:text-white">
-          Points Summary
-        </h2>
-        <p class="text-sm text-gray-600 dark:text-gray-300">
-          Points earned from completed tasks.
-        </p>
+      <div class="todo-dashboard-grid">
+        <section class="todo-panel">
+          <div class="todo-panel__header">
+            <div>
+              <h2>Project Progress Summary</h2>
+              <p>Active and completed project progress.</p>
+            </div>
 
-        <div class="mt-5 rounded-2xl bg-cyan-50 p-5 dark:bg-cyan-500/10">
-          <p class="text-sm font-medium text-cyan-700 dark:text-cyan-200">
-            Total Points
-          </p>
-          <p class="mt-2 text-4xl font-black text-cyan-700 dark:text-cyan-200">
-            {{ stats.totalPoints }}
-          </p>
-        </div>
+            <RouterLink to="/todo/projects" class="todo-link">View projects</RouterLink>
+          </div>
 
-        <div class="mt-5 space-y-3 text-sm text-gray-600 dark:text-gray-300">
-          <div class="flex justify-between gap-3">
-            <span>Monthly Tasks</span>
-            <strong class="text-gray-900 dark:text-white">{{ stats.monthlyTasks }}</strong>
+          <TodoEmptyState
+            v-if="projectSummaries.length === 0"
+            title="No projects"
+            message="No project progress data found yet."
+          />
+
+          <div v-else class="todo-project-list">
+            <TodoProjectCard
+              v-for="project in projectSummaries"
+              :key="project.id"
+              :project="project"
+              :show-actions="false"
+            />
           </div>
-          <div class="flex justify-between gap-3">
-            <span>Weekly Tasks</span>
-            <strong class="text-gray-900 dark:text-white">{{ stats.weeklyTasks }}</strong>
+        </section>
+
+        <section class="todo-panel">
+          <div class="todo-panel__header">
+            <div>
+              <h2>Points Summary</h2>
+              <p>Points earned from completed tasks.</p>
+            </div>
           </div>
-          <div class="flex justify-between gap-3">
-            <span>Daily Tasks</span>
-            <strong class="text-gray-900 dark:text-white">{{ stats.dailyTasks }}</strong>
+
+          <div class="todo-points-card">
+            <span>Total Points</span>
+            <strong>{{ stats.totalPoints }}</strong>
           </div>
-          <div class="flex justify-between gap-3">
-            <span>General Tasks</span>
-            <strong class="text-gray-900 dark:text-white">{{ stats.generalTasks }}</strong>
+
+          <TodoProgressBar
+            :value="pointsProgress"
+            label="Points pace"
+            :meta="`${stats.totalPoints} earned points`"
+            tone="success"
+          />
+
+          <div class="todo-points-list">
+            <div><span>Monthly Tasks</span><strong>{{ stats.monthlyTasks }}</strong></div>
+            <div><span>Weekly Tasks</span><strong>{{ stats.weeklyTasks }}</strong></div>
+            <div><span>Daily Tasks</span><strong>{{ stats.dailyTasks }}</strong></div>
+            <div><span>General Tasks</span><strong>{{ stats.generalTasks }}</strong></div>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import api from '@/services/api'
+import TodoEmptyState from '@/components/todo/TodoEmptyState.vue'
+import TodoLoadingState from '@/components/todo/TodoLoadingState.vue'
+import TodoNotification from '@/components/todo/TodoNotification.vue'
+import TodoProgressBar from '@/components/todo/TodoProgressBar.vue'
+import TodoProjectCard from '@/components/todo/TodoProjectCard.vue'
+import {
+  clampPercentage,
+  getApiMessage,
+  normalizeProjectStatus,
+  numberValue,
+  type TodoProjectLike,
+} from '@/components/todo/todoUtils'
 
 type TodoDashboardStats = {
   totalTasks: number
@@ -205,18 +122,12 @@ type TodoDashboardStats = {
   completedProjects: number
 }
 
-type ProjectSummary = {
-  id: number | string
-  name: string
-  totalTasks: number
-  finishedTasks: number
-  completionPercentage: number
-  points: number
-}
-
 const loading = ref(false)
-const errorMessage = ref('')
 const rawDashboard = ref<Record<string, any> | null>(null)
+const notification = reactive<{ type: 'success' | 'error' | 'info'; message: string }>({
+  type: 'info',
+  message: '',
+})
 
 const defaultStats: TodoDashboardStats = {
   totalTasks: 0,
@@ -233,38 +144,34 @@ const defaultStats: TodoDashboardStats = {
   completedProjects: 0,
 }
 
-const numberValue = (value: unknown): number => {
-  const parsed = Number(value)
+const notify = (type: 'success' | 'error' | 'info', message: string) => {
+  notification.type = type
+  notification.message = message
+}
 
-  return Number.isFinite(parsed) ? parsed : 0
+const clearNotification = () => {
+  notification.message = ''
 }
 
 const dashboardPayload = computed(() => {
   const payload = rawDashboard.value
 
-  if (!payload) {
-    return {}
-  }
-
-  return payload.data || payload.dashboard || payload.summary || payload
+  return payload?.data || payload?.dashboard || payload?.summary || payload || {}
 })
 
 const stats = computed<TodoDashboardStats>(() => {
   const payload: any = dashboardPayload.value
   const source = payload.stats || payload.summary || payload
-
   const totalTasks = numberValue(source.totalTasks ?? source.total_tasks)
   const finishedTasks = numberValue(source.finishedTasks ?? source.finished_tasks ?? source.completedTasks ?? source.completed_tasks)
-  const pendingTasks = numberValue(source.pendingTasks ?? source.pending_tasks)
-  const inProgressTasks = numberValue(source.inProgressTasks ?? source.in_progress_tasks)
-  const calculatedPercentage = totalTasks > 0 ? Math.round((finishedTasks / totalTasks) * 100) : 0
+  const calculatedPercentage = totalTasks > 0 ? (finishedTasks / totalTasks) * 100 : 0
 
   return {
     totalTasks,
     finishedTasks,
-    pendingTasks,
-    inProgressTasks,
-    completionPercentage: numberValue(source.completionPercentage ?? source.completion_percentage) || calculatedPercentage,
+    pendingTasks: numberValue(source.pendingTasks ?? source.pending_tasks),
+    inProgressTasks: numberValue(source.inProgressTasks ?? source.in_progress_tasks),
+    completionPercentage: clampPercentage(source.completionPercentage ?? source.completion_percentage ?? calculatedPercentage),
     totalPoints: numberValue(source.totalPoints ?? source.total_points ?? source.points),
     monthlyTasks: numberValue(source.monthlyTasks ?? source.monthly_tasks),
     weeklyTasks: numberValue(source.weeklyTasks ?? source.weekly_tasks),
@@ -275,50 +182,39 @@ const stats = computed<TodoDashboardStats>(() => {
   }
 })
 
-const completionPercentage = computed(() => {
-  return Math.min(100, Math.max(0, Math.round(stats.value.completionPercentage)))
-})
+const completionPercentage = computed(() => clampPercentage(stats.value.completionPercentage))
+const pointsProgress = computed(() => clampPercentage(Math.min(stats.value.totalPoints, 100)))
 
 const dashboardCards = computed(() => [
-  { label: 'Total Tasks', value: stats.value.totalTasks, icon: '📋' },
-  { label: 'Finished Tasks', value: stats.value.finishedTasks, icon: '✅' },
-  { label: 'Pending Tasks', value: stats.value.pendingTasks, icon: '⏳' },
-  { label: 'In-progress Tasks', value: stats.value.inProgressTasks, icon: '🔄' },
-  { label: 'Completion %', value: `${completionPercentage.value}%`, icon: '📊' },
-  { label: 'Total Points', value: stats.value.totalPoints, icon: '⭐' },
-  { label: 'Monthly Tasks', value: stats.value.monthlyTasks, icon: '🗓️' },
-  { label: 'Weekly Tasks', value: stats.value.weeklyTasks, icon: '📆' },
-  { label: 'Daily Tasks', value: stats.value.dailyTasks, icon: '☀️' },
-  { label: 'General Tasks', value: stats.value.generalTasks, icon: '📝' },
-  { label: 'Active Projects', value: stats.value.activeProjects, icon: '📌' },
-  { label: 'Completed Projects', value: stats.value.completedProjects, icon: '🏁' },
+  { label: 'Total Tasks', value: stats.value.totalTasks },
+  { label: 'Finished Tasks', value: stats.value.finishedTasks },
+  { label: 'Pending Tasks', value: stats.value.pendingTasks },
+  { label: 'In Progress', value: stats.value.inProgressTasks },
+  { label: 'Completion', value: `${completionPercentage.value}%` },
+  { label: 'Total Points', value: stats.value.totalPoints },
+  { label: 'Active Projects', value: stats.value.activeProjects },
+  { label: 'Completed Projects', value: stats.value.completedProjects },
 ])
 
-const projectSummaries = computed<ProjectSummary[]>(() => {
+const projectSummaries = computed<TodoProjectLike[]>(() => {
   const payload: any = dashboardPayload.value
   const projects = payload.projects || payload.projectProgress || payload.project_progress || payload.project_summaries || []
 
-  if (!Array.isArray(projects)) {
-    return []
-  }
+  if (!Array.isArray(projects)) return []
 
   return projects.map((project: any, index: number) => {
     const totalTasks = numberValue(project.totalTasks ?? project.total_tasks)
     const finishedTasks = numberValue(project.finishedTasks ?? project.finished_tasks ?? project.completedTasks ?? project.completed_tasks)
-    const calculatedPercentage = totalTasks > 0 ? Math.round((finishedTasks / totalTasks) * 100) : 0
+    const calculated = totalTasks > 0 ? (finishedTasks / totalTasks) * 100 : 0
 
     return {
       id: project.id ?? index,
       name: project.name ?? project.title ?? `Project ${index + 1}`,
+      description: project.description ?? '',
+      status: normalizeProjectStatus(project.status),
       totalTasks,
       finishedTasks,
-      completionPercentage: Math.min(
-        100,
-        Math.max(
-          0,
-          numberValue(project.completionPercentage ?? project.completion_percentage) || calculatedPercentage,
-        ),
-      ),
+      completionPercentage: clampPercentage(project.completionPercentage ?? project.completion_percentage ?? calculated),
       points: numberValue(project.points ?? project.totalPoints ?? project.total_points),
     }
   })
@@ -326,21 +222,14 @@ const projectSummaries = computed<ProjectSummary[]>(() => {
 
 const loadDashboard = async () => {
   loading.value = true
-  errorMessage.value = ''
+  clearNotification()
 
   try {
     const response = await api.get('/todo/dashboard')
     rawDashboard.value = response.data
   } catch (error) {
-    rawDashboard.value = {
-      data: {
-        stats: defaultStats,
-        projects: [],
-      },
-    }
-
-    errorMessage.value = 'Dashboard API is not available yet. Showing empty To-Do dashboard structure.'
-    console.warn('[To-Do Dashboard] Failed to load dashboard summary.', error)
+    rawDashboard.value = { data: { stats: defaultStats, projects: [] } }
+    notify('error', getApiMessage(error, 'API failure. Failed to load dashboard.'))
   } finally {
     loading.value = false
   }
@@ -348,4 +237,158 @@ const loadDashboard = async () => {
 
 onMounted(loadDashboard)
 </script>
-EOF
+
+<style scoped>
+.todo-page {
+  display: grid;
+  gap: 24px;
+}
+
+.todo-page__header,
+.todo-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.todo-page__header h1,
+.todo-panel__header h2 {
+  margin: 0;
+  color: var(--nix-text, #0f172a);
+  font-weight: 900;
+}
+
+.todo-page__header h1 {
+  font-size: 1.6rem;
+}
+
+.todo-panel__header h2 {
+  font-size: 1.05rem;
+}
+
+.todo-page__header p,
+.todo-panel__header p {
+  margin: 6px 0 0;
+  color: var(--nix-text-muted, #64748b);
+}
+
+.todo-panel {
+  display: grid;
+  gap: 18px;
+  padding: 20px;
+  background: var(--nix-surface, #ffffff);
+  border: 1px solid var(--nix-border, #e2e8f0);
+  border-radius: 20px;
+  box-shadow: var(--nix-shadow-sm, 0 1px 2px rgba(15, 23, 42, 0.05));
+}
+
+.todo-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.todo-summary-card,
+.todo-points-card {
+  min-width: 0;
+  padding: 14px;
+  background: rgba(148, 163, 184, 0.08);
+  border-radius: 16px;
+}
+
+.todo-summary-card span,
+.todo-points-card span,
+.todo-points-list span {
+  display: block;
+  color: var(--nix-text-muted, #64748b);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.todo-summary-card strong,
+.todo-points-card strong,
+.todo-points-list strong {
+  display: block;
+  margin-top: 6px;
+  color: var(--nix-text, #0f172a);
+  font-weight: 900;
+}
+
+.todo-summary-card strong {
+  font-size: 1.3rem;
+}
+
+.todo-points-card strong {
+  font-size: 2.2rem;
+}
+
+.todo-dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 18px;
+}
+
+.todo-project-list,
+.todo-points-list {
+  display: grid;
+  gap: 12px;
+}
+
+.todo-points-list div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.todo-link {
+  color: #0891b2;
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.todo-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.todo-button--primary {
+  color: #0f172a;
+  background: #06b6d4;
+  border: 1px solid #06b6d4;
+}
+
+@media (max-width: 1100px) {
+  .todo-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .todo-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .todo-page__header,
+  .todo-panel__header {
+    display: grid;
+  }
+
+  .todo-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .todo-button {
+    width: 100%;
+  }
+}
+</style>
