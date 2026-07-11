@@ -146,8 +146,7 @@ class HealthModuleApiTest extends TestCase
         $this->getJson('/api/v1/health/reports/daily?date=2026-07-11')
             ->assertOk()->assertJsonPath('success', true);
 
-        auth()->forgetGuards();
-        $this->app['auth']->guard()->logout();
+        $this->app['auth']->forgetGuards();
         $this->getJson('/api/v1/health/dashboard')->assertUnauthorized();
     }
 }

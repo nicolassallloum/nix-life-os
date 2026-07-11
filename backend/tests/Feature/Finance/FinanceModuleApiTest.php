@@ -34,7 +34,7 @@ class FinanceModuleApiTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.account_name', 'Main Wallet')
             ->assertJsonPath('data.currency_code', 'LBP')
-            ->assertJsonPath('data.current_balance', 100000);
+            ->assertJsonPath('data.current_balance', '100000.00');
 
         $id = $create->json('data.id');
 
@@ -105,25 +105,25 @@ class FinanceModuleApiTest extends TestCase
         $this->getJson('/api/v1/finance/dashboard')
             ->assertOk()
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.total_income', 500)
-            ->assertJsonPath('data.total_expenses', 125)
-            ->assertJsonPath('data.total_transfers', 100)
+            ->assertJsonPath('data.total_income', '500.00')
+            ->assertJsonPath('data.total_expenses', '125.00')
+            ->assertJsonPath('data.total_transfers', '100.00')
             ->assertJsonPath('data.transaction_count', 3);
 
         $this->getJson("/api/v1/finance/accounts/{$source}")
-            ->assertOk()->assertJsonPath('data.current_balance', 1275);
+            ->assertOk()->assertJsonPath('data.current_balance', '1275.00');
         $this->getJson("/api/v1/finance/accounts/{$destination}")
-            ->assertOk()->assertJsonPath('data.current_balance', 300);
+            ->assertOk()->assertJsonPath('data.current_balance', '300.00');
 
         $expenseId = $expense->json('data.id');
         $this->patchJson("/api/v1/finance/transactions/{$expenseId}", ['amount' => 200])
-            ->assertOk()->assertJsonPath('data.amount', 200);
+            ->assertOk()->assertJsonPath('data.amount', '200.00');
         $this->getJson("/api/v1/finance/accounts/{$source}")
-            ->assertJsonPath('data.current_balance', 1200);
+            ->assertJsonPath('data.current_balance', '1200.00');
 
         $this->deleteJson("/api/v1/finance/transactions/{$expenseId}")->assertOk();
         $this->getJson("/api/v1/finance/accounts/{$source}")
-            ->assertJsonPath('data.current_balance', 1400);
+            ->assertJsonPath('data.current_balance', '1400.00');
     }
 
     public function test_category_crud_validation_and_authentication(): void
@@ -151,8 +151,7 @@ class FinanceModuleApiTest extends TestCase
 
         $this->deleteJson("/api/v1/finance/categories/{$id}")->assertOk();
 
-        auth()->forgetGuards();
-        $this->app['auth']->guard()->logout();
+        $this->app['auth']->forgetGuards();
         $this->getJson('/api/v1/finance/accounts')->assertUnauthorized();
     }
 }
