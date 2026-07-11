@@ -128,7 +128,7 @@ async function refreshTasks() {
 }
 
 async function loadProjectTasks(projectId: number) {
-  const response = await projectTaskService.listByProject(projectId)
+  await projectTaskService.listByProject(projectId)
 }
 
 onMounted(async () => {
