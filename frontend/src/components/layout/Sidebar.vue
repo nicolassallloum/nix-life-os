@@ -184,16 +184,16 @@ const lifeMenu = [
     path: '/todo',
     icon: '✅',
   },
-  {
-    label: 'Projects',
-    path: '/projects',
-    icon: '📁',
-  },
-  {
-    label: 'Productivity',
-    path: '/productivity',
-    icon: '✅',
-  },
+  // {
+  //   label: 'Projects',
+  //   path: '/projects',
+  //   icon: '📁',
+  // },
+  // {
+  //   label: 'Productivity',
+  //   path: '/productivity',
+  //   icon: '✅',
+  // },
 ]
 
 const managementMenu = [

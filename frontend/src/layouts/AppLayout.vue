@@ -55,22 +55,6 @@ const menuGroups = computed(() => [
     ],
   },
   {
-    label: 'Projects',
-    items: [
-      { label: 'Projects', icon: '📁', to: '/projects', exact: true, match: ['/projects'] },
-      { label: 'Tasks', icon: '🧩', to: '/projects/tasks', match: ['/projects/tasks'] },
-      { label: 'Goals', icon: '🎯', to: '/projects/goals', match: ['/projects/goals'] },
-    ],
-  },
-  {
-    label: 'Productivity',
-    items: [
-      { label: 'Dashboard', icon: '✅', to: '/productivity', exact: true, match: ['/productivity'] },
-      { label: 'Goals', icon: '🎯', to: '/productivity/goals', match: ['/productivity/goals'] },
-      { label: 'Happy Wins', icon: '🏆', to: '/productivity/happy-wins', match: ['/productivity/happy-wins'] },
-    ],
-  },
-  {
     label: 'Admin',
     show: canViewAdmin.value,
     items: [

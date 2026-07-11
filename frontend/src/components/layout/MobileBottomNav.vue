@@ -34,11 +34,11 @@ const navItems = [
     path: '/health',
     icon: '❤️',
   },
-  {
-    label: 'Projects',
-    path: '/projects',
-    icon: '📁',
-  },
+  // {
+  //   label: 'Projects',
+  //   path: '/projects',
+  //   icon: '📁',
+  // },
   {
     label: 'To-Do',
     path: '/todo',
