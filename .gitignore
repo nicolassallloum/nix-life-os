@@ -67,3 +67,11 @@ NixLifeOS_Architecture_Export/
 NixLifeOS_Architecture_Export.zip
 backups/
 *.bundle7-backup
+
+# Local editor and manual backup files
+*.bak
+*.bak_*
+*.backup
+*.orig
+*.rej
+*~

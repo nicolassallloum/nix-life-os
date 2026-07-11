@@ -4,7 +4,10 @@ import axios from "axios";
 
 const API_BASE_URL = "/api/v1";
 
-const token = localStorage.getItem("token") || "10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108";
+const token =
+  localStorage.getItem("auth_token") ||
+  localStorage.getItem("token") ||
+  localStorage.getItem("access_token");
 
 const selectedDate = ref(new Date().toISOString().slice(0, 10));
 const loading = ref(false);

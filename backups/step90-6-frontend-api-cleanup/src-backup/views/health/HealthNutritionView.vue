@@ -4,7 +4,7 @@ import axios from "axios";
 
 const API_BASE_URL = "http://127.0.0.1:8000/api/v1";
 
-const token = localStorage.getItem("token") || "10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108";
+const token = localStorage.getItem("token") || "REDACTED_TOKEN";
 
 const selectedDate = ref("2026-04-26");
 const loading = ref(false);

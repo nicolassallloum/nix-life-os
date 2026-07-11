@@ -944,7 +944,7 @@ Create CKD Nutrition Profile
 curl -X POST http://127.0.0.1:8000/api/v1/health/nutrition/profile \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108" \
+  -H "Authorization: Bearer REDACTED_TOKEN" \
   -d '{
     "profile_name": "CKD Stage 4 Nutrition Profile",
     "daily_calories_min": 1600,
@@ -962,7 +962,7 @@ Add Food Item
 curl -X POST http://127.0.0.1:8000/api/v1/health/nutrition/foods \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108" \
+  -H "Authorization: Bearer REDACTED_TOKEN" \
   -d '{
     "food_name": "Cooked White Rice",
     "category": "Carbohydrates",
@@ -979,7 +979,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/health/nutrition/foods \
 List Foods
 curl http://127.0.0.1:8000/api/v1/health/nutrition/foods \
   -H "Accept: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+  -H "Authorization: Bearer REDACTED_TOKEN"
 Log Meal
 
 Replace FOOD_UUID_HERE with the food ID from the previous response.
@@ -987,7 +987,7 @@ Replace FOOD_UUID_HERE with the food ID from the previous response.
 curl -X POST http://127.0.0.1:8000/api/v1/health/nutrition/meals \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108" \
+  -H "Authorization: Bearer REDACTED_TOKEN" \
   -d '{
     "meal_date": "2026-04-26",
     "meal_type": "lunch",
@@ -1003,7 +1003,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/health/nutrition/meals \
 Daily Summary
 curl "http://127.0.0.1:8000/api/v1/health/nutrition/summary/daily?date=2026-04-26" \
   -H "Accept: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+  -H "Authorization: Bearer REDACTED_TOKEN"
 
 Expected response structure:
 

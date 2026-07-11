@@ -443,7 +443,7 @@ Create weight log
 curl -X POST http://127.0.0.1:8000/api/v1/health/weight \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108" \
+  -H "Authorization: Bearer REDACTED_TOKEN" \
   -d '{
     "log_date": "2026-04-26",
     "weight_kg": 64.00,
@@ -456,12 +456,12 @@ curl -X POST http://127.0.0.1:8000/api/v1/health/weight \
 
 curl http://127.0.0.1:8000/api/v1/health/weight/summary \
   -H "Accept: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+  -H "Authorization: Bearer REDACTED_TOKEN"
 Add more test logs
 curl -X POST http://127.0.0.1:8000/api/v1/health/weight \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108" \
+  -H "Authorization: Bearer REDACTED_TOKEN" \
   -d '{
     "log_date": "2026-04-20",
     "weight_kg": 65.20,
@@ -471,7 +471,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/health/weight \
 curl -X POST http://127.0.0.1:8000/api/v1/health/weight \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108" \
+  -H "Authorization: Bearer REDACTED_TOKEN" \
   -d '{
     "log_date": "2026-04-23",
     "weight_kg": 64.70,
@@ -481,11 +481,11 @@ curl -X POST http://127.0.0.1:8000/api/v1/health/weight \
 Get logs
 curl http://127.0.0.1:8000/api/v1/health/weight \
   -H "Accept: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+  -H "Authorization: Bearer REDACTED_TOKEN"
 Get summary and trend analysis
 curl http://127.0.0.1:8000/api/v1/health/weight/summary \
   -H "Accept: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+  -H "Authorization: Bearer REDACTED_TOKEN"
 
 Expected response:
 

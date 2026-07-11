@@ -552,7 +552,7 @@ composer dump-autoload
 curl -X POST http://127.0.0.1:8000/api/v1/health/hydration \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108" \
+  -H "Authorization: Bearer REDACTED_TOKEN" \
   -d '{
     "log_date": "2026-04-26",
     "log_time": "09:30",
@@ -584,7 +584,7 @@ Expected result:
 curl -X POST http://127.0.0.1:8000/api/v1/health/hydration/quick-add \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108" \
+  -H "Authorization: Bearer REDACTED_TOKEN" \
   -d '{
     "amount_ml": 250,
     "drink_type": "water"
@@ -592,15 +592,15 @@ curl -X POST http://127.0.0.1:8000/api/v1/health/hydration/quick-add \
 7.3 Get Hydration Logs
 curl -X GET "http://127.0.0.1:8000/api/v1/health/hydration?date=2026-04-26" \
   -H "Accept: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+  -H "Authorization: Bearer REDACTED_TOKEN"
 7.4 Get Daily Summary
 curl -X GET "http://127.0.0.1:8000/api/v1/health/hydration/daily-summary?date=2026-04-26" \
   -H "Accept: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+  -H "Authorization: Bearer REDACTED_TOKEN"
 7.5 Get Weekly Summary
 curl -X GET "http://127.0.0.1:8000/api/v1/health/hydration/weekly-summary?start_date=2026-04-20&end_date=2026-04-26" \
   -H "Accept: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+  -H "Authorization: Bearer REDACTED_TOKEN"
 8. Frontend — Create View
 
 Go to frontend:
@@ -1317,7 +1317,7 @@ const token = localStorage.getItem("token");
 
 Open browser console and run:
 
-localStorage.setItem("token", "10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108");
+localStorage.setItem("token", "REDACTED_TOKEN");
 
 Then open:
 
@@ -1387,7 +1387,7 @@ Then test:
 curl -X POST http://127.0.0.1:8000/api/v1/health/hydration/quick-add \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108" \
+  -H "Authorization: Bearer REDACTED_TOKEN" \
   -d '{
     "amount_ml": 250,
     "drink_type": "water"
