@@ -55,3 +55,15 @@ backups/postgres/*.dump
 backups/**/*.log
 *.dump
 *.log
+
+# Local Bundle 7 exports and backups
+Bundle_7_*_Export/
+Bundle_7_*_Export.zip
+Bundle_7_Remediation_Patch_*/
+Bundle_7_Remediation_Patch_*.zip
+Bundle_7_Finalization_Patch_*/
+Bundle_7_Finalization_Patch_*.zip
+NixLifeOS_Architecture_Export/
+NixLifeOS_Architecture_Export.zip
+backups/
+*.bundle7-backup
