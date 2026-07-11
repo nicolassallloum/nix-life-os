@@ -28,6 +28,7 @@
           <!-- Drawer -->
           <Transition name="slide">
             <aside
+              v-if="sidebarOpen"
               class="relative z-50 h-full w-72 max-w-[85vw] overflow-y-auto border-r border-slate-800 bg-slate-900 shadow-2xl"
             >
               <div
