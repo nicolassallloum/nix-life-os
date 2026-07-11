@@ -560,7 +560,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/auth/register \
     "password_confirmation": "Valoores@bring11"
   }'
 
-10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108
+REDACTED_TOKEN
 
 curl -X POST http://127.0.0.1:8000/api/v1/auth/login \
   -H "Accept: application/json" \
@@ -573,12 +573,12 @@ curl -X POST http://127.0.0.1:8000/api/v1/auth/login \
 Get Health Profile
 curl http://127.0.0.1:8000/api/v1/health/profile \
   -H "Accept: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+  -H "Authorization: Bearer REDACTED_TOKEN"
 Update Health Profile
 curl -X PUT http://127.0.0.1:8000/api/v1/health/profile \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108" \
+  -H "Authorization: Bearer REDACTED_TOKEN" \
   -d '{
     "daily_steps_goal": 8000,
     "stride_length_cm": 75,
@@ -588,7 +588,7 @@ Add Daily Steps
 curl -X POST http://127.0.0.1:8000/api/v1/health/steps \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108" \
+  -H "Authorization: Bearer REDACTED_TOKEN" \
   -d '{
     "log_date": "2026-04-24",
     "steps_count": 6500,
@@ -597,11 +597,11 @@ curl -X POST http://127.0.0.1:8000/api/v1/health/steps \
 Get 30-Day History
 curl http://127.0.0.1:8000/api/v1/health/steps?days=30 \
   -H "Accept: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+  -H "Authorization: Bearer REDACTED_TOKEN"
 Get Summary
 curl http://127.0.0.1:8000/api/v1/health/steps/summary?days=30 \
   -H "Accept: application/json" \
-  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+  -H "Authorization: Bearer REDACTED_TOKEN"
 13. Frontend Structure
 
 Inside your Vue frontend, create:

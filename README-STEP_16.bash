@@ -477,7 +477,7 @@ composer dump-autoload
 
 Use your token:
 
-TOKEN="10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+TOKEN="REDACTED_TOKEN"
 Test full overview
 curl -X GET http://127.0.0.1:8000/api/v1/dashboard/overview \
   -H "Accept: application/json" \

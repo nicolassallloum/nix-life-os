@@ -97,7 +97,7 @@ GET       api/v1/projects/{project}/progressPOST      api/v1/projects/{project}/
 
 16. Test With Your TOKEN
 Set your values:
-TOKEN="10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"PROJECT_ID="019dc843-0add-73c8-bede-07761feba805"TASK_ID="019dc843-f8bc-7379-ae64-2711d9ea44e0"
+TOKEN="REDACTED_TOKEN"PROJECT_ID="019dc843-0add-73c8-bede-07761feba805"TASK_ID="019dc843-f8bc-7379-ae64-2711d9ea44e0"
 
 Test 1 — Add Milestone
 curl -X POST "http://127.0.0.1:8000/api/v1/projects/$PROJECT_ID/milestones" \  -H "Accept: application/json" \  -H "Content-Type: application/json" \  -H "Authorization: Bearer $TOKEN" \  -d '{    "milestone_name": "Project Progress Engine Completed",    "description": "Build auto progress calculation, milestones, and status updates.",    "target_date": "2026-04-30",    "status": "in_progress",    "progress_percentage": 50,    "weight": 2,    "metadata": {      "module": "Projects",      "phase": "Step 14"    }  }'

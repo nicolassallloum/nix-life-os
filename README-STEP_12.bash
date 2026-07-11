@@ -158,7 +158,7 @@ cd /u01/nix-life-os/analyticssource venv/bin/activateuvicorn app.main:app --host
 In another terminal:
 cd /u01/nix-life-os/backend
 Run:
-curl -X POST http://127.0.0.1:8000/api/v1/health/analytics/daily \  -H "Accept: application/json" \  -H "Content-Type: application/json" \  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108" \  -d '{    "target_date": "2026-04-26"  }'
+curl -X POST http://127.0.0.1:8000/api/v1/health/analytics/daily \  -H "Accept: application/json" \  -H "Content-Type: application/json" \  -H "Authorization: Bearer REDACTED_TOKEN" \  -d '{    "target_date": "2026-04-26"  }'
 Expected response:
 {  "success": true,  "message": "Health analytics generated successfully.",  "data": {    "success": true,    "message": "Daily health analytics calculated successfully",    "health_score": 70,    "health_score_label": "Good",    "alerts": [],    "recommendations": []  }}
 
@@ -225,7 +225,7 @@ php artisan route:list | grep health/analytics
 Shows:
 POST api/v1/health/analytics/daily
 This works:
-curl -X POST http://127.0.0.1:8000/api/v1/health/analytics/daily \  -H "Accept: application/json" \  -H "Content-Type: application/json" \  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108" \  -d '{    "target_date": "2026-04-26"  }'
+curl -X POST http://127.0.0.1:8000/api/v1/health/analytics/daily \  -H "Accept: application/json" \  -H "Content-Type: application/json" \  -H "Authorization: Bearer REDACTED_TOKEN" \  -d '{    "target_date": "2026-04-26"  }'
 And returns:
 {  "success": true,  "message": "Health analytics generated successfully."}
 

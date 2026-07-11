@@ -105,7 +105,7 @@ php artisan optimize:clearcomposer dump-autoload
 
 13. Test API — Create Project
 Use your token:
-TOKEN="10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+TOKEN="REDACTED_TOKEN"
   Task_id : 019dc843-f8bc-7379-ae64-2711d9ea44e0
   Project_id =019dc843-0add-73c8-bede-07761feba805
 

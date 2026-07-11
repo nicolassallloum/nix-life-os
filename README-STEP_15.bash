@@ -65,7 +65,7 @@ http://localhost:5173/projects
 Your frontend expects the token in:
 localStorage.getItem("token")
 So in browser console, add your token:
-localStorage.setItem("token", "10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108");
+localStorage.setItem("token", "REDACTED_TOKEN");
 Then refresh:
 http://localhost:5173/projects
 
@@ -79,7 +79,7 @@ POST /api/v1/projects/{project}/progress/recalculate
 
 13. Test API First
 Run:
-curl http://127.0.0.1:8000/api/v1/projects \  -H "Accept: application/json" \  -H "Authorization: Bearer 10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108"
+curl http://127.0.0.1:8000/api/v1/projects \  -H "Accept: application/json" \  -H "Authorization: Bearer REDACTED_TOKEN"
 You should see something like:
 {  "success": true,  "data": [    {      "id": "019dc843-0add-73c8-bede-07761feba805",      "project_name": "NIX LIFE OS",      "project_code": "NIX-OS",      "description": "Personal operating system including finance, health, projects, and AI modules.",      "status": "in_progress",      "priority": "critical",      "progress_percentage": 35,      "start_date": "2026-04-26",      "target_end_date": "2026-12-31"    }  ]}
 

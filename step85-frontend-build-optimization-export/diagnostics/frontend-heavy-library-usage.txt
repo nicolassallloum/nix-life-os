@@ -101,7 +101,7 @@
 /u01/nix-life-os/frontend/src/views/health/MoodTrackingView.vue:.empty-chart {
 /u01/nix-life-os/frontend/src/views/health/SleepTrackingView.vue:    <!-- Sleep Trend Chart -->
 /u01/nix-life-os/frontend/src/views/health/SleepTrackingView.vue:        <h2 class="text-lg font-semibold text-slate-900">Sleep Trend Chart</h2>
-/u01/nix-life-os/frontend/src/views/health/HealthNutritionView.vue:const token = localStorage.getItem("token") || "10|sOYzZHarB8HyP8YKoi2AC6lkhoOAwZHEZYZvwaoGd3793108";
+/u01/nix-life-os/frontend/src/views/health/HealthNutritionView.vue:const token = localStorage.getItem("token") || "REDACTED_TOKEN";
 /u01/nix-life-os/frontend/src/views/health/LabTestsTrackingView.vue:            Records loaded for chart-ready trend endpoint:
 /u01/nix-life-os/frontend/src/views/health/LabTestsTrackingView.vue:    trendData.value = response.data?.data?.chart || [];
 /u01/nix-life-os/frontend/src/views/LifeBalanceView.vue:            Simple visual radar-style summary without external chart dependency.
